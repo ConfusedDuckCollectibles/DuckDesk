@@ -575,6 +575,39 @@ h3 {
   gap: 8px;
 }
 
+.gif-control-group {
+  display: grid;
+  gap: 8px;
+}
+
+.gif-control-group > span {
+  color: rgba(237, 247, 255, 0.72);
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gif-control-group > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gif-control-group button {
+  height: 34px;
+  min-width: 70px;
+  padding: 0 10px;
+  color: #dff9ff;
+  font-size: 12px;
+}
+
+.gif-control-group button.is-active {
+  border-color: rgba(255, 207, 97, 0.9);
+  color: #071014;
+  background: linear-gradient(135deg, #ffcf61, #34e7ff);
+}
+
 .gif-preview-row span {
   min-height: 54px;
   display: grid;
@@ -613,7 +646,23 @@ h3 {
 }
 
 .custom-gif-chip {
+  display: inline-flex;
+  max-width: 260px;
+  min-height: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 207, 97, 0.38);
+  border-radius: 8px;
+  background: rgba(255, 207, 97, 0.14);
+}
+
+.custom-gif-chip button {
   height: 34px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.custom-gif-chip button:first-child {
   max-width: 160px;
   padding: 0 10px;
   overflow: hidden;
@@ -622,6 +671,12 @@ h3 {
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.custom-gif-chip .remove-gif {
+  width: 72px;
+  color: #ffb4cc;
+  font-size: 11px;
 }
 
 button {

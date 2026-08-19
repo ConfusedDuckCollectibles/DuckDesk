@@ -3,9 +3,12 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   isOverlayConfigMessage,
   isOverlayClearMessage,
+  isOverlayGifTriggerMessage,
   isShowEvent,
   type AddOnId,
   type BridgeMessage,
+  type GifPlacement,
+  type GifSize,
   type OverlaySkin,
   type OverlayTheme,
   type ShowEvent
@@ -23,6 +26,10 @@ const activeAddOns = ref<AddOnId[]>([]);
 const soundsEnabled = ref(true);
 const streamTitle = ref("");
 const customGifUrls = ref<string[]>([]);
+const gifPlacement = ref<GifPlacement>("center");
+const gifSize = ref<GifSize>("medium");
+const manualGifUrl = ref("");
+const manualGifTimestamp = ref(0);
 const buyerTotals = ref<Record<string, number>>({});
 const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
@@ -44,6 +51,9 @@ const activeGif = computed(() => {
 
   return selectGif("/gifs/chat-spark.gif", event.timestamp);
 });
+const displayedGif = computed(() => manualGifUrl.value || activeGif.value);
+const gifPositionClass = computed(() => `gif-position-${gifPlacement.value}`);
+const gifSizeClass = computed(() => `gif-size-${gifSize.value}`);
 const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
 const topBuyers = computed(() => (
   Object.entries(buyerTotals.value)
@@ -54,12 +64,14 @@ const topBuyers = computed(() => (
 let socket: WebSocket | null = null;
 let reconnectTimer: number | undefined;
 let dismissTimer: number | undefined;
+let manualGifTimer: number | undefined;
 let audioContext: AudioContext | undefined;
 
 onMounted(connect);
 onBeforeUnmount(() => {
   window.clearTimeout(reconnectTimer);
   window.clearTimeout(dismissTimer);
+  window.clearTimeout(manualGifTimer);
   socket?.close();
 });
 
@@ -90,6 +102,13 @@ function connect(): void {
       soundsEnabled.value = parsed.soundsEnabled;
       streamTitle.value = parsed.streamTitle;
       customGifUrls.value = parsed.customGifUrls;
+      gifPlacement.value = parsed.gifPlacement;
+      gifSize.value = parsed.gifSize;
+      return;
+    }
+
+    if (isOverlayGifTriggerMessage(parsed)) {
+      triggerManualGif(parsed.url, parsed.timestamp);
       return;
     }
 
@@ -149,6 +168,7 @@ function parseMessage(data: unknown): BridgeMessage | null {
       isShowEvent(parsed) ||
       isOverlayConfigMessage(parsed) ||
       isOverlayClearMessage(parsed) ||
+      isOverlayGifTriggerMessage(parsed) ||
       (typeof parsed === "object" && parsed !== null && "type" in parsed && parsed.type === "connected")
     ) {
       return parsed as BridgeMessage;
@@ -165,7 +185,10 @@ function clearOverlayData(): void {
   recentEvents.value = [];
   buyerTotals.value = {};
   burstKey.value = 0;
+  manualGifUrl.value = "";
+  manualGifTimestamp.value = 0;
   window.clearTimeout(dismissTimer);
+  window.clearTimeout(manualGifTimer);
 }
 
 function hasAddOn(addOn: AddOnId): boolean {
@@ -212,6 +235,20 @@ function selectGif(fallback: string, timestamp: number): string {
 
   return customGifUrls.value[Math.abs(timestamp) % customGifUrls.value.length] ?? fallback;
 }
+
+function triggerManualGif(url: string, timestamp: number): void {
+  if (!hasAddOn("gif_reactions")) {
+    return;
+  }
+
+  manualGifUrl.value = url;
+  manualGifTimestamp.value = timestamp;
+  window.clearTimeout(manualGifTimer);
+  manualGifTimer = window.setTimeout(() => {
+    manualGifUrl.value = "";
+    manualGifTimestamp.value = 0;
+  }, 3600);
+}
 </script>
 
 <template>
@@ -230,10 +267,11 @@ function selectGif(fallback: string, timestamp: number): string {
       <span />
     </div>
     <img
-      v-if="hasAddOn('gif_reactions') && activeGif"
-      :key="`gif-img-${recentEvents[0]?.timestamp}`"
+      v-if="hasAddOn('gif_reactions') && displayedGif"
+      :key="`gif-img-${manualGifTimestamp || recentEvents[0]?.timestamp}`"
       class="reaction-gif"
-      :src="activeGif"
+      :class="[gifPositionClass, gifSizeClass]"
+      :src="displayedGif"
       alt=""
       referrerpolicy="no-referrer"
       aria-hidden="true"

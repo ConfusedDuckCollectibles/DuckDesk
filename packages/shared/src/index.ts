@@ -24,6 +24,8 @@ export interface AudienceActionEvent {
 
 export type OverlayTheme = "neon" | "arena" | "duck";
 export type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
+export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
+export type GifSize = "small" | "medium" | "large";
 export type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -40,6 +42,8 @@ export interface OverlayConfigMessage {
   soundsEnabled: boolean;
   streamTitle: string;
   customGifUrls: string[];
+  gifPlacement: GifPlacement;
+  gifSize: GifSize;
   timestamp: number;
 }
 
@@ -53,8 +57,19 @@ export interface OverlayClearMessage {
   timestamp: number;
 }
 
+export interface OverlayGifTriggerMessage {
+  type: "gif_trigger";
+  url: string;
+  timestamp: number;
+}
+
 export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent;
-export type BridgeMessage = ShowEvent | OverlayConfigMessage | ConnectedMessage | OverlayClearMessage;
+export type BridgeMessage =
+  | ShowEvent
+  | OverlayConfigMessage
+  | ConnectedMessage
+  | OverlayClearMessage
+  | OverlayGifTriggerMessage;
 
 export function normalizeShowEvent(input: unknown): ShowEvent {
   if (!isRecord(input)) {
@@ -117,7 +132,9 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     typeof value.soundsEnabled === "boolean" &&
     typeof value.streamTitle === "string" &&
     Array.isArray(value.customGifUrls) &&
-    value.customGifUrls.every((url) => typeof url === "string")
+    value.customGifUrls.every((url) => typeof url === "string") &&
+    isGifPlacement(value.gifPlacement) &&
+    isGifSize(value.gifSize)
   );
 }
 
@@ -129,8 +146,25 @@ export function isOverlayClearMessage(value: unknown): value is OverlayClearMess
   return isRecord(value) && value.type === "overlay_clear";
 }
 
+export function isOverlayGifTriggerMessage(value: unknown): value is OverlayGifTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "gif_trigger" &&
+    typeof value.url === "string" &&
+    typeof value.timestamp === "number"
+  );
+}
+
 export function isOverlaySkin(value: unknown): value is OverlaySkin {
   return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+}
+
+export function isGifPlacement(value: unknown): value is GifPlacement {
+  return value === "center" || value === "top" || value === "bottom" || value === "left" || value === "right";
+}
+
+export function isGifSize(value: unknown): value is GifSize {
+  return value === "small" || value === "medium" || value === "large";
 }
 
 export function isAddOnId(value: unknown): value is AddOnId {

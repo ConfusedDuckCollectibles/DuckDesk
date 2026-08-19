@@ -15,9 +15,13 @@ import {
 import { WebSocket, WebSocketServer } from "ws";
 import {
   isAddOnId,
+  isGifPlacement,
+  isGifSize,
   isOverlaySkin,
   isOverlayTheme,
   type AddOnId,
+  type GifPlacement,
+  type GifSize,
   type OverlaySkin,
   normalizeShowEvent,
   type OverlayTheme,
@@ -46,6 +50,8 @@ let soundsEnabled = true;
 let demoMode = false;
 let streamTitle = "";
 let customGifUrls: string[] = [];
+let gifPlacement: GifPlacement = "center";
+let gifSize: GifSize = "medium";
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -353,6 +359,32 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:trigger-gif", (_event, url: unknown) => {
+    const selectedUrl = typeof url === "string" ? normalizeGifUrl(url) : customGifUrls[0] ?? "/gifs/chat-spark.gif";
+    if (!selectedUrl) {
+      return getStatus();
+    }
+
+    activeAddOns.add("gif_reactions");
+    broadcast(createOverlayConfig());
+    broadcast(createOverlayGifTrigger(selectedUrl));
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-gif-settings", (_event, placement: unknown, size: unknown) => {
+    if (isGifPlacement(placement)) {
+      gifPlacement = placement;
+    }
+    if (isGifSize(size)) {
+      gifSize = size;
+    }
+
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
@@ -434,6 +466,20 @@ function applyConfigPatch(input: unknown): void {
     }
     customGifUrls = [...new Set(normalizedUrls as string[])].slice(0, 12);
   }
+
+  if ("gifPlacement" in input) {
+    if (!isGifPlacement(input.gifPlacement)) {
+      throw new Error("Invalid GIF placement.");
+    }
+    gifPlacement = input.gifPlacement;
+  }
+
+  if ("gifSize" in input) {
+    if (!isGifSize(input.gifSize)) {
+      throw new Error("Invalid GIF size.");
+    }
+    gifSize = input.gifSize;
+  }
 }
 
 function playEventSound(event: ShowEvent): void {
@@ -459,7 +505,13 @@ function playEventSound(event: ShowEvent): void {
   }
 }
 
-function broadcast(event: ShowEvent | ReturnType<typeof createOverlayConfig> | ReturnType<typeof createOverlayClear>): void {
+function broadcast(
+  event:
+    | ShowEvent
+    | ReturnType<typeof createOverlayConfig>
+    | ReturnType<typeof createOverlayClear>
+    | ReturnType<typeof createOverlayGifTrigger>
+): void {
   const payload = JSON.stringify(event);
 
   for (const client of clients) {
@@ -489,6 +541,8 @@ function getStatus(): {
   demoMode: boolean;
   streamTitle: string;
   customGifUrls: string[];
+  gifPlacement: GifPlacement;
+  gifSize: GifSize;
   lastError?: string;
 } {
   return {
@@ -507,6 +561,8 @@ function getStatus(): {
     demoMode,
     streamTitle,
     customGifUrls,
+    gifPlacement,
+    gifSize,
     lastError
   };
 }
@@ -519,6 +575,8 @@ function createOverlayConfig(): {
   soundsEnabled: boolean;
   streamTitle: string;
   customGifUrls: string[];
+  gifPlacement: GifPlacement;
+  gifSize: GifSize;
   timestamp: number;
 } {
   return {
@@ -529,6 +587,20 @@ function createOverlayConfig(): {
     soundsEnabled,
     streamTitle,
     customGifUrls,
+    gifPlacement,
+    gifSize,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayGifTrigger(url: string): {
+  type: "gif_trigger";
+  url: string;
+  timestamp: number;
+} {
+  return {
+    type: "gif_trigger",
+    url,
     timestamp: Date.now()
   };
 }

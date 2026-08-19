@@ -16,11 +16,15 @@ type DesktopStatus = {
   demoMode: boolean;
   streamTitle: string;
   customGifUrls: string[];
+  gifPlacement: GifPlacement;
+  gifSize: GifSize;
   lastError?: string;
 };
 
 type OverlayTheme = "neon" | "arena" | "duck";
 type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
+type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
+type GifSize = "small" | "medium" | "large";
 type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -45,6 +49,8 @@ type DesktopApi = {
   setStreamTitle: (title: string) => Promise<DesktopStatus>;
   addCustomGif: (url: string) => Promise<DesktopStatus>;
   removeCustomGif: (url: string) => Promise<DesktopStatus>;
+  triggerGif: (url?: string) => Promise<DesktopStatus>;
+  setGifSettings: (placement: GifPlacement, size: GifSize) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -92,6 +98,7 @@ const soundStatus = readElement<HTMLElement>("sound-status");
 const gifUrl = readElement<HTMLInputElement>("gif-url");
 const addGifUrl = readElement<HTMLButtonElement>("add-gif-url");
 const gifUrlStatus = readElement<HTMLElement>("gif-url-status");
+const triggerGif = readElement<HTMLButtonElement>("trigger-gif");
 const customGifList = readElement<HTMLElement>("custom-gif-list");
 const soundToggles = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-toggle]"));
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
@@ -100,6 +107,8 @@ const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-add
 const addonThemeCards = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-theme]"));
 const addonTestActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-test]"));
 const skinActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-skin]"));
+const gifPlacementActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gif-placement]"));
+const gifSizeActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gif-size]"));
 
 let audioContext: AudioContext | undefined;
 let currentStatus: DesktopStatus | undefined;
@@ -136,6 +145,12 @@ gifUrl.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     void addGifFromInput();
   }
+});
+
+triggerGif.addEventListener("click", async () => {
+  const status = await window.duckDesk.triggerGif();
+  renderStatus(status);
+  setGifStatus("Triggered on the overlay.", "ok");
 });
 
 openOverlay.addEventListener("click", () => {
@@ -211,6 +226,26 @@ for (const action of skinActions) {
   });
 }
 
+for (const action of gifPlacementActions) {
+  action.addEventListener("click", async () => {
+    const placement = action.dataset.gifPlacement;
+    const size = currentStatus?.gifSize ?? "medium";
+    if (isGifPlacement(placement)) {
+      renderStatus(await window.duckDesk.setGifSettings(placement, size));
+    }
+  });
+}
+
+for (const action of gifSizeActions) {
+  action.addEventListener("click", async () => {
+    const size = action.dataset.gifSize;
+    const placement = currentStatus?.gifPlacement ?? "center";
+    if (isGifSize(size)) {
+      renderStatus(await window.duckDesk.setGifSettings(placement, size));
+    }
+  });
+}
+
 for (const soundToggle of soundToggles) {
   soundToggle.addEventListener("click", async () => {
     const enabled = !(currentStatus?.soundsEnabled ?? true);
@@ -274,6 +309,12 @@ function renderStatus(status: DesktopStatus): void {
   for (const action of addonTestActions) {
     action.disabled = !status.demoMode;
     action.title = status.demoMode ? "" : "Turn on Demo Mode to preview this effect.";
+  }
+  for (const action of gifPlacementActions) {
+    action.classList.toggle("is-active", action.dataset.gifPlacement === status.gifPlacement);
+  }
+  for (const action of gifSizeActions) {
+    action.classList.toggle("is-active", action.dataset.gifSize === status.gifSize);
   }
 
   for (const card of themeCards) {
@@ -378,6 +419,14 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
   return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
 }
 
+function isGifPlacement(value: unknown): value is GifPlacement {
+  return value === "center" || value === "top" || value === "bottom" || value === "left" || value === "right";
+}
+
+function isGifSize(value: unknown): value is GifSize {
+  return value === "small" || value === "medium" || value === "large";
+}
+
 function renderCustomGifs(urls: string[]): void {
   customGifList.replaceChildren();
 
@@ -390,14 +439,30 @@ function renderCustomGifs(urls: string[]): void {
   }
 
   for (const url of urls) {
-    const chip = document.createElement("button");
-    chip.type = "button";
+    const chip = document.createElement("span");
     chip.className = "custom-gif-chip";
-    chip.textContent = compactUrl(url);
-    chip.title = url;
-    chip.addEventListener("click", () => {
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.textContent = compactUrl(url);
+    trigger.title = `Trigger ${url}`;
+    trigger.addEventListener("click", () => {
+      void window.duckDesk.triggerGif(url).then((status) => {
+        renderStatus(status);
+        setGifStatus("Triggered on the overlay.", "ok");
+      });
+    });
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "remove-gif";
+    remove.textContent = "Remove";
+    remove.title = `Remove ${url}`;
+    remove.addEventListener("click", () => {
       void window.duckDesk.removeCustomGif(url).then(renderStatus);
     });
+
+    chip.append(trigger, remove);
     customGifList.append(chip);
   }
 }
@@ -419,7 +484,7 @@ async function addGifFromInput(): Promise<void> {
 
   if (addedOrMatched) {
     gifUrl.value = "";
-    setGifStatus("Saved. It will pop on the next bid, sale, or audience event.", "ok");
+    setGifStatus("Saved. Use Trigger GIF or click its chip to fire it.", "ok");
     return;
   }
 
