@@ -292,7 +292,7 @@ The Mac app includes a Library section with add-ons that update the live overlay
 - `Hype Bursts` adds screen-edge flashes when audience or auction events hit.
 - `Leaderboard Deck` adds a top buyer panel from detected sales.
 
-Click `Add` in the Library, then watch OBS. The overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.
+Click `Add` in the Library, then watch the `Active Add-Ons` section in the Mac app and the OBS overlay. The app loads add-on controls immediately, and the overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.
 
 ## Install
 

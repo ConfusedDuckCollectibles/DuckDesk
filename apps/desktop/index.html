@@ -136,6 +136,71 @@
           </div>
         </section>
 
+        <section class="active-addons-panel">
+          <div class="section-heading">
+            <h2>Active Add-Ons</h2>
+            <span id="active-addons-status">None Loaded</span>
+          </div>
+          <div id="active-addons-empty" class="empty-addons">
+            Add something from the Library to load controls here and onto the OBS overlay.
+          </div>
+          <div class="active-addons-grid">
+            <article class="addon-module module-skins" data-addon-panel="stream_skins" hidden>
+              <div class="module-header">
+                <span>Skin Pack</span>
+                <strong>100+ Stream Skins</strong>
+              </div>
+              <div class="skin-options" aria-label="Stream skin previews">
+                <span class="skin-chip cyber">Cyber Market</span>
+                <span class="skin-chip arcade">Arcade Drop</span>
+                <span class="skin-chip sports">Sports Desk</span>
+              </div>
+            </article>
+
+            <article class="addon-module module-audio" data-addon-panel="noise_machines" hidden>
+              <div class="module-header">
+                <span>Audio</span>
+                <strong>Noise Machines</strong>
+              </div>
+              <div class="sound-pad">
+                <button type="button" data-addon-test="sale">Cash Hit</button>
+                <button type="button" data-addon-test="bid">Bid Blip</button>
+                <button type="button" data-addon-test="action">Crowd Pop</button>
+              </div>
+            </article>
+
+            <article class="addon-module module-bid" data-addon-panel="bid_ladder" hidden>
+              <div class="module-header">
+                <span>Widget</span>
+                <strong>Bid Ladder</strong>
+              </div>
+              <div class="module-stat">
+                <span>Latest Bids</span>
+                <strong id="module-bids">0</strong>
+              </div>
+            </article>
+
+            <article class="addon-module module-hype" data-addon-panel="hype_bursts" hidden>
+              <div class="module-header">
+                <span>Effect</span>
+                <strong>Hype Bursts</strong>
+              </div>
+              <button type="button" class="module-command" data-addon-test="action">Trigger Burst</button>
+            </article>
+
+            <article class="addon-module module-leaderboard" data-addon-panel="leaderboard_deck" hidden>
+              <div class="module-header">
+                <span>Panel</span>
+                <strong>Leaderboard Deck</strong>
+              </div>
+              <div class="module-stat">
+                <span>Sales / Gross</span>
+                <strong id="module-leaderboard">$0</strong>
+              </div>
+            </article>
+          </div>
+        </section>
+
         <section class="log-panel">
           <div class="section-heading">
             <h2>Recent Events</h2>

@@ -101,7 +101,8 @@ input {
 .url-panel,
 .log-panel,
 .metric-card,
-.actions {
+.actions,
+.active-addons-panel {
   border: 1px solid rgba(159, 224, 255, 0.16);
   border-radius: 8px;
   background:
@@ -248,7 +249,8 @@ h2 {
 .url-panel,
 .log-panel,
 .theme-panel,
-.library-panel {
+.library-panel,
+.active-addons-panel {
   display: grid;
   gap: 12px;
   padding: 18px;
@@ -342,7 +344,8 @@ input {
   background: linear-gradient(135deg, #ffd84d, #ffffff 48%, #2842d8);
 }
 
-.library-grid {
+.library-grid,
+.active-addons-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
@@ -405,6 +408,118 @@ h3 {
 .addon-card.is-added .addon-action {
   color: #071014;
   background: #a5ffcb;
+}
+
+.empty-addons {
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(159, 224, 255, 0.24);
+  border-radius: 8px;
+  color: rgba(237, 247, 255, 0.6);
+  background: rgba(1, 8, 11, 0.34);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.addon-module {
+  min-height: 166px;
+  display: grid;
+  align-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(52, 231, 255, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(52, 231, 255, 0.12), rgba(255, 207, 97, 0.06)),
+    rgba(4, 11, 16, 0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 26px rgba(52, 231, 255, 0.08);
+}
+
+.addon-module[hidden],
+.empty-addons[hidden] {
+  display: none;
+}
+
+.module-skins {
+  grid-column: span 2;
+}
+
+.module-header {
+  display: grid;
+  gap: 7px;
+}
+
+.module-header span,
+.module-stat span {
+  color: #34e7ff;
+  font-size: 12px;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.module-header strong {
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.05;
+}
+
+.skin-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skin-chip {
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: #071014;
+  font-size: 12px;
+  font-weight: 1000;
+}
+
+.skin-chip.cyber {
+  background: linear-gradient(135deg, #34e7ff, #ff5bd6);
+}
+
+.skin-chip.arcade {
+  background: linear-gradient(135deg, #ffcf61, #a5ffcb);
+}
+
+.skin-chip.sports {
+  background: linear-gradient(135deg, #ffffff, #34e7ff);
+}
+
+.sound-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sound-pad button {
+  height: 38px;
+  font-size: 12px;
+}
+
+.module-stat {
+  display: grid;
+  gap: 8px;
+}
+
+.module-stat strong {
+  color: #a5ffcb;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.module-command {
+  width: 100%;
+  color: #071014;
+  background: linear-gradient(135deg, #ff5bd6, #ffcf61);
 }
 
 button {
@@ -485,5 +600,13 @@ li {
 
   .library-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .active-addons-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .module-skins {
+    grid-column: span 2;
   }
 }

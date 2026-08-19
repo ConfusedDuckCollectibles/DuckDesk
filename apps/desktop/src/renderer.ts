@@ -53,8 +53,14 @@ const sendBid = readElement<HTMLButtonElement>("send-bid");
 const sendAction = readElement<HTMLButtonElement>("send-action");
 const activeThemeLabel = readElement<HTMLElement>("active-theme-label");
 const libraryStatus = readElement<HTMLElement>("library-status");
+const activeAddonsStatus = readElement<HTMLElement>("active-addons-status");
+const activeAddonsEmpty = readElement<HTMLElement>("active-addons-empty");
+const moduleBids = readElement<HTMLElement>("module-bids");
+const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
+const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-panel]"));
+const addonTestActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-test]"));
 
 const dollars = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -113,6 +119,22 @@ for (const action of addonActions) {
   action.dataset.defaultLabel = action.textContent ?? "Add";
 }
 
+for (const action of addonTestActions) {
+  action.addEventListener("click", () => {
+    if (action.dataset.addonTest === "sale") {
+      void window.duckDesk.sendTestSale();
+      return;
+    }
+
+    if (action.dataset.addonTest === "bid") {
+      void window.duckDesk.sendTestBid();
+      return;
+    }
+
+    void window.duckDesk.sendTestAction();
+  });
+}
+
 window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
   const item = document.createElement("li");
@@ -135,6 +157,8 @@ function renderStatus(status: DesktopStatus): void {
   grossSales.textContent = dollars.format(status.grossSales);
   bidCount.textContent = String(status.bidCount);
   audienceCount.textContent = String(status.audienceActions);
+  moduleBids.textContent = String(status.bidCount);
+  moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
   activeThemeLabel.textContent = themeName(status.theme);
 
   for (const card of themeCards) {
@@ -172,6 +196,8 @@ function updateLibraryStatus(): void {
   const added = document.querySelectorAll(".addon-card.is-added").length;
   const total = addonActions.length;
   libraryStatus.textContent = added === 0 ? `${total} Available` : `${added} Added`;
+  activeAddonsStatus.textContent = added === 0 ? "None Loaded" : `${added} Loaded`;
+  activeAddonsEmpty.hidden = added > 0;
 }
 
 function renderAddOns(addOns: AddOnId[]): void {
@@ -185,6 +211,11 @@ function renderAddOns(addOns: AddOnId[]): void {
     const isAdded = addOns.includes(addOn);
     card.classList.toggle("is-added", isAdded);
     action.textContent = isAdded ? "Added" : action.dataset.defaultLabel ?? "Add";
+  }
+
+  for (const panel of addonPanels) {
+    const addOn = panel.dataset.addonPanel;
+    panel.hidden = !isAddOnId(addOn) || !addOns.includes(addOn);
   }
 
   updateLibraryStatus();
