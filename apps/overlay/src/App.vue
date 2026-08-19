@@ -35,23 +35,7 @@ const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
 const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
-const activeGif = computed(() => {
-  const event = recentEvents.value[0];
-  if (!event) {
-    return "";
-  }
-
-  if (event.type === "sale") {
-    return selectGif("/gifs/sale-pop.gif", event.timestamp);
-  }
-
-  if (event.type === "bid") {
-    return selectGif("/gifs/bid-pulse.gif", event.timestamp);
-  }
-
-  return selectGif("/gifs/chat-spark.gif", event.timestamp);
-});
-const displayedGif = computed(() => manualGifUrl.value || activeGif.value);
+const displayedGif = computed(() => manualGifUrl.value);
 const gifPositionClass = computed(() => `gif-position-${gifPlacement.value}`);
 const gifSizeClass = computed(() => `gif-size-${gifSize.value}`);
 const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
@@ -226,14 +210,6 @@ function playEventTone(event: ShowEvent): void {
   } catch {
     // OBS or the browser preview can block audio until user interaction.
   }
-}
-
-function selectGif(fallback: string, timestamp: number): string {
-  if (customGifUrls.value.length === 0) {
-    return fallback;
-  }
-
-  return customGifUrls.value[Math.abs(timestamp) % customGifUrls.value.length] ?? fallback;
 }
 
 function triggerManualGif(url: string, timestamp: number): void {

@@ -52,7 +52,7 @@ Set the Browser Source size to `1080 x 1920` for a phone-first Whatnot layout. U
 
 Because this prototype is not code-signed yet, macOS may require right-clicking the app and choosing Open the first time.
 
-Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` supports temporary external `.gif`, `.webp`, and Giphy page URLs that stay available in the app until Duck Desk is restarted. Saved GIFs can be renamed, triggered manually from the app, positioned center/top/bottom/left/right, sized small/medium/big, or fired by real bid, sale, and audience events.
+Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` supports temporary external `.gif`, `.webp`, and Giphy page URLs that stay available in the app until Duck Desk is restarted. Saved GIFs can be renamed, triggered manually from the app, positioned center/top/bottom/left/right, and sized small/medium/big.
 
 ## Full Whatnot Setup Guide
 
@@ -302,7 +302,7 @@ The Mac app includes a Library section with add-ons that update the live overlay
 - `Noise Machines` adds extra sound-pad controls for previewing sale, bid, and audience cues.
 - `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.
 - `Hype Bursts` adds screen-edge flashes and animated sticker-style loops when audience or auction events hit.
-- `GIF Reactions` adds local animated GIF stickers for sale, bid, and audience events.
+- `GIF Reactions` adds named animated GIF stickers that are triggered manually from the Mac app.
 - `Leaderboard Deck` adds a visible stream panel immediately, then fills with top buyers from detected sales.
 
 Click `Add` in the Library, then watch the `Active Add-Ons` section in the Mac app and the OBS overlay. The app loads add-on controls immediately, theme packs add new choices to the top theme picker, and the overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.

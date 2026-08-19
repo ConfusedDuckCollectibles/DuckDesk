@@ -521,7 +521,7 @@ async function addGifFromInput(): Promise<void> {
 
   if (addedOrMatched) {
     gifUrl.value = "";
-    setGifStatus("Saved. Use Trigger GIF or click its chip to fire it.", "ok");
+    setGifStatus("Saved. Use Trigger Latest GIF or a row Trigger button to fire it.", "ok");
     return;
   }
 
