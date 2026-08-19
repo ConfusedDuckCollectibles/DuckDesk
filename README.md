@@ -52,6 +52,8 @@ Set the Browser Source size to `1080 x 1920` for a phone-first Whatnot layout. U
 
 Because this prototype is not code-signed yet, macOS may require right-clicking the app and choosing Open the first time.
 
+Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` also supports temporary external `.gif` or `.webp` URLs that stay available in the app until Duck Desk is restarted.
+
 ## Full Whatnot Setup Guide
 
 This setup uses one phone-first OBS scene:

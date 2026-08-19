@@ -44,6 +44,8 @@ let activeSkin: OverlaySkin = "none";
 const activeAddOns = new Set<AddOnId>();
 let soundsEnabled = true;
 let demoMode = false;
+let streamTitle = "";
+let customGifUrls: string[] = [];
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -314,6 +316,43 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:set-stream-title", (_event, title: unknown) => {
+    if (typeof title !== "string") {
+      return getStatus();
+    }
+
+    streamTitle = sanitizeStreamTitle(title);
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:add-custom-gif", (_event, url: unknown) => {
+    if (typeof url !== "string" || !isAllowedGifUrl(url)) {
+      return getStatus();
+    }
+
+    const normalizedUrl = url.trim();
+    if (!customGifUrls.includes(normalizedUrl)) {
+      customGifUrls = [normalizedUrl, ...customGifUrls].slice(0, 12);
+    }
+    activeAddOns.add("gif_reactions");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:remove-custom-gif", (_event, url: unknown) => {
+    if (typeof url !== "string") {
+      return getStatus();
+    }
+
+    customGifUrls = customGifUrls.filter((gifUrl) => gifUrl !== url);
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
@@ -374,6 +413,23 @@ function applyConfigPatch(input: unknown): void {
     }
     soundsEnabled = input.soundsEnabled;
   }
+
+  if ("streamTitle" in input) {
+    if (typeof input.streamTitle !== "string") {
+      throw new Error("Invalid stream title.");
+    }
+    streamTitle = sanitizeStreamTitle(input.streamTitle);
+  }
+
+  if ("customGifUrls" in input) {
+    if (
+      !Array.isArray(input.customGifUrls) ||
+      !input.customGifUrls.every((url) => typeof url === "string" && isAllowedGifUrl(url))
+    ) {
+      throw new Error("Invalid custom GIF URL list.");
+    }
+    customGifUrls = [...new Set(input.customGifUrls.map((url) => url.trim()))].slice(0, 12);
+  }
 }
 
 function playEventSound(event: ShowEvent): void {
@@ -427,6 +483,8 @@ function getStatus(): {
   addOns: AddOnId[];
   soundsEnabled: boolean;
   demoMode: boolean;
+  streamTitle: string;
+  customGifUrls: string[];
   lastError?: string;
 } {
   return {
@@ -443,6 +501,8 @@ function getStatus(): {
     addOns: [...activeAddOns],
     soundsEnabled,
     demoMode,
+    streamTitle,
+    customGifUrls,
     lastError
   };
 }
@@ -453,6 +513,8 @@ function createOverlayConfig(): {
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  streamTitle: string;
+  customGifUrls: string[];
   timestamp: number;
 } {
   return {
@@ -461,6 +523,8 @@ function createOverlayConfig(): {
     skin: activeSkin,
     addOns: [...activeAddOns],
     soundsEnabled,
+    streamTitle,
+    customGifUrls,
     timestamp: Date.now()
   };
 }
@@ -505,4 +569,20 @@ function log(message: string): void {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function sanitizeStreamTitle(title: string): string {
+  return title.replace(/\s+/g, " ").trim().slice(0, 88);
+}
+
+function isAllowedGifUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.trim());
+    return (
+      (parsed.protocol === "https:" || parsed.protocol === "http:") &&
+      /\.(gif|webp)(?:$|[?#])/i.test(parsed.href)
+    );
+  } catch {
+    return false;
+  }
 }

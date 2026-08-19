@@ -55,6 +55,11 @@
               <button id="copy-url" type="button">Copy</button>
             </div>
             <p class="source-size">Use Browser Source size 1080 x 1920 for phone-first Whatnot streams.</p>
+            <label for="stream-title">Stream Title</label>
+            <div class="title-row">
+              <input id="stream-title" maxlength="88" placeholder="Surprise Sets with Confused Duck Collectibles" />
+              <button id="save-title" type="button">Apply</button>
+            </div>
           </section>
 
           <section class="actions">
@@ -219,6 +224,11 @@
                 <span>Media</span>
                 <strong>GIF Reactions</strong>
               </div>
+              <div class="gif-url-row">
+                <input id="gif-url" placeholder="Paste direct .gif or .webp URL" />
+                <button id="add-gif-url" type="button">Add</button>
+              </div>
+              <div id="custom-gif-list" class="custom-gif-list"></div>
               <div class="gif-preview-row" aria-label="GIF reaction previews">
                 <span>Sale Pop</span>
                 <span>Bid Pulse</span>

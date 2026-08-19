@@ -14,6 +14,8 @@ type DesktopStatus = {
   addOns: AddOnId[];
   soundsEnabled: boolean;
   demoMode: boolean;
+  streamTitle: string;
+  customGifUrls: string[];
   lastError?: string;
 };
 
@@ -40,6 +42,9 @@ type DesktopApi = {
   setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
   setSoundsEnabled: (enabled: boolean) => Promise<DesktopStatus>;
   setDemoMode: (enabled: boolean) => Promise<DesktopStatus>;
+  setStreamTitle: (title: string) => Promise<DesktopStatus>;
+  addCustomGif: (url: string) => Promise<DesktopStatus>;
+  removeCustomGif: (url: string) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -62,6 +67,8 @@ declare global {
 
 const statusPill = readElement<HTMLSpanElement>("status-pill");
 const overlayUrl = readElement<HTMLInputElement>("overlay-url");
+const streamTitle = readElement<HTMLInputElement>("stream-title");
+const saveTitle = readElement<HTMLButtonElement>("save-title");
 const clientCount = readElement<HTMLElement>("client-count");
 const salesCount = readElement<HTMLElement>("sales-count");
 const grossSales = readElement<HTMLElement>("gross-sales");
@@ -82,6 +89,9 @@ const activeAddonsEmpty = readElement<HTMLElement>("active-addons-empty");
 const moduleBids = readElement<HTMLElement>("module-bids");
 const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
 const soundStatus = readElement<HTMLElement>("sound-status");
+const gifUrl = readElement<HTMLInputElement>("gif-url");
+const addGifUrl = readElement<HTMLButtonElement>("add-gif-url");
+const customGifList = readElement<HTMLElement>("custom-gif-list");
 const soundToggles = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-toggle]"));
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
@@ -105,6 +115,31 @@ copyUrl.addEventListener("click", async () => {
   window.setTimeout(() => {
     copyUrl.textContent = "Copy";
   }, 1200);
+});
+
+saveTitle.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setStreamTitle(streamTitle.value));
+});
+
+streamTitle.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    void window.duckDesk.setStreamTitle(streamTitle.value).then(renderStatus);
+  }
+});
+
+addGifUrl.addEventListener("click", async () => {
+  const status = await window.duckDesk.addCustomGif(gifUrl.value);
+  gifUrl.value = "";
+  renderStatus(status);
+});
+
+gifUrl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    void window.duckDesk.addCustomGif(gifUrl.value).then((status) => {
+      gifUrl.value = "";
+      renderStatus(status);
+    });
+  }
 });
 
 openOverlay.addEventListener("click", () => {
@@ -215,6 +250,7 @@ function renderStatus(status: DesktopStatus): void {
   statusPill.textContent = status.ok ? "Running" : "Needs Attention";
   statusPill.classList.toggle("ok", status.ok);
   overlayUrl.value = status.overlayUrl;
+  streamTitle.value = status.streamTitle;
   clientCount.textContent = String(status.clients);
   salesCount.textContent = String(status.salesCount);
   grossSales.textContent = dollars.format(status.grossSales);
@@ -251,6 +287,7 @@ function renderStatus(status: DesktopStatus): void {
   }
 
   renderAddOns(status.addOns);
+  renderCustomGifs(status.customGifUrls);
 }
 
 function formatEventLog(event: ShowEventLog): string {
@@ -339,6 +376,31 @@ function isAddOnId(value: unknown): value is AddOnId {
 
 function isOverlaySkin(value: unknown): value is OverlaySkin {
   return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+}
+
+function renderCustomGifs(urls: string[]): void {
+  customGifList.replaceChildren();
+
+  for (const url of urls) {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "custom-gif-chip";
+    chip.textContent = compactUrl(url);
+    chip.title = url;
+    chip.addEventListener("click", () => {
+      void window.duckDesk.removeCustomGif(url).then(renderStatus);
+    });
+    customGifList.append(chip);
+  }
+}
+
+function compactUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.replace(/^www\./, "");
+  } catch {
+    return url.slice(0, 28);
+  }
 }
 
 function playLocalTone(kind: "sale" | "bid" | "action"): void {

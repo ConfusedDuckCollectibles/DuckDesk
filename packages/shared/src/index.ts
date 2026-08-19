@@ -38,6 +38,8 @@ export interface OverlayConfigMessage {
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  streamTitle: string;
+  customGifUrls: string[];
   timestamp: number;
 }
 
@@ -112,7 +114,10 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     isOverlaySkin(value.skin) &&
     Array.isArray(value.addOns) &&
     value.addOns.every(isAddOnId) &&
-    typeof value.soundsEnabled === "boolean"
+    typeof value.soundsEnabled === "boolean" &&
+    typeof value.streamTitle === "string" &&
+    Array.isArray(value.customGifUrls) &&
+    value.customGifUrls.every((url) => typeof url === "string")
   );
 }
 

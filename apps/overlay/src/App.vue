@@ -21,6 +21,8 @@ const theme = ref<OverlayTheme>("neon");
 const skin = ref<OverlaySkin>("none");
 const activeAddOns = ref<AddOnId[]>([]);
 const soundsEnabled = ref(true);
+const streamTitle = ref("");
+const customGifUrls = ref<string[]>([]);
 const buyerTotals = ref<Record<string, number>>({});
 const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
@@ -33,14 +35,14 @@ const activeGif = computed(() => {
   }
 
   if (event.type === "sale") {
-    return "/gifs/sale-pop.gif";
+    return selectGif("/gifs/sale-pop.gif", event.timestamp);
   }
 
   if (event.type === "bid") {
-    return "/gifs/bid-pulse.gif";
+    return selectGif("/gifs/bid-pulse.gif", event.timestamp);
   }
 
-  return "/gifs/chat-spark.gif";
+  return selectGif("/gifs/chat-spark.gif", event.timestamp);
 });
 const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
 const topBuyers = computed(() => (
@@ -86,6 +88,8 @@ function connect(): void {
       skin.value = parsed.skin;
       activeAddOns.value = parsed.addOns;
       soundsEnabled.value = parsed.soundsEnabled;
+      streamTitle.value = parsed.streamTitle;
+      customGifUrls.value = parsed.customGifUrls;
       return;
     }
 
@@ -200,6 +204,14 @@ function playEventTone(event: ShowEvent): void {
     // OBS or the browser preview can block audio until user interaction.
   }
 }
+
+function selectGif(fallback: string, timestamp: number): string {
+  if (customGifUrls.value.length === 0) {
+    return fallback;
+  }
+
+  return customGifUrls.value[Math.abs(timestamp) % customGifUrls.value.length] ?? fallback;
+}
 </script>
 
 <template>
@@ -209,6 +221,14 @@ function playEventTone(event: ShowEvent): void {
     aria-live="polite"
   >
     <div class="overlay-frame" aria-hidden="true" />
+    <div class="sparkle-field" aria-hidden="true">
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
     <img
       v-if="hasAddOn('gif_reactions') && activeGif"
       :key="`gif-img-${recentEvents[0]?.timestamp}`"
@@ -247,8 +267,14 @@ function playEventTone(event: ShowEvent): void {
     </div>
     <section class="show-hud">
       <div class="hud-brand">
-        <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
-        <strong>DUCK DESK</strong>
+        <span class="live-cluster">
+          <i class="live-light" :class="{ connected }" />
+          <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
+        </span>
+        <span class="brand-stack">
+          <strong>DUCK DESK</strong>
+          <em v-if="streamTitle">{{ streamTitle }}</em>
+        </span>
       </div>
       <div v-if="activeAddOns.length > 0" class="addon-strip">
         <span v-if="hasAddOn('stream_skins')">skin pack</span>

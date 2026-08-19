@@ -13,6 +13,9 @@ contextBridge.exposeInMainWorld("duckDesk", {
   setAddOn: (addOn: unknown, enabled: unknown) => ipcRenderer.invoke("duck-desk:set-addon", addOn, enabled),
   setSoundsEnabled: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-sounds-enabled", enabled),
   setDemoMode: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-demo-mode", enabled),
+  setStreamTitle: (title: unknown) => ipcRenderer.invoke("duck-desk:set-stream-title", title),
+  addCustomGif: (url: unknown) => ipcRenderer.invoke("duck-desk:add-custom-gif", url),
+  removeCustomGif: (url: unknown) => ipcRenderer.invoke("duck-desk:remove-custom-gif", url),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));
   },

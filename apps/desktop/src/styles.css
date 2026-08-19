@@ -263,7 +263,9 @@ label {
   text-transform: uppercase;
 }
 
-.url-row {
+.url-row,
+.title-row,
+.gif-url-row {
   display: grid;
   grid-template-columns: 1fr 92px;
   gap: 10px;
@@ -584,6 +586,25 @@ h3 {
   font-size: 12px;
   font-weight: 1000;
   text-align: center;
+}
+
+.custom-gif-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.custom-gif-chip {
+  height: 34px;
+  max-width: 160px;
+  padding: 0 10px;
+  overflow: hidden;
+  color: #071014;
+  background: #ffcf61;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 button {
