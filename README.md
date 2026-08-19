@@ -243,7 +243,16 @@ Official Whatnot references:
 
 For V0, the Whatnot detection is intentionally DOM-based and conservative. If a real auction/sale state is not detected yet, use the Duck Desk test buttons while we tune the Whatnot adapter against the actual seller page.
 
-### 9. Layer Order In OBS
+### 9. Practice Bids Before A Public Show
+
+Whatnot has two useful practice paths:
+
+- `Rehearsal Mode` is the best path for simulated buyers and practice bids, when your seller account has access to it.
+- `Private Show` is useful for testing camera, OBS, audio, overlays, and seller tools, but purchases in a private show are real if someone joins and buys.
+
+Duck Desk can prove the OBS overlay, sound, and event animation path with its built-in test buttons. Real Whatnot bid/win detection still needs to be validated against the actual seller page DOM during Rehearsal Mode or a real/private show with bidding activity.
+
+### 10. Layer Order In OBS
 
 Your OBS sources should look roughly like this:
 
@@ -255,7 +264,7 @@ Background/Other         bottom
 
 The overlay is transparent except for its HUD, ticker, alerts, and effects.
 
-### 10. Troubleshooting
+### 11. Troubleshooting
 
 If nothing appears in OBS:
 

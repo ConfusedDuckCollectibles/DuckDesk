@@ -1,4 +1,4 @@
-import { normalizeSaleEvent, type ShowEvent } from "@duck-desk/shared";
+import { normalizeShowEvent, type ShowEvent } from "@duck-desk/shared";
 
 chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
   void handleMessage(message)
@@ -16,7 +16,7 @@ async function handleMessage(message: unknown): Promise<{ ok: boolean; error?: s
     return { ok: false, error: "Unsupported message." };
   }
 
-  const event = normalizeSaleEvent(message.event);
+  const event = normalizeShowEvent(message.event);
   await postEvent(event);
   return { ok: true };
 }

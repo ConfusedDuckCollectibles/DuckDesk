@@ -1,12 +1,14 @@
-import type { SaleEvent } from "@duck-desk/shared";
+import type { BidEvent, SaleEvent } from "@duck-desk/shared";
 
-type EmitSale = (event: SaleEvent) => void;
+type WhatnotDetectedEvent = SaleEvent | BidEvent;
+type EmitShowEvent = (event: WhatnotDetectedEvent) => void;
 
 const SALE_TEXT = /\b(sold|auction ended|winner|won)\b/i;
+const BID_TEXT = /\b(bid|bidder|current bid|high bid|placed a bid)\b/i;
 const PRICE_TEXT = /\$([0-9][0-9,]*(?:\.[0-9]{1,2})?)/;
 const USER_TEXT = /@([a-z0-9_.-]{2,32})/i;
 
-export function createWhatnotObserver(emitSale: EmitSale): { start: () => void; stop: () => void } {
+export function createWhatnotObserver(emitEvent: EmitShowEvent): { start: () => void; stop: () => void } {
   let observer: MutationObserver | null = null;
   const recentlySeen = new Set<string>();
 
@@ -18,19 +20,21 @@ export function createWhatnotObserver(emitSale: EmitSale): { start: () => void; 
     observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
-          const sale = parseNodeForSale(node);
-          if (!sale) {
+          const event = parseNodeForShowEvent(node);
+          if (!event) {
             continue;
           }
 
-          const signature = `${sale.buyer}:${sale.amount}:${sale.item ?? ""}`;
+          const signature = event.type === "sale"
+            ? `${event.type}:${event.buyer}:${event.amount}:${event.item ?? ""}`
+            : `${event.type}:${event.bidder}:${event.amount}:${event.item ?? ""}`;
           if (recentlySeen.has(signature)) {
             continue;
           }
 
           recentlySeen.add(signature);
           window.setTimeout(() => recentlySeen.delete(signature), 30_000);
-          emitSale(sale);
+          emitEvent(event);
         }
       }
     });
@@ -50,18 +54,22 @@ export function createWhatnotObserver(emitSale: EmitSale): { start: () => void; 
   return { start, stop };
 }
 
-function parseNodeForSale(node: Node): SaleEvent | null {
+function parseNodeForShowEvent(node: Node): WhatnotDetectedEvent | null {
   const element = node instanceof Element ? node : node.parentElement;
   if (!element) {
     return null;
   }
 
-  const scope = findLikelySaleScope(element);
+  const scope = findLikelyEventScope(element);
   if (!scope) {
     return null;
   }
 
   const text = collapseText(scope.textContent ?? "");
+  return parseSaleText(text) ?? parseBidText(text);
+}
+
+function parseSaleText(text: string): SaleEvent | null {
   if (!SALE_TEXT.test(text)) {
     return null;
   }
@@ -81,12 +89,32 @@ function parseNodeForSale(node: Node): SaleEvent | null {
   };
 }
 
-function findLikelySaleScope(element: Element): Element | null {
+function parseBidText(text: string): BidEvent | null {
+  if (SALE_TEXT.test(text) || !BID_TEXT.test(text)) {
+    return null;
+  }
+
+  const amount = extractAmount(text);
+  const bidder = extractBidder(text);
+  if (!amount || !bidder) {
+    return null;
+  }
+
+  return {
+    type: "bid",
+    bidder,
+    amount,
+    item: extractItem(text),
+    timestamp: Date.now()
+  };
+}
+
+function findLikelyEventScope(element: Element): Element | null {
   let current: Element | null = element;
 
   for (let depth = 0; current && depth < 4; depth += 1) {
     const text = collapseText(current.textContent ?? "");
-    if (text.length > 8 && text.length < 600 && SALE_TEXT.test(text)) {
+    if (text.length > 8 && text.length < 600 && (SALE_TEXT.test(text) || BID_TEXT.test(text))) {
       return current;
     }
     current = current.parentElement;
@@ -108,6 +136,16 @@ function extractBuyer(text: string): string | null {
 
   const winner = text.match(/(?:winner|won by|buyer)\s*:?\s*([a-z0-9_.-]{2,32})/i);
   return winner ? winner[1] : null;
+}
+
+function extractBidder(text: string): string | null {
+  const explicitUser = text.match(USER_TEXT);
+  if (explicitUser) {
+    return explicitUser[1];
+  }
+
+  const bidder = text.match(/(?:bidder|bid by|high bid|from)\s*:?\s*([a-z0-9_.-]{2,32})/i);
+  return bidder ? bidder[1] : null;
 }
 
 function extractItem(text: string): string | undefined {

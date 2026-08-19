@@ -54,19 +54,11 @@ const activeThemeLabel = computed(() => (
 ));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
 const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
+const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
 const topBuyers = computed(() => (
   Object.entries(buyerTotals.value)
     .sort((left, right) => right[1] - left[1])
     .slice(0, 3)
-));
-const leaderboardRows = computed<[string, number][]>(() => (
-  topBuyers.value.length > 0
-    ? topBuyers.value
-    : [
-      ["Buyer Slot", 0],
-      ["Next Sale", 0],
-      ["Show Goal", 0]
-    ]
 ));
 
 let socket: WebSocket | null = null;
@@ -248,10 +240,8 @@ function playEventTone(event: ShowEvent): void {
         <span v-if="hasAddOn('leaderboard_deck')">leaderboard</span>
       </div>
       <div class="ticker">
-        <span v-if="recentEvents.length === 0">Ready for bids, follows, chat hits, and sales</span>
         <span
           v-for="event in recentEvents"
-          v-else
           :key="`${event.type}-${event.timestamp}`"
           class="ticker-item"
         >
@@ -265,11 +255,11 @@ function playEventTone(event: ShowEvent): void {
     <section class="score-strip">
       <div>
         <span>Hype</span>
-        <strong>{{ Math.min(99, recentEvents.length * 18 + (connected ? 10 : 0)) }}</strong>
+        <strong>{{ hypeScore }}</strong>
       </div>
       <div>
         <span>Last</span>
-        <strong>{{ recentEvents[0]?.type ?? "idle" }}</strong>
+        <strong>{{ recentEvents[0]?.type ?? "-" }}</strong>
       </div>
       <div>
         <span>Mode</span>
@@ -284,19 +274,20 @@ function playEventTone(event: ShowEvent): void {
       <div v-if="hasAddOn('bid_ladder')" class="bid-ladder">
         <span>Bid Ladder</span>
         <strong v-if="latestBid && latestBid.type === 'bid'">@{{ latestBid.bidder }} ${{ latestBid.amount }}</strong>
-        <strong v-else>Ready</strong>
+        <strong v-else>-</strong>
         <small v-if="latestBid && latestBid.type === 'bid'">Next target ${{ latestBid.amount + 1 }}</small>
-        <small v-else>Waiting for the first bid</small>
+        <small v-else>No live bids detected</small>
       </div>
 
       <div v-if="hasAddOn('leaderboard_deck')" class="leaderboard-deck">
-        <span>{{ topBuyers.length > 0 ? "Top Buyers" : "Leaderboard Loaded" }}</span>
-        <ol>
-          <li v-for="[buyer, amount] in leaderboardRows" :key="buyer">
+        <span>Top Buyers</span>
+        <ol v-if="topBuyers.length > 0">
+          <li v-for="[buyer, amount] in topBuyers" :key="buyer">
             <strong>@{{ buyer }}</strong>
-            <em>{{ amount > 0 ? `$${amount}` : "ready" }}</em>
+            <em>${{ amount }}</em>
           </li>
         </ol>
+        <p v-else>No buyer data yet</p>
       </div>
     </section>
 
