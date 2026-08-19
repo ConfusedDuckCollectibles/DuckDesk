@@ -17,7 +17,7 @@ type DesktopStatus = {
 };
 
 type OverlayTheme = "neon" | "arena" | "duck";
-type OverlaySkin = "cyber_market" | "arcade_drop" | "sports_desk";
+type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
 type AddOnId = "stream_skins" | "noise_machines" | "bid_ladder" | "hype_bursts" | "leaderboard_deck";
 
 type DesktopApi = {
@@ -72,7 +72,8 @@ const activeAddonsStatus = readElement<HTMLElement>("active-addons-status");
 const activeAddonsEmpty = readElement<HTMLElement>("active-addons-empty");
 const moduleBids = readElement<HTMLElement>("module-bids");
 const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
-const soundToggle = readElement<HTMLButtonElement>("sound-toggle");
+const soundStatus = readElement<HTMLElement>("sound-status");
+const soundToggles = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-toggle]"));
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
 const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-panel]"));
@@ -135,7 +136,12 @@ for (const action of addonActions) {
     }
 
     const enabled = !card.classList.contains("is-added");
-    renderStatus(await window.duckDesk.setAddOn(addOn, enabled));
+    const status = await window.duckDesk.setAddOn(addOn, enabled);
+    renderStatus(status);
+    if (addOn === "noise_machines" && enabled && status.soundsEnabled) {
+      void resumeAudio();
+      playLocalTone("action");
+    }
   });
   action.dataset.defaultLabel = action.textContent ?? "Add";
 }
@@ -165,21 +171,20 @@ for (const action of skinActions) {
   });
 }
 
-soundToggle.addEventListener("click", async () => {
-  const enabled = !(currentStatus?.soundsEnabled ?? true);
-  renderStatus(await window.duckDesk.setSoundsEnabled(enabled));
-});
+for (const soundToggle of soundToggles) {
+  soundToggle.addEventListener("click", async () => {
+    const enabled = !(currentStatus?.soundsEnabled ?? true);
+    const status = await window.duckDesk.setSoundsEnabled(enabled);
+    renderStatus(status);
+    if (enabled) {
+      await resumeAudio();
+      playLocalTone("action");
+    }
+  });
+}
 
 window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
-  if (event.type === "sale") {
-    playEventToneIfEnabled("sale");
-  } else if (event.type === "bid") {
-    playEventToneIfEnabled("bid");
-  } else if (event.type === "audience_action") {
-    playEventToneIfEnabled("action");
-  }
-
   const item = document.createElement("li");
   item.textContent = formatEventLog(event);
   eventLog.prepend(item);
@@ -203,13 +208,19 @@ function renderStatus(status: DesktopStatus): void {
   audienceCount.textContent = String(status.audienceActions);
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
-  activeThemeLabel.textContent = themeName(status.theme);
-  soundToggle.textContent = status.soundsEnabled ? "Sound On" : "Sound Off";
-  soundToggle.classList.toggle("is-on", status.soundsEnabled);
-  soundToggle.setAttribute("aria-pressed", String(status.soundsEnabled));
+  activeThemeLabel.textContent = status.skin === "none" ? themeName(status.theme) : skinName(status.skin);
+  for (const soundToggle of soundToggles) {
+    const prefix = soundToggle.closest(".actions") ? "Event " : "";
+    soundToggle.textContent = status.soundsEnabled ? `${prefix}Sound On` : `${prefix}Sound Off`;
+    soundToggle.classList.toggle("is-on", status.soundsEnabled);
+    soundToggle.setAttribute("aria-pressed", String(status.soundsEnabled));
+  }
+  soundStatus.textContent = status.soundsEnabled
+    ? "Armed for bids, sales, and audience actions."
+    : "Muted. Event sounds are paused.";
 
   for (const card of themeCards) {
-    const isBaseTheme = card.dataset.theme === status.theme && !card.dataset.skin;
+    const isBaseTheme = card.dataset.theme === status.theme && !card.dataset.skin && status.skin === "none";
     const isSkinTheme = card.dataset.skin === status.skin && status.addOns.includes("stream_skins");
     card.classList.toggle("is-active", isBaseTheme || isSkinTheme);
   }
@@ -243,6 +254,22 @@ function themeName(theme: OverlayTheme): string {
   }
 
   return "Neon Circuit";
+}
+
+function skinName(skin: OverlaySkin): string {
+  if (skin === "arcade_drop") {
+    return "Arcade Drop";
+  }
+
+  if (skin === "sports_desk") {
+    return "Sports Desk";
+  }
+
+  if (skin === "cyber_market") {
+    return "Cyber Market";
+  }
+
+  return "No Skin";
 }
 
 function updateLibraryStatus(): void {
@@ -289,15 +316,7 @@ function isAddOnId(value: unknown): value is AddOnId {
 }
 
 function isOverlaySkin(value: unknown): value is OverlaySkin {
-  return value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
-}
-
-function playEventToneIfEnabled(kind: "sale" | "bid" | "action"): void {
-  if (!currentStatus?.addOns.includes("noise_machines") || !currentStatus.soundsEnabled) {
-    return;
-  }
-
-  playLocalTone(kind);
+  return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
 }
 
 function playLocalTone(kind: "sale" | "bid" | "action"): void {
@@ -319,6 +338,17 @@ function playLocalTone(kind: "sale" | "bid" | "action"): void {
     oscillator.stop(audioContext.currentTime + 0.26);
   } catch {
     // Some system audio routes can block Web Audio.
+  }
+}
+
+async function resumeAudio(): Promise<void> {
+  try {
+    audioContext ??= new AudioContext();
+    if (audioContext.state !== "running") {
+      await audioContext.resume();
+    }
+  } catch {
+    // Native app sounds still play from the main process.
   }
 }
 

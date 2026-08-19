@@ -17,7 +17,7 @@ const recentEvents = ref<ShowEvent[]>([]);
 const connected = ref(false);
 const reconnecting = ref(false);
 const theme = ref<OverlayTheme>("neon");
-const skin = ref<OverlaySkin>("cyber_market");
+const skin = ref<OverlaySkin>("none");
 const activeAddOns = ref<AddOnId[]>([]);
 const soundsEnabled = ref(true);
 const buyerTotals = ref<Record<string, number>>({});
@@ -34,6 +34,24 @@ const themeLabel = computed(() => {
 
   return "Neon Circuit";
 });
+const skinLabel = computed(() => {
+  if (skin.value === "arcade_drop") {
+    return "Arcade Drop";
+  }
+
+  if (skin.value === "sports_desk") {
+    return "Sports Desk";
+  }
+
+  if (skin.value === "cyber_market") {
+    return "Cyber Market";
+  }
+
+  return themeLabel.value;
+});
+const activeThemeLabel = computed(() => (
+  hasAddOn("stream_skins") && skin.value !== "none" ? skinLabel.value : themeLabel.value
+));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
 const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
 const topBuyers = computed(() => (
@@ -199,7 +217,7 @@ function playEventTone(event: ShowEvent): void {
       <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
       <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
     </div>
-    <div v-if="hasAddOn('stream_skins')" class="skin-frame" aria-hidden="true">
+    <div v-if="hasAddOn('stream_skins') && skin !== 'none'" class="skin-frame" aria-hidden="true">
       <span />
       <span />
       <span />
@@ -220,7 +238,7 @@ function playEventTone(event: ShowEvent): void {
       <div class="hud-brand">
         <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
         <strong>DUCK DESK</strong>
-        <span>{{ themeLabel }}</span>
+        <span>{{ activeThemeLabel }}</span>
       </div>
       <div v-if="activeAddOns.length > 0" class="addon-strip">
         <span v-if="hasAddOn('stream_skins')">skin pack</span>
@@ -255,7 +273,7 @@ function playEventTone(event: ShowEvent): void {
       </div>
       <div>
         <span>Mode</span>
-        <strong>{{ theme }}</strong>
+        <strong>{{ hasAddOn("stream_skins") && skin !== "none" ? skinLabel : theme }}</strong>
       </div>
     </section>
 

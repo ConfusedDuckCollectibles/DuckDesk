@@ -1,4 +1,5 @@
 import { createServer, type Server } from "node:http";
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -39,7 +40,7 @@ const stats = {
   audienceActions: 0
 };
 let activeTheme: OverlayTheme = "neon";
-let activeSkin: OverlaySkin = "cyber_market";
+let activeSkin: OverlaySkin = "none";
 const activeAddOns = new Set<AddOnId>();
 let soundsEnabled = true;
 
@@ -118,6 +119,23 @@ async function startLocalBridge(): Promise<void> {
       response.status(202).json({ ok: true, event });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Invalid event.";
+      response.status(400).json({ ok: false, error: message });
+    }
+  });
+
+  expressApp.get("/config", (_request, response) => {
+    response.json(createOverlayConfig());
+  });
+
+  expressApp.post("/config", (request, response) => {
+    try {
+      applyConfigPatch(request.body);
+      const config = createOverlayConfig();
+      broadcast(config);
+      broadcastStatus();
+      response.status(202).json({ ok: true, config });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Invalid config.";
       response.status(400).json({ ok: false, error: message });
     }
   });
@@ -213,6 +231,7 @@ function registerIpc(): void {
     }
 
     activeTheme = theme;
+    activeSkin = "none";
     broadcast(createOverlayConfig());
     broadcastStatus();
     return getStatus();
@@ -239,6 +258,9 @@ function registerIpc(): void {
       activeAddOns.add(addOn);
     } else {
       activeAddOns.delete(addOn);
+      if (addOn === "stream_skins") {
+        activeSkin = "none";
+      }
     }
 
     broadcast(createOverlayConfig());
@@ -252,9 +274,6 @@ function registerIpc(): void {
     }
 
     soundsEnabled = enabled;
-    if (enabled) {
-      activeAddOns.add("noise_machines");
-    }
     broadcast(createOverlayConfig());
     broadcastStatus();
     return getStatus();
@@ -271,9 +290,77 @@ function receiveEvent(event: ShowEvent): void {
     stats.audienceActions += 1;
   }
 
+  playEventSound(event);
   mainWindow?.webContents.send("duck-desk:event", event);
   broadcast(event);
   broadcastStatus();
+}
+
+function applyConfigPatch(input: unknown): void {
+  if (!isRecord(input)) {
+    throw new Error("Config body must be an object.");
+  }
+
+  if ("theme" in input) {
+    if (!isOverlayTheme(input.theme)) {
+      throw new Error("Invalid overlay theme.");
+    }
+    activeTheme = input.theme;
+    activeSkin = "none";
+  }
+
+  if ("skin" in input) {
+    if (!isOverlaySkin(input.skin)) {
+      throw new Error("Invalid overlay skin.");
+    }
+    activeSkin = input.skin;
+    if (input.skin !== "none") {
+      activeAddOns.add("stream_skins");
+    }
+  }
+
+  if ("addOns" in input) {
+    if (!Array.isArray(input.addOns) || !input.addOns.every(isAddOnId)) {
+      throw new Error("Invalid add-on list.");
+    }
+    activeAddOns.clear();
+    for (const addOn of input.addOns) {
+      activeAddOns.add(addOn);
+    }
+    if (!activeAddOns.has("stream_skins")) {
+      activeSkin = "none";
+    }
+  }
+
+  if ("soundsEnabled" in input) {
+    if (typeof input.soundsEnabled !== "boolean") {
+      throw new Error("Invalid sound setting.");
+    }
+    soundsEnabled = input.soundsEnabled;
+  }
+}
+
+function playEventSound(event: ShowEvent): void {
+  if (!soundsEnabled) {
+    return;
+  }
+
+  const soundFile = event.type === "sale"
+    ? "Glass.aiff"
+    : event.type === "bid"
+      ? "Pop.aiff"
+      : "Ping.aiff";
+  const soundPath = path.join("/System/Library/Sounds", soundFile);
+
+  try {
+    const player = spawn("/usr/bin/afplay", [soundPath], {
+      detached: true,
+      stdio: "ignore"
+    });
+    player.unref();
+  } catch (error) {
+    log(`unable to play sound: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 function broadcast(event: ShowEvent | ReturnType<typeof createOverlayConfig>): void {
@@ -366,4 +453,8 @@ function log(message: string): void {
     // Logging should never stop the desktop app from launching.
   }
   console.log(line.trim());
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

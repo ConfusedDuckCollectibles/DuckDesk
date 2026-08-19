@@ -23,7 +23,7 @@ export interface AudienceActionEvent {
 }
 
 export type OverlayTheme = "neon" | "arena" | "duck";
-export type OverlaySkin = "cyber_market" | "arcade_drop" | "sports_desk";
+export type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
 export type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -115,7 +115,7 @@ export function isOverlayTheme(value: unknown): value is OverlayTheme {
 }
 
 export function isOverlaySkin(value: unknown): value is OverlaySkin {
-  return value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+  return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
 }
 
 export function isAddOnId(value: unknown): value is AddOnId {

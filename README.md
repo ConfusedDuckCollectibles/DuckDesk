@@ -287,7 +287,8 @@ If Whatnot events do not trigger yet:
 The Mac app includes a Library section with add-ons that update the live overlay immediately:
 
 - `100+ Stream Skins` unlocks Cyber Market, Arcade Drop, and Sports Desk choices in the main Overlay Theme area.
-- `Noise Machines` plays short local sound cues for sales, bids, and audience actions, with a Sound On/Off toggle.
+- Event sounds are built into the Mac app with an always-visible Sound On/Off toggle.
+- `Noise Machines` adds extra sound-pad controls for previewing sale, bid, and audience cues.
 - `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.
 - `Hype Bursts` adds screen-edge flashes and animated sticker-style loops when audience or auction events hit.
 - `Leaderboard Deck` adds a visible stream panel immediately, then fills with top buyers from detected sales.

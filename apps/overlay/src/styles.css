@@ -99,6 +99,45 @@ body,
   border-style: double;
 }
 
+.skin-cyber_market.addon-stream_skins .show-hud,
+.skin-cyber_market.addon-stream_skins .event-card {
+  background:
+    linear-gradient(90deg, rgba(255, 91, 214, 0.28), transparent 28% 72%, rgba(52, 231, 255, 0.32)),
+    linear-gradient(135deg, #34e7ff, #a5ffcb),
+    var(--panel);
+}
+
+.skin-cyber_market.addon-stream_skins .score-strip div {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 91, 214, 0.34), transparent 34%),
+    rgba(7, 10, 17, 0.92);
+}
+
+.skin-arcade_drop.addon-stream_skins .score-strip div,
+.skin-arcade_drop.addon-stream_skins .event-card {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.18) 0 8px, transparent 8px 16px),
+    linear-gradient(135deg, #ffcf61, #ff5bd6),
+    var(--panel);
+}
+
+.skin-arcade_drop.addon-stream_skins .overlay-frame {
+  border-color: #ffcf61;
+  border-style: dashed;
+}
+
+.skin-sports_desk.addon-stream_skins .event-card {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.55) 0 18%, transparent 18% 82%, rgba(255, 255, 255, 0.55) 82%),
+    linear-gradient(135deg, #34e7ff, #ffffff),
+    var(--panel);
+}
+
+.skin-sports_desk.addon-stream_skins .overlay-frame {
+  border-color: #ffffff;
+  border-style: double;
+}
+
 .overlay-frame {
   position: absolute;
   inset: 0;
