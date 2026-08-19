@@ -314,14 +314,6 @@ function triggerManualGif(url: string, timestamp: number): void {
           <em v-if="streamTitle">{{ streamTitle }}</em>
         </span>
       </div>
-      <div v-if="activeAddOns.length > 0" class="addon-strip">
-        <span v-if="hasAddOn('stream_skins')">skin pack</span>
-        <span v-if="hasAddOn('noise_machines')">audio reactive</span>
-        <span v-if="hasAddOn('bid_ladder')">bid ladder</span>
-        <span v-if="hasAddOn('hype_bursts')">hype bursts</span>
-        <span v-if="hasAddOn('gif_reactions')">gif reactions</span>
-        <span v-if="hasAddOn('leaderboard_deck')">leaderboard</span>
-      </div>
       <div class="ticker">
         <span
           v-for="event in recentEvents"
