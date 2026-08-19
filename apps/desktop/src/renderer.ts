@@ -10,10 +10,12 @@ type DesktopStatus = {
   bidCount: number;
   audienceActions: number;
   theme: OverlayTheme;
+  addOns: AddOnId[];
   lastError?: string;
 };
 
 type OverlayTheme = "neon" | "arena" | "duck";
+type AddOnId = "stream_skins" | "noise_machines" | "bid_ladder" | "hype_bursts" | "leaderboard_deck";
 
 type DesktopApi = {
   getStatus: () => Promise<DesktopStatus>;
@@ -24,6 +26,7 @@ type DesktopApi = {
   sendTestBid: () => Promise<void>;
   sendTestAction: () => Promise<void>;
   setTheme: (theme: OverlayTheme) => Promise<DesktopStatus>;
+  setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: { buyer: string; amount: number; item?: string }) => void) => void;
 };
@@ -97,15 +100,15 @@ for (const card of themeCards) {
 }
 
 for (const action of addonActions) {
-  action.addEventListener("click", () => {
+  action.addEventListener("click", async () => {
     const card = action.closest<HTMLElement>(".addon-card");
-    if (!card) {
+    const addOn = card?.dataset.addon;
+    if (!card || !isAddOnId(addOn)) {
       return;
     }
 
-    card.classList.toggle("is-added");
-    action.textContent = card.classList.contains("is-added") ? "Added" : action.dataset.defaultLabel ?? "Add";
-    updateLibraryStatus();
+    const enabled = !card.classList.contains("is-added");
+    renderStatus(await window.duckDesk.setAddOn(addOn, enabled));
   });
   action.dataset.defaultLabel = action.textContent ?? "Add";
 }
@@ -122,7 +125,6 @@ window.duckDesk.onEvent((event) => {
 });
 
 void window.duckDesk.getStatus().then(renderStatus);
-updateLibraryStatus();
 
 function renderStatus(status: DesktopStatus): void {
   statusPill.textContent = status.ok ? "Running" : "Needs Attention";
@@ -138,6 +140,8 @@ function renderStatus(status: DesktopStatus): void {
   for (const card of themeCards) {
     card.classList.toggle("is-active", card.dataset.theme === status.theme);
   }
+
+  renderAddOns(status.addOns);
 }
 
 function formatEventLog(event: { type?: string; buyer?: string; bidder?: string; actor?: string; amount?: number; item?: string; message?: string }): string {
@@ -168,6 +172,32 @@ function updateLibraryStatus(): void {
   const added = document.querySelectorAll(".addon-card.is-added").length;
   const total = addonActions.length;
   libraryStatus.textContent = added === 0 ? `${total} Available` : `${added} Added`;
+}
+
+function renderAddOns(addOns: AddOnId[]): void {
+  for (const action of addonActions) {
+    const card = action.closest<HTMLElement>(".addon-card");
+    const addOn = card?.dataset.addon;
+    if (!card || !isAddOnId(addOn)) {
+      continue;
+    }
+
+    const isAdded = addOns.includes(addOn);
+    card.classList.toggle("is-added", isAdded);
+    action.textContent = isAdded ? "Added" : action.dataset.defaultLabel ?? "Add";
+  }
+
+  updateLibraryStatus();
+}
+
+function isAddOnId(value: unknown): value is AddOnId {
+  return (
+    value === "stream_skins" ||
+    value === "noise_machines" ||
+    value === "bid_ladder" ||
+    value === "hype_bursts" ||
+    value === "leaderboard_deck"
+  );
 }
 
 function readElement<T extends HTMLElement>(id: string): T {

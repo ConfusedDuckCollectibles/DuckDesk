@@ -100,16 +100,35 @@ Common FPS Values: 30
 
 This makes OBS match a vertical phone stream instead of a normal landscape desktop stream.
 
-### 3. Add Your Phone Camera Or Product Camera
+### 3. Stream Your Phone Camera To The Mac
 
-Most Whatnot sellers point a phone at the table or product area.
+Most Whatnot sellers point a phone at the table or product area, then let OBS on the Mac combine that camera with the Duck Desk overlay.
 
-You can use any camera workflow OBS supports. Common options:
+Recommended iPhone route:
 
-- iPhone Continuity Camera on macOS
-- DroidCam or another phone-camera OBS plugin
-- A USB webcam
-- A capture source already provided by your Whatnot setup
+1. Put the iPhone on a tripod or overhead mount.
+2. Keep the iPhone and Mac near each other, on the same Apple ID when using Continuity Camera.
+3. Plug the iPhone into power. USB is best for long shows.
+4. In OBS, click `+` under Sources.
+5. Choose `Video Capture Device`.
+6. Pick your iPhone camera if it appears.
+7. Resize the camera to fill the vertical canvas.
+
+Other phone camera routes also work:
+
+- Camo
+- EpocCam
+- DroidCam
+- NDI camera apps
+- any USB webcam or capture card that OBS can see
+
+For those apps, install the phone app and the matching Mac app or OBS plugin, then add it in OBS as a camera/video source.
+
+Audio tips:
+
+1. Use a Mac mic, USB mic, or the phone camera app's audio if it is reliable.
+2. Watch the OBS audio meters before going live.
+3. Keep the audio source below clipping, usually in the yellow but not pinned red.
 
 In OBS:
 
@@ -196,18 +215,31 @@ Then in Chrome:
 
 The extension is the piece that watches the Whatnot seller page and sends local events into Duck Desk.
 
-### 8. Start Your Whatnot Show
+### 8. Connect OBS To Whatnot And Start The Show
 
-Use your normal Whatnot seller flow.
+Use the official Whatnot OBS flow from Chrome on the Mac.
 
 Typical flow:
 
 1. Log into Whatnot.
-2. Open your seller/show page.
-3. Open the live show tools.
-4. Connect Whatnot to OBS if your show flow requires it.
-5. Start or open the show.
-6. Keep the Whatnot seller page open while Duck Desk is running.
+2. Open the show tools for the show you are about to run.
+3. Connect Whatnot to OBS from the show tools page.
+4. Let Whatnot apply the stream settings/token to OBS.
+5. Start the show from the show tools page.
+6. Keep Chrome, OBS, and Duck Desk open while streaming.
+
+Important details:
+
+- Use Chrome for the Whatnot-to-OBS connection.
+- If a Chrome extension blocks the connection, try an Incognito window with only the needed extensions enabled.
+- Do not start the OBS show from the regular livestream page when using the show tools flow.
+- If Whatnot reports `1920x1080`, the canvas is wrong for this phone-first layout. Reopen OBS and confirm both video resolutions are `1080x1920`.
+- On first setup after updating the OBS profile, you may need to close OBS, reopen it, reconnect from Whatnot show tools, and then start the show.
+
+Official Whatnot references:
+
+- `https://help.whatnot.com/hc/en-us/articles/5497980244749-Using-OBS-with-your-Livestream`
+- `https://selleracademy.whatnot.com/productionguide`
 
 For V0, the Whatnot detection is intentionally DOM-based and conservative. If a real auction/sale state is not detected yet, use the Duck Desk test buttons while we tune the Whatnot adapter against the actual seller page.
 
@@ -252,15 +284,15 @@ If Whatnot events do not trigger yet:
 
 ## Add-On Library
 
-The Mac app includes a Library section for future show add-ons:
+The Mac app includes a Library section with add-ons that update the live overlay immediately:
 
-- noise machines and sound packs
-- theme packs with many more overlay skins
-- bid ladders and auction widgets
-- hype bursts and screen-edge effects
-- buyer leaderboards and milestone panels
+- `100+ Stream Skins` adds a stronger arcade-style frame and skin treatment.
+- `Noise Machines` plays short local sound cues for sales, bids, and audience actions.
+- `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.
+- `Hype Bursts` adds screen-edge flashes when audience or auction events hit.
+- `Leaderboard Deck` adds a top buyer panel from detected sales.
 
-The current Library UI is a prototype surface. Clicking `Add` marks a pack as added inside the app, but the add-ons do not yet download assets or alter the overlay automatically. The next implementation step is to connect Library selections to overlay configuration messages.
+Click `Add` in the Library, then watch OBS. The overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.
 
 ## Install
 

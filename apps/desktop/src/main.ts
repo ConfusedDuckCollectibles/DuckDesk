@@ -13,7 +13,9 @@ import {
 } from "electron";
 import { WebSocket, WebSocketServer } from "ws";
 import {
+  isAddOnId,
   isOverlayTheme,
+  type AddOnId,
   normalizeShowEvent,
   type OverlayTheme,
   type ShowEvent
@@ -35,6 +37,7 @@ const stats = {
   audienceActions: 0
 };
 let activeTheme: OverlayTheme = "neon";
+const activeAddOns = new Set<AddOnId>();
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -131,7 +134,7 @@ async function startLocalBridge(): Promise<void> {
     broadcastStatus();
 
     socket.send(JSON.stringify({ type: "connected", timestamp: Date.now() }));
-    socket.send(JSON.stringify({ type: "overlay_config", theme: activeTheme, timestamp: Date.now() }));
+    socket.send(JSON.stringify(createOverlayConfig()));
     socket.on("close", () => {
       clients.delete(socket);
       broadcastStatus();
@@ -206,7 +209,23 @@ function registerIpc(): void {
     }
 
     activeTheme = theme;
-    broadcast({ type: "overlay_config", theme: activeTheme, timestamp: Date.now() });
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-addon", (_event, addOn: unknown, enabled: unknown) => {
+    if (!isAddOnId(addOn) || typeof enabled !== "boolean") {
+      return getStatus();
+    }
+
+    if (enabled) {
+      activeAddOns.add(addOn);
+    } else {
+      activeAddOns.delete(addOn);
+    }
+
+    broadcast(createOverlayConfig());
     broadcastStatus();
     return getStatus();
   });
@@ -227,7 +246,7 @@ function receiveEvent(event: ShowEvent): void {
   broadcastStatus();
 }
 
-function broadcast(event: ShowEvent | { type: "overlay_config"; theme: OverlayTheme; timestamp: number }): void {
+function broadcast(event: ShowEvent | ReturnType<typeof createOverlayConfig>): void {
   const payload = JSON.stringify(event);
 
   for (const client of clients) {
@@ -251,6 +270,7 @@ function getStatus(): {
   bidCount: number;
   audienceActions: number;
   theme: OverlayTheme;
+  addOns: AddOnId[];
   lastError?: string;
 } {
   return {
@@ -263,7 +283,22 @@ function getStatus(): {
     bidCount: stats.bidCount,
     audienceActions: stats.audienceActions,
     theme: activeTheme,
+    addOns: [...activeAddOns],
     lastError
+  };
+}
+
+function createOverlayConfig(): {
+  type: "overlay_config";
+  theme: OverlayTheme;
+  addOns: AddOnId[];
+  timestamp: number;
+} {
+  return {
+    type: "overlay_config",
+    theme: activeTheme,
+    addOns: [...activeAddOns],
+    timestamp: Date.now()
   };
 }
 

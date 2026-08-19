@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   isOverlayConfigMessage,
   isShowEvent,
+  type AddOnId,
   type BridgeMessage,
   type OverlayTheme,
   type ShowEvent
@@ -15,6 +16,9 @@ const recentEvents = ref<ShowEvent[]>([]);
 const connected = ref(false);
 const reconnecting = ref(false);
 const theme = ref<OverlayTheme>("neon");
+const activeAddOns = ref<AddOnId[]>([]);
+const buyerTotals = ref<Record<string, number>>({});
+const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
 const themeLabel = computed(() => {
   if (theme.value === "arena") {
@@ -27,10 +31,17 @@ const themeLabel = computed(() => {
 
   return "Neon Circuit";
 });
+const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
+const topBuyers = computed(() => (
+  Object.entries(buyerTotals.value)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 3)
+));
 
 let socket: WebSocket | null = null;
 let reconnectTimer: number | undefined;
 let dismissTimer: number | undefined;
+let audioContext: AudioContext | undefined;
 
 onMounted(connect);
 onBeforeUnmount(() => {
@@ -56,10 +67,18 @@ function connect(): void {
 
     if (isOverlayConfigMessage(parsed)) {
       theme.value = parsed.theme;
+      activeAddOns.value = parsed.addOns;
       return;
     }
 
     if (isShowEvent(parsed)) {
+      applyEventStats(parsed);
+      if (hasAddOn("noise_machines")) {
+        playEventTone(parsed);
+      }
+      if (hasAddOn("hype_bursts")) {
+        burstKey.value += 1;
+      }
       queue.value.push(parsed);
       recentEvents.value.unshift(parsed);
       recentEvents.value = recentEvents.value.slice(0, 5);
@@ -108,10 +127,63 @@ function parseMessage(data: unknown): BridgeMessage | null {
     return null;
   }
 }
+
+function hasAddOn(addOn: AddOnId): boolean {
+  return activeAddOns.value.includes(addOn);
+}
+
+function applyEventStats(event: ShowEvent): void {
+  if (event.type !== "sale") {
+    return;
+  }
+
+  buyerTotals.value = {
+    ...buyerTotals.value,
+    [event.buyer]: (buyerTotals.value[event.buyer] ?? 0) + event.amount
+  };
+}
+
+function playEventTone(event: ShowEvent): void {
+  try {
+    audioContext ??= new AudioContext();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const frequency = event.type === "sale" ? 660 : event.type === "bid" ? 480 : 320;
+
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, audioContext.currentTime + 0.14);
+    gain.gain.setValueAtTime(0.001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.26);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.28);
+  } catch {
+    // OBS or the browser preview can block audio until user interaction.
+  }
+}
 </script>
 
 <template>
-  <main class="overlay-shell" :class="`theme-${theme}`" aria-live="polite">
+  <main
+    class="overlay-shell"
+    :class="[`theme-${theme}`, activeAddOns.map((addOn) => `addon-${addOn}`)]"
+    aria-live="polite"
+  >
+    <div v-if="hasAddOn('stream_skins')" class="skin-frame" aria-hidden="true">
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+    <div
+      v-if="hasAddOn('hype_bursts') && burstKey > 0"
+      :key="burstKey"
+      class="burst-ring"
+      aria-hidden="true"
+    />
     <div class="arena-bars" aria-hidden="true">
       <span />
       <span />
@@ -122,6 +194,13 @@ function parseMessage(data: unknown): BridgeMessage | null {
         <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
         <strong>DUCK DESK</strong>
         <span>{{ themeLabel }}</span>
+      </div>
+      <div v-if="activeAddOns.length > 0" class="addon-strip">
+        <span v-if="hasAddOn('stream_skins')">skin pack</span>
+        <span v-if="hasAddOn('noise_machines')">audio reactive</span>
+        <span v-if="hasAddOn('bid_ladder')">bid ladder</span>
+        <span v-if="hasAddOn('hype_bursts')">hype bursts</span>
+        <span v-if="hasAddOn('leaderboard_deck')">leaderboard</span>
       </div>
       <div class="ticker">
         <span v-if="recentEvents.length === 0">Ready for bids, follows, chat hits, and sales</span>
@@ -150,6 +229,30 @@ function parseMessage(data: unknown): BridgeMessage | null {
       <div>
         <span>Mode</span>
         <strong>{{ theme }}</strong>
+      </div>
+    </section>
+
+    <section
+      v-if="hasAddOn('bid_ladder') || hasAddOn('leaderboard_deck')"
+      class="add-on-stack"
+    >
+      <div v-if="hasAddOn('bid_ladder')" class="bid-ladder">
+        <span>Bid Ladder</span>
+        <strong v-if="latestBid && latestBid.type === 'bid'">@{{ latestBid.bidder }} ${{ latestBid.amount }}</strong>
+        <strong v-else>Ready</strong>
+        <small v-if="latestBid && latestBid.type === 'bid'">Next target ${{ latestBid.amount + 1 }}</small>
+        <small v-else>Waiting for the first bid</small>
+      </div>
+
+      <div v-if="hasAddOn('leaderboard_deck')" class="leaderboard-deck">
+        <span>Top Buyers</span>
+        <ol v-if="topBuyers.length > 0">
+          <li v-for="[buyer, amount] in topBuyers" :key="buyer">
+            <strong>@{{ buyer }}</strong>
+            <em>${{ amount }}</em>
+          </li>
+        </ol>
+        <p v-else>Buyer board opens on first sale</p>
       </div>
     </section>
 

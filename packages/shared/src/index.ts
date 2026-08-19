@@ -23,10 +23,17 @@ export interface AudienceActionEvent {
 }
 
 export type OverlayTheme = "neon" | "arena" | "duck";
+export type AddOnId =
+  | "stream_skins"
+  | "noise_machines"
+  | "bid_ladder"
+  | "hype_bursts"
+  | "leaderboard_deck";
 
 export interface OverlayConfigMessage {
   type: "overlay_config";
   theme: OverlayTheme;
+  addOns: AddOnId[];
   timestamp: number;
 }
 
@@ -89,11 +96,27 @@ export function isShowEvent(value: unknown): value is ShowEvent {
 }
 
 export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMessage {
-  return isRecord(value) && value.type === "overlay_config" && isOverlayTheme(value.theme);
+  return (
+    isRecord(value) &&
+    value.type === "overlay_config" &&
+    isOverlayTheme(value.theme) &&
+    Array.isArray(value.addOns) &&
+    value.addOns.every(isAddOnId)
+  );
 }
 
 export function isOverlayTheme(value: unknown): value is OverlayTheme {
   return value === "neon" || value === "arena" || value === "duck";
+}
+
+export function isAddOnId(value: unknown): value is AddOnId {
+  return (
+    value === "stream_skins" ||
+    value === "noise_machines" ||
+    value === "bid_ladder" ||
+    value === "hype_bursts" ||
+    value === "leaderboard_deck"
+  );
 }
 
 function normalizeBidEvent(input: Record<string, unknown>): BidEvent {
