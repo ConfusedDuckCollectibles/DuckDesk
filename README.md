@@ -2,6 +2,8 @@
 
 Mac-native, local-first live seller companion prototype for Whatnot sellers.
 
+Duck Desk is intended to become a free, open-source alternative for sellers who want professional live stream overlays without subscriptions, cloud lock-in, or closed tooling. The project is MIT licensed and built around visible browser events, localhost communication, and transparent code.
+
 V0 now has a double-clickable Mac app that starts the local event bridge automatically:
 
 ```text
@@ -9,6 +11,15 @@ Chrome Extension or test sale -> Duck Desk Mac app -> WebSocket -> OBS overlay
 ```
 
 AI assistant, accounts, subscriptions, cloud services, databases, private Whatnot APIs, and undocumented protocol reverse engineering are intentionally out of scope for V0.
+
+## Open Source
+
+- License: MIT.
+- Contributing guide: `CONTRIBUTING.md`.
+- Security policy: `SECURITY.md`.
+- Roadmap: `ROADMAP.md`.
+
+Duck Desk should only observe visible seller-page content that the seller can already see in their browser. Do not contribute credential scraping, private API usage, stream-key handling, or hidden telemetry.
 
 ## Structure
 
@@ -228,7 +239,7 @@ Typical flow:
 1. Log into Whatnot.
 2. Open the show tools for the show you are about to run.
 3. Connect Whatnot to OBS from the show tools page.
-4. Let Whatnot apply the stream settings/token to OBS.
+4. Let Whatnot apply the stream settings to OBS.
 5. Start the show from the show tools page.
 6. Keep Chrome, OBS, and Duck Desk open while streaming.
 
