@@ -247,7 +247,8 @@ h2 {
 
 .url-panel,
 .log-panel,
-.theme-panel {
+.theme-panel,
+.library-panel {
   display: grid;
   gap: 12px;
   padding: 18px;
@@ -289,7 +290,8 @@ input {
   grid-column: span 2;
 }
 
-.theme-panel {
+.theme-panel,
+.library-panel {
   border: 1px solid rgba(159, 224, 255, 0.16);
   border-radius: 8px;
   background:
@@ -338,6 +340,71 @@ input {
 
 .swatch.duck {
   background: linear-gradient(135deg, #ffd84d, #ffffff 48%, #2842d8);
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.addon-card {
+  min-height: 178px;
+  display: grid;
+  align-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(159, 224, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035)),
+    rgba(6, 13, 18, 0.8);
+}
+
+.addon-card.featured {
+  grid-column: span 2;
+  background:
+    linear-gradient(135deg, rgba(52, 231, 255, 0.16), rgba(255, 91, 214, 0.11)),
+    rgba(6, 13, 18, 0.86);
+}
+
+.addon-type {
+  color: #34e7ff;
+  font-size: 12px;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+h3 {
+  margin: 8px 0 8px;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.addon-card p {
+  margin: 0;
+  color: rgba(237, 247, 255, 0.62);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.addon-action {
+  width: 100%;
+  height: 38px;
+}
+
+.addon-card.is-added {
+  border-color: rgba(165, 255, 203, 0.5);
+  background:
+    linear-gradient(135deg, rgba(165, 255, 203, 0.12), rgba(52, 231, 255, 0.06)),
+    rgba(6, 13, 18, 0.86);
+}
+
+.addon-card.is-added .addon-action {
+  color: #071014;
+  background: #a5ffcb;
 }
 
 button {
@@ -414,5 +481,9 @@ li {
 
   .control-grid {
     grid-template-columns: 1fr;
+  }
+
+  .library-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

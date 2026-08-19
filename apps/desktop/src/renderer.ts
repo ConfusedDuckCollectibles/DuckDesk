@@ -49,7 +49,9 @@ const sendTest = readElement<HTMLButtonElement>("send-test");
 const sendBid = readElement<HTMLButtonElement>("send-bid");
 const sendAction = readElement<HTMLButtonElement>("send-action");
 const activeThemeLabel = readElement<HTMLElement>("active-theme-label");
+const libraryStatus = readElement<HTMLElement>("library-status");
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
+const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
 
 const dollars = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -94,6 +96,20 @@ for (const card of themeCards) {
   });
 }
 
+for (const action of addonActions) {
+  action.addEventListener("click", () => {
+    const card = action.closest<HTMLElement>(".addon-card");
+    if (!card) {
+      return;
+    }
+
+    card.classList.toggle("is-added");
+    action.textContent = card.classList.contains("is-added") ? "Added" : action.dataset.defaultLabel ?? "Add";
+    updateLibraryStatus();
+  });
+  action.dataset.defaultLabel = action.textContent ?? "Add";
+}
+
 window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
   const item = document.createElement("li");
@@ -106,6 +122,7 @@ window.duckDesk.onEvent((event) => {
 });
 
 void window.duckDesk.getStatus().then(renderStatus);
+updateLibraryStatus();
 
 function renderStatus(status: DesktopStatus): void {
   statusPill.textContent = status.ok ? "Running" : "Needs Attention";
@@ -145,6 +162,12 @@ function themeName(theme: OverlayTheme): string {
   }
 
   return "Neon Circuit";
+}
+
+function updateLibraryStatus(): void {
+  const added = document.querySelectorAll(".addon-card.is-added").length;
+  const total = addonActions.length;
+  libraryStatus.textContent = added === 0 ? `${total} Available` : `${added} Added`;
 }
 
 function readElement<T extends HTMLElement>(id: string): T {
