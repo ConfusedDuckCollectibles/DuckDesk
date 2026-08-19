@@ -14,8 +14,10 @@ import {
 import { WebSocket, WebSocketServer } from "ws";
 import {
   isAddOnId,
+  isOverlaySkin,
   isOverlayTheme,
   type AddOnId,
+  type OverlaySkin,
   normalizeShowEvent,
   type OverlayTheme,
   type ShowEvent
@@ -37,6 +39,7 @@ const stats = {
   audienceActions: 0
 };
 let activeTheme: OverlayTheme = "neon";
+let activeSkin: OverlaySkin = "cyber_market";
 const activeAddOns = new Set<AddOnId>();
 
 process.on("uncaughtException", (error) => {
@@ -214,6 +217,18 @@ function registerIpc(): void {
     return getStatus();
   });
 
+  ipcMain.handle("duck-desk:set-skin", (_event, skin: unknown) => {
+    if (!isOverlaySkin(skin)) {
+      return getStatus();
+    }
+
+    activeSkin = skin;
+    activeAddOns.add("stream_skins");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
   ipcMain.handle("duck-desk:set-addon", (_event, addOn: unknown, enabled: unknown) => {
     if (!isAddOnId(addOn) || typeof enabled !== "boolean") {
       return getStatus();
@@ -270,6 +285,7 @@ function getStatus(): {
   bidCount: number;
   audienceActions: number;
   theme: OverlayTheme;
+  skin: OverlaySkin;
   addOns: AddOnId[];
   lastError?: string;
 } {
@@ -283,6 +299,7 @@ function getStatus(): {
     bidCount: stats.bidCount,
     audienceActions: stats.audienceActions,
     theme: activeTheme,
+    skin: activeSkin,
     addOns: [...activeAddOns],
     lastError
   };
@@ -291,12 +308,14 @@ function getStatus(): {
 function createOverlayConfig(): {
   type: "overlay_config";
   theme: OverlayTheme;
+  skin: OverlaySkin;
   addOns: AddOnId[];
   timestamp: number;
 } {
   return {
     type: "overlay_config",
     theme: activeTheme,
+    skin: activeSkin,
     addOns: [...activeAddOns],
     timestamp: Date.now()
   };

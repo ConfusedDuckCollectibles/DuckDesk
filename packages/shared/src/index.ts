@@ -23,6 +23,7 @@ export interface AudienceActionEvent {
 }
 
 export type OverlayTheme = "neon" | "arena" | "duck";
+export type OverlaySkin = "cyber_market" | "arcade_drop" | "sports_desk";
 export type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -33,6 +34,7 @@ export type AddOnId =
 export interface OverlayConfigMessage {
   type: "overlay_config";
   theme: OverlayTheme;
+  skin: OverlaySkin;
   addOns: AddOnId[];
   timestamp: number;
 }
@@ -100,6 +102,7 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     isRecord(value) &&
     value.type === "overlay_config" &&
     isOverlayTheme(value.theme) &&
+    isOverlaySkin(value.skin) &&
     Array.isArray(value.addOns) &&
     value.addOns.every(isAddOnId)
   );
@@ -107,6 +110,10 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
 
 export function isOverlayTheme(value: unknown): value is OverlayTheme {
   return value === "neon" || value === "arena" || value === "duck";
+}
+
+export function isOverlaySkin(value: unknown): value is OverlaySkin {
+  return value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
 }
 
 export function isAddOnId(value: unknown): value is AddOnId {

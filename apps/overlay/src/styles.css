@@ -56,11 +56,47 @@ body,
   --panel: #090b11;
 }
 
+.skin-cyber_market {
+  --primary: #34e7ff;
+  --secondary: #a5ffcb;
+  --accent: #ff5bd6;
+}
+
+.skin-arcade_drop {
+  --primary: #ffcf61;
+  --secondary: #ff5bd6;
+  --accent: #34e7ff;
+}
+
+.skin-sports_desk {
+  --primary: #ffffff;
+  --secondary: #34e7ff;
+  --accent: #ffcf61;
+}
+
 .addon-stream_skins .show-hud,
 .addon-stream_skins .score-strip div,
 .addon-stream_skins .event-card {
   outline: 2px solid color-mix(in srgb, var(--accent) 72%, white);
   outline-offset: 5px;
+}
+
+.skin-arcade_drop.addon-stream_skins .show-hud {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0 10px, transparent 10px 20px),
+    linear-gradient(135deg, #ffcf61, #ff5bd6),
+    var(--panel);
+}
+
+.skin-sports_desk.addon-stream_skins .show-hud {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.34) 0 18%, transparent 18% 82%, rgba(255, 255, 255, 0.34) 82%),
+    linear-gradient(135deg, #34e7ff, #ffffff),
+    var(--panel);
+}
+
+.skin-sports_desk.addon-stream_skins .score-strip div {
+  border-style: double;
 }
 
 .skin-frame {

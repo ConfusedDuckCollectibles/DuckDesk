@@ -474,12 +474,20 @@ h3 {
 }
 
 .skin-chip {
+  height: 36px;
   padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
   color: #071014;
   font-size: 12px;
   font-weight: 1000;
+}
+
+.skin-chip.is-active {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.16),
+    0 0 24px rgba(52, 231, 255, 0.26);
 }
 
 .skin-chip.cyber {

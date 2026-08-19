@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld("duckDesk", {
   sendTestBid: () => ipcRenderer.invoke("duck-desk:send-test-bid"),
   sendTestAction: () => ipcRenderer.invoke("duck-desk:send-test-action"),
   setTheme: (theme: unknown) => ipcRenderer.invoke("duck-desk:set-theme", theme),
+  setSkin: (skin: unknown) => ipcRenderer.invoke("duck-desk:set-skin", skin),
   setAddOn: (addOn: unknown, enabled: unknown) => ipcRenderer.invoke("duck-desk:set-addon", addOn, enabled),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));

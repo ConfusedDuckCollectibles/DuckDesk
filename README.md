@@ -286,11 +286,11 @@ If Whatnot events do not trigger yet:
 
 The Mac app includes a Library section with add-ons that update the live overlay immediately:
 
-- `100+ Stream Skins` adds a stronger arcade-style frame and skin treatment.
-- `Noise Machines` plays short local sound cues for sales, bids, and audience actions.
+- `100+ Stream Skins` adds selectable Cyber Market, Arcade Drop, and Sports Desk skin treatments.
+- `Noise Machines` plays short local sound cues from the Mac app and triggers matching overlay events.
 - `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.
 - `Hype Bursts` adds screen-edge flashes when audience or auction events hit.
-- `Leaderboard Deck` adds a top buyer panel from detected sales.
+- `Leaderboard Deck` adds a visible stream panel immediately, then fills with top buyers from detected sales.
 
 Click `Add` in the Library, then watch the `Active Add-Ons` section in the Mac app and the OBS overlay. The app loads add-on controls immediately, and the overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.
 

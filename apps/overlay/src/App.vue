@@ -5,6 +5,7 @@ import {
   isShowEvent,
   type AddOnId,
   type BridgeMessage,
+  type OverlaySkin,
   type OverlayTheme,
   type ShowEvent
 } from "@duck-desk/shared";
@@ -16,6 +17,7 @@ const recentEvents = ref<ShowEvent[]>([]);
 const connected = ref(false);
 const reconnecting = ref(false);
 const theme = ref<OverlayTheme>("neon");
+const skin = ref<OverlaySkin>("cyber_market");
 const activeAddOns = ref<AddOnId[]>([]);
 const buyerTotals = ref<Record<string, number>>({});
 const burstKey = ref(0);
@@ -36,6 +38,15 @@ const topBuyers = computed(() => (
   Object.entries(buyerTotals.value)
     .sort((left, right) => right[1] - left[1])
     .slice(0, 3)
+));
+const leaderboardRows = computed<[string, number][]>(() => (
+  topBuyers.value.length > 0
+    ? topBuyers.value
+    : [
+      ["Buyer Slot", 0],
+      ["Next Sale", 0],
+      ["Show Goal", 0]
+    ]
 ));
 
 let socket: WebSocket | null = null;
@@ -67,6 +78,7 @@ function connect(): void {
 
     if (isOverlayConfigMessage(parsed)) {
       theme.value = parsed.theme;
+      skin.value = parsed.skin;
       activeAddOns.value = parsed.addOns;
       return;
     }
@@ -169,7 +181,7 @@ function playEventTone(event: ShowEvent): void {
 <template>
   <main
     class="overlay-shell"
-    :class="[`theme-${theme}`, activeAddOns.map((addOn) => `addon-${addOn}`)]"
+    :class="[`theme-${theme}`, `skin-${skin}`, activeAddOns.map((addOn) => `addon-${addOn}`)]"
     aria-live="polite"
   >
     <div v-if="hasAddOn('stream_skins')" class="skin-frame" aria-hidden="true">
@@ -245,14 +257,13 @@ function playEventTone(event: ShowEvent): void {
       </div>
 
       <div v-if="hasAddOn('leaderboard_deck')" class="leaderboard-deck">
-        <span>Top Buyers</span>
-        <ol v-if="topBuyers.length > 0">
-          <li v-for="[buyer, amount] in topBuyers" :key="buyer">
+        <span>{{ topBuyers.length > 0 ? "Top Buyers" : "Leaderboard Loaded" }}</span>
+        <ol>
+          <li v-for="[buyer, amount] in leaderboardRows" :key="buyer">
             <strong>@{{ buyer }}</strong>
-            <em>${{ amount }}</em>
+            <em>{{ amount > 0 ? `$${amount}` : "ready" }}</em>
           </li>
         </ol>
-        <p v-else>Buyer board opens on first sale</p>
       </div>
     </section>
 

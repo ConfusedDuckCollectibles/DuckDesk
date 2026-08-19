@@ -10,11 +10,13 @@ type DesktopStatus = {
   bidCount: number;
   audienceActions: number;
   theme: OverlayTheme;
+  skin: OverlaySkin;
   addOns: AddOnId[];
   lastError?: string;
 };
 
 type OverlayTheme = "neon" | "arena" | "duck";
+type OverlaySkin = "cyber_market" | "arcade_drop" | "sports_desk";
 type AddOnId = "stream_skins" | "noise_machines" | "bid_ladder" | "hype_bursts" | "leaderboard_deck";
 
 type DesktopApi = {
@@ -26,6 +28,7 @@ type DesktopApi = {
   sendTestBid: () => Promise<void>;
   sendTestAction: () => Promise<void>;
   setTheme: (theme: OverlayTheme) => Promise<DesktopStatus>;
+  setSkin: (skin: OverlaySkin) => Promise<DesktopStatus>;
   setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: { buyer: string; amount: number; item?: string }) => void) => void;
@@ -61,6 +64,9 @@ const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".the
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
 const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-panel]"));
 const addonTestActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-test]"));
+const skinActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-skin]"));
+
+let audioContext: AudioContext | undefined;
 
 const dollars = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -122,16 +128,28 @@ for (const action of addonActions) {
 for (const action of addonTestActions) {
   action.addEventListener("click", () => {
     if (action.dataset.addonTest === "sale") {
+      playLocalTone("sale");
       void window.duckDesk.sendTestSale();
       return;
     }
 
     if (action.dataset.addonTest === "bid") {
+      playLocalTone("bid");
       void window.duckDesk.sendTestBid();
       return;
     }
 
+    playLocalTone("action");
     void window.duckDesk.sendTestAction();
+  });
+}
+
+for (const action of skinActions) {
+  action.addEventListener("click", async () => {
+    const skin = action.dataset.skin;
+    if (isOverlaySkin(skin)) {
+      renderStatus(await window.duckDesk.setSkin(skin));
+    }
   });
 }
 
@@ -163,6 +181,10 @@ function renderStatus(status: DesktopStatus): void {
 
   for (const card of themeCards) {
     card.classList.toggle("is-active", card.dataset.theme === status.theme);
+  }
+
+  for (const action of skinActions) {
+    action.classList.toggle("is-active", action.dataset.skin === status.skin);
   }
 
   renderAddOns(status.addOns);
@@ -229,6 +251,32 @@ function isAddOnId(value: unknown): value is AddOnId {
     value === "hype_bursts" ||
     value === "leaderboard_deck"
   );
+}
+
+function isOverlaySkin(value: unknown): value is OverlaySkin {
+  return value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+}
+
+function playLocalTone(kind: "sale" | "bid" | "action"): void {
+  try {
+    audioContext ??= new AudioContext();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const frequency = kind === "sale" ? 740 : kind === "bid" ? 520 : 360;
+
+    oscillator.type = kind === "action" ? "sawtooth" : "triangle";
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.4, audioContext.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.22, audioContext.currentTime + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.24);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.26);
+  } catch {
+    // Some system audio routes can block Web Audio.
+  }
 }
 
 function readElement<T extends HTMLElement>(id: string): T {
