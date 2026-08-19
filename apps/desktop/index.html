@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duck Desk</title>
+    <script type="module" src="/src/renderer.ts"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="rail" aria-label="Duck Desk">
+        <div class="brand-mark">DD</div>
+        <div class="rail-line"></div>
+        <div class="rail-chip">V0</div>
+      </aside>
+
+      <section class="dashboard">
+        <section class="status-panel">
+          <div>
+            <p class="eyebrow">Duck Desk</p>
+            <h1>Live overlay bridge</h1>
+            <p class="subhead">Local OBS event control for Whatnot streams.</p>
+          </div>
+          <span id="status-pill" class="status-pill">Starting</span>
+        </section>
+
+        <section class="metrics">
+          <div class="metric-card">
+            <span>Sales</span>
+            <strong id="sales-count">0</strong>
+          </div>
+          <div class="metric-card accent-gold">
+            <span>Gross</span>
+            <strong id="gross-sales">$0</strong>
+          </div>
+          <div class="metric-card accent-cyan">
+            <span>Overlay Clients</span>
+            <strong id="client-count">0</strong>
+          </div>
+          <div class="metric-card accent-pink">
+            <span>Bids</span>
+            <strong id="bid-count">0</strong>
+          </div>
+          <div class="metric-card accent-green">
+            <span>Audience</span>
+            <strong id="audience-count">0</strong>
+          </div>
+        </section>
+
+        <section class="control-grid">
+          <section class="url-panel">
+            <label for="overlay-url">OBS Browser Source URL</label>
+            <div class="url-row">
+              <input id="overlay-url" readonly value="http://localhost:8741/overlay" />
+              <button id="copy-url" type="button">Copy</button>
+            </div>
+            <p class="source-size">Use Browser Source size 1080 x 1920 for phone-first Whatnot streams.</p>
+          </section>
+
+          <section class="actions">
+            <button id="open-overlay" type="button">Overlay Preview</button>
+            <button id="reveal-extension" type="button">Chrome Extension</button>
+            <button id="send-test" class="primary" type="button">Test Sale</button>
+            <button id="send-bid" type="button">Test Bid</button>
+            <button id="send-action" type="button">Audience Action</button>
+          </section>
+        </section>
+
+        <section class="theme-panel">
+          <div class="section-heading">
+            <h2>Overlay Theme</h2>
+            <span id="active-theme-label">Neon</span>
+          </div>
+          <div class="theme-grid">
+            <button class="theme-card is-active" data-theme="neon" type="button">
+              <span class="swatch neon"></span>
+              <strong>Neon Circuit</strong>
+            </button>
+            <button class="theme-card" data-theme="arena" type="button">
+              <span class="swatch arena"></span>
+              <strong>Auction Arena</strong>
+            </button>
+            <button class="theme-card" data-theme="duck" type="button">
+              <span class="swatch duck"></span>
+              <strong>Duck Pop</strong>
+            </button>
+          </div>
+        </section>
+
+        <section class="log-panel">
+          <div class="section-heading">
+            <h2>Recent Events</h2>
+            <span>Realtime</span>
+          </div>
+          <ol id="event-log"></ol>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
