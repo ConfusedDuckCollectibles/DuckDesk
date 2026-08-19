@@ -276,7 +276,7 @@ function playEventTone(event: ShowEvent): void {
       </div>
     </section>
 
-    <section class="score-strip">
+    <section v-if="recentEvents.length > 0" class="score-strip">
       <div>
         <span>Hype</span>
         <strong>{{ hypeScore }}</strong>

@@ -141,7 +141,16 @@ async function startLocalBridge(): Promise<void> {
     }
   });
 
-  expressApp.use("/overlay", express.static(overlayPath));
+  expressApp.use("/overlay", (_request, response, next) => {
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setHeader("Expires", "0");
+    next();
+  });
+  expressApp.use("/overlay", express.static(overlayPath, {
+    etag: false,
+    lastModified: false
+  }));
   expressApp.get("/overlay", (_request, response) => {
     response.sendFile(path.join(overlayPath, "index.html"));
   });
