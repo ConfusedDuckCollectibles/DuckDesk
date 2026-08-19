@@ -26,6 +26,7 @@ type OverlayTheme = "neon" | "arena" | "duck";
 type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
+type SoundKind = "sale" | "bid" | "action";
 type CustomGif = {
   id: string;
   label: string;
@@ -58,6 +59,8 @@ type DesktopApi = {
   setCustomGifLabel: (id: string, label: string) => Promise<DesktopStatus>;
   triggerGif: (url?: string) => Promise<DesktopStatus>;
   setGifSettings: (placement: GifPlacement, size: GifSize) => Promise<DesktopStatus>;
+  triggerSound: (kind: SoundKind) => Promise<DesktopStatus>;
+  triggerBurst: () => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -209,18 +212,20 @@ for (const action of addonActions) {
 }
 
 for (const action of addonTestActions) {
-  action.addEventListener("click", () => {
-    if (action.dataset.addonTest === "sale") {
-      void window.duckDesk.sendTestSale();
+  action.addEventListener("click", async () => {
+    const effect = action.dataset.addonTest;
+    if (!isSoundKind(effect)) {
       return;
     }
 
-    if (action.dataset.addonTest === "bid") {
-      void window.duckDesk.sendTestBid();
+    if (action.closest(".module-audio")) {
+      renderStatus(await window.duckDesk.triggerSound(effect));
       return;
     }
 
-    void window.duckDesk.sendTestAction();
+    if (action.closest(".module-hype")) {
+      renderStatus(await window.duckDesk.triggerBurst());
+    }
   });
 }
 
@@ -314,8 +319,8 @@ function renderStatus(status: DesktopStatus): void {
     action.title = status.demoMode ? "" : "Turn on Demo Mode to send test events to the overlay.";
   }
   for (const action of addonTestActions) {
-    action.disabled = !status.demoMode;
-    action.title = status.demoMode ? "" : "Turn on Demo Mode to preview this effect.";
+    action.disabled = false;
+    action.title = "";
   }
   for (const action of gifPlacementActions) {
     action.classList.toggle("is-active", action.dataset.gifPlacement === status.gifPlacement);
@@ -432,6 +437,10 @@ function isGifPlacement(value: unknown): value is GifPlacement {
 
 function isGifSize(value: unknown): value is GifSize {
   return value === "small" || value === "medium" || value === "large";
+}
+
+function isSoundKind(value: unknown): value is SoundKind {
+  return value === "sale" || value === "bid" || value === "action";
 }
 
 function renderCustomGifs(gifs: CustomGif[]): void {

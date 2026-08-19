@@ -26,6 +26,7 @@ export type OverlayTheme = "neon" | "arena" | "duck";
 export type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
+export type SoundKind = "sale" | "bid" | "action";
 export type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -63,13 +64,26 @@ export interface OverlayGifTriggerMessage {
   timestamp: number;
 }
 
+export interface OverlaySoundTriggerMessage {
+  type: "sound_trigger";
+  kind: SoundKind;
+  timestamp: number;
+}
+
+export interface OverlayBurstTriggerMessage {
+  type: "burst_trigger";
+  timestamp: number;
+}
+
 export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent;
 export type BridgeMessage =
   | ShowEvent
   | OverlayConfigMessage
   | ConnectedMessage
   | OverlayClearMessage
-  | OverlayGifTriggerMessage;
+  | OverlayGifTriggerMessage
+  | OverlaySoundTriggerMessage
+  | OverlayBurstTriggerMessage;
 
 export function normalizeShowEvent(input: unknown): ShowEvent {
   if (!isRecord(input)) {
@@ -155,6 +169,23 @@ export function isOverlayGifTriggerMessage(value: unknown): value is OverlayGifT
   );
 }
 
+export function isOverlaySoundTriggerMessage(value: unknown): value is OverlaySoundTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "sound_trigger" &&
+    isSoundKind(value.kind) &&
+    typeof value.timestamp === "number"
+  );
+}
+
+export function isOverlayBurstTriggerMessage(value: unknown): value is OverlayBurstTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "burst_trigger" &&
+    typeof value.timestamp === "number"
+  );
+}
+
 export function isOverlaySkin(value: unknown): value is OverlaySkin {
   return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
 }
@@ -165,6 +196,10 @@ export function isGifPlacement(value: unknown): value is GifPlacement {
 
 export function isGifSize(value: unknown): value is GifSize {
   return value === "small" || value === "medium" || value === "large";
+}
+
+export function isSoundKind(value: unknown): value is SoundKind {
+  return value === "sale" || value === "bid" || value === "action";
 }
 
 export function isAddOnId(value: unknown): value is AddOnId {

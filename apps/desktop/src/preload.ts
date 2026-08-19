@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld("duckDesk", {
   setGifSettings: (placement: unknown, size: unknown) => (
     ipcRenderer.invoke("duck-desk:set-gif-settings", placement, size)
   ),
+  triggerSound: (kind: unknown) => ipcRenderer.invoke("duck-desk:trigger-sound", kind),
+  triggerBurst: () => ipcRenderer.invoke("duck-desk:trigger-burst"),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));
   },

@@ -3,7 +3,9 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   isOverlayConfigMessage,
   isOverlayClearMessage,
+  isOverlayBurstTriggerMessage,
   isOverlayGifTriggerMessage,
+  isOverlaySoundTriggerMessage,
   isShowEvent,
   type AddOnId,
   type BridgeMessage,
@@ -11,7 +13,8 @@ import {
   type GifSize,
   type OverlaySkin,
   type OverlayTheme,
-  type ShowEvent
+  type ShowEvent,
+  type SoundKind
 } from "@duck-desk/shared";
 import EventAlert from "./components/EventAlert.vue";
 
@@ -96,6 +99,20 @@ function connect(): void {
       return;
     }
 
+    if (isOverlaySoundTriggerMessage(parsed)) {
+      if (hasAddOn("noise_machines") && soundsEnabled.value) {
+        playSoundKind(parsed.kind);
+      }
+      return;
+    }
+
+    if (isOverlayBurstTriggerMessage(parsed)) {
+      if (hasAddOn("hype_bursts")) {
+        burstKey.value += 1;
+      }
+      return;
+    }
+
     if (isShowEvent(parsed)) {
       applyEventStats(parsed);
       if (hasAddOn("noise_machines") && soundsEnabled.value) {
@@ -153,6 +170,8 @@ function parseMessage(data: unknown): BridgeMessage | null {
       isOverlayConfigMessage(parsed) ||
       isOverlayClearMessage(parsed) ||
       isOverlayGifTriggerMessage(parsed) ||
+      isOverlaySoundTriggerMessage(parsed) ||
+      isOverlayBurstTriggerMessage(parsed) ||
       (typeof parsed === "object" && parsed !== null && "type" in parsed && parsed.type === "connected")
     ) {
       return parsed as BridgeMessage;
@@ -191,11 +210,15 @@ function applyEventStats(event: ShowEvent): void {
 }
 
 function playEventTone(event: ShowEvent): void {
+  playSoundKind(event.type === "sale" ? "sale" : event.type === "bid" ? "bid" : "action");
+}
+
+function playSoundKind(kind: SoundKind): void {
   try {
     audioContext ??= new AudioContext();
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
-    const frequency = event.type === "sale" ? 660 : event.type === "bid" ? 480 : 320;
+    const frequency = kind === "sale" ? 660 : kind === "bid" ? 480 : 320;
 
     oscillator.type = "triangle";
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);

@@ -20,11 +20,13 @@ import {
   isGifSize,
   isOverlaySkin,
   isOverlayTheme,
+  isSoundKind,
   type AddOnId,
   type GifPlacement,
   type GifSize,
   type OverlaySkin,
   normalizeShowEvent,
+  type SoundKind,
   type OverlayTheme,
   type ShowEvent
 } from "@duck-desk/shared";
@@ -414,6 +416,29 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:trigger-sound", (_event, kind: unknown) => {
+    if (!isSoundKind(kind)) {
+      return getStatus();
+    }
+
+    activeAddOns.add("noise_machines");
+    if (soundsEnabled) {
+      playSoundKind(kind);
+      broadcast(createOverlaySoundTrigger(kind));
+    }
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:trigger-burst", () => {
+    activeAddOns.add("hype_bursts");
+    broadcast(createOverlayConfig());
+    broadcast(createOverlayBurstTrigger());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
@@ -520,11 +545,11 @@ function playEventSound(event: ShowEvent): void {
     return;
   }
 
-  const soundFile = event.type === "sale"
-    ? "Glass.aiff"
-    : event.type === "bid"
-      ? "Pop.aiff"
-      : "Ping.aiff";
+  playSoundKind(event.type === "sale" ? "sale" : event.type === "bid" ? "bid" : "action");
+}
+
+function playSoundKind(kind: SoundKind): void {
+  const soundFile = kind === "sale" ? "Glass.aiff" : kind === "bid" ? "Pop.aiff" : "Ping.aiff";
   const soundPath = path.join("/System/Library/Sounds", soundFile);
 
   try {
@@ -544,6 +569,8 @@ function broadcast(
     | ReturnType<typeof createOverlayConfig>
     | ReturnType<typeof createOverlayClear>
     | ReturnType<typeof createOverlayGifTrigger>
+    | ReturnType<typeof createOverlaySoundTrigger>
+    | ReturnType<typeof createOverlayBurstTrigger>
 ): void {
   const payload = JSON.stringify(event);
 
@@ -636,6 +663,28 @@ function createOverlayGifTrigger(url: string): {
   return {
     type: "gif_trigger",
     url,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlaySoundTrigger(kind: SoundKind): {
+  type: "sound_trigger";
+  kind: SoundKind;
+  timestamp: number;
+} {
+  return {
+    type: "sound_trigger",
+    kind,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayBurstTrigger(): {
+  type: "burst_trigger";
+  timestamp: number;
+} {
+  return {
+    type: "burst_trigger",
     timestamp: Date.now()
   };
 }
