@@ -104,7 +104,7 @@
         <section class="library-panel">
           <div class="section-heading">
             <h2>Add-On Library</h2>
-            <span id="library-status">5 Available</span>
+            <span id="library-status">6 Available</span>
           </div>
           <div class="library-grid">
             <article class="addon-card featured" data-addon="stream_skins">
@@ -136,6 +136,14 @@
                 <span class="addon-type">Effect</span>
                 <h3>Hype Bursts</h3>
                 <p>Screen-edge flashes, confetti pops, streak markers, and milestone celebration hits.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="gif_reactions">
+              <div>
+                <span class="addon-type">Media</span>
+                <h3>GIF Reactions</h3>
+                <p>Animated sale, bid, and chat stickers that pop on stream when real events hit.</p>
               </div>
               <button class="addon-action" type="button">Add</button>
             </article>
@@ -204,6 +212,18 @@
                 <strong>Hype Bursts</strong>
               </div>
               <button type="button" class="module-command" data-addon-test="action">Trigger Burst</button>
+            </article>
+
+            <article class="addon-module module-gifs" data-addon-panel="gif_reactions" hidden>
+              <div class="module-header">
+                <span>Media</span>
+                <strong>GIF Reactions</strong>
+              </div>
+              <div class="gif-preview-row" aria-label="GIF reaction previews">
+                <span>Sale Pop</span>
+                <span>Bid Pulse</span>
+                <span>Chat Spark</span>
+              </div>
             </article>
 
             <article class="addon-module module-leaderboard" data-addon-panel="leaderboard_deck" hidden>

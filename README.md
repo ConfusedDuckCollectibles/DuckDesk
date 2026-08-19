@@ -300,6 +300,7 @@ The Mac app includes a Library section with add-ons that update the live overlay
 - `Noise Machines` adds extra sound-pad controls for previewing sale, bid, and audience cues.
 - `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.
 - `Hype Bursts` adds screen-edge flashes and animated sticker-style loops when audience or auction events hit.
+- `GIF Reactions` adds local animated GIF stickers for sale, bid, and audience events.
 - `Leaderboard Deck` adds a visible stream panel immediately, then fills with top buyers from detected sales.
 
 Click `Add` in the Library, then watch the `Active Add-Ons` section in the Mac app and the OBS overlay. The app loads add-on controls immediately, theme packs add new choices to the top theme picker, and the overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.

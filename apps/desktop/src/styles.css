@@ -567,6 +567,25 @@ h3 {
   background: linear-gradient(135deg, #ff5bd6, #ffcf61);
 }
 
+.gif-preview-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gif-preview-row span {
+  min-height: 54px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(52, 231, 255, 0.28);
+  border-radius: 8px;
+  color: #071014;
+  background: linear-gradient(135deg, #34e7ff, #ffcf61 52%, #ff5bd6);
+  font-size: 12px;
+  font-weight: 1000;
+  text-align: center;
+}
+
 button {
   height: 46px;
   border: 1px solid rgba(159, 224, 255, 0.2);

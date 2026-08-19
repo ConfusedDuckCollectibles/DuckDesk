@@ -19,7 +19,13 @@ type DesktopStatus = {
 
 type OverlayTheme = "neon" | "arena" | "duck";
 type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
-type AddOnId = "stream_skins" | "noise_machines" | "bid_ladder" | "hype_bursts" | "leaderboard_deck";
+type AddOnId =
+  | "stream_skins"
+  | "noise_machines"
+  | "bid_ladder"
+  | "hype_bursts"
+  | "leaderboard_deck"
+  | "gif_reactions";
 
 type DesktopApi = {
   getStatus: () => Promise<DesktopStatus>;
@@ -326,7 +332,8 @@ function isAddOnId(value: unknown): value is AddOnId {
     value === "noise_machines" ||
     value === "bid_ladder" ||
     value === "hype_bursts" ||
-    value === "leaderboard_deck"
+    value === "leaderboard_deck" ||
+    value === "gif_reactions"
   );
 }
 

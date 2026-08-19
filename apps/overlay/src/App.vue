@@ -26,6 +26,22 @@ const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
 const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
+const activeGif = computed(() => {
+  const event = recentEvents.value[0];
+  if (!event) {
+    return "";
+  }
+
+  if (event.type === "sale") {
+    return "/gifs/sale-pop.gif";
+  }
+
+  if (event.type === "bid") {
+    return "/gifs/bid-pulse.gif";
+  }
+
+  return "/gifs/chat-spark.gif";
+});
 const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
 const topBuyers = computed(() => (
   Object.entries(buyerTotals.value)
@@ -193,6 +209,14 @@ function playEventTone(event: ShowEvent): void {
     aria-live="polite"
   >
     <div class="overlay-frame" aria-hidden="true" />
+    <img
+      v-if="hasAddOn('gif_reactions') && activeGif"
+      :key="`gif-img-${recentEvents[0]?.timestamp}`"
+      class="reaction-gif"
+      :src="activeGif"
+      alt=""
+      aria-hidden="true"
+    />
     <div
       v-if="hasAddOn('hype_bursts') && recentEvents.length > 0"
       :key="`gif-${recentEvents[0]?.timestamp}`"
@@ -231,6 +255,7 @@ function playEventTone(event: ShowEvent): void {
         <span v-if="hasAddOn('noise_machines')">audio reactive</span>
         <span v-if="hasAddOn('bid_ladder')">bid ladder</span>
         <span v-if="hasAddOn('hype_bursts')">hype bursts</span>
+        <span v-if="hasAddOn('gif_reactions')">gif reactions</span>
         <span v-if="hasAddOn('leaderboard_deck')">leaderboard</span>
       </div>
       <div class="ticker">

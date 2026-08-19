@@ -233,6 +233,21 @@ body,
   animation: gif-lane-in 1600ms ease-out both;
 }
 
+.reaction-gif {
+  position: absolute;
+  right: 38px;
+  bottom: 430px;
+  z-index: 6;
+  width: min(360px, 42vw);
+  max-width: 360px;
+  height: auto;
+  filter:
+    drop-shadow(0 12px 0 var(--panel))
+    drop-shadow(0 24px 32px rgba(0, 0, 0, 0.34));
+  pointer-events: none;
+  animation: reaction-gif-pop 1800ms ease-out both;
+}
+
 .gif-lane span {
   min-width: 136px;
   padding: 12px 16px;
@@ -712,6 +727,28 @@ body,
   }
 }
 
+@keyframes reaction-gif-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(42px) scale(0.72) rotate(-6deg);
+  }
+
+  14% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.08) rotate(3deg);
+  }
+
+  72% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(-2deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.92) rotate(2deg);
+  }
+}
+
 @media (max-width: 720px) {
   .show-hud {
     top: 18px;
@@ -801,6 +838,12 @@ body,
     min-width: 98px;
     padding: 8px 10px;
     font-size: 20px;
+  }
+
+  .reaction-gif {
+    right: 20px;
+    bottom: 270px;
+    width: min(260px, 48vw);
   }
 
   .event-card {

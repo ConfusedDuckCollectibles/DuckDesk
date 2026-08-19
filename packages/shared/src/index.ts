@@ -29,7 +29,8 @@ export type AddOnId =
   | "noise_machines"
   | "bid_ladder"
   | "hype_bursts"
-  | "leaderboard_deck";
+  | "leaderboard_deck"
+  | "gif_reactions";
 
 export interface OverlayConfigMessage {
   type: "overlay_config";
@@ -133,7 +134,8 @@ export function isAddOnId(value: unknown): value is AddOnId {
     value === "noise_machines" ||
     value === "bid_ladder" ||
     value === "hype_bursts" ||
-    value === "leaderboard_deck"
+    value === "leaderboard_deck" ||
+    value === "gif_reactions"
   );
 }
 
