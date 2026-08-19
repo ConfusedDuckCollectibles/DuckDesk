@@ -13,6 +13,7 @@ type DesktopStatus = {
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  demoMode: boolean;
   lastError?: string;
 };
 
@@ -32,6 +33,7 @@ type DesktopApi = {
   setSkin: (skin: OverlaySkin) => Promise<DesktopStatus>;
   setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
   setSoundsEnabled: (enabled: boolean) => Promise<DesktopStatus>;
+  setDemoMode: (enabled: boolean) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -63,6 +65,7 @@ const eventLog = readElement<HTMLOListElement>("event-log");
 const copyUrl = readElement<HTMLButtonElement>("copy-url");
 const openOverlay = readElement<HTMLButtonElement>("open-overlay");
 const revealExtension = readElement<HTMLButtonElement>("reveal-extension");
+const demoToggle = readElement<HTMLButtonElement>("demo-toggle");
 const sendTest = readElement<HTMLButtonElement>("send-test");
 const sendBid = readElement<HTMLButtonElement>("send-bid");
 const sendAction = readElement<HTMLButtonElement>("send-action");
@@ -183,6 +186,11 @@ for (const soundToggle of soundToggles) {
   });
 }
 
+demoToggle.addEventListener("click", async () => {
+  const enabled = !(currentStatus?.demoMode ?? false);
+  renderStatus(await window.duckDesk.setDemoMode(enabled));
+});
+
 window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
   const item = document.createElement("li");
@@ -218,6 +226,13 @@ function renderStatus(status: DesktopStatus): void {
   soundStatus.textContent = status.soundsEnabled
     ? "Armed for bids, sales, and audience actions."
     : "Muted. Event sounds are paused.";
+  demoToggle.textContent = status.demoMode ? "Demo Mode On" : "Demo Mode Off";
+  demoToggle.classList.toggle("is-on", status.demoMode);
+  demoToggle.setAttribute("aria-pressed", String(status.demoMode));
+  for (const action of [sendTest, sendBid, sendAction]) {
+    action.disabled = !status.demoMode;
+    action.title = status.demoMode ? "" : "Turn on Demo Mode to send test events to the overlay.";
+  }
 
   for (const card of themeCards) {
     const isBaseTheme = card.dataset.theme === status.theme && !card.dataset.skin && status.skin === "none";

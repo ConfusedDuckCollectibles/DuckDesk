@@ -43,6 +43,7 @@ let activeTheme: OverlayTheme = "neon";
 let activeSkin: OverlaySkin = "none";
 const activeAddOns = new Set<AddOnId>();
 let soundsEnabled = true;
+let demoMode = false;
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -156,6 +157,7 @@ async function startLocalBridge(): Promise<void> {
     broadcastStatus();
 
     socket.send(JSON.stringify({ type: "connected", timestamp: Date.now() }));
+    socket.send(JSON.stringify(createOverlayClear()));
     socket.send(JSON.stringify(createOverlayConfig()));
     socket.on("close", () => {
       clients.delete(socket);
@@ -196,6 +198,10 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:send-test-sale", () => {
+    if (!demoMode) {
+      return getStatus();
+    }
+
     receiveEvent({
       type: "sale",
       buyer: "TestBuyer",
@@ -206,6 +212,10 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:send-test-bid", () => {
+    if (!demoMode) {
+      return getStatus();
+    }
+
     receiveEvent({
       type: "bid",
       bidder: "BidBoss",
@@ -216,6 +226,10 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:send-test-action", () => {
+    if (!demoMode) {
+      return getStatus();
+    }
+
     receiveEvent({
       type: "audience_action",
       actor: "ChatChampion",
@@ -275,6 +289,19 @@ function registerIpc(): void {
 
     soundsEnabled = enabled;
     broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-demo-mode", (_event, enabled: unknown) => {
+    if (typeof enabled !== "boolean") {
+      return getStatus();
+    }
+
+    demoMode = enabled;
+    if (!enabled) {
+      broadcast(createOverlayClear());
+    }
     broadcastStatus();
     return getStatus();
   });
@@ -363,7 +390,7 @@ function playEventSound(event: ShowEvent): void {
   }
 }
 
-function broadcast(event: ShowEvent | ReturnType<typeof createOverlayConfig>): void {
+function broadcast(event: ShowEvent | ReturnType<typeof createOverlayConfig> | ReturnType<typeof createOverlayClear>): void {
   const payload = JSON.stringify(event);
 
   for (const client of clients) {
@@ -390,6 +417,7 @@ function getStatus(): {
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  demoMode: boolean;
   lastError?: string;
 } {
   return {
@@ -405,6 +433,7 @@ function getStatus(): {
     skin: activeSkin,
     addOns: [...activeAddOns],
     soundsEnabled,
+    demoMode,
     lastError
   };
 }
@@ -423,6 +452,16 @@ function createOverlayConfig(): {
     skin: activeSkin,
     addOns: [...activeAddOns],
     soundsEnabled,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayClear(): {
+  type: "overlay_clear";
+  timestamp: number;
+} {
+  return {
+    type: "overlay_clear",
     timestamp: Date.now()
   };
 }

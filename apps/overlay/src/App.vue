@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   isOverlayConfigMessage,
+  isOverlayClearMessage,
   isShowEvent,
   type AddOnId,
   type BridgeMessage,
@@ -88,6 +89,11 @@ function connect(): void {
       return;
     }
 
+    if (parsed.type === "connected" || isOverlayClearMessage(parsed)) {
+      clearOverlayData();
+      return;
+    }
+
     if (isOverlayConfigMessage(parsed)) {
       theme.value = parsed.theme;
       skin.value = parsed.skin;
@@ -116,6 +122,7 @@ function connect(): void {
 }
 
 function scheduleReconnect(): void {
+  clearOverlayData();
   if (reconnecting.value) {
     return;
   }
@@ -147,10 +154,27 @@ function parseMessage(data: unknown): BridgeMessage | null {
 
   try {
     const parsed = JSON.parse(data) as unknown;
-    return isShowEvent(parsed) || isOverlayConfigMessage(parsed) ? parsed : null;
+    if (
+      isShowEvent(parsed) ||
+      isOverlayConfigMessage(parsed) ||
+      isOverlayClearMessage(parsed) ||
+      (typeof parsed === "object" && parsed !== null && "type" in parsed && parsed.type === "connected")
+    ) {
+      return parsed as BridgeMessage;
+    }
+    return null;
   } catch {
     return null;
   }
+}
+
+function clearOverlayData(): void {
+  queue.value = [];
+  activeEvent.value = null;
+  recentEvents.value = [];
+  buyerTotals.value = {};
+  burstKey.value = 0;
+  window.clearTimeout(dismissTimer);
 }
 
 function hasAddOn(addOn: AddOnId): boolean {

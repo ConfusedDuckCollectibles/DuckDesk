@@ -194,7 +194,7 @@ In Duck Desk, click:
 - `Test Bid`
 - `Audience Action`
 
-You should see effects appear in OBS. You can also switch themes in Duck Desk and see the top HUD/ticker change immediately.
+These buttons are disabled unless `Demo Mode` is on. Demo Mode is for local overlay testing only; turning it off clears test events from the OBS overlay. You can also switch themes in Duck Desk and see the top HUD/ticker change immediately.
 
 ### 7. Load The Chrome Extension
 

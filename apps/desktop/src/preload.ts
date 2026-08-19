@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld("duckDesk", {
   setSkin: (skin: unknown) => ipcRenderer.invoke("duck-desk:set-skin", skin),
   setAddOn: (addOn: unknown, enabled: unknown) => ipcRenderer.invoke("duck-desk:set-addon", addOn, enabled),
   setSoundsEnabled: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-sounds-enabled", enabled),
+  setDemoMode: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-demo-mode", enabled),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));
   },

@@ -45,8 +45,13 @@ export interface ConnectedMessage {
   timestamp: number;
 }
 
+export interface OverlayClearMessage {
+  type: "overlay_clear";
+  timestamp: number;
+}
+
 export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent;
-export type BridgeMessage = ShowEvent | OverlayConfigMessage | ConnectedMessage;
+export type BridgeMessage = ShowEvent | OverlayConfigMessage | ConnectedMessage | OverlayClearMessage;
 
 export function normalizeShowEvent(input: unknown): ShowEvent {
   if (!isRecord(input)) {
@@ -112,6 +117,10 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
 
 export function isOverlayTheme(value: unknown): value is OverlayTheme {
   return value === "neon" || value === "arena" || value === "duck";
+}
+
+export function isOverlayClearMessage(value: unknown): value is OverlayClearMessage {
+  return isRecord(value) && value.type === "overlay_clear";
 }
 
 export function isOverlaySkin(value: unknown): value is OverlaySkin {
