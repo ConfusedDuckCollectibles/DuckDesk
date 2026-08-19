@@ -12,6 +12,7 @@ type DesktopStatus = {
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
+  soundsEnabled: boolean;
   lastError?: string;
 };
 
@@ -30,8 +31,19 @@ type DesktopApi = {
   setTheme: (theme: OverlayTheme) => Promise<DesktopStatus>;
   setSkin: (skin: OverlaySkin) => Promise<DesktopStatus>;
   setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
+  setSoundsEnabled: (enabled: boolean) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
-  onEvent: (callback: (event: { buyer: string; amount: number; item?: string }) => void) => void;
+  onEvent: (callback: (event: ShowEventLog) => void) => void;
+};
+
+type ShowEventLog = {
+  type?: string;
+  buyer?: string;
+  bidder?: string;
+  actor?: string;
+  amount?: number;
+  item?: string;
+  message?: string;
 };
 
 declare global {
@@ -60,13 +72,16 @@ const activeAddonsStatus = readElement<HTMLElement>("active-addons-status");
 const activeAddonsEmpty = readElement<HTMLElement>("active-addons-empty");
 const moduleBids = readElement<HTMLElement>("module-bids");
 const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
+const soundToggle = readElement<HTMLButtonElement>("sound-toggle");
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
 const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-panel]"));
+const addonThemeCards = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-theme]"));
 const addonTestActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-test]"));
 const skinActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-skin]"));
 
 let audioContext: AudioContext | undefined;
+let currentStatus: DesktopStatus | undefined;
 
 const dollars = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -128,18 +143,15 @@ for (const action of addonActions) {
 for (const action of addonTestActions) {
   action.addEventListener("click", () => {
     if (action.dataset.addonTest === "sale") {
-      playLocalTone("sale");
       void window.duckDesk.sendTestSale();
       return;
     }
 
     if (action.dataset.addonTest === "bid") {
-      playLocalTone("bid");
       void window.duckDesk.sendTestBid();
       return;
     }
 
-    playLocalTone("action");
     void window.duckDesk.sendTestAction();
   });
 }
@@ -153,8 +165,21 @@ for (const action of skinActions) {
   });
 }
 
+soundToggle.addEventListener("click", async () => {
+  const enabled = !(currentStatus?.soundsEnabled ?? true);
+  renderStatus(await window.duckDesk.setSoundsEnabled(enabled));
+});
+
 window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
+  if (event.type === "sale") {
+    playEventToneIfEnabled("sale");
+  } else if (event.type === "bid") {
+    playEventToneIfEnabled("bid");
+  } else if (event.type === "audience_action") {
+    playEventToneIfEnabled("action");
+  }
+
   const item = document.createElement("li");
   item.textContent = formatEventLog(event);
   eventLog.prepend(item);
@@ -167,6 +192,7 @@ window.duckDesk.onEvent((event) => {
 void window.duckDesk.getStatus().then(renderStatus);
 
 function renderStatus(status: DesktopStatus): void {
+  currentStatus = status;
   statusPill.textContent = status.ok ? "Running" : "Needs Attention";
   statusPill.classList.toggle("ok", status.ok);
   overlayUrl.value = status.overlayUrl;
@@ -178,9 +204,14 @@ function renderStatus(status: DesktopStatus): void {
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
   activeThemeLabel.textContent = themeName(status.theme);
+  soundToggle.textContent = status.soundsEnabled ? "Sound On" : "Sound Off";
+  soundToggle.classList.toggle("is-on", status.soundsEnabled);
+  soundToggle.setAttribute("aria-pressed", String(status.soundsEnabled));
 
   for (const card of themeCards) {
-    card.classList.toggle("is-active", card.dataset.theme === status.theme);
+    const isBaseTheme = card.dataset.theme === status.theme && !card.dataset.skin;
+    const isSkinTheme = card.dataset.skin === status.skin && status.addOns.includes("stream_skins");
+    card.classList.toggle("is-active", isBaseTheme || isSkinTheme);
   }
 
   for (const action of skinActions) {
@@ -190,7 +221,7 @@ function renderStatus(status: DesktopStatus): void {
   renderAddOns(status.addOns);
 }
 
-function formatEventLog(event: { type?: string; buyer?: string; bidder?: string; actor?: string; amount?: number; item?: string; message?: string }): string {
+function formatEventLog(event: ShowEventLog): string {
   if (event.type === "sale") {
     return `SOLD @${event.buyer} ${dollars.format(event.amount ?? 0)}${event.item ? ` - ${event.item}` : ""}`;
   }
@@ -240,6 +271,10 @@ function renderAddOns(addOns: AddOnId[]): void {
     panel.hidden = !isAddOnId(addOn) || !addOns.includes(addOn);
   }
 
+  for (const card of addonThemeCards) {
+    card.hidden = !addOns.includes("stream_skins");
+  }
+
   updateLibraryStatus();
 }
 
@@ -255,6 +290,14 @@ function isAddOnId(value: unknown): value is AddOnId {
 
 function isOverlaySkin(value: unknown): value is OverlaySkin {
   return value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+}
+
+function playEventToneIfEnabled(kind: "sale" | "bid" | "action"): void {
+  if (!currentStatus?.addOns.includes("noise_machines") || !currentStatus.soundsEnabled) {
+    return;
+  }
+
+  playLocalTone(kind);
 }
 
 function playLocalTone(kind: "sale" | "bid" | "action"): void {

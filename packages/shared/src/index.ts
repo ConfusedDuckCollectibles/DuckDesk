@@ -36,6 +36,7 @@ export interface OverlayConfigMessage {
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
+  soundsEnabled: boolean;
   timestamp: number;
 }
 
@@ -104,7 +105,8 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     isOverlayTheme(value.theme) &&
     isOverlaySkin(value.skin) &&
     Array.isArray(value.addOns) &&
-    value.addOns.every(isAddOnId)
+    value.addOns.every(isAddOnId) &&
+    typeof value.soundsEnabled === "boolean"
   );
 }
 

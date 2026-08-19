@@ -99,6 +99,34 @@ body,
   border-style: double;
 }
 
+.overlay-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 14px solid color-mix(in srgb, var(--primary) 82%, transparent);
+  box-shadow:
+    inset 0 0 0 4px color-mix(in srgb, var(--panel) 72%, transparent),
+    inset 0 0 76px color-mix(in srgb, var(--primary) 22%, transparent);
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.theme-arena .overlay-frame {
+  border-style: double;
+}
+
+.theme-duck .overlay-frame {
+  border-width: 12px;
+  box-shadow:
+    inset 0 0 0 5px #ffffff,
+    inset 0 0 82px rgba(255, 216, 77, 0.28);
+}
+
+.addon-stream_skins .overlay-frame {
+  border-color: var(--accent);
+  animation: frame-scan 2600ms linear infinite;
+}
+
 .skin-frame {
   position: absolute;
   inset: 18px;
@@ -153,6 +181,55 @@ body,
     0 0 82px color-mix(in srgb, var(--primary) 60%, transparent);
   pointer-events: none;
   animation: burst-ring 900ms ease-out both;
+}
+
+.gif-lane {
+  position: absolute;
+  right: -34px;
+  bottom: 470px;
+  z-index: 5;
+  display: grid;
+  gap: 10px;
+  pointer-events: none;
+  animation: gif-lane-in 1600ms ease-out both;
+}
+
+.gif-lane span {
+  min-width: 136px;
+  padding: 12px 16px;
+  border: 4px solid var(--panel);
+  border-radius: 8px;
+  color: var(--panel);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--primary) 86%, white), color-mix(in srgb, var(--accent) 72%, white));
+  box-shadow:
+    0 8px 0 var(--panel),
+    0 0 34px color-mix(in srgb, var(--accent) 42%, transparent);
+  font-size: 30px;
+  font-weight: 1000;
+  text-align: center;
+  transform: rotate(-6deg);
+  animation: sticker-wiggle 320ms steps(2, jump-none) infinite;
+}
+
+.gif-lane span:nth-child(2) {
+  transform: translateX(-44px) rotate(4deg);
+  animation-delay: 80ms;
+}
+
+.gif-lane span:nth-child(3) {
+  transform: translateX(-14px) rotate(-3deg);
+  animation-delay: 150ms;
+}
+
+.gif-bid span {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 78%, white), color-mix(in srgb, var(--primary) 72%, white));
+}
+
+.gif-audience_action span {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--secondary) 86%, white), color-mix(in srgb, var(--accent) 62%, white));
 }
 
 .show-hud {
@@ -546,6 +623,62 @@ body,
   }
 }
 
+@keyframes frame-scan {
+  0% {
+    box-shadow:
+      inset 0 0 0 4px color-mix(in srgb, var(--panel) 72%, transparent),
+      inset 0 -30px 76px color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 0 0 4px color-mix(in srgb, var(--panel) 72%, transparent),
+      inset 0 30px 92px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  100% {
+    box-shadow:
+      inset 0 0 0 4px color-mix(in srgb, var(--panel) 72%, transparent),
+      inset 0 -30px 76px color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+}
+
+@keyframes gif-lane-in {
+  0% {
+    opacity: 0;
+    transform: translateX(120px) scale(0.86);
+  }
+
+  18% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  78% {
+    opacity: 1;
+    transform: translateX(-18px) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-80px) scale(0.94);
+  }
+}
+
+@keyframes sticker-wiggle {
+  0% {
+    margin-left: 0;
+  }
+
+  50% {
+    margin-left: 6px;
+  }
+
+  100% {
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 720px) {
   .show-hud {
     top: 18px;
@@ -620,6 +753,21 @@ body,
   .addon-strip span {
     padding: 4px 8px;
     font-size: 10px;
+  }
+
+  .overlay-frame {
+    border-width: 8px;
+  }
+
+  .gif-lane {
+    right: -46px;
+    bottom: 350px;
+  }
+
+  .gif-lane span {
+    min-width: 98px;
+    padding: 8px 10px;
+    font-size: 20px;
   }
 
   .event-card {

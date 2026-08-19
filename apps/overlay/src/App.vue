@@ -19,6 +19,7 @@ const reconnecting = ref(false);
 const theme = ref<OverlayTheme>("neon");
 const skin = ref<OverlaySkin>("cyber_market");
 const activeAddOns = ref<AddOnId[]>([]);
+const soundsEnabled = ref(true);
 const buyerTotals = ref<Record<string, number>>({});
 const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
@@ -34,6 +35,7 @@ const themeLabel = computed(() => {
   return "Neon Circuit";
 });
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
+const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
 const topBuyers = computed(() => (
   Object.entries(buyerTotals.value)
     .sort((left, right) => right[1] - left[1])
@@ -80,12 +82,13 @@ function connect(): void {
       theme.value = parsed.theme;
       skin.value = parsed.skin;
       activeAddOns.value = parsed.addOns;
+      soundsEnabled.value = parsed.soundsEnabled;
       return;
     }
 
     if (isShowEvent(parsed)) {
       applyEventStats(parsed);
-      if (hasAddOn("noise_machines")) {
+      if (hasAddOn("noise_machines") && soundsEnabled.value) {
         playEventTone(parsed);
       }
       if (hasAddOn("hype_bursts")) {
@@ -184,6 +187,18 @@ function playEventTone(event: ShowEvent): void {
     :class="[`theme-${theme}`, `skin-${skin}`, activeAddOns.map((addOn) => `addon-${addOn}`)]"
     aria-live="polite"
   >
+    <div class="overlay-frame" aria-hidden="true" />
+    <div
+      v-if="hasAddOn('hype_bursts') && recentEvents.length > 0"
+      :key="`gif-${recentEvents[0]?.timestamp}`"
+      class="gif-lane"
+      :class="`gif-${latestEventType}`"
+      aria-hidden="true"
+    >
+      <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
+      <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
+      <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
+    </div>
     <div v-if="hasAddOn('stream_skins')" class="skin-frame" aria-hidden="true">
       <span />
       <span />

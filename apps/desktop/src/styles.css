@@ -320,6 +320,10 @@ input {
   text-align: left;
 }
 
+.theme-card[hidden] {
+  display: none;
+}
+
 .theme-card.is-active {
   border-color: rgba(52, 231, 255, 0.7);
   background: rgba(52, 231, 255, 0.14);
@@ -342,6 +346,28 @@ input {
 
 .swatch.duck {
   background: linear-gradient(135deg, #ffd84d, #ffffff 48%, #2842d8);
+}
+
+.swatch.cyber-market {
+  background:
+    linear-gradient(135deg, #34e7ff, #ff5bd6),
+    #071014;
+}
+
+.swatch.arcade-drop {
+  background:
+    repeating-linear-gradient(135deg, #ffcf61 0 6px, #ff5bd6 6px 12px),
+    #071014;
+}
+
+.swatch.sports-desk {
+  background:
+    linear-gradient(90deg, #ffffff 0 24%, #34e7ff 24% 76%, #ffcf61 76%),
+    #071014;
+}
+
+.premium-theme-card {
+  border-color: rgba(255, 207, 97, 0.34);
 }
 
 .library-grid,
@@ -506,6 +532,17 @@ h3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.sound-toggle {
+  width: 100%;
+  color: #071014;
+  background: linear-gradient(135deg, #a5ffcb, #34e7ff);
+}
+
+.sound-toggle:not(.is-on) {
+  color: #edf7ff;
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .sound-pad button {

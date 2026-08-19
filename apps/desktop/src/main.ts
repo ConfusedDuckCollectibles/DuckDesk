@@ -41,6 +41,7 @@ const stats = {
 let activeTheme: OverlayTheme = "neon";
 let activeSkin: OverlaySkin = "cyber_market";
 const activeAddOns = new Set<AddOnId>();
+let soundsEnabled = true;
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -244,6 +245,20 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:set-sounds-enabled", (_event, enabled: unknown) => {
+    if (typeof enabled !== "boolean") {
+      return getStatus();
+    }
+
+    soundsEnabled = enabled;
+    if (enabled) {
+      activeAddOns.add("noise_machines");
+    }
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
@@ -287,6 +302,7 @@ function getStatus(): {
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
+  soundsEnabled: boolean;
   lastError?: string;
 } {
   return {
@@ -301,6 +317,7 @@ function getStatus(): {
     theme: activeTheme,
     skin: activeSkin,
     addOns: [...activeAddOns],
+    soundsEnabled,
     lastError
   };
 }
@@ -310,6 +327,7 @@ function createOverlayConfig(): {
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
+  soundsEnabled: boolean;
   timestamp: number;
 } {
   return {
@@ -317,6 +335,7 @@ function createOverlayConfig(): {
     theme: activeTheme,
     skin: activeSkin,
     addOns: [...activeAddOns],
+    soundsEnabled,
     timestamp: Date.now()
   };
 }
