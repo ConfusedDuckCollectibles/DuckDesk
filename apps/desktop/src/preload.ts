@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld("duckDesk", {
   copyOverlayUrl: () => ipcRenderer.invoke("duck-desk:copy-overlay-url"),
   openOverlay: () => ipcRenderer.invoke("duck-desk:open-overlay"),
   revealExtension: () => ipcRenderer.invoke("duck-desk:reveal-extension"),
+  autoAddObsOverlay: () => ipcRenderer.invoke("duck-desk:auto-add-obs-overlay"),
   sendTestSale: () => ipcRenderer.invoke("duck-desk:send-test-sale"),
   sendTestBid: () => ipcRenderer.invoke("duck-desk:send-test-bid"),
   sendTestAction: () => ipcRenderer.invoke("duck-desk:send-test-action"),
@@ -25,6 +26,11 @@ contextBridge.exposeInMainWorld("duckDesk", {
   ),
   triggerSound: (kind: unknown) => ipcRenderer.invoke("duck-desk:trigger-sound", kind),
   triggerBurst: () => ipcRenderer.invoke("duck-desk:trigger-burst"),
+  setMilestones: (thresholds: unknown) => ipcRenderer.invoke("duck-desk:set-milestones", thresholds),
+  triggerHypeMeter: () => ipcRenderer.invoke("duck-desk:trigger-hype-meter"),
+  setHypeMeterSeconds: (seconds: unknown) => ipcRenderer.invoke("duck-desk:set-hype-meter-seconds", seconds),
+  setJumbotronCamera: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-jumbotron-camera", enabled),
+  setPromoBanners: (banners: unknown) => ipcRenderer.invoke("duck-desk:set-promo-banners", banners),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));
   },

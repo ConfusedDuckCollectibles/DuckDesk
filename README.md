@@ -54,6 +54,8 @@ Because this prototype is not code-signed yet, macOS may require right-clicking 
 
 Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` supports temporary external `.gif`, `.webp`, and Giphy page URLs that stay available in the app until Duck Desk is restarted. Saved GIFs can be renamed, triggered manually from the app, positioned center/top/bottom/left/right, and sized small/medium/big.
 
+The current add-on set also includes OBS auto-add, a jumbotron stage with optional camera frame, milestone thresholds, a timed Hype Meter, promo banner rotation, and improved local Whatnot page detection for bids, sales, chat, follows, bookmarks, and reactions.
+
 ## Full Whatnot Setup Guide
 
 This setup uses one phone-first OBS scene:

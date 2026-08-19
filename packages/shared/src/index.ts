@@ -33,7 +33,11 @@ export type AddOnId =
   | "bid_ladder"
   | "hype_bursts"
   | "leaderboard_deck"
-  | "gif_reactions";
+  | "gif_reactions"
+  | "milestones"
+  | "hype_meter"
+  | "jumbotron"
+  | "promo_banners";
 
 export interface OverlayConfigMessage {
   type: "overlay_config";
@@ -45,6 +49,10 @@ export interface OverlayConfigMessage {
   customGifUrls: string[];
   gifPlacement: GifPlacement;
   gifSize: GifSize;
+  milestoneThresholds: number[];
+  hypeMeterSeconds: number;
+  jumbotronCameraEnabled: boolean;
+  promoBanners: string[];
   timestamp: number;
 }
 
@@ -75,6 +83,19 @@ export interface OverlayBurstTriggerMessage {
   timestamp: number;
 }
 
+export interface OverlayMilestoneTriggerMessage {
+  type: "milestone_trigger";
+  amount: number;
+  label: string;
+  timestamp: number;
+}
+
+export interface OverlayHypeMeterTriggerMessage {
+  type: "hype_meter_trigger";
+  durationSeconds: number;
+  timestamp: number;
+}
+
 export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent;
 export type BridgeMessage =
   | ShowEvent
@@ -83,7 +104,9 @@ export type BridgeMessage =
   | OverlayClearMessage
   | OverlayGifTriggerMessage
   | OverlaySoundTriggerMessage
-  | OverlayBurstTriggerMessage;
+  | OverlayBurstTriggerMessage
+  | OverlayMilestoneTriggerMessage
+  | OverlayHypeMeterTriggerMessage;
 
 export function normalizeShowEvent(input: unknown): ShowEvent {
   if (!isRecord(input)) {
@@ -148,7 +171,13 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     Array.isArray(value.customGifUrls) &&
     value.customGifUrls.every((url) => typeof url === "string") &&
     isGifPlacement(value.gifPlacement) &&
-    isGifSize(value.gifSize)
+    isGifSize(value.gifSize) &&
+    Array.isArray(value.milestoneThresholds) &&
+    value.milestoneThresholds.every((amount) => typeof amount === "number" && Number.isFinite(amount)) &&
+    typeof value.hypeMeterSeconds === "number" &&
+    typeof value.jumbotronCameraEnabled === "boolean" &&
+    Array.isArray(value.promoBanners) &&
+    value.promoBanners.every((banner) => typeof banner === "string")
   );
 }
 
@@ -186,6 +215,25 @@ export function isOverlayBurstTriggerMessage(value: unknown): value is OverlayBu
   );
 }
 
+export function isOverlayMilestoneTriggerMessage(value: unknown): value is OverlayMilestoneTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "milestone_trigger" &&
+    typeof value.amount === "number" &&
+    typeof value.label === "string" &&
+    typeof value.timestamp === "number"
+  );
+}
+
+export function isOverlayHypeMeterTriggerMessage(value: unknown): value is OverlayHypeMeterTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "hype_meter_trigger" &&
+    typeof value.durationSeconds === "number" &&
+    typeof value.timestamp === "number"
+  );
+}
+
 export function isOverlaySkin(value: unknown): value is OverlaySkin {
   return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
 }
@@ -209,7 +257,11 @@ export function isAddOnId(value: unknown): value is AddOnId {
     value === "bid_ladder" ||
     value === "hype_bursts" ||
     value === "leaderboard_deck" ||
-    value === "gif_reactions"
+    value === "gif_reactions" ||
+    value === "milestones" ||
+    value === "hype_meter" ||
+    value === "jumbotron" ||
+    value === "promo_banners"
   );
 }
 

@@ -1,10 +1,11 @@
-import type { BidEvent, SaleEvent } from "@duck-desk/shared";
+import type { AudienceActionEvent, BidEvent, SaleEvent } from "@duck-desk/shared";
 
-type WhatnotDetectedEvent = SaleEvent | BidEvent;
+type WhatnotDetectedEvent = SaleEvent | BidEvent | AudienceActionEvent;
 type EmitShowEvent = (event: WhatnotDetectedEvent) => void;
 
 const SALE_TEXT = /\b(sold|auction ended|winner|won)\b/i;
 const BID_TEXT = /\b(bid|bidder|current bid|high bid|placed a bid)\b/i;
+const ACTION_TEXT = /\b(followed|bookmark|liked|reacted|joined|commented|chat)\b/i;
 const PRICE_TEXT = /\$([0-9][0-9,]*(?:\.[0-9]{1,2})?)/;
 const USER_TEXT = /@([a-z0-9_.-]{2,32})/i;
 
@@ -25,9 +26,7 @@ export function createWhatnotObserver(emitEvent: EmitShowEvent): { start: () => 
             continue;
           }
 
-          const signature = event.type === "sale"
-            ? `${event.type}:${event.buyer}:${event.amount}:${event.item ?? ""}`
-            : `${event.type}:${event.bidder}:${event.amount}:${event.item ?? ""}`;
+          const signature = signatureForEvent(event);
           if (recentlySeen.has(signature)) {
             continue;
           }
@@ -44,6 +43,8 @@ export function createWhatnotObserver(emitEvent: EmitShowEvent): { start: () => 
       subtree: true,
       characterData: true
     });
+
+    scanExistingPage();
   }
 
   function stop(): void {
@@ -52,6 +53,16 @@ export function createWhatnotObserver(emitEvent: EmitShowEvent): { start: () => 
   }
 
   return { start, stop };
+
+  function scanExistingPage(): void {
+    const candidates = Array.from(document.querySelectorAll("li, [role='listitem'], [data-testid], div, span")).slice(-250);
+    for (const candidate of candidates) {
+      const event = parseNodeForShowEvent(candidate);
+      if (event) {
+        emitEvent(event);
+      }
+    }
+  }
 }
 
 function parseNodeForShowEvent(node: Node): WhatnotDetectedEvent | null {
@@ -66,7 +77,19 @@ function parseNodeForShowEvent(node: Node): WhatnotDetectedEvent | null {
   }
 
   const text = collapseText(scope.textContent ?? "");
-  return parseSaleText(text) ?? parseBidText(text);
+  return parseSaleText(text) ?? parseBidText(text) ?? parseAudienceActionText(text);
+}
+
+function signatureForEvent(event: WhatnotDetectedEvent): string {
+  if (event.type === "sale") {
+    return `${event.type}:${event.buyer}:${event.amount}:${event.item ?? ""}`;
+  }
+
+  if (event.type === "bid") {
+    return `${event.type}:${event.bidder}:${event.amount}:${event.item ?? ""}`;
+  }
+
+  return `${event.type}:${event.actor}:${event.action}:${event.message ?? ""}`;
 }
 
 function parseSaleText(text: string): SaleEvent | null {
@@ -109,12 +132,37 @@ function parseBidText(text: string): BidEvent | null {
   };
 }
 
+function parseAudienceActionText(text: string): AudienceActionEvent | null {
+  if (!ACTION_TEXT.test(text) || SALE_TEXT.test(text) || BID_TEXT.test(text)) {
+    return null;
+  }
+
+  const actor = extractBuyer(text);
+  if (!actor) {
+    return null;
+  }
+
+  return {
+    type: "audience_action",
+    actor,
+    action: text.match(/\b(followed|follow)\b/i)
+      ? "follow"
+      : text.match(/\b(bookmark|bookmarked)\b/i)
+        ? "bookmark"
+        : text.match(/\b(commented|chat)\b/i)
+          ? "chat"
+          : "reaction",
+    message: text.slice(0, 120),
+    timestamp: Date.now()
+  };
+}
+
 function findLikelyEventScope(element: Element): Element | null {
   let current: Element | null = element;
 
   for (let depth = 0; current && depth < 4; depth += 1) {
     const text = collapseText(current.textContent ?? "");
-    if (text.length > 8 && text.length < 600 && (SALE_TEXT.test(text) || BID_TEXT.test(text))) {
+    if (text.length > 8 && text.length < 600 && (SALE_TEXT.test(text) || BID_TEXT.test(text) || ACTION_TEXT.test(text))) {
       return current;
     }
     current = current.parentElement;

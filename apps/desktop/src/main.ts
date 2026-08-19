@@ -33,6 +33,7 @@ import {
 
 const port = 8741;
 const overlayUrl = `http://localhost:${port}/overlay`;
+const obsUrl = "ws://127.0.0.1:4455";
 
 let mainWindow: BrowserWindow | null = null;
 let server: Server | null = null;
@@ -55,6 +56,12 @@ let streamTitle = "";
 let customGifs: CustomGif[] = [];
 let gifPlacement: GifPlacement = "center";
 let gifSize: GifSize = "medium";
+let milestoneThresholds = [100, 250, 500, 1000];
+const completedMilestones = new Set<number>();
+let hypeMeterSeconds = 30;
+let jumbotronCameraEnabled = false;
+let promoBanners = ["Follow the show for new drops", "Bookmark your favorite lots", "Ask questions in chat"];
+let obsStatus = "Not connected";
 
 type CustomGif = {
   id: string;
@@ -221,6 +228,12 @@ function registerIpc(): void {
 
   ipcMain.handle("duck-desk:reveal-extension", () => {
     void shell.openPath(resolveExtensionPath());
+  });
+
+  ipcMain.handle("duck-desk:auto-add-obs-overlay", async () => {
+    obsStatus = await autoAddObsOverlay();
+    broadcastStatus();
+    return getStatus();
   });
 
   ipcMain.handle("duck-desk:send-test-sale", () => {
@@ -439,12 +452,73 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:set-milestones", (_event, thresholds: unknown) => {
+    if (typeof thresholds !== "string") {
+      return getStatus();
+    }
+
+    const parsed = thresholds
+      .split(/[,\n]/)
+      .map((value) => Number(value.trim()))
+      .filter((value) => Number.isFinite(value) && value > 0)
+      .sort((left, right) => left - right);
+    milestoneThresholds = [...new Set(parsed)].slice(0, 12);
+    completedMilestones.clear();
+    activeAddOns.add("milestones");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:trigger-hype-meter", () => {
+    activeAddOns.add("hype_meter");
+    broadcast(createOverlayConfig());
+    broadcast(createOverlayHypeMeterTrigger(hypeMeterSeconds));
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-hype-meter-seconds", (_event, seconds: unknown) => {
+    if (typeof seconds === "number" && Number.isFinite(seconds)) {
+      hypeMeterSeconds = Math.max(10, Math.min(120, Math.round(seconds)));
+    }
+    activeAddOns.add("hype_meter");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-jumbotron-camera", (_event, enabled: unknown) => {
+    if (typeof enabled === "boolean") {
+      jumbotronCameraEnabled = enabled;
+    }
+    activeAddOns.add("jumbotron");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-promo-banners", (_event, banners: unknown) => {
+    if (typeof banners === "string") {
+      promoBanners = banners
+        .split(/\n/)
+        .map((banner) => banner.replace(/\s+/g, " ").trim())
+        .filter((banner) => banner.length > 0)
+        .slice(0, 12);
+    }
+    activeAddOns.add("promo_banners");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
   if (event.type === "sale") {
     stats.salesCount += 1;
     stats.grossSales += event.amount;
+    checkMilestones();
   } else if (event.type === "bid") {
     stats.bidCount += 1;
   } else if (event.type === "audience_action") {
@@ -538,6 +612,52 @@ function applyConfigPatch(input: unknown): void {
     }
     gifSize = input.gifSize;
   }
+
+  if ("milestoneThresholds" in input) {
+    if (
+      !Array.isArray(input.milestoneThresholds) ||
+      !input.milestoneThresholds.every((amount) => typeof amount === "number" && Number.isFinite(amount))
+    ) {
+      throw new Error("Invalid milestone thresholds.");
+    }
+    milestoneThresholds = [...new Set(input.milestoneThresholds)].filter((amount) => amount > 0).sort((a, b) => a - b);
+  }
+
+  if ("hypeMeterSeconds" in input) {
+    if (typeof input.hypeMeterSeconds !== "number" || !Number.isFinite(input.hypeMeterSeconds)) {
+      throw new Error("Invalid hype meter duration.");
+    }
+    hypeMeterSeconds = Math.max(10, Math.min(120, Math.round(input.hypeMeterSeconds)));
+  }
+
+  if ("jumbotronCameraEnabled" in input) {
+    if (typeof input.jumbotronCameraEnabled !== "boolean") {
+      throw new Error("Invalid jumbotron camera setting.");
+    }
+    jumbotronCameraEnabled = input.jumbotronCameraEnabled;
+  }
+
+  if ("promoBanners" in input) {
+    if (!Array.isArray(input.promoBanners) || !input.promoBanners.every((banner) => typeof banner === "string")) {
+      throw new Error("Invalid promo banners.");
+    }
+    promoBanners = input.promoBanners.map((banner) => banner.trim()).filter(Boolean).slice(0, 12);
+  }
+}
+
+function checkMilestones(): void {
+  if (!activeAddOns.has("milestones")) {
+    return;
+  }
+
+  for (const threshold of milestoneThresholds) {
+    if (stats.grossSales >= threshold && !completedMilestones.has(threshold)) {
+      completedMilestones.add(threshold);
+      broadcast(createOverlayMilestoneTrigger(threshold));
+      broadcast(createOverlayBurstTrigger());
+      playSoundKind("sale");
+    }
+  }
 }
 
 function playEventSound(event: ShowEvent): void {
@@ -571,6 +691,8 @@ function broadcast(
     | ReturnType<typeof createOverlayGifTrigger>
     | ReturnType<typeof createOverlaySoundTrigger>
     | ReturnType<typeof createOverlayBurstTrigger>
+    | ReturnType<typeof createOverlayMilestoneTrigger>
+    | ReturnType<typeof createOverlayHypeMeterTrigger>
 ): void {
   const payload = JSON.stringify(event);
 
@@ -604,6 +726,11 @@ function getStatus(): {
   customGifs: CustomGif[];
   gifPlacement: GifPlacement;
   gifSize: GifSize;
+  milestoneThresholds: number[];
+  hypeMeterSeconds: number;
+  jumbotronCameraEnabled: boolean;
+  promoBanners: string[];
+  obsStatus: string;
   lastError?: string;
 } {
   return {
@@ -625,6 +752,11 @@ function getStatus(): {
     customGifs,
     gifPlacement,
     gifSize,
+    milestoneThresholds,
+    hypeMeterSeconds,
+    jumbotronCameraEnabled,
+    promoBanners,
+    obsStatus,
     lastError
   };
 }
@@ -639,6 +771,10 @@ function createOverlayConfig(): {
   customGifUrls: string[];
   gifPlacement: GifPlacement;
   gifSize: GifSize;
+  milestoneThresholds: number[];
+  hypeMeterSeconds: number;
+  jumbotronCameraEnabled: boolean;
+  promoBanners: string[];
   timestamp: number;
 } {
   return {
@@ -651,6 +787,10 @@ function createOverlayConfig(): {
     customGifUrls: customGifs.map((gif) => gif.url),
     gifPlacement,
     gifSize,
+    milestoneThresholds,
+    hypeMeterSeconds,
+    jumbotronCameraEnabled,
+    promoBanners,
     timestamp: Date.now()
   };
 }
@@ -685,6 +825,32 @@ function createOverlayBurstTrigger(): {
 } {
   return {
     type: "burst_trigger",
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayMilestoneTrigger(amount: number): {
+  type: "milestone_trigger";
+  amount: number;
+  label: string;
+  timestamp: number;
+} {
+  return {
+    type: "milestone_trigger",
+    amount,
+    label: `$${amount.toLocaleString()} milestone`,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayHypeMeterTrigger(durationSeconds: number): {
+  type: "hype_meter_trigger";
+  durationSeconds: number;
+  timestamp: number;
+} {
+  return {
+    type: "hype_meter_trigger",
+    durationSeconds,
     timestamp: Date.now()
   };
 }
@@ -725,6 +891,100 @@ function log(message: string): void {
     // Logging should never stop the desktop app from launching.
   }
   console.log(line.trim());
+}
+
+async function autoAddObsOverlay(): Promise<string> {
+  return new Promise((resolve) => {
+    const socket = new WebSocket(obsUrl);
+    const timeout = setTimeout(() => {
+      socket.close();
+      resolve("OBS WebSocket timed out. Enable Tools > WebSocket Server Settings in OBS.");
+    }, 4500);
+    let currentScene = "Scene";
+
+    socket.on("message", (data) => {
+      const message = parseObsMessage(data.toString());
+      if (!message) {
+        return;
+      }
+
+      if (message.op === 0) {
+        socket.send(JSON.stringify({ op: 1, d: { rpcVersion: 1 } }));
+        return;
+      }
+
+      if (message.op === 2) {
+        socket.send(JSON.stringify({
+          op: 6,
+          d: {
+            requestType: "GetCurrentProgramScene",
+            requestId: "duck-current-scene"
+          }
+        }));
+        return;
+      }
+
+      if (message.op !== 7 || !isRecord(message.d)) {
+        return;
+      }
+
+      if (message.d.requestId === "duck-current-scene") {
+        const responseData = isRecord(message.d.responseData) ? message.d.responseData : {};
+        currentScene = typeof responseData.currentProgramSceneName === "string"
+          ? responseData.currentProgramSceneName
+          : "Scene";
+        socket.send(JSON.stringify({
+          op: 6,
+          d: {
+            requestType: "CreateInput",
+            requestId: "duck-create-input",
+            requestData: {
+              sceneName: currentScene,
+              inputName: "Duck Desk Overlay",
+              inputKind: "browser_source",
+              inputSettings: {
+                url: overlayUrl,
+                width: 1080,
+                height: 1920,
+                css: "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
+              }
+            }
+          }
+        }));
+        return;
+      }
+
+      if (message.d.requestId === "duck-create-input") {
+        const status = isRecord(message.d.requestStatus) ? message.d.requestStatus : {};
+        const result = status.result === true
+          ? `Added Duck Desk Overlay to OBS scene "${currentScene}".`
+          : "OBS overlay source may already exist. If needed, refresh the Duck Desk Overlay browser source.";
+        clearTimeout(timeout);
+        socket.close();
+        resolve(result);
+      }
+    });
+
+    socket.on("error", () => {
+      clearTimeout(timeout);
+      resolve("Could not reach OBS. Open OBS and enable Tools > WebSocket Server Settings.");
+    });
+  });
+}
+
+function parseObsMessage(payload: string): { op?: number; d?: unknown } | null {
+  try {
+    const parsed = JSON.parse(payload) as unknown;
+    if (!isRecord(parsed)) {
+      return null;
+    }
+    return {
+      op: typeof parsed.op === "number" ? parsed.op : undefined,
+      d: parsed.d
+    };
+  } catch {
+    return null;
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

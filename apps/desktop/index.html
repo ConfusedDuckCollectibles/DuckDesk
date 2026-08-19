@@ -64,6 +64,7 @@
 
           <section class="actions">
             <button id="open-overlay" type="button">Overlay Preview</button>
+            <button id="auto-obs" type="button">Auto Add to OBS</button>
             <button id="reveal-extension" type="button">Chrome Extension</button>
             <button class="sound-toggle is-on" data-sound-toggle type="button" aria-pressed="true">Event Sound On</button>
             <button id="demo-toggle" type="button" aria-pressed="false">Demo Mode Off</button>
@@ -109,7 +110,7 @@
         <section class="library-panel">
           <div class="section-heading">
             <h2>Add-On Library</h2>
-            <span id="library-status">6 Available</span>
+            <span id="library-status">10 Available</span>
           </div>
           <div class="library-grid">
             <article class="addon-card featured" data-addon="stream_skins">
@@ -149,6 +150,38 @@
                 <span class="addon-type">Media</span>
                 <h3>GIF Reactions</h3>
                 <p>Named animated stickers you trigger manually during the stream.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="milestones">
+              <div>
+                <span class="addon-type">Rules</span>
+                <h3>Milestones</h3>
+                <p>Celebrate custom sales totals with jumbotron cards, bursts, and sounds.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="hype_meter">
+              <div>
+                <span class="addon-type">Game</span>
+                <h3>Hype Meter</h3>
+                <p>Launch a timed energy bar that grows from real chat and reaction activity.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="jumbotron">
+              <div>
+                <span class="addon-type">Scene</span>
+                <h3>Jumbotron</h3>
+                <p>Give the overlay a broadcast stage with an optional seller camera frame.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="promo_banners">
+              <div>
+                <span class="addon-type">Promo</span>
+                <h3>Promo Banners</h3>
+                <p>Rotate show messages between lots without putting text in OBS manually.</p>
               </div>
               <button class="addon-action" type="button">Add</button>
             </article>
@@ -272,6 +305,51 @@
                 <span>Sales / Gross</span>
                 <strong id="module-leaderboard">$0</strong>
               </div>
+            </article>
+
+            <article class="addon-module module-milestones" data-addon-panel="milestones" hidden>
+              <div class="module-header">
+                <span>Rules</span>
+                <strong>Milestones</strong>
+              </div>
+              <p class="module-note">Comma-separated gross sales targets.</p>
+              <div class="title-row">
+                <input id="milestone-thresholds" value="100, 250, 500, 1000" />
+                <button id="save-milestones" type="button">Save</button>
+              </div>
+            </article>
+
+            <article class="addon-module module-hype-meter" data-addon-panel="hype_meter" hidden>
+              <div class="module-header">
+                <span>Game</span>
+                <strong>Hype Meter</strong>
+              </div>
+              <p class="module-note">Starts a stream countdown. Real chat/reaction events fill the bar.</p>
+              <div class="title-row">
+                <input id="hype-seconds" type="number" min="10" max="120" value="30" />
+                <button id="save-hype-seconds" type="button">Set</button>
+              </div>
+              <button id="trigger-hype-meter" type="button" class="module-command">Start Hype Meter</button>
+            </article>
+
+            <article class="addon-module module-jumbotron" data-addon-panel="jumbotron" hidden>
+              <div class="module-header">
+                <span>Scene</span>
+                <strong>Jumbotron</strong>
+              </div>
+              <p class="module-note">The camera frame uses browser camera permission in the OBS source.</p>
+              <button id="toggle-jumbotron-camera" type="button" class="module-command">Camera Off</button>
+            </article>
+
+            <article class="addon-module module-promos" data-addon-panel="promo_banners" hidden>
+              <div class="module-header">
+                <span>Promo</span>
+                <strong>Promo Banners</strong>
+              </div>
+              <textarea id="promo-banners" rows="4">Follow the show for new drops
+Bookmark your favorite lots
+Ask questions in chat</textarea>
+              <button id="save-promo-banners" type="button" class="module-command">Save Banners</button>
             </article>
           </div>
         </section>

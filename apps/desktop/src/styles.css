@@ -30,7 +30,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -283,6 +284,20 @@ input {
   outline: none;
 }
 
+textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 12px 14px;
+  border: 1px solid rgba(52, 231, 255, 0.22);
+  border-radius: 8px;
+  color: #dffaff;
+  background: rgba(1, 8, 11, 0.72);
+  font-weight: 800;
+  line-height: 1.35;
+  outline: none;
+  resize: vertical;
+}
+
 .actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -474,6 +489,14 @@ h3 {
 
 .module-skins {
   grid-column: span 2;
+}
+
+.module-milestones,
+.module-hype-meter,
+.module-jumbotron,
+.module-promos {
+  grid-column: span 2;
+  align-content: start;
 }
 
 .module-gifs {

@@ -19,6 +19,11 @@ type DesktopStatus = {
   customGifs: CustomGif[];
   gifPlacement: GifPlacement;
   gifSize: GifSize;
+  milestoneThresholds: number[];
+  hypeMeterSeconds: number;
+  jumbotronCameraEnabled: boolean;
+  promoBanners: string[];
+  obsStatus: string;
   lastError?: string;
 };
 
@@ -38,13 +43,18 @@ type AddOnId =
   | "bid_ladder"
   | "hype_bursts"
   | "leaderboard_deck"
-  | "gif_reactions";
+  | "gif_reactions"
+  | "milestones"
+  | "hype_meter"
+  | "jumbotron"
+  | "promo_banners";
 
 type DesktopApi = {
   getStatus: () => Promise<DesktopStatus>;
   copyOverlayUrl: () => Promise<void>;
   openOverlay: () => Promise<void>;
   revealExtension: () => Promise<void>;
+  autoAddObsOverlay: () => Promise<DesktopStatus>;
   sendTestSale: () => Promise<void>;
   sendTestBid: () => Promise<void>;
   sendTestAction: () => Promise<void>;
@@ -61,6 +71,11 @@ type DesktopApi = {
   setGifSettings: (placement: GifPlacement, size: GifSize) => Promise<DesktopStatus>;
   triggerSound: (kind: SoundKind) => Promise<DesktopStatus>;
   triggerBurst: () => Promise<DesktopStatus>;
+  setMilestones: (thresholds: string) => Promise<DesktopStatus>;
+  triggerHypeMeter: () => Promise<DesktopStatus>;
+  setHypeMeterSeconds: (seconds: number) => Promise<DesktopStatus>;
+  setJumbotronCamera: (enabled: boolean) => Promise<DesktopStatus>;
+  setPromoBanners: (banners: string) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -93,6 +108,7 @@ const audienceCount = readElement<HTMLElement>("audience-count");
 const eventLog = readElement<HTMLOListElement>("event-log");
 const copyUrl = readElement<HTMLButtonElement>("copy-url");
 const openOverlay = readElement<HTMLButtonElement>("open-overlay");
+const autoObs = readElement<HTMLButtonElement>("auto-obs");
 const revealExtension = readElement<HTMLButtonElement>("reveal-extension");
 const demoToggle = readElement<HTMLButtonElement>("demo-toggle");
 const sendTest = readElement<HTMLButtonElement>("send-test");
@@ -119,6 +135,14 @@ const addonTestActions = Array.from(document.querySelectorAll<HTMLButtonElement>
 const skinActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-skin]"));
 const gifPlacementActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gif-placement]"));
 const gifSizeActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gif-size]"));
+const milestoneThresholds = readElement<HTMLInputElement>("milestone-thresholds");
+const saveMilestones = readElement<HTMLButtonElement>("save-milestones");
+const hypeSeconds = readElement<HTMLInputElement>("hype-seconds");
+const saveHypeSeconds = readElement<HTMLButtonElement>("save-hype-seconds");
+const triggerHypeMeter = readElement<HTMLButtonElement>("trigger-hype-meter");
+const toggleJumbotronCamera = readElement<HTMLButtonElement>("toggle-jumbotron-camera");
+const promoBanners = readElement<HTMLTextAreaElement>("promo-banners");
+const savePromoBanners = readElement<HTMLButtonElement>("save-promo-banners");
 
 let audioContext: AudioContext | undefined;
 let currentStatus: DesktopStatus | undefined;
@@ -165,6 +189,12 @@ triggerGif.addEventListener("click", async () => {
 
 openOverlay.addEventListener("click", () => {
   void window.duckDesk.openOverlay();
+});
+
+autoObs.addEventListener("click", async () => {
+  autoObs.textContent = "Connecting...";
+  const status = await window.duckDesk.autoAddObsOverlay();
+  renderStatus(status);
 });
 
 revealExtension.addEventListener("click", () => {
@@ -270,6 +300,26 @@ for (const soundToggle of soundToggles) {
   });
 }
 
+saveMilestones.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setMilestones(milestoneThresholds.value));
+});
+
+saveHypeSeconds.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setHypeMeterSeconds(Number(hypeSeconds.value)));
+});
+
+triggerHypeMeter.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.triggerHypeMeter());
+});
+
+toggleJumbotronCamera.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setJumbotronCamera(!(currentStatus?.jumbotronCameraEnabled ?? false)));
+});
+
+savePromoBanners.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setPromoBanners(promoBanners.value));
+});
+
 demoToggle.addEventListener("click", async () => {
   const enabled = !(currentStatus?.demoMode ?? false);
   renderStatus(await window.duckDesk.setDemoMode(enabled));
@@ -293,7 +343,14 @@ function renderStatus(status: DesktopStatus): void {
   statusPill.textContent = status.ok ? "Running" : "Needs Attention";
   statusPill.classList.toggle("ok", status.ok);
   overlayUrl.value = status.overlayUrl;
+  autoObs.textContent = status.obsStatus.startsWith("Added") ? "OBS Added" : "Auto Add to OBS";
+  autoObs.title = status.obsStatus;
   streamTitle.value = status.streamTitle;
+  milestoneThresholds.value = status.milestoneThresholds.join(", ");
+  hypeSeconds.value = String(status.hypeMeterSeconds);
+  toggleJumbotronCamera.textContent = status.jumbotronCameraEnabled ? "Camera On" : "Camera Off";
+  toggleJumbotronCamera.classList.toggle("is-on", status.jumbotronCameraEnabled);
+  promoBanners.value = status.promoBanners.join("\n");
   clientCount.textContent = String(status.clients);
   salesCount.textContent = String(status.salesCount);
   grossSales.textContent = dollars.format(status.grossSales);
@@ -423,7 +480,11 @@ function isAddOnId(value: unknown): value is AddOnId {
     value === "bid_ladder" ||
     value === "hype_bursts" ||
     value === "leaderboard_deck" ||
-    value === "gif_reactions"
+    value === "gif_reactions" ||
+    value === "milestones" ||
+    value === "hype_meter" ||
+    value === "jumbotron" ||
+    value === "promo_banners"
   );
 }
 
