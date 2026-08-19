@@ -91,6 +91,7 @@ const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
 const soundStatus = readElement<HTMLElement>("sound-status");
 const gifUrl = readElement<HTMLInputElement>("gif-url");
 const addGifUrl = readElement<HTMLButtonElement>("add-gif-url");
+const gifUrlStatus = readElement<HTMLElement>("gif-url-status");
 const customGifList = readElement<HTMLElement>("custom-gif-list");
 const soundToggles = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-toggle]"));
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
@@ -127,18 +128,13 @@ streamTitle.addEventListener("keydown", (event) => {
   }
 });
 
-addGifUrl.addEventListener("click", async () => {
-  const status = await window.duckDesk.addCustomGif(gifUrl.value);
-  gifUrl.value = "";
-  renderStatus(status);
+addGifUrl.addEventListener("click", () => {
+  void addGifFromInput();
 });
 
 gifUrl.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    void window.duckDesk.addCustomGif(gifUrl.value).then((status) => {
-      gifUrl.value = "";
-      renderStatus(status);
-    });
+    void addGifFromInput();
   }
 });
 
@@ -275,6 +271,10 @@ function renderStatus(status: DesktopStatus): void {
     action.disabled = !status.demoMode;
     action.title = status.demoMode ? "" : "Turn on Demo Mode to send test events to the overlay.";
   }
+  for (const action of addonTestActions) {
+    action.disabled = !status.demoMode;
+    action.title = status.demoMode ? "" : "Turn on Demo Mode to preview this effect.";
+  }
 
   for (const card of themeCards) {
     const isBaseTheme = card.dataset.theme === status.theme && !card.dataset.skin && status.skin === "none";
@@ -381,6 +381,14 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
 function renderCustomGifs(urls: string[]): void {
   customGifList.replaceChildren();
 
+  if (urls.length === 0) {
+    const empty = document.createElement("span");
+    empty.className = "custom-gif-empty";
+    empty.textContent = "No saved GIFs yet.";
+    customGifList.append(empty);
+    return;
+  }
+
   for (const url of urls) {
     const chip = document.createElement("button");
     chip.type = "button";
@@ -391,6 +399,53 @@ function renderCustomGifs(urls: string[]): void {
       void window.duckDesk.removeCustomGif(url).then(renderStatus);
     });
     customGifList.append(chip);
+  }
+}
+
+async function addGifFromInput(): Promise<void> {
+  const rawUrl = gifUrl.value.trim();
+  if (!rawUrl) {
+    setGifStatus("Paste a GIF, WebP, or Giphy URL first.", "error");
+    return;
+  }
+
+  const previousUrls = currentStatus?.customGifUrls ?? [];
+  const status = await window.duckDesk.addCustomGif(rawUrl);
+  const addedOrMatched = status.customGifUrls.some((url) => (
+    !previousUrls.includes(url) || url === rawUrl || isLikelySameGiphyUrl(rawUrl, url)
+  ));
+
+  renderStatus(status);
+
+  if (addedOrMatched) {
+    gifUrl.value = "";
+    setGifStatus("Saved. It will pop on the next bid, sale, or audience event.", "ok");
+    return;
+  }
+
+  setGifStatus("That URL was not accepted. Use a direct .gif/.webp link or a Giphy page URL.", "error");
+}
+
+function setGifStatus(message: string, tone: "ok" | "error" | "neutral"): void {
+  gifUrlStatus.textContent = message;
+  gifUrlStatus.classList.toggle("is-ok", tone === "ok");
+  gifUrlStatus.classList.toggle("is-error", tone === "error");
+}
+
+function isLikelySameGiphyUrl(input: string, normalizedUrl: string): boolean {
+  try {
+    const source = new URL(input);
+    const normalized = new URL(normalizedUrl);
+    if (!/(^|\.)giphy\.com$/i.test(source.hostname) || normalized.hostname !== "media.giphy.com") {
+      return false;
+    }
+
+    const sourceParts = source.pathname.split("/").filter(Boolean);
+    const normalizedParts = normalized.pathname.split("/").filter(Boolean);
+    const sourceId = sourceParts[sourceParts.length - 1]?.split("-").pop();
+    return Boolean(sourceId && normalizedParts.includes(sourceId));
+  } catch {
+    return false;
   }
 }
 

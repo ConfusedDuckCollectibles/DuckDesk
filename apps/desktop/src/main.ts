@@ -329,11 +329,11 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:add-custom-gif", (_event, url: unknown) => {
-    if (typeof url !== "string" || !isAllowedGifUrl(url)) {
+    const normalizedUrl = typeof url === "string" ? normalizeGifUrl(url) : null;
+    if (!normalizedUrl) {
       return getStatus();
     }
 
-    const normalizedUrl = url.trim();
     if (!customGifUrls.includes(normalizedUrl)) {
       customGifUrls = [normalizedUrl, ...customGifUrls].slice(0, 12);
     }
@@ -422,13 +422,17 @@ function applyConfigPatch(input: unknown): void {
   }
 
   if ("customGifUrls" in input) {
-    if (
-      !Array.isArray(input.customGifUrls) ||
-      !input.customGifUrls.every((url) => typeof url === "string" && isAllowedGifUrl(url))
-    ) {
+    if (!Array.isArray(input.customGifUrls)) {
       throw new Error("Invalid custom GIF URL list.");
     }
-    customGifUrls = [...new Set(input.customGifUrls.map((url) => url.trim()))].slice(0, 12);
+
+    const normalizedUrls = input.customGifUrls.map((url) => (
+      typeof url === "string" ? normalizeGifUrl(url) : null
+    ));
+    if (normalizedUrls.some((url) => url === null)) {
+      throw new Error("Invalid custom GIF URL list.");
+    }
+    customGifUrls = [...new Set(normalizedUrls as string[])].slice(0, 12);
   }
 }
 
@@ -575,14 +579,48 @@ function sanitizeStreamTitle(title: string): string {
   return title.replace(/\s+/g, " ").trim().slice(0, 88);
 }
 
-function isAllowedGifUrl(url: string): boolean {
+function normalizeGifUrl(url: string): string | null {
   try {
     const parsed = new URL(url.trim());
-    return (
-      (parsed.protocol === "https:" || parsed.protocol === "http:") &&
-      /\.(gif|webp)(?:$|[?#])/i.test(parsed.href)
-    );
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      return null;
+    }
+
+    if (/\.(gif|webp)(?:$|[?#])/i.test(parsed.href)) {
+      return parsed.href;
+    }
+
+    const giphyId = extractGiphyId(parsed);
+    if (giphyId) {
+      return `https://media.giphy.com/media/${giphyId}/giphy.gif`;
+    }
+
+    return null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+function extractGiphyId(parsed: URL): string | null {
+  if (!/(^|\.)giphy\.com$/i.test(parsed.hostname)) {
+    return null;
+  }
+
+  const parts = parsed.pathname.split("/").filter(Boolean);
+  const mediaIndex = parts.indexOf("media");
+  if (mediaIndex >= 0 && parts[mediaIndex + 1]) {
+    return sanitizeGiphyId(parts[mediaIndex + 1]);
+  }
+
+  const gifsIndex = parts.indexOf("gifs");
+  if (gifsIndex >= 0 && parts[gifsIndex + 1]) {
+    const slug = parts[gifsIndex + 1];
+    return sanitizeGiphyId(slug.split("-").pop() ?? slug);
+  }
+
+  return null;
+}
+
+function sanitizeGiphyId(value: string): string | null {
+  return /^[a-z0-9]+$/i.test(value) ? value : null;
 }

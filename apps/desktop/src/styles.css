@@ -595,6 +595,23 @@ h3 {
   min-height: 36px;
 }
 
+.module-note.is-ok {
+  color: #a5ffcb;
+}
+
+.module-note.is-error {
+  color: #ff8eb8;
+}
+
+.custom-gif-empty {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  color: rgba(237, 247, 255, 0.62);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .custom-gif-chip {
   height: 34px;
   max-width: 160px;

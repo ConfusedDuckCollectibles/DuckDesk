@@ -235,6 +235,7 @@ function selectGif(fallback: string, timestamp: number): string {
       class="reaction-gif"
       :src="activeGif"
       alt=""
+      referrerpolicy="no-referrer"
       aria-hidden="true"
     />
     <div
