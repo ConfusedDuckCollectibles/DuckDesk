@@ -15,7 +15,10 @@ contextBridge.exposeInMainWorld("duckDesk", {
   setDemoMode: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-demo-mode", enabled),
   setStreamTitle: (title: unknown) => ipcRenderer.invoke("duck-desk:set-stream-title", title),
   addCustomGif: (url: unknown) => ipcRenderer.invoke("duck-desk:add-custom-gif", url),
-  removeCustomGif: (url: unknown) => ipcRenderer.invoke("duck-desk:remove-custom-gif", url),
+  removeCustomGif: (id: unknown) => ipcRenderer.invoke("duck-desk:remove-custom-gif", id),
+  setCustomGifLabel: (id: unknown, label: unknown) => (
+    ipcRenderer.invoke("duck-desk:set-custom-gif-label", id, label)
+  ),
   triggerGif: (url?: unknown) => ipcRenderer.invoke("duck-desk:trigger-gif", url),
   setGifSettings: (placement: unknown, size: unknown) => (
     ipcRenderer.invoke("duck-desk:set-gif-settings", placement, size)

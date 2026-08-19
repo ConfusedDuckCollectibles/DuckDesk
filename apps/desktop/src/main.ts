@@ -1,5 +1,6 @@
 import { createServer, type Server } from "node:http";
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -49,9 +50,15 @@ const activeAddOns = new Set<AddOnId>();
 let soundsEnabled = true;
 let demoMode = false;
 let streamTitle = "";
-let customGifUrls: string[] = [];
+let customGifs: CustomGif[] = [];
 let gifPlacement: GifPlacement = "center";
 let gifSize: GifSize = "medium";
+
+type CustomGif = {
+  id: string;
+  label: string;
+  url: string;
+};
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -340,8 +347,12 @@ function registerIpc(): void {
       return getStatus();
     }
 
-    if (!customGifUrls.includes(normalizedUrl)) {
-      customGifUrls = [normalizedUrl, ...customGifUrls].slice(0, 12);
+    if (!customGifs.some((gif) => gif.url === normalizedUrl)) {
+      customGifs = [{
+        id: randomUUID(),
+        label: createDefaultGifLabel(normalizedUrl, customGifs.length + 1),
+        url: normalizedUrl
+      }, ...customGifs].slice(0, 24);
     }
     activeAddOns.add("gif_reactions");
     broadcast(createOverlayConfig());
@@ -349,19 +360,37 @@ function registerIpc(): void {
     return getStatus();
   });
 
-  ipcMain.handle("duck-desk:remove-custom-gif", (_event, url: unknown) => {
-    if (typeof url !== "string") {
+  ipcMain.handle("duck-desk:remove-custom-gif", (_event, id: unknown) => {
+    if (typeof id !== "string") {
       return getStatus();
     }
 
-    customGifUrls = customGifUrls.filter((gifUrl) => gifUrl !== url);
+    customGifs = customGifs.filter((gif) => gif.id !== id);
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-custom-gif-label", (_event, id: unknown, label: unknown) => {
+    if (typeof id !== "string" || typeof label !== "string") {
+      return getStatus();
+    }
+
+    const nextLabel = sanitizeGifLabel(label);
+    customGifs = customGifs.map((gif, index) => (
+      gif.id === id
+        ? { ...gif, label: nextLabel || createDefaultGifLabel(gif.url, index + 1) }
+        : gif
+    ));
     broadcast(createOverlayConfig());
     broadcastStatus();
     return getStatus();
   });
 
   ipcMain.handle("duck-desk:trigger-gif", (_event, url: unknown) => {
-    const selectedUrl = typeof url === "string" ? normalizeGifUrl(url) : customGifUrls[0] ?? "/gifs/chat-spark.gif";
+    const selectedUrl = typeof url === "string"
+      ? customGifs.find((gif) => gif.id === url)?.url ?? normalizeGifUrl(url)
+      : customGifs[0]?.url ?? "/gifs/chat-spark.gif";
     if (!selectedUrl) {
       return getStatus();
     }
@@ -464,7 +493,11 @@ function applyConfigPatch(input: unknown): void {
     if (normalizedUrls.some((url) => url === null)) {
       throw new Error("Invalid custom GIF URL list.");
     }
-    customGifUrls = [...new Set(normalizedUrls as string[])].slice(0, 12);
+    customGifs = [...new Set(normalizedUrls as string[])].slice(0, 24).map((url, index) => ({
+      id: customGifs.find((gif) => gif.url === url)?.id ?? randomUUID(),
+      label: customGifs.find((gif) => gif.url === url)?.label ?? createDefaultGifLabel(url, index + 1),
+      url
+    }));
   }
 
   if ("gifPlacement" in input) {
@@ -541,6 +574,7 @@ function getStatus(): {
   demoMode: boolean;
   streamTitle: string;
   customGifUrls: string[];
+  customGifs: CustomGif[];
   gifPlacement: GifPlacement;
   gifSize: GifSize;
   lastError?: string;
@@ -560,7 +594,8 @@ function getStatus(): {
     soundsEnabled,
     demoMode,
     streamTitle,
-    customGifUrls,
+    customGifUrls: customGifs.map((gif) => gif.url),
+    customGifs,
     gifPlacement,
     gifSize,
     lastError
@@ -586,7 +621,7 @@ function createOverlayConfig(): {
     addOns: [...activeAddOns],
     soundsEnabled,
     streamTitle,
-    customGifUrls,
+    customGifUrls: customGifs.map((gif) => gif.url),
     gifPlacement,
     gifSize,
     timestamp: Date.now()
@@ -649,6 +684,30 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function sanitizeStreamTitle(title: string): string {
   return title.replace(/\s+/g, " ").trim().slice(0, 88);
+}
+
+function sanitizeGifLabel(label: string): string {
+  return label.replace(/\s+/g, " ").trim().slice(0, 42);
+}
+
+function createDefaultGifLabel(url: string, index: number): string {
+  try {
+    const parsed = new URL(url);
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    const mediaIndex = parts.indexOf("media");
+    if (mediaIndex >= 0 && parts[mediaIndex + 1]) {
+      return `Giphy ${parts[mediaIndex + 1].slice(0, 8)}`;
+    }
+
+    const fileName = parts.at(-1)?.replace(/\.(gif|webp)$/i, "");
+    if (fileName) {
+      return fileName.replace(/[-_]+/g, " ").slice(0, 42);
+    }
+  } catch {
+    // Fall back to an ordered label.
+  }
+
+  return `GIF ${index}`;
 }
 
 function normalizeGifUrl(url: string): string | null {

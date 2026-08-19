@@ -52,7 +52,7 @@ Set the Browser Source size to `1080 x 1920` for a phone-first Whatnot layout. U
 
 Because this prototype is not code-signed yet, macOS may require right-clicking the app and choosing Open the first time.
 
-Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` supports temporary external `.gif`, `.webp`, and Giphy page URLs that stay available in the app until Duck Desk is restarted. Saved GIFs can be triggered manually from the app, positioned center/top/bottom/left/right, sized small/medium/big, or fired by real bid, sale, and audience events.
+Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` supports temporary external `.gif`, `.webp`, and Giphy page URLs that stay available in the app until Duck Desk is restarted. Saved GIFs can be renamed, triggered manually from the app, positioned center/top/bottom/left/right, sized small/medium/big, or fired by real bid, sale, and audience events.
 
 ## Full Whatnot Setup Guide
 

@@ -231,30 +231,35 @@
               <p id="gif-url-status" class="module-note">
                 Trigger GIFs manually from here, or let real stream events fire them.
               </p>
-              <div id="custom-gif-list" class="custom-gif-list"></div>
-              <button id="trigger-gif" type="button" class="module-command">Trigger GIF</button>
-              <div class="gif-control-group" aria-label="GIF position">
-                <span>Position</span>
+              <div class="gif-workspace">
                 <div>
-                  <button type="button" data-gif-placement="center">Center</button>
-                  <button type="button" data-gif-placement="top">Top</button>
-                  <button type="button" data-gif-placement="bottom">Bottom</button>
-                  <button type="button" data-gif-placement="left">Left</button>
-                  <button type="button" data-gif-placement="right">Right</button>
+                  <div class="mini-heading">
+                    <span>Saved GIFs</span>
+                    <strong>Rename and trigger saved GIFs</strong>
+                  </div>
+                  <div id="custom-gif-list" class="custom-gif-list"></div>
                 </div>
-              </div>
-              <div class="gif-control-group" aria-label="GIF size">
-                <span>Size</span>
-                <div>
-                  <button type="button" data-gif-size="small">Small</button>
-                  <button type="button" data-gif-size="medium">Medium</button>
-                  <button type="button" data-gif-size="large">Big</button>
+                <div class="gif-side-controls">
+                  <button id="trigger-gif" type="button" class="module-command">Trigger Latest GIF</button>
+                  <div class="gif-control-group" aria-label="GIF position">
+                    <span>Position</span>
+                    <div>
+                      <button type="button" data-gif-placement="center">Center</button>
+                      <button type="button" data-gif-placement="top">Top</button>
+                      <button type="button" data-gif-placement="bottom">Bottom</button>
+                      <button type="button" data-gif-placement="left">Left</button>
+                      <button type="button" data-gif-placement="right">Right</button>
+                    </div>
+                  </div>
+                  <div class="gif-control-group" aria-label="GIF size">
+                    <span>Size</span>
+                    <div>
+                      <button type="button" data-gif-size="small">Small</button>
+                      <button type="button" data-gif-size="medium">Medium</button>
+                      <button type="button" data-gif-size="large">Big</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="gif-preview-row" aria-label="GIF reaction previews">
-                <span>Sale Pop</span>
-                <span>Bid Pulse</span>
-                <span>Chat Spark</span>
               </div>
             </article>
 

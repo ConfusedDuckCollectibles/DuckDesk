@@ -16,6 +16,7 @@ type DesktopStatus = {
   demoMode: boolean;
   streamTitle: string;
   customGifUrls: string[];
+  customGifs: CustomGif[];
   gifPlacement: GifPlacement;
   gifSize: GifSize;
   lastError?: string;
@@ -25,6 +26,11 @@ type OverlayTheme = "neon" | "arena" | "duck";
 type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
+type CustomGif = {
+  id: string;
+  label: string;
+  url: string;
+};
 type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -48,7 +54,8 @@ type DesktopApi = {
   setDemoMode: (enabled: boolean) => Promise<DesktopStatus>;
   setStreamTitle: (title: string) => Promise<DesktopStatus>;
   addCustomGif: (url: string) => Promise<DesktopStatus>;
-  removeCustomGif: (url: string) => Promise<DesktopStatus>;
+  removeCustomGif: (id: string) => Promise<DesktopStatus>;
+  setCustomGifLabel: (id: string, label: string) => Promise<DesktopStatus>;
   triggerGif: (url?: string) => Promise<DesktopStatus>;
   setGifSettings: (placement: GifPlacement, size: GifSize) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
@@ -328,7 +335,7 @@ function renderStatus(status: DesktopStatus): void {
   }
 
   renderAddOns(status.addOns);
-  renderCustomGifs(status.customGifUrls);
+  renderCustomGifs(status.customGifs);
 }
 
 function formatEventLog(event: ShowEventLog): string {
@@ -427,10 +434,10 @@ function isGifSize(value: unknown): value is GifSize {
   return value === "small" || value === "medium" || value === "large";
 }
 
-function renderCustomGifs(urls: string[]): void {
+function renderCustomGifs(gifs: CustomGif[]): void {
   customGifList.replaceChildren();
 
-  if (urls.length === 0) {
+  if (gifs.length === 0) {
     const empty = document.createElement("span");
     empty.className = "custom-gif-empty";
     empty.textContent = "No saved GIFs yet.";
@@ -438,18 +445,47 @@ function renderCustomGifs(urls: string[]): void {
     return;
   }
 
-  for (const url of urls) {
-    const chip = document.createElement("span");
-    chip.className = "custom-gif-chip";
+  for (const gif of gifs) {
+    const row = document.createElement("article");
+    row.className = "custom-gif-row";
+
+    const preview = document.createElement("img");
+    preview.src = gif.url;
+    preview.alt = "";
+    preview.referrerPolicy = "no-referrer";
+
+    const details = document.createElement("div");
+    details.className = "custom-gif-details";
+
+    const label = document.createElement("input");
+    label.value = gif.label;
+    label.maxLength = 42;
+    label.setAttribute("aria-label", `Name for ${compactUrl(gif.url)}`);
+    label.addEventListener("change", () => {
+      void window.duckDesk.setCustomGifLabel(gif.id, label.value).then(renderStatus);
+    });
+    label.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        label.blur();
+      }
+    });
+
+    const source = document.createElement("span");
+    source.textContent = compactUrl(gif.url);
+    source.title = gif.url;
+    details.append(label, source);
+
+    const actions = document.createElement("div");
+    actions.className = "custom-gif-actions";
 
     const trigger = document.createElement("button");
     trigger.type = "button";
-    trigger.textContent = compactUrl(url);
-    trigger.title = `Trigger ${url}`;
+    trigger.textContent = "Trigger";
+    trigger.title = `Trigger ${gif.label}`;
     trigger.addEventListener("click", () => {
-      void window.duckDesk.triggerGif(url).then((status) => {
+      void window.duckDesk.triggerGif(gif.id).then((status) => {
         renderStatus(status);
-        setGifStatus("Triggered on the overlay.", "ok");
+        setGifStatus(`Triggered ${gif.label}.`, "ok");
       });
     });
 
@@ -457,13 +493,14 @@ function renderCustomGifs(urls: string[]): void {
     remove.type = "button";
     remove.className = "remove-gif";
     remove.textContent = "Remove";
-    remove.title = `Remove ${url}`;
+    remove.title = `Remove ${gif.label}`;
     remove.addEventListener("click", () => {
-      void window.duckDesk.removeCustomGif(url).then(renderStatus);
+      void window.duckDesk.removeCustomGif(gif.id).then(renderStatus);
     });
 
-    chip.append(trigger, remove);
-    customGifList.append(chip);
+    actions.append(trigger, remove);
+    row.append(preview, details, actions);
+    customGifList.append(row);
   }
 }
 
@@ -474,10 +511,10 @@ async function addGifFromInput(): Promise<void> {
     return;
   }
 
-  const previousUrls = currentStatus?.customGifUrls ?? [];
+  const previousIds = currentStatus?.customGifs.map((gif) => gif.id) ?? [];
   const status = await window.duckDesk.addCustomGif(rawUrl);
-  const addedOrMatched = status.customGifUrls.some((url) => (
-    !previousUrls.includes(url) || url === rawUrl || isLikelySameGiphyUrl(rawUrl, url)
+  const addedOrMatched = status.customGifs.some((gif) => (
+    !previousIds.includes(gif.id) || gif.url === rawUrl || isLikelySameGiphyUrl(rawUrl, gif.url)
   ));
 
   renderStatus(status);
