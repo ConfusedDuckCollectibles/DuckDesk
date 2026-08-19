@@ -24,35 +24,6 @@ const soundsEnabled = ref(true);
 const buyerTotals = ref<Record<string, number>>({});
 const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
-const themeLabel = computed(() => {
-  if (theme.value === "arena") {
-    return "Auction Arena";
-  }
-
-  if (theme.value === "duck") {
-    return "Duck Pop";
-  }
-
-  return "Neon Circuit";
-});
-const skinLabel = computed(() => {
-  if (skin.value === "arcade_drop") {
-    return "Arcade Drop";
-  }
-
-  if (skin.value === "sports_desk") {
-    return "Sports Desk";
-  }
-
-  if (skin.value === "cyber_market") {
-    return "Cyber Market";
-  }
-
-  return themeLabel.value;
-});
-const activeThemeLabel = computed(() => (
-  hasAddOn("stream_skins") && skin.value !== "none" ? skinLabel.value : themeLabel.value
-));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
 const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
 const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
@@ -254,7 +225,6 @@ function playEventTone(event: ShowEvent): void {
       <div class="hud-brand">
         <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
         <strong>DUCK DESK</strong>
-        <span>{{ activeThemeLabel }}</span>
       </div>
       <div v-if="activeAddOns.length > 0" class="addon-strip">
         <span v-if="hasAddOn('stream_skins')">skin pack</span>
@@ -284,10 +254,6 @@ function playEventTone(event: ShowEvent): void {
       <div>
         <span>Last</span>
         <strong>{{ recentEvents[0]?.type ?? "-" }}</strong>
-      </div>
-      <div>
-        <span>Mode</span>
-        <strong>{{ hasAddOn("stream_skins") && skin !== "none" ? skinLabel : theme }}</strong>
       </div>
     </section>
 

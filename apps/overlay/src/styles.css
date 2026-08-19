@@ -295,7 +295,7 @@ body,
 
 .hud-brand {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 14px;
   color: color-mix(in srgb, var(--panel) 80%, var(--accent));
@@ -306,12 +306,6 @@ body,
   color: var(--panel);
   font-size: 34px;
   line-height: 1;
-}
-
-.hud-brand > span:last-child {
-  max-width: 220px;
-  font-size: 18px;
-  text-align: right;
 }
 
 .hud-live {
@@ -369,7 +363,7 @@ body,
   left: 34px;
   right: 34px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   z-index: 2;
 }
