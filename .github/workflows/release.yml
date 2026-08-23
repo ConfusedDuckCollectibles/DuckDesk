@@ -1,0 +1,80 @@
+name: Publish Mac release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version without the leading v
+        required: true
+        default: 0.1.0-alpha.1
+        type: string
+      prerelease:
+        description: Mark this release as a prerelease
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Verify release version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          test "$PACKAGE_VERSION" = "$RELEASE_VERSION"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build Chrome extension
+        run: npm run build -w @duck-desk/extension
+
+      - name: Build Apple-silicon DMG
+        run: npm run mac:dmg
+
+      - name: Create checksum
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          cd apps/desktop/release
+          DMG="Duck Desk-${RELEASE_VERSION}-arm64.dmg"
+          test -f "$DMG"
+          LC_ALL=C LANG=C shasum -a 256 "$DMG" > "${DMG}.sha256"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          TAG="v${RELEASE_VERSION}"
+          DMG="apps/desktop/release/Duck Desk-${RELEASE_VERSION}-arm64.dmg"
+          RELEASE_ARGS=(
+            "$TAG"
+            "$DMG"
+            "${DMG}.sha256"
+            --target "$GITHUB_SHA"
+            --title "Duck Desk ${TAG}"
+            --notes-file RELEASE_NOTES.md
+          )
+          if [ "$PRERELEASE" = "true" ]; then
+            RELEASE_ARGS+=(--prerelease)
+          fi
+          gh release create "${RELEASE_ARGS[@]}"

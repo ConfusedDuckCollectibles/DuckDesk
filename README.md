@@ -15,7 +15,7 @@
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
-> **Public alpha:** Duck Desk is under active development. The source code is available now. A simple downloadable Mac installer will be published on the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases) as release builds are prepared.
+> **Public alpha:** Duck Desk `v0.1.0-alpha.1` is available from the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.1). Download the Apple-silicon `.dmg` file to install it without Terminal.
 
 Duck Desk adds a professional, game-like layer to a vertical live-selling stream. It runs locally on your Mac, sends its transparent overlay to OBS, and gives you one place to control themes, GIFs, sounds, goals, timers, leaderboards, and stream effects.
 

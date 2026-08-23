@@ -1,8 +1,16 @@
 {
   "name": "duck-desk",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha.1",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ConfusedDuckCollectibles/DuckDesk.git"
+  },
+  "homepage": "https://github.com/ConfusedDuckCollectibles/DuckDesk#readme",
+  "bugs": {
+    "url": "https://github.com/ConfusedDuckCollectibles/DuckDesk/issues"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
