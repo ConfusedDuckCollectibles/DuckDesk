@@ -46,7 +46,10 @@ export type AddOnId =
   | "jumbotron"
   | "promo_banners"
   | "scene_switcher"
-  | "goal_widgets";
+  | "goal_widgets"
+  | "activity_feed"
+  | "auction_timer"
+  | "show_recap";
 
 export interface OverlayConfigMessage {
   type: "overlay_config";
@@ -64,6 +67,7 @@ export interface OverlayConfigMessage {
   promoBanners: string[];
   sceneMode: SceneMode;
   goals: GoalConfig[];
+  auctionTimerSeconds: number;
   timestamp: number;
 }
 
@@ -107,6 +111,21 @@ export interface OverlayHypeMeterTriggerMessage {
   timestamp: number;
 }
 
+export interface OverlayAuctionTimerTriggerMessage {
+  type: "auction_timer_trigger";
+  durationSeconds: number;
+  timestamp: number;
+}
+
+export interface OverlayRecapTriggerMessage {
+  type: "recap_trigger";
+  salesCount: number;
+  grossSales: number;
+  bidCount: number;
+  audienceActions: number;
+  timestamp: number;
+}
+
 export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent;
 export type BridgeMessage =
   | ShowEvent
@@ -117,7 +136,9 @@ export type BridgeMessage =
   | OverlaySoundTriggerMessage
   | OverlayBurstTriggerMessage
   | OverlayMilestoneTriggerMessage
-  | OverlayHypeMeterTriggerMessage;
+  | OverlayHypeMeterTriggerMessage
+  | OverlayAuctionTimerTriggerMessage
+  | OverlayRecapTriggerMessage;
 
 export function normalizeShowEvent(input: unknown): ShowEvent {
   if (!isRecord(input)) {
@@ -191,7 +212,9 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     value.promoBanners.every((banner) => typeof banner === "string") &&
     isSceneMode(value.sceneMode) &&
     Array.isArray(value.goals) &&
-    value.goals.every(isGoalConfig)
+    value.goals.every(isGoalConfig) &&
+    typeof value.auctionTimerSeconds === "number" &&
+    Number.isFinite(value.auctionTimerSeconds)
   );
 }
 
@@ -244,6 +267,27 @@ export function isOverlayHypeMeterTriggerMessage(value: unknown): value is Overl
     isRecord(value) &&
     value.type === "hype_meter_trigger" &&
     typeof value.durationSeconds === "number" &&
+    typeof value.timestamp === "number"
+  );
+}
+
+export function isOverlayAuctionTimerTriggerMessage(value: unknown): value is OverlayAuctionTimerTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "auction_timer_trigger" &&
+    typeof value.durationSeconds === "number" &&
+    typeof value.timestamp === "number"
+  );
+}
+
+export function isOverlayRecapTriggerMessage(value: unknown): value is OverlayRecapTriggerMessage {
+  return (
+    isRecord(value) &&
+    value.type === "recap_trigger" &&
+    typeof value.salesCount === "number" &&
+    typeof value.grossSales === "number" &&
+    typeof value.bidCount === "number" &&
+    typeof value.audienceActions === "number" &&
     typeof value.timestamp === "number"
   );
 }
@@ -303,7 +347,10 @@ export function isAddOnId(value: unknown): value is AddOnId {
     value === "jumbotron" ||
     value === "promo_banners" ||
     value === "scene_switcher" ||
-    value === "goal_widgets"
+    value === "goal_widgets" ||
+    value === "activity_feed" ||
+    value === "auction_timer" ||
+    value === "show_recap"
   );
 }
 

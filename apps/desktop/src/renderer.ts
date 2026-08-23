@@ -25,6 +25,7 @@ type DesktopStatus = {
   promoBanners: string[];
   sceneMode: SceneMode;
   goals: GoalConfig[];
+  auctionTimerSeconds: number;
   obsStatus: string;
   lastError?: string;
 };
@@ -58,7 +59,10 @@ type AddOnId =
   | "jumbotron"
   | "promo_banners"
   | "scene_switcher"
-  | "goal_widgets";
+  | "goal_widgets"
+  | "activity_feed"
+  | "auction_timer"
+  | "show_recap";
 
 type DesktopApi = {
   getStatus: () => Promise<DesktopStatus>;
@@ -89,6 +93,9 @@ type DesktopApi = {
   setPromoBanners: (banners: string) => Promise<DesktopStatus>;
   setSceneMode: (mode: SceneMode) => Promise<DesktopStatus>;
   setGoals: (goals: string) => Promise<DesktopStatus>;
+  setAuctionTimerSeconds: (seconds: number) => Promise<DesktopStatus>;
+  triggerAuctionTimer: () => Promise<DesktopStatus>;
+  triggerRecap: () => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -133,6 +140,7 @@ const activeAddonsStatus = readElement<HTMLElement>("active-addons-status");
 const activeAddonsEmpty = readElement<HTMLElement>("active-addons-empty");
 const moduleBids = readElement<HTMLElement>("module-bids");
 const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
+const moduleActivityCount = readElement<HTMLElement>("module-activity-count");
 const soundStatus = readElement<HTMLElement>("sound-status");
 const gifUrl = readElement<HTMLInputElement>("gif-url");
 const addGifUrl = readElement<HTMLButtonElement>("add-gif-url");
@@ -159,6 +167,10 @@ const savePromoBanners = readElement<HTMLButtonElement>("save-promo-banners");
 const sceneActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-scene-mode]"));
 const goalConfig = readElement<HTMLTextAreaElement>("goal-config");
 const saveGoals = readElement<HTMLButtonElement>("save-goals");
+const auctionTimerSeconds = readElement<HTMLInputElement>("auction-timer-seconds");
+const saveAuctionTimer = readElement<HTMLButtonElement>("save-auction-timer");
+const triggerAuctionTimer = readElement<HTMLButtonElement>("trigger-auction-timer");
+const triggerRecap = readElement<HTMLButtonElement>("trigger-recap");
 
 let audioContext: AudioContext | undefined;
 let currentStatus: DesktopStatus | undefined;
@@ -349,6 +361,18 @@ saveGoals.addEventListener("click", async () => {
   renderStatus(await window.duckDesk.setGoals(goalConfig.value));
 });
 
+saveAuctionTimer.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setAuctionTimerSeconds(Number(auctionTimerSeconds.value)));
+});
+
+triggerAuctionTimer.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.triggerAuctionTimer());
+});
+
+triggerRecap.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.triggerRecap());
+});
+
 demoToggle.addEventListener("click", async () => {
   const enabled = !(currentStatus?.demoMode ?? false);
   renderStatus(await window.duckDesk.setDemoMode(enabled));
@@ -381,6 +405,7 @@ function renderStatus(status: DesktopStatus): void {
   toggleJumbotronCamera.classList.toggle("is-on", status.jumbotronCameraEnabled);
   promoBanners.value = status.promoBanners.join("\n");
   goalConfig.value = formatGoals(status.goals);
+  auctionTimerSeconds.value = String(status.auctionTimerSeconds);
   clientCount.textContent = String(status.clients);
   salesCount.textContent = String(status.salesCount);
   grossSales.textContent = dollars.format(status.grossSales);
@@ -388,6 +413,7 @@ function renderStatus(status: DesktopStatus): void {
   audienceCount.textContent = String(status.audienceActions);
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
+  moduleActivityCount.textContent = `${status.salesCount + status.bidCount + status.audienceActions} events`;
   activeThemeLabel.textContent = status.skin === "none" ? themeName(status.theme) : skinName(status.skin);
   for (const soundToggle of soundToggles) {
     const prefix = soundToggle.closest(".actions") ? "Event " : "";
@@ -519,7 +545,10 @@ function isAddOnId(value: unknown): value is AddOnId {
     value === "jumbotron" ||
     value === "promo_banners" ||
     value === "scene_switcher" ||
-    value === "goal_widgets"
+    value === "goal_widgets" ||
+    value === "activity_feed" ||
+    value === "auction_timer" ||
+    value === "show_recap"
   );
 }
 

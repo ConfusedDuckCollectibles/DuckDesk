@@ -3,10 +3,12 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import {
   isOverlayConfigMessage,
   isOverlayClearMessage,
+  isOverlayAuctionTimerTriggerMessage,
   isOverlayBurstTriggerMessage,
   isOverlayGifTriggerMessage,
   isOverlayHypeMeterTriggerMessage,
   isOverlayMilestoneTriggerMessage,
+  isOverlayRecapTriggerMessage,
   isOverlaySoundTriggerMessage,
   isShowEvent,
   type AddOnId,
@@ -25,6 +27,7 @@ import EventAlert from "./components/EventAlert.vue";
 const queue = ref<ShowEvent[]>([]);
 const activeEvent = ref<ShowEvent | null>(null);
 const recentEvents = ref<ShowEvent[]>([]);
+const activityEvents = ref<ShowEvent[]>([]);
 const connected = ref(false);
 const reconnecting = ref(false);
 const theme = ref<OverlayTheme>("neon");
@@ -41,9 +44,18 @@ const jumbotronCameraEnabled = ref(false);
 const promoBanners = ref<string[]>([]);
 const sceneMode = ref<SceneMode>("none");
 const goals = ref<GoalConfig[]>([]);
+const auctionTimerSeconds = ref(45);
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
 const hypeMeter = ref<{ startedAt: number; durationSeconds: number; participants: Set<string> } | null>(null);
+const auctionTimer = ref<{ startedAt: number; durationSeconds: number } | null>(null);
+const recapCard = ref<{
+  salesCount: number;
+  grossSales: number;
+  bidCount: number;
+  audienceActions: number;
+  timestamp: number;
+} | null>(null);
 const manualGifUrl = ref("");
 const manualGifTimestamp = ref(0);
 const cameraVideo = ref<HTMLVideoElement | null>(null);
@@ -59,6 +71,7 @@ const jumbotronLabel = computed(() => recentEvents.value[0]?.type.toUpperCase() 
 const displayedGif = computed(() => manualGifUrl.value);
 const activePromo = computed(() => promoBanners.value[promoIndex.value % Math.max(1, promoBanners.value.length)] ?? "");
 const hypeRemaining = ref(0);
+const auctionRemaining = ref(0);
 const hypeProgress = computed(() => {
   if (!hypeMeter.value) {
     return 0;
@@ -66,6 +79,13 @@ const hypeProgress = computed(() => {
   const participantScore = Math.min(70, hypeMeter.value.participants.size * 14);
   const timeScore = Math.min(30, ((hypeMeter.value.durationSeconds - hypeRemaining.value) / hypeMeter.value.durationSeconds) * 30);
   return Math.min(100, Math.round(participantScore + timeScore));
+});
+const auctionProgress = computed(() => {
+  if (!auctionTimer.value) {
+    return 0;
+  }
+  const elapsed = auctionTimer.value.durationSeconds - auctionRemaining.value;
+  return Math.min(100, Math.round((elapsed / auctionTimer.value.durationSeconds) * 100));
 });
 const gifPositionClass = computed(() => `gif-position-${gifPlacement.value}`);
 const gifSizeClass = computed(() => `gif-size-${gifSize.value}`);
@@ -98,6 +118,18 @@ const topBuyers = computed(() => (
     .sort((left, right) => right[1] - left[1])
     .slice(0, 3)
 ));
+const recapStats = computed(() => {
+  const topBuyer = topBuyers.value[0];
+  const recap = recapCard.value;
+  return [
+    { label: "Sales", value: `$${Math.round(recap?.grossSales ?? grossSales.value).toLocaleString()}` },
+    { label: "Orders", value: (recap?.salesCount ?? orderCount.value).toLocaleString() },
+    { label: "Follows", value: followCount.value.toLocaleString() },
+    { label: "Bids", value: (recap?.bidCount ?? 0).toLocaleString() },
+    { label: "Audience", value: (recap?.audienceActions ?? 0).toLocaleString() },
+    { label: "Top Buyer", value: topBuyer ? `@${topBuyer[0]}` : "-" }
+  ];
+});
 
 let socket: WebSocket | null = null;
 let reconnectTimer: number | undefined;
@@ -106,6 +138,8 @@ let manualGifTimer: number | undefined;
 let promoTimer: number | undefined;
 let milestoneTimer: number | undefined;
 let hypeTimer: number | undefined;
+let auctionTimerInterval: number | undefined;
+let recapTimer: number | undefined;
 let audioContext: AudioContext | undefined;
 let cameraStream: MediaStream | null = null;
 
@@ -117,6 +151,8 @@ onBeforeUnmount(() => {
   window.clearInterval(promoTimer);
   window.clearTimeout(milestoneTimer);
   window.clearInterval(hypeTimer);
+  window.clearInterval(auctionTimerInterval);
+  window.clearTimeout(recapTimer);
   stopCamera();
   socket?.close();
 });
@@ -160,6 +196,7 @@ function connect(): void {
       promoBanners.value = parsed.promoBanners;
       sceneMode.value = parsed.sceneMode;
       goals.value = parsed.goals;
+      auctionTimerSeconds.value = parsed.auctionTimerSeconds;
       return;
     }
 
@@ -196,6 +233,20 @@ function connect(): void {
       return;
     }
 
+    if (isOverlayAuctionTimerTriggerMessage(parsed)) {
+      if (hasAddOn("auction_timer")) {
+        startAuctionTimer(parsed.durationSeconds);
+      }
+      return;
+    }
+
+    if (isOverlayRecapTriggerMessage(parsed)) {
+      if (hasAddOn("show_recap")) {
+        showRecap(parsed);
+      }
+      return;
+    }
+
     if (isShowEvent(parsed)) {
       applyHypeEvent(parsed);
       applyEventStats(parsed);
@@ -208,6 +259,8 @@ function connect(): void {
       queue.value.push(parsed);
       recentEvents.value.unshift(parsed);
       recentEvents.value = recentEvents.value.slice(0, 5);
+      activityEvents.value.unshift(parsed);
+      activityEvents.value = activityEvents.value.slice(0, 12);
       showNextEvent();
     }
   });
@@ -258,6 +311,8 @@ function parseMessage(data: unknown): BridgeMessage | null {
       isOverlayBurstTriggerMessage(parsed) ||
       isOverlayMilestoneTriggerMessage(parsed) ||
       isOverlayHypeMeterTriggerMessage(parsed) ||
+      isOverlayAuctionTimerTriggerMessage(parsed) ||
+      isOverlayRecapTriggerMessage(parsed) ||
       (typeof parsed === "object" && parsed !== null && "type" in parsed && parsed.type === "connected")
     ) {
       return parsed as BridgeMessage;
@@ -272,6 +327,7 @@ function clearOverlayData(): void {
   queue.value = [];
   activeEvent.value = null;
   recentEvents.value = [];
+  activityEvents.value = [];
   buyerTotals.value = {};
   grossSales.value = 0;
   orderCount.value = 0;
@@ -281,11 +337,16 @@ function clearOverlayData(): void {
   manualGifTimestamp.value = 0;
   milestoneCard.value = null;
   hypeMeter.value = null;
+  auctionTimer.value = null;
+  recapCard.value = null;
   hypeRemaining.value = 0;
+  auctionRemaining.value = 0;
   window.clearTimeout(dismissTimer);
   window.clearTimeout(manualGifTimer);
   window.clearTimeout(milestoneTimer);
   window.clearInterval(hypeTimer);
+  window.clearInterval(auctionTimerInterval);
+  window.clearTimeout(recapTimer);
 }
 
 function hasAddOn(addOn: AddOnId): boolean {
@@ -326,6 +387,42 @@ function formatGoalValue(goal: GoalConfig, value: number): string {
     return `$${Math.round(value).toLocaleString()} / $${Math.round(goal.target).toLocaleString()}`;
   }
   return `${Math.round(value).toLocaleString()} / ${Math.round(goal.target).toLocaleString()}`;
+}
+
+function formatActivityAction(event: ShowEvent): string {
+  if (event.type === "sale") {
+    return "Sold";
+  }
+  if (event.type === "bid") {
+    return "Bid";
+  }
+  if (event.action === "follow") {
+    return "Follow";
+  }
+  if (event.action === "bookmark") {
+    return "Bookmark";
+  }
+  if (event.action === "chat") {
+    return "Chat";
+  }
+  return "Reaction";
+}
+
+function formatActivityActor(event: ShowEvent): string {
+  if (event.type === "sale") {
+    return `@${event.buyer}`;
+  }
+  if (event.type === "bid") {
+    return `@${event.bidder}`;
+  }
+  return `@${event.actor}`;
+}
+
+function formatActivityMeta(event: ShowEvent): string {
+  if (event.type === "sale" || event.type === "bid") {
+    return `$${event.amount.toLocaleString()}${event.item ? ` - ${event.item}` : ""}`;
+  }
+  return event.message ?? "Audience action";
 }
 
 function playEventTone(event: ShowEvent): void {
@@ -398,6 +495,42 @@ function startHypeMeter(durationSeconds: number): void {
       }, 2400);
     }
   }, 250);
+}
+
+function startAuctionTimer(durationSeconds: number): void {
+  auctionTimer.value = {
+    startedAt: Date.now(),
+    durationSeconds
+  };
+  auctionRemaining.value = durationSeconds;
+  window.clearInterval(auctionTimerInterval);
+  auctionTimerInterval = window.setInterval(() => {
+    if (!auctionTimer.value) {
+      return;
+    }
+    const elapsed = Math.floor((Date.now() - auctionTimer.value.startedAt) / 1000);
+    auctionRemaining.value = Math.max(0, auctionTimer.value.durationSeconds - elapsed);
+    if (auctionRemaining.value === 0) {
+      window.clearInterval(auctionTimerInterval);
+      window.setTimeout(() => {
+        auctionTimer.value = null;
+      }, 2600);
+    }
+  }, 200);
+}
+
+function showRecap(message: {
+  salesCount: number;
+  grossSales: number;
+  bidCount: number;
+  audienceActions: number;
+  timestamp: number;
+}): void {
+  recapCard.value = message;
+  window.clearTimeout(recapTimer);
+  recapTimer = window.setTimeout(() => {
+    recapCard.value = null;
+  }, 9000);
 }
 
 function applyHypeEvent(event: ShowEvent): void {
@@ -564,6 +697,42 @@ onMounted(() => {
         </div>
         <i><b :style="{ width: `${goal.progress}%` }" /></i>
       </article>
+    </section>
+
+    <section v-if="auctionTimer" class="auction-timer">
+      <div>
+        <span>Final Call</span>
+        <strong>{{ auctionRemaining }}</strong>
+      </div>
+      <i><b :style="{ width: `${auctionProgress}%` }" /></i>
+    </section>
+
+    <section v-if="hasAddOn('activity_feed') && activityEvents.length > 0" class="activity-feed">
+      <header>
+        <span>Live Activity</span>
+        <strong>{{ activityEvents.length }}</strong>
+      </header>
+      <ol>
+        <li
+          v-for="event in activityEvents.slice(0, 6)"
+          :key="`activity-${event.type}-${event.timestamp}`"
+          :class="`activity-${event.type}`"
+        >
+          <i>{{ formatActivityAction(event) }}</i>
+          <strong>{{ formatActivityActor(event) }}</strong>
+          <em>{{ formatActivityMeta(event) }}</em>
+        </li>
+      </ol>
+    </section>
+
+    <section v-if="hasAddOn('show_recap') && recapCard" class="show-recap">
+      <span>Show Recap</span>
+      <div>
+        <article v-for="stat in recapStats" :key="stat.label">
+          <em>{{ stat.label }}</em>
+          <strong>{{ stat.value }}</strong>
+        </article>
+      </div>
     </section>
 
     <section v-if="hypeMeter" class="hype-meter">

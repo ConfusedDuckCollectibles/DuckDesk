@@ -33,6 +33,11 @@ contextBridge.exposeInMainWorld("duckDesk", {
   setPromoBanners: (banners: unknown) => ipcRenderer.invoke("duck-desk:set-promo-banners", banners),
   setSceneMode: (mode: unknown) => ipcRenderer.invoke("duck-desk:set-scene-mode", mode),
   setGoals: (goals: unknown) => ipcRenderer.invoke("duck-desk:set-goals", goals),
+  setAuctionTimerSeconds: (seconds: unknown) => (
+    ipcRenderer.invoke("duck-desk:set-auction-timer-seconds", seconds)
+  ),
+  triggerAuctionTimer: () => ipcRenderer.invoke("duck-desk:trigger-auction-timer"),
+  triggerRecap: () => ipcRenderer.invoke("duck-desk:trigger-recap"),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));
   },

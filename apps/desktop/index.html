@@ -127,7 +127,7 @@
         <section class="library-panel">
           <div class="section-heading">
             <h2>Add-On Library</h2>
-            <span id="library-status">12 Available</span>
+            <span id="library-status">15 Available</span>
           </div>
           <div class="library-grid">
             <article class="addon-card featured" data-addon="stream_skins">
@@ -215,6 +215,30 @@
                 <span class="addon-type">Goal</span>
                 <h3>Goal Widgets</h3>
                 <p>Track sales, orders, hype, and follower goals as live progress bars on stream.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="activity_feed">
+              <div>
+                <span class="addon-type">Event List</span>
+                <h3>Activity Feed</h3>
+                <p>Show a compact real-time feed of bids, sales, follows, chat, bookmarks, and reactions.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="auction_timer">
+              <div>
+                <span class="addon-type">Timer</span>
+                <h3>Auction Timer</h3>
+                <p>Trigger a reusable countdown clock for lots, sudden-death bids, or final calls.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="show_recap">
+              <div>
+                <span class="addon-type">Credits</span>
+                <h3>Show Recap</h3>
+                <p>Flash a credits-style session summary with orders, gross, bids, audience, and top buyer.</p>
               </div>
               <button class="addon-action" type="button">Add</button>
             </article>
@@ -409,6 +433,40 @@ Ask questions in chat</textarea>
               <textarea id="goal-config" rows="5">sales|250|Sales Goal
 orders|10|Order Goal</textarea>
               <button id="save-goals" type="button" class="module-command">Save Goals</button>
+            </article>
+
+            <article class="addon-module module-activity" data-addon-panel="activity_feed" hidden>
+              <div class="module-header">
+                <span>Event List</span>
+                <strong>Activity Feed</strong>
+              </div>
+              <p class="module-note">Shows the newest real stream events in a lower overlay panel as they arrive.</p>
+              <div class="module-stat">
+                <span>Tracked Events</span>
+                <strong id="module-activity-count">Live</strong>
+              </div>
+            </article>
+
+            <article class="addon-module module-auction-timer" data-addon-panel="auction_timer" hidden>
+              <div class="module-header">
+                <span>Timer</span>
+                <strong>Auction Timer</strong>
+              </div>
+              <p class="module-note">Use for final calls, sudden-death bids, or pacing lots.</p>
+              <div class="title-row">
+                <input id="auction-timer-seconds" type="number" min="5" max="900" value="45" />
+                <button id="save-auction-timer" type="button">Set</button>
+              </div>
+              <button id="trigger-auction-timer" type="button" class="module-command">Start Timer</button>
+            </article>
+
+            <article class="addon-module module-recap" data-addon-panel="show_recap" hidden>
+              <div class="module-header">
+                <span>Credits</span>
+                <strong>Show Recap</strong>
+              </div>
+              <p class="module-note">Trigger a viewer-facing recap of the current Duck Desk session stats.</p>
+              <button id="trigger-recap" type="button" class="module-command">Show Recap</button>
             </article>
           </div>
         </section>

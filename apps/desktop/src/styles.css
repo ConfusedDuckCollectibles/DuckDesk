@@ -20,7 +20,7 @@
 }
 
 body {
-  min-width: 1000px;
+  min-width: 1100px;
   min-height: 620px;
   margin: 0;
   color: #edf7ff;
@@ -105,12 +105,24 @@ textarea {
 
 .dashboard {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   align-content: start;
   padding: 28px;
-  max-width: 1480px;
+  max-width: 1680px;
   width: 100%;
   margin: 0 auto;
+}
+
+.status-panel,
+.metrics,
+.control-grid,
+.preview-panel,
+.theme-panel,
+.library-panel,
+.active-addons-panel,
+.log-panel {
+  grid-column: 1 / -1;
 }
 
 .status-panel,
@@ -238,7 +250,7 @@ h2 {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
 }
 
@@ -303,7 +315,7 @@ h2 {
 
 .control-grid {
   display: grid;
-  grid-template-columns: minmax(520px, 1fr) minmax(420px, 0.8fr);
+  grid-template-columns: minmax(560px, 1.1fr) minmax(520px, 0.9fr);
   gap: 14px;
 }
 
@@ -361,13 +373,13 @@ textarea {
 
 .actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   padding: 14px;
 }
 
 .actions .primary {
-  grid-column: span 3;
+  grid-column: span 2;
 }
 
 .preview-panel {
@@ -566,12 +578,12 @@ textarea {
 .library-grid,
 .active-addons-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 12px;
 }
 
 .active-addons-grid {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .addon-card {
@@ -618,7 +630,10 @@ textarea {
 .addon-card[data-addon="jumbotron"],
 .addon-card[data-addon="promo_banners"],
 .addon-card[data-addon="scene_switcher"],
-.addon-card[data-addon="goal_widgets"] {
+.addon-card[data-addon="goal_widgets"],
+.addon-card[data-addon="activity_feed"],
+.addon-card[data-addon="auction_timer"],
+.addon-card[data-addon="show_recap"] {
   background:
     linear-gradient(135deg, rgba(255, 91, 214, 0.12), rgba(52, 231, 255, 0.08)),
     rgba(6, 13, 18, 0.88);
@@ -706,7 +721,7 @@ h3 {
 }
 
 .module-skins {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 
 .module-milestones,
@@ -714,8 +729,11 @@ h3 {
 .module-jumbotron,
 .module-promos,
 .module-scenes,
-.module-goals {
-  grid-column: span 2;
+.module-goals,
+.module-activity,
+.module-auction-timer,
+.module-recap {
+  grid-column: 1 / -1;
   align-content: start;
 }
 

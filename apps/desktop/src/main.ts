@@ -69,6 +69,7 @@ let goals: GoalConfig[] = [
   { kind: "sales", target: 250, label: "Sales Goal" },
   { kind: "orders", target: 10, label: "Order Goal" }
 ];
+let auctionTimerSeconds = 45;
 let obsStatus = "Not connected";
 
 type CustomGif = {
@@ -115,9 +116,9 @@ electronApp.on("before-quit", () => {
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 900,
-    minWidth: 1000,
+    width: 1440,
+    height: 960,
+    minWidth: 1100,
     minHeight: 720,
     title: "Duck Desk",
     backgroundColor: "#f7f4e7",
@@ -546,6 +547,32 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:set-auction-timer-seconds", (_event, seconds: unknown) => {
+    if (typeof seconds === "number" && Number.isFinite(seconds)) {
+      auctionTimerSeconds = Math.max(5, Math.min(900, Math.round(seconds)));
+    }
+    activeAddOns.add("auction_timer");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:trigger-auction-timer", () => {
+    activeAddOns.add("auction_timer");
+    broadcast(createOverlayConfig());
+    broadcast(createOverlayAuctionTimerTrigger(auctionTimerSeconds));
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:trigger-recap", () => {
+    activeAddOns.add("show_recap");
+    broadcast(createOverlayConfig());
+    broadcast(createOverlayRecapTrigger());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
@@ -712,6 +739,13 @@ function applyConfigPatch(input: unknown): void {
       .filter((goal): goal is GoalConfig => goal !== null)
       .slice(0, 4);
   }
+
+  if ("auctionTimerSeconds" in input) {
+    if (typeof input.auctionTimerSeconds !== "number" || !Number.isFinite(input.auctionTimerSeconds)) {
+      throw new Error("Invalid auction timer duration.");
+    }
+    auctionTimerSeconds = Math.max(5, Math.min(900, Math.round(input.auctionTimerSeconds)));
+  }
 }
 
 function checkMilestones(): void {
@@ -762,6 +796,8 @@ function broadcast(
     | ReturnType<typeof createOverlayBurstTrigger>
     | ReturnType<typeof createOverlayMilestoneTrigger>
     | ReturnType<typeof createOverlayHypeMeterTrigger>
+    | ReturnType<typeof createOverlayAuctionTimerTrigger>
+    | ReturnType<typeof createOverlayRecapTrigger>
 ): void {
   const payload = JSON.stringify(event);
 
@@ -801,6 +837,7 @@ function getStatus(): {
   promoBanners: string[];
   sceneMode: SceneMode;
   goals: GoalConfig[];
+  auctionTimerSeconds: number;
   obsStatus: string;
   lastError?: string;
 } {
@@ -829,6 +866,7 @@ function getStatus(): {
     promoBanners,
     sceneMode,
     goals,
+    auctionTimerSeconds,
     obsStatus,
     lastError
   };
@@ -850,6 +888,7 @@ function createOverlayConfig(): {
   promoBanners: string[];
   sceneMode: SceneMode;
   goals: GoalConfig[];
+  auctionTimerSeconds: number;
   timestamp: number;
 } {
   return {
@@ -868,6 +907,7 @@ function createOverlayConfig(): {
     promoBanners,
     sceneMode,
     goals,
+    auctionTimerSeconds,
     timestamp: Date.now()
   };
 }
@@ -972,6 +1012,36 @@ function createOverlayHypeMeterTrigger(durationSeconds: number): {
   return {
     type: "hype_meter_trigger",
     durationSeconds,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayAuctionTimerTrigger(durationSeconds: number): {
+  type: "auction_timer_trigger";
+  durationSeconds: number;
+  timestamp: number;
+} {
+  return {
+    type: "auction_timer_trigger",
+    durationSeconds,
+    timestamp: Date.now()
+  };
+}
+
+function createOverlayRecapTrigger(): {
+  type: "recap_trigger";
+  salesCount: number;
+  grossSales: number;
+  bidCount: number;
+  audienceActions: number;
+  timestamp: number;
+} {
+  return {
+    type: "recap_trigger",
+    salesCount: stats.salesCount,
+    grossSales: stats.grossSales,
+    bidCount: stats.bidCount,
+    audienceActions: stats.audienceActions,
     timestamp: Date.now()
   };
 }
