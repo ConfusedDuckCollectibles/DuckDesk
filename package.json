@@ -29,6 +29,8 @@
     "mock:sale": "curl -X POST http://localhost:8741/events -H 'Content-Type: application/json' -d '{\"type\":\"sale\",\"buyer\":\"TestBuyer\",\"amount\":28,\"item\":\"Test Wheel Spin\",\"timestamp\":123456789}'"
   },
   "devDependencies": {
+    "@audio/decode-mp3": "^1.3.1",
+    "@audio/decode-vorbis": "^1.3.2",
     "typescript": "^5.9.2"
   }
 }

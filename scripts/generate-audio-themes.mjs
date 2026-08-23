@@ -1,319 +1,412 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import decodeMp3 from "@audio/decode-mp3";
+import decodeVorbis from "@audio/decode-vorbis";
 
 const sampleRate = 32_000;
-const soundKinds = ["sale", "bid", "action", "tip", "share"];
-const themeNames = [
-  "neon_pulse",
-  "arcade_8bit",
-  "broadcast",
-  "crystal",
-  "duck_party",
-  "luxury",
-  "retro",
-  "stadium",
-  "storm",
-  "zen"
-];
-const eventMotifs = {
-  sale: [0, 4, 7, 12],
-  bid: [0, 7],
-  action: [0, 3, 7],
-  tip: [7, 12, 16],
-  share: [0, 5, 9, 12]
-};
-const eventDurations = {
-  sale: 1.05,
-  bid: 0.42,
-  action: 0.72,
-  tip: 0.86,
-  share: 0.82
-};
-
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const sourceRoot = path.join(projectRoot, "scripts", "audio-sources");
 const outputRoot = path.join(projectRoot, "apps", "overlay", "public", "audio");
+const sourceCache = new Map();
 
-for (const theme of themeNames) {
+const K = (pack, file) => path.join("kenney", pack, file);
+const F = (file) => path.join("freesound", file);
+const L = (file, options = {}) => ({ file, ...options });
+const C = (duration, layers, master = {}) => ({ duration, layers, master });
+
+const cueDesigns = {
+  neon_pulse: {
+    bid: C(0.62, [
+      L(K("digital-audio", "powerUp1.ogg"), { gain: 0.72, duration: 0.58 })
+    ]),
+    sale: C(1.26, [
+      L(K("digital-audio", "powerUp3.ogg"), { gain: 0.62, duration: 0.92 }),
+      L(K("digital-audio", "phaseJump2.ogg"), { at: 0.34, gain: 0.42, duration: 0.8 })
+    ]),
+    action: C(0.82, [
+      L(K("digital-audio", "zapThreeToneUp.ogg"), { gain: 0.68, duration: 0.74 })
+    ]),
+    tip: C(1.08, [
+      L(K("digital-audio", "phaserUp4.ogg"), { gain: 0.52, duration: 0.88 }),
+      L(K("digital-audio", "threeTone1.ogg"), { at: 0.32, gain: 0.38, duration: 0.62 })
+    ]),
+    share: C(1.02, [
+      L(K("digital-audio", "twoTone1.ogg"), { gain: 0.58, duration: 0.66 }),
+      L(K("digital-audio", "tone1.ogg"), { at: 0.38, gain: 0.36, rate: 1.12, duration: 0.52 })
+    ])
+  },
+  arcade_8bit: {
+    bid: C(0.58, [
+      L(K("digital-audio", "pepSound1.ogg"), { gain: 0.72, duration: 0.54 })
+    ]),
+    sale: C(1.18, [
+      L(K("digital-audio", "pepSound5.ogg"), { gain: 0.62, duration: 0.7 }),
+      L(K("digital-audio", "pepSound3.ogg"), { at: 0.38, gain: 0.52, rate: 0.92, duration: 0.68 })
+    ]),
+    action: C(0.74, [
+      L(K("digital-audio", "pepSound2.ogg"), { gain: 0.7, duration: 0.68 })
+    ]),
+    tip: C(1.04, [
+      L(K("digital-audio", "pepSound4.ogg"), { gain: 0.62, duration: 0.7 }),
+      L(K("digital-audio", "lowThreeTone.ogg"), { at: 0.34, gain: 0.34, rate: 1.18, duration: 0.62 })
+    ]),
+    share: C(0.98, [
+      L(K("digital-audio", "pepSound3.ogg"), { gain: 0.6, duration: 0.64 }),
+      L(K("digital-audio", "pepSound1.ogg"), { at: 0.32, gain: 0.4, rate: 1.16, duration: 0.58 })
+    ])
+  },
+  broadcast: {
+    bid: C(0.58, [
+      L(K("interface-sounds", "confirmation_001.ogg"), { gain: 0.72, duration: 0.52 })
+    ]),
+    sale: C(1.22, [
+      L(K("interface-sounds", "open_002.ogg"), { gain: 0.5, lowpass: 7200, duration: 0.82 }),
+      L(K("interface-sounds", "confirmation_004.ogg"), { at: 0.3, gain: 0.62, duration: 0.8 })
+    ]),
+    action: C(0.76, [
+      L(K("interface-sounds", "select_004.ogg"), { gain: 0.66, duration: 0.68 })
+    ]),
+    tip: C(1.06, [
+      L(K("interface-sounds", "maximize_004.ogg"), { gain: 0.54, duration: 0.76 }),
+      L(K("interface-sounds", "confirmation_003.ogg"), { at: 0.28, gain: 0.48, duration: 0.68 })
+    ]),
+    share: C(0.96, [
+      L(K("interface-sounds", "confirmation_002.ogg"), { gain: 0.64, duration: 0.7 }),
+      L(K("interface-sounds", "drop_001.ogg"), { at: 0.3, gain: 0.28, highpass: 180, duration: 0.5 })
+    ])
+  },
+  crystal: {
+    bid: C(0.7, [
+      L(F("crystal-button-1.mp3"), { sourceStart: 0.03, gain: 0.7, duration: 0.64, highpass: 180 })
+    ]),
+    sale: C(1.46, [
+      L(F("crystal-button-3.mp3"), { sourceStart: 0.03, gain: 0.62, duration: 1.24, highpass: 160 }),
+      L(K("interface-sounds", "glass_006.ogg"), { at: 0.46, gain: 0.36, rate: 0.92, duration: 0.82 })
+    ]),
+    action: C(0.9, [
+      L(K("interface-sounds", "glass_003.ogg"), { gain: 0.62, duration: 0.82, highpass: 180 })
+    ]),
+    tip: C(1.28, [
+      L(K("interface-sounds", "glass_005.ogg"), { gain: 0.58, duration: 0.96 }),
+      L(F("crystal-button-1.mp3"), { at: 0.32, sourceStart: 0.08, gain: 0.4, rate: 1.08, duration: 0.82 })
+    ]),
+    share: C(1.18, [
+      L(K("interface-sounds", "glass_002.ogg"), { gain: 0.58, duration: 0.84 }),
+      L(K("interface-sounds", "glass_004.ogg"), { at: 0.3, gain: 0.36, rate: 1.12, duration: 0.72 })
+    ])
+  },
+  duck_party: {
+    bid: C(0.62, [
+      L(K("casino-audio", "chip-lay-1.ogg"), { gain: 0.68, duration: 0.56 })
+    ]),
+    sale: C(1.28, [
+      L(K("casino-audio", "dice-throw-2.ogg"), { gain: 0.5, duration: 0.86 }),
+      L(K("casino-audio", "chips-stack-5.ogg"), { at: 0.34, gain: 0.56, duration: 0.82 }),
+      L(K("interface-sounds", "bong_001.ogg"), { at: 0.54, gain: 0.24, rate: 1.12, duration: 0.62 })
+    ]),
+    action: C(0.8, [
+      L(K("casino-audio", "die-throw-4.ogg"), { gain: 0.62, duration: 0.72 })
+    ]),
+    tip: C(1.08, [
+      L(K("casino-audio", "chips-collide-2.ogg"), { gain: 0.58, duration: 0.82 }),
+      L(K("interface-sounds", "bong_001.ogg"), { at: 0.34, gain: 0.25, rate: 1.26, duration: 0.58 })
+    ]),
+    share: C(1.04, [
+      L(K("casino-audio", "card-fan-1.ogg"), { gain: 0.56, duration: 0.8 }),
+      L(K("casino-audio", "chip-lay-1.ogg"), { at: 0.4, gain: 0.42, rate: 1.1, duration: 0.5 })
+    ])
+  },
+  luxury: {
+    bid: C(0.68, [
+      L(K("casino-audio", "card-place-3.ogg"), { gain: 0.6, lowpass: 6800, duration: 0.6 }),
+      L(K("interface-sounds", "glass_001.ogg"), { at: 0.12, gain: 0.22, duration: 0.5 })
+    ], { targetDb: -20 }),
+    sale: C(1.54, [
+      L(F("cash-register.mp3"), { sourceStart: 0.02, gain: 0.48, lowpass: 7600, duration: 1.34 }),
+      L(K("interface-sounds", "glass_006.ogg"), { at: 0.52, gain: 0.3, lowpass: 7000, duration: 0.76 })
+    ], { targetDb: -19 }),
+    action: C(0.86, [
+      L(K("casino-audio", "card-shove-2.ogg"), { gain: 0.56, lowpass: 6200, duration: 0.78 })
+    ], { targetDb: -21 }),
+    tip: C(1.24, [
+      L(K("casino-audio", "chips-handle-4.ogg"), { gain: 0.46, lowpass: 6500, duration: 0.94 }),
+      L(K("interface-sounds", "glass_005.ogg"), { at: 0.38, gain: 0.28, duration: 0.72 })
+    ], { targetDb: -20 }),
+    share: C(1.1, [
+      L(K("casino-audio", "card-fan-1.ogg"), { gain: 0.48, lowpass: 6200, duration: 0.84 }),
+      L(K("interface-sounds", "glass_002.ogg"), { at: 0.36, gain: 0.24, duration: 0.64 })
+    ], { targetDb: -21 })
+  },
+  retro: {
+    bid: C(0.56, [
+      L(K("ui-audio", "switch1.ogg"), { gain: 0.72, lowpass: 6200, duration: 0.5 })
+    ]),
+    sale: C(1.18, [
+      L(K("ui-audio", "switch31.ogg"), { gain: 0.62, lowpass: 5800, duration: 0.7 }),
+      L(K("ui-audio", "switch36.ogg"), { at: 0.3, gain: 0.54, lowpass: 5600, duration: 0.68 }),
+      L(K("digital-audio", "lowThreeTone.ogg"), { at: 0.46, gain: 0.22, lowpass: 5000, duration: 0.58 })
+    ]),
+    action: C(0.74, [
+      L(K("ui-audio", "switch8.ogg"), { gain: 0.66, lowpass: 6000, duration: 0.66 })
+    ]),
+    tip: C(1.04, [
+      L(K("ui-audio", "switch23.ogg"), { gain: 0.6, lowpass: 5600, duration: 0.7 }),
+      L(K("ui-audio", "click1.ogg"), { at: 0.36, gain: 0.4, rate: 0.88, duration: 0.5 })
+    ]),
+    share: C(0.96, [
+      L(K("ui-audio", "switch15.ogg"), { gain: 0.58, lowpass: 6000, duration: 0.66 }),
+      L(K("interface-sounds", "switch_007.ogg"), { at: 0.3, gain: 0.38, duration: 0.56 })
+    ])
+  },
+  stadium: {
+    bid: C(0.68, [
+      L(F("crowd-cheer.mp3"), { sourceStart: 2.7, gain: 0.44, highpass: 120, lowpass: 7600, duration: 0.62 })
+    ], { targetDb: -20 }),
+    sale: C(1.58, [
+      L(F("crowd-cheer.mp3"), { sourceStart: 2.42, gain: 0.52, highpass: 110, lowpass: 8000, duration: 1.46 }),
+      L(K("digital-audio", "threeTone1.ogg"), { at: 0.12, gain: 0.26, duration: 0.8 })
+    ], { targetDb: -18.5 }),
+    action: C(0.92, [
+      L(F("crowd-cheer.mp3"), { sourceStart: 3.22, gain: 0.46, highpass: 130, lowpass: 7200, duration: 0.84 }),
+      L(K("interface-sounds", "confirmation_001.ogg"), { at: 0.08, gain: 0.28, duration: 0.54 })
+    ], { targetDb: -20 }),
+    tip: C(1.34, [
+      L(F("crowd-cheer.mp3"), { sourceStart: 2.52, gain: 0.5, highpass: 110, lowpass: 7600, duration: 1.22 }),
+      L(K("digital-audio", "powerUp1.ogg"), { at: 0.2, gain: 0.24, duration: 0.72 })
+    ], { targetDb: -19 }),
+    share: C(1.22, [
+      L(F("crowd-cheer.mp3"), { sourceStart: 3.6, gain: 0.46, highpass: 130, lowpass: 7200, duration: 1.08 }),
+      L(K("interface-sounds", "confirmation_002.ogg"), { at: 0.12, gain: 0.24, duration: 0.64 })
+    ], { targetDb: -20 })
+  },
+  storm: {
+    bid: C(0.74, [
+      L(F("distant-thunder.mp3"), { sourceStart: 0.28, gain: 0.48, highpass: 58, lowpass: 4200, duration: 0.68 })
+    ], { targetDb: -23, highpass: 58 }),
+    sale: C(1.56, [
+      L(F("distant-thunder.mp3"), { sourceStart: 4, gain: 0.5, highpass: 32, lowpass: 4600, duration: 1.46 }),
+      L(F("wind-gust.mp3"), { sourceStart: 0.04, gain: 0.17, highpass: 90, lowpass: 2800, duration: 1.38 }),
+      L(K("interface-sounds", "glass_001.ogg"), { at: 0.56, gain: 0.12, lowpass: 5200, duration: 0.6 })
+    ], { targetDb: -21, highpass: 32 }),
+    action: C(1.04, [
+      L(F("wind-gust.mp3"), { sourceStart: 0.02, gain: 0.34, highpass: 120, lowpass: 3400, duration: 0.96 }),
+      L(F("distant-thunder.mp3"), { sourceStart: 5.5, gain: 0.22, highpass: 65, lowpass: 3600, duration: 0.82 })
+    ], { targetDb: -23, highpass: 58 }),
+    tip: C(1.42, [
+      L(F("distant-thunder.mp3"), { sourceStart: 5.36, gain: 0.4, highpass: 42, lowpass: 4200, duration: 1.32 }),
+      L(K("interface-sounds", "glass_003.ogg"), { at: 0.42, gain: 0.12, lowpass: 5000, duration: 0.72 })
+    ], { targetDb: -22, highpass: 42 }),
+    share: C(1.3, [
+      L(F("wind-gust.mp3"), { sourceStart: 0.24, gain: 0.32, highpass: 120, lowpass: 3200, duration: 1.18 }),
+      L(K("interface-sounds", "glass_004.ogg"), { at: 0.34, gain: 0.1, lowpass: 4800, duration: 0.66 })
+    ], { targetDb: -23, highpass: 58 })
+  },
+  zen: {
+    bid: C(0.72, [
+      L(K("interface-sounds", "pluck_001.ogg"), { gain: 0.54, lowpass: 5200, duration: 0.66 })
+    ], { targetDb: -23 }),
+    sale: C(1.52, [
+      L(K("interface-sounds", "pluck_002.ogg"), { gain: 0.48, lowpass: 5000, duration: 1.02 }),
+      L(F("wind-gust.mp3"), { sourceStart: 1.5, gain: 0.1, highpass: 180, lowpass: 2200, duration: 1.38 }),
+      L(F("crystal-button-3.mp3"), { at: 0.46, sourceStart: 0.08, gain: 0.16, lowpass: 5200, duration: 0.82 })
+    ], { targetDb: -22 }),
+    action: C(0.96, [
+      L(K("interface-sounds", "drop_003.ogg"), { gain: 0.42, lowpass: 4800, duration: 0.86 })
+    ], { targetDb: -24 }),
+    tip: C(1.32, [
+      L(K("interface-sounds", "pluck_001.ogg"), { gain: 0.44, rate: 0.92, lowpass: 5000, duration: 0.94 }),
+      L(K("interface-sounds", "pluck_002.ogg"), { at: 0.38, gain: 0.3, rate: 1.08, lowpass: 5200, duration: 0.82 })
+    ], { targetDb: -23 }),
+    share: C(1.2, [
+      L(K("interface-sounds", "drop_004.ogg"), { gain: 0.4, lowpass: 4600, duration: 0.94 }),
+      L(F("crystal-button-1.mp3"), { at: 0.38, sourceStart: 0.12, gain: 0.14, lowpass: 5000, duration: 0.68 })
+    ], { targetDb: -24 })
+  }
+};
+
+let renderedCount = 0;
+for (const [theme, designs] of Object.entries(cueDesigns)) {
   const themeDirectory = path.join(outputRoot, theme);
   fs.mkdirSync(themeDirectory, { recursive: true });
-  for (const kind of soundKinds) {
-    const duration = eventDurations[kind] + (theme === "crystal" || theme === "zen" ? 0.55 : 0);
-    const samples = new Float64Array(Math.ceil(duration * sampleRate));
-    const random = createRandom(`${theme}:${kind}`);
-    renderTheme(theme, kind, samples, random);
-    normalize(samples);
-    fs.writeFileSync(path.join(themeDirectory, `${kind}.wav`), encodeWav(samples));
+  for (const [kind, design] of Object.entries(designs)) {
+    const samples = await renderCue(design);
+    fs.writeFileSync(path.join(themeDirectory, kind + ".wav"), encodeWav(samples));
+    renderedCount += 1;
   }
 }
 
-console.log(`Rendered ${themeNames.length * soundKinds.length} original Duck Desk audio cues.`);
+console.log("Rendered " + renderedCount + " curated Duck Desk audio cues.");
 
-function renderTheme(theme, kind, samples, random) {
-  const motif = eventMotifs[kind];
-  if (theme === "neon_pulse") {
-    addKick(samples, 0.01, 0.18, 95, 42, 0.48);
-    arpeggio(samples, motif, 330, 0.035, 0.075, 0.18, {
-      wave: "triangle",
-      amp: 0.24,
-      endRatio: 1.08,
-      vibrato: 8,
-      vibratoRate: 24
-    });
-    addTone(samples, { start: 0.02, duration: 0.32, frequency: 82, endFrequency: 164, wave: "sine", amp: 0.22, decay: 2.6 });
-    addNoise(samples, random, { start: 0.025, duration: 0.09, amp: 0.08, filter: 0.42, attack: 0.01 });
-    addEcho(samples, 0.12, 0.28, 2);
-    return;
+async function renderCue(design) {
+  const samples = new Float64Array(Math.round(design.duration * sampleRate));
+  for (const sourceLayer of design.layers) {
+    await mixSource(samples, sourceLayer);
   }
-
-  if (theme === "arcade_8bit") {
-    arpeggio(samples, motif, 392, 0.018, 0.065, 0.13, { wave: "square", amp: 0.16, decay: 1.2 });
-    addTone(samples, { start: 0.015, duration: 0.12, frequency: kind === "sale" ? 1047 : 784, wave: "square", amp: 0.11, decay: 8 });
-    if (kind === "action" || kind === "share") {
-      arpeggio(samples, [...motif].reverse(), 196, 0.31, 0.045, 0.085, { wave: "square", amp: 0.1, decay: 3 });
-    }
-    bitCrush(samples, 8, 4);
-    return;
-  }
-
-  if (theme === "broadcast") {
-    addWhoosh(samples, random, 0, Math.min(0.3, samples.length / sampleRate * 0.4), 0.18);
-    addKick(samples, 0.16, 0.16, 72, 48, 0.32);
-    chord(samples, motif.slice(-3), 220, 0.18, 0.42, { wave: "sine", amp: 0.12, decay: 2.2 });
-    addTone(samples, { start: 0.18, duration: 0.32, frequency: note(440, motif.at(-1)), wave: "triangle", amp: 0.16, decay: 3.4 });
-    return;
-  }
-
-  if (theme === "crystal") {
-    motif.slice(0, kind === "bid" ? 2 : 4).forEach((offset, index) => {
-      addBell(samples, 0.025 + index * 0.105, note(660, offset), 0.92 - index * 0.06, 0.22);
-    });
-    addEcho(samples, 0.17, 0.24, 3);
-    return;
-  }
-
-  if (theme === "duck_party") {
-    const starts = kind === "bid" ? [0.02] : [0.02, 0.19, 0.36];
-    starts.forEach((start, index) => {
-      const high = note(510, motif[index % motif.length]);
-      addTone(samples, {
-        start,
-        duration: 0.2,
-        frequency: high,
-        endFrequency: high * (index % 2 === 0 ? 0.48 : 0.7),
-        wave: "triangle",
-        amp: 0.24,
-        vibrato: 28,
-        vibratoRate: 19,
-        decay: 2
-      });
-      addTone(samples, { start: start + 0.025, duration: 0.15, frequency: high * 1.9, endFrequency: high * 1.1, wave: "sine", amp: 0.08, decay: 4 });
-    });
-    addPop(samples, starts.at(-1) + 0.17, 0.14);
-    return;
-  }
-
-  if (theme === "luxury") {
-    chord(samples, [0, 4, 9], 196, 0.02, 0.65, { wave: "triangle", amp: 0.09, attack: 0.04, decay: 1.8 });
-    motif.slice(0, 3).forEach((offset, index) => {
-      addBell(samples, 0.08 + index * 0.16, note(392, offset), 0.55, 0.11);
-    });
-    addTone(samples, { start: 0, duration: 0.72, frequency: 98, wave: "sine", amp: 0.14, attack: 0.06, decay: 2.6 });
-    return;
-  }
-
-  if (theme === "retro") {
-    addNoise(samples, random, { start: 0, duration: samples.length / sampleRate, amp: 0.018, filter: 0.08, attack: 0.01, release: 0.01 });
-    arpeggio(samples, motif, 247, 0.03, 0.085, 0.19, { wave: "saw", amp: 0.1, decay: 2.1 });
-    arpeggio(samples, motif.map((offset) => offset - 12), 247, 0.03, 0.085, 0.19, { wave: "square", amp: 0.07, decay: 2.4 });
-    addClick(samples, 0.015, 0.2, random);
-    addEcho(samples, 0.095, 0.18, 2);
-    return;
-  }
-
-  if (theme === "stadium") {
-    addKick(samples, 0.015, 0.25, 92, 40, 0.56);
-    if (kind !== "bid") {
-      addSnare(samples, random, 0.25, 0.17, 0.3);
-      addKick(samples, 0.48, 0.22, 86, 38, 0.42);
-    }
-    chord(samples, motif.slice(-3), 147, 0.12, 0.38, { wave: "saw", amp: 0.075, attack: 0.025, decay: 1.5 });
-    addNoise(samples, random, { start: 0.1, duration: 0.5, amp: 0.05, filter: 0.3, attack: 0.16, release: 0.2 });
-    return;
-  }
-
-  if (theme === "storm") {
-    addNoise(samples, random, { start: 0, duration: Math.min(0.11, samples.length / sampleRate), amp: 0.55, filter: 0.78, attack: 0.002, release: 0.09 });
-    addNoise(samples, random, { start: 0.07, duration: samples.length / sampleRate - 0.07, amp: 0.2, filter: 0.035, attack: 0.02, release: 0.28 });
-    addTone(samples, { start: 0.05, duration: 0.68, frequency: kind === "bid" ? 78 : 52, endFrequency: 34, wave: "sine", amp: 0.4, attack: 0.008, decay: 2.1, vibrato: 3, vibratoRate: 7 });
-    if (kind === "sale" || kind === "tip") {
-      addTone(samples, { start: 0.11, duration: 0.44, frequency: 196, endFrequency: 74, wave: "saw", amp: 0.06, decay: 3.8 });
-    }
-    return;
-  }
-
-  chord(samples, [0, 7, 14], 174, 0.02, 1.15, { wave: "sine", amp: 0.075, attack: 0.16, decay: 1.25 });
-  motif.slice(0, kind === "bid" ? 1 : 3).forEach((offset, index) => {
-    addBell(samples, 0.08 + index * 0.22, note(349, offset), 0.9, 0.09);
-  });
-  addNoise(samples, random, { start: 0, duration: samples.length / sampleRate, amp: 0.012, filter: 0.012, attack: 0.25, release: 0.32 });
+  masterCue(samples, design.master);
+  return samples;
 }
 
-function arpeggio(samples, offsets, base, start, step, duration, options) {
-  offsets.forEach((offset, index) => {
-    const frequency = note(base, offset);
-    addTone(samples, {
-      start: start + index * step,
-      duration,
-      frequency,
-      endFrequency: frequency * (options.endRatio ?? 1),
-      ...options
-    });
-  });
-}
-
-function chord(samples, offsets, base, start, duration, options) {
-  offsets.forEach((offset) => {
-    addTone(samples, { start, duration, frequency: note(base, offset), ...options });
-  });
-}
-
-function addTone(samples, options) {
-  const startSample = Math.max(0, Math.floor(options.start * sampleRate));
-  const length = Math.min(samples.length - startSample, Math.floor(options.duration * sampleRate));
-  const attack = options.attack ?? Math.min(0.018, options.duration * 0.18);
-  const release = options.release ?? Math.min(0.12, options.duration * 0.42);
-  let phase = options.phase ?? 0;
-  for (let index = 0; index < length; index += 1) {
-    const time = index / sampleRate;
-    const progress = length <= 1 ? 1 : index / (length - 1);
-    const frequency = options.frequency * Math.pow((options.endFrequency ?? options.frequency) / options.frequency, progress)
-      + (options.vibrato ?? 0) * Math.sin(2 * Math.PI * (options.vibratoRate ?? 6) * time);
-    phase += 2 * Math.PI * frequency / sampleRate;
-    const envelope = makeEnvelope(time, options.duration, attack, release, options.decay ?? 0);
-    samples[startSample + index] += oscillator(options.wave ?? "sine", phase) * (options.amp ?? 0.2) * envelope;
+async function loadSource(relativePath) {
+  if (sourceCache.has(relativePath)) {
+    return sourceCache.get(relativePath);
   }
-}
 
-function addBell(samples, start, frequency, duration, amp) {
-  const partials = [
-    [1, 1],
-    [2.01, 0.42],
-    [3.93, 0.2],
-    [5.42, 0.11]
-  ];
-  partials.forEach(([ratio, level], index) => {
-    addTone(samples, {
-      start,
-      duration: duration * (1 - index * 0.08),
-      frequency: frequency * ratio,
-      wave: "sine",
-      amp: amp * level,
-      attack: 0.003,
-      release: duration * 0.72,
-      decay: 4.5 + index
-    });
-  });
-}
-
-function addKick(samples, start, duration, frequency, endFrequency, amp) {
-  addTone(samples, { start, duration, frequency, endFrequency, wave: "sine", amp, attack: 0.002, release: duration * 0.72, decay: 5 });
-}
-
-function addSnare(samples, random, start, duration, amp) {
-  addNoise(samples, random, { start, duration, amp, filter: 0.7, attack: 0.002, release: duration * 0.82 });
-  addTone(samples, { start, duration: duration * 0.65, frequency: 182, wave: "triangle", amp: amp * 0.25, decay: 7 });
-}
-
-function addPop(samples, start, amp) {
-  addTone(samples, { start, duration: 0.1, frequency: 980, endFrequency: 180, wave: "sine", amp, attack: 0.001, release: 0.08, decay: 5 });
-}
-
-function addClick(samples, start, amp, random) {
-  addNoise(samples, random, { start, duration: 0.025, amp, filter: 0.9, attack: 0.001, release: 0.02 });
-}
-
-function addWhoosh(samples, random, start, duration, amp) {
-  addNoise(samples, random, { start, duration, amp, filter: 0.24, attack: duration * 0.7, release: duration * 0.22 });
-  addTone(samples, { start: start + duration * 0.5, duration: duration * 0.5, frequency: 160, endFrequency: 720, wave: "sine", amp: amp * 0.22, attack: duration * 0.18, release: duration * 0.2 });
-}
-
-function addNoise(samples, random, options) {
-  const startSample = Math.max(0, Math.floor(options.start * sampleRate));
-  const length = Math.min(samples.length - startSample, Math.floor(options.duration * sampleRate));
-  let filtered = 0;
-  for (let index = 0; index < length; index += 1) {
-    const time = index / sampleRate;
-    const white = random() * 2 - 1;
-    filtered += (white - filtered) * (options.filter ?? 0.5);
-    const envelope = makeEnvelope(time, options.duration, options.attack ?? 0.01, options.release ?? 0.08, options.decay ?? 0);
-    samples[startSample + index] += filtered * options.amp * envelope;
-  }
-}
-
-function addEcho(samples, delaySeconds, feedback, repeats) {
-  const delay = Math.floor(delaySeconds * sampleRate);
-  for (let repeat = 1; repeat <= repeats; repeat += 1) {
-    const gain = Math.pow(feedback, repeat);
-    for (let index = delay * repeat; index < samples.length; index += 1) {
-      samples[index] += samples[index - delay * repeat] * gain;
+  const sourceBytes = fs.readFileSync(path.join(sourceRoot, relativePath));
+  const decoder = path.extname(relativePath) === ".mp3" ? decodeMp3 : decodeVorbis;
+  const audioBuffer = await decoder(sourceBytes);
+  const channels = audioBuffer.channelData;
+  let mono = new Float64Array(channels[0]?.length ?? 0);
+  for (const channel of channels) {
+    for (let index = 0; index < channel.length; index += 1) {
+      mono[index] += channel[index] / channels.length;
     }
   }
+  removeDc(mono);
+  if (relativePath.startsWith("kenney")) {
+    const firstAudibleSample = mono.findIndex((sample) => Math.abs(sample) >= 0.001);
+    if (firstAudibleSample > 0) {
+      const preRoll = Math.round(audioBuffer.sampleRate * 0.005);
+      mono = mono.subarray(Math.max(0, firstAudibleSample - preRoll));
+    }
+  }
+
+  const source = { samples: mono, sampleRate: audioBuffer.sampleRate };
+  sourceCache.set(relativePath, source);
+  return source;
 }
 
-function bitCrush(samples, bits, hold) {
-  const levels = Math.pow(2, bits - 1);
-  let held = 0;
+async function mixSource(output, options) {
+  const source = await loadSource(options.file);
+  const outputStart = Math.max(0, Math.round((options.at ?? 0) * sampleRate));
+  const sourceStart = Math.max(0, (options.sourceStart ?? 0) * source.sampleRate);
+  const rate = options.rate ?? 1;
+  const availableSeconds = (source.samples.length - sourceStart) / source.sampleRate / rate;
+  const requestedSeconds = options.duration ?? availableSeconds;
+  const outputLength = Math.min(
+    output.length - outputStart,
+    Math.max(0, Math.round(Math.min(availableSeconds, requestedSeconds) * sampleRate))
+  );
+  const fadeIn = options.fadeIn ?? Math.min(0.012, requestedSeconds * 0.08);
+  const fadeOut = options.fadeOut ?? Math.min(0.08, requestedSeconds * 0.18);
+  const lowpassAlpha = options.lowpass
+    ? 1 - Math.exp(-2 * Math.PI * options.lowpass / sampleRate)
+    : null;
+  const highpassAlpha = options.highpass
+    ? 1 / (1 + 2 * Math.PI * options.highpass / sampleRate)
+    : null;
+  let lowpassState = 0;
+  let highpassState = 0;
+  let previousInput = 0;
+
+  for (let index = 0; index < outputLength; index += 1) {
+    const sourcePosition = sourceStart + index * source.sampleRate * rate / sampleRate;
+    const leftIndex = Math.floor(sourcePosition);
+    const fraction = sourcePosition - leftIndex;
+    const left = source.samples[leftIndex] ?? 0;
+    const right = source.samples[leftIndex + 1] ?? left;
+    let value = left + (right - left) * fraction;
+
+    if (highpassAlpha !== null) {
+      highpassState = highpassAlpha * (highpassState + value - previousInput);
+      previousInput = value;
+      value = highpassState;
+    }
+    if (lowpassAlpha !== null) {
+      lowpassState += lowpassAlpha * (value - lowpassState);
+      value = lowpassState;
+    }
+
+    const elapsed = index / sampleRate;
+    const remaining = (outputLength - 1 - index) / sampleRate;
+    const envelope = Math.min(
+      fadeIn > 0 ? elapsed / fadeIn : 1,
+      fadeOut > 0 ? remaining / fadeOut : 1,
+      1
+    );
+    output[outputStart + index] += value * (options.gain ?? 1) * Math.max(0, envelope);
+  }
+}
+
+function masterCue(samples, options = {}) {
+  removeDc(samples);
+  highpassInPlace(samples, options.highpass ?? 42);
+  applyEdgeFades(samples, 0.004, 0.045);
+
+  const targetAmplitude = Math.pow(10, (options.targetDb ?? -18.5) / 20);
+  const measuredRms = rms(samples);
+  const gain = measuredRms > 0 ? Math.min(7, targetAmplitude / measuredRms) : 1;
   for (let index = 0; index < samples.length; index += 1) {
-    if (index % hold === 0) {
-      held = Math.round(samples[index] * levels) / levels;
-    }
-    samples[index] = held;
+    const value = samples[index] * gain;
+    samples[index] = Math.abs(value) <= 0.68
+      ? value
+      : Math.sign(value) * (0.68 + 0.25 * Math.tanh((Math.abs(value) - 0.68) / 0.25));
   }
-}
 
-function makeEnvelope(time, duration, attack, release, decay) {
-  const attackLevel = attack <= 0 ? 1 : Math.min(1, time / attack);
-  const releaseStart = Math.max(0, duration - release);
-  const releaseLevel = time <= releaseStart ? 1 : Math.max(0, (duration - time) / Math.max(release, 0.001));
-  const decayLevel = decay > 0 ? Math.exp(-decay * time / Math.max(duration, 0.001)) : 1;
-  return attackLevel * releaseLevel * decayLevel;
-}
-
-function oscillator(wave, phase) {
-  if (wave === "square") {
-    return Math.sin(phase) >= 0 ? 1 : -1;
-  }
-  if (wave === "triangle") {
-    return 2 * Math.asin(Math.sin(phase)) / Math.PI;
-  }
-  if (wave === "saw") {
-    return 2 * (phase / (2 * Math.PI) - Math.floor(phase / (2 * Math.PI) + 0.5));
-  }
-  return Math.sin(phase);
-}
-
-function note(base, semitones = 0) {
-  return base * Math.pow(2, semitones / 12);
-}
-
-function normalize(samples) {
   let peak = 0;
-  for (let index = 0; index < samples.length; index += 1) {
-    samples[index] = Math.tanh(samples[index] * 1.15);
-    peak = Math.max(peak, Math.abs(samples[index]));
+  for (const value of samples) {
+    peak = Math.max(peak, Math.abs(value));
   }
-  const gain = peak > 0 ? 0.9 / peak : 1;
-  for (let index = 0; index < samples.length; index += 1) {
-    samples[index] *= gain;
+  const ceiling = Math.pow(10, -3 / 20);
+  if (peak > ceiling) {
+    const ceilingGain = ceiling / peak;
+    for (let index = 0; index < samples.length; index += 1) {
+      samples[index] *= ceilingGain;
+    }
   }
+}
+
+function highpassInPlace(samples, cutoff) {
+  const alpha = 1 / (1 + 2 * Math.PI * cutoff / sampleRate);
+  let previousInput = 0;
+  let previousOutput = 0;
+  for (let index = 0; index < samples.length; index += 1) {
+    const current = samples[index];
+    previousOutput = alpha * (previousOutput + current - previousInput);
+    previousInput = current;
+    samples[index] = previousOutput;
+  }
+}
+
+function applyEdgeFades(samples, fadeInSeconds, fadeOutSeconds) {
+  const fadeInLength = Math.min(samples.length, Math.round(fadeInSeconds * sampleRate));
+  const fadeOutLength = Math.min(samples.length, Math.round(fadeOutSeconds * sampleRate));
+  for (let index = 0; index < fadeInLength; index += 1) {
+    samples[index] *= index / Math.max(1, fadeInLength - 1);
+  }
+  for (let index = 0; index < fadeOutLength; index += 1) {
+    samples[samples.length - 1 - index] *= index / Math.max(1, fadeOutLength - 1);
+  }
+}
+
+function removeDc(samples) {
+  if (samples.length === 0) {
+    return;
+  }
+  let sum = 0;
+  for (const value of samples) {
+    sum += value;
+  }
+  const mean = sum / samples.length;
+  for (let index = 0; index < samples.length; index += 1) {
+    samples[index] -= mean;
+  }
+}
+
+function rms(samples) {
+  let sum = 0;
+  for (const value of samples) {
+    sum += value * value;
+  }
+  return Math.sqrt(sum / Math.max(1, samples.length));
 }
 
 function encodeWav(samples) {
   const bytesPerSample = 2;
-  const buffer = Buffer.alloc(44 + samples.length * bytesPerSample);
+  const dataSize = samples.length * bytesPerSample;
+  const buffer = Buffer.alloc(44 + dataSize);
   buffer.write("RIFF", 0);
-  buffer.writeUInt32LE(buffer.length - 8, 4);
+  buffer.writeUInt32LE(36 + dataSize, 4);
   buffer.write("WAVE", 8);
   buffer.write("fmt ", 12);
   buffer.writeUInt32LE(16, 16);
@@ -324,25 +417,14 @@ function encodeWav(samples) {
   buffer.writeUInt16LE(bytesPerSample, 32);
   buffer.writeUInt16LE(16, 34);
   buffer.write("data", 36);
-  buffer.writeUInt32LE(samples.length * bytesPerSample, 40);
+  buffer.writeUInt32LE(dataSize, 40);
+
   for (let index = 0; index < samples.length; index += 1) {
-    const value = Math.max(-1, Math.min(1, samples[index]));
-    buffer.writeInt16LE(Math.round(value * 32767), 44 + index * bytesPerSample);
+    const sample = Math.max(-1, Math.min(1, samples[index]));
+    buffer.writeInt16LE(
+      Math.round(sample * (sample < 0 ? 32768 : 32767)),
+      44 + index * bytesPerSample
+    );
   }
   return buffer;
-}
-
-function createRandom(seedText) {
-  let seed = 2166136261;
-  for (const character of seedText) {
-    seed ^= character.charCodeAt(0);
-    seed = Math.imul(seed, 16777619);
-  }
-  return () => {
-    seed += 0x6d2b79f5;
-    let value = seed;
-    value = Math.imul(value ^ value >>> 15, value | 1);
-    value ^= value + Math.imul(value ^ value >>> 7, value | 61);
-    return ((value ^ value >>> 14) >>> 0) / 4294967296;
-  };
 }

@@ -45,7 +45,7 @@ Duck Desk does not update itself yet. Check the [Releases page](https://github.c
 - 30 stream themes, including 10 animated premium-style themes.
 - A persistent vertical stream frame, live header, ticker, and open-source footer.
 - Manual GIF reactions with names, sizes, and screen positions.
-- 10 audio themes with 50 original bundled cues for bids, sales, tips, shares, and audience actions, plus a master mute switch.
+- 10 audio themes with 50 individually produced cues for bids, sales, tips, shares, and audience actions, plus a master mute switch.
 - Custom sound files for each individual event type, plus a saved master effects-volume control. Duck Desk safely copies files into its private app-data folder.
 - Hype bursts, milestones, auction timers, goals, promo banners, and show recaps.
 - Bid ladder, activity feed, buyer leaderboard, jumbotron, and show scenes.
@@ -313,6 +313,7 @@ Duck Desk is released under the [MIT License](LICENSE). The goal is to give live
 
 Duck Desk is created by Confused Duck Collectibles. [Follow Confused Duck Collectibles on Whatnot](https://www.whatnot.com/user/confusedduckcollectibles) to see upcoming shows and Duck Desk in action.
 
+- [Third-party audio credits and CC0 source licenses](THIRD_PARTY_NOTICES.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Community standards](CODE_OF_CONDUCT.md)
