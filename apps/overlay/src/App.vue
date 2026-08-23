@@ -503,7 +503,7 @@ onMounted(() => {
       <em>{{ milestoneCard.label }}</em>
     </section>
 
-    <section v-if="recentEvents.length > 0" class="score-strip">
+    <section v-if="recentEvents.length > 0 && !hasAddOn('jumbotron')" class="score-strip">
       <div>
         <span>Hype</span>
         <strong>{{ hypeScore }}</strong>
@@ -515,7 +515,7 @@ onMounted(() => {
     </section>
 
     <section
-      v-if="hasAddOn('bid_ladder') || hasAddOn('leaderboard_deck')"
+      v-if="(hasAddOn('bid_ladder') || hasAddOn('leaderboard_deck')) && !hasAddOn('jumbotron')"
       class="add-on-stack"
     >
       <div v-if="hasAddOn('bid_ladder')" class="bid-ladder">
