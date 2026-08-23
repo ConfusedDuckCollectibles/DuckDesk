@@ -72,6 +72,19 @@ const displayedGif = computed(() => manualGifUrl.value);
 const activePromo = computed(() => promoBanners.value[promoIndex.value % Math.max(1, promoBanners.value.length)] ?? "");
 const hypeRemaining = ref(0);
 const auctionRemaining = ref(0);
+const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
+  "storm_front",
+  "cyber_duck_city",
+  "treasure_vault",
+  "boss_battle",
+  "cosmic_auction",
+  "haunted_drop",
+  "sports_broadcast",
+  "anime_powerup",
+  "candy_rush",
+  "luxury_nightclub"
+]);
+const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
 const hypeProgress = computed(() => {
   if (!hypeMeter.value) {
     return 0;
@@ -587,10 +600,31 @@ onMounted(() => {
 <template>
   <main
     class="overlay-shell"
-    :class="[`theme-${theme}`, `skin-${skin}`, activeAddOns.map((addOn) => `addon-${addOn}`)]"
+    :class="[
+      `theme-${theme}`,
+      `skin-${skin}`,
+      { 'skin-premium': premiumSkinActive },
+      activeAddOns.map((addOn) => `addon-${addOn}`)
+    ]"
     aria-live="polite"
   >
     <div class="overlay-frame" aria-hidden="true" />
+    <div
+      v-if="hasAddOn('stream_skins') && premiumSkinActive"
+      class="premium-atmosphere"
+      aria-hidden="true"
+    >
+      <div class="premium-sky" />
+      <div class="premium-motion">
+        <span v-for="particle in 12" :key="particle" />
+      </div>
+      <div class="premium-foreground">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+    </div>
     <div class="sparkle-field" aria-hidden="true">
       <span />
       <span />

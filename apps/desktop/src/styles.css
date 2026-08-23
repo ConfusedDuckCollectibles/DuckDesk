@@ -635,8 +635,143 @@ textarea {
   background: linear-gradient(135deg, #022c22, #10b981 50%, #d4af37);
 }
 
+.swatch.storm-front {
+  background:
+    linear-gradient(112deg, transparent 0 43%, #f8ff7a 44% 50%, transparent 51%),
+    linear-gradient(145deg, #07111f, #465d7b 55%, #111827);
+}
+
+.swatch.cyber-duck-city {
+  background:
+    linear-gradient(90deg, transparent 0 44%, #ffed4a 45% 58%, transparent 59%),
+    repeating-linear-gradient(0deg, #071420 0 6px, #19e6ff 7px 9px, #071420 10px 14px);
+}
+
+.swatch.treasure-vault {
+  background:
+    radial-gradient(circle at 72% 28%, #fff4aa 0 10%, transparent 11%),
+    conic-gradient(from 35deg, #3f2600, #f4c95d, #7b4d0f, #ffe9a1, #3f2600);
+}
+
+.swatch.boss-battle {
+  background:
+    linear-gradient(90deg, #ff3f6c 0 72%, #3b0b18 73%),
+    repeating-linear-gradient(45deg, #18142c 0 5px, #6135ff 5px 10px);
+  background-blend-mode: screen;
+}
+
+.swatch.cosmic-auction {
+  background:
+    radial-gradient(circle at 25% 28%, #ffffff 0 3%, transparent 4%),
+    radial-gradient(circle at 70% 64%, #68f7ff 0 4%, transparent 5%),
+    radial-gradient(circle at 52% 40%, #d35cff 0 12%, transparent 35%),
+    linear-gradient(135deg, #090526, #35106d 58%, #08172c);
+}
+
+.swatch.haunted-drop {
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(198, 255, 221, 0.8), transparent 48%),
+    linear-gradient(135deg, #07140f, #264237 50%, #5f3a78);
+}
+
+.swatch.sports-broadcast {
+  background:
+    linear-gradient(105deg, transparent 0 38%, #ffffff 39% 46%, transparent 47%),
+    linear-gradient(135deg, #071827, #00a6ff 52%, #ff394f);
+}
+
+.swatch.anime-powerup {
+  background:
+    repeating-conic-gradient(from 4deg at 50% 50%, #fff79a 0 6deg, #ff5a35 7deg 13deg, #5a20d9 14deg 22deg);
+}
+
+.swatch.candy-rush {
+  background:
+    radial-gradient(circle at 30% 30%, #ffffff 0 6%, transparent 7%),
+    repeating-linear-gradient(135deg, #ff68bd 0 7px, #6cecff 7px 14px, #ffe367 14px 21px);
+}
+
+.swatch.luxury-nightclub {
+  background:
+    linear-gradient(112deg, transparent 0 35%, rgba(255, 255, 255, 0.72) 45%, transparent 55%),
+    linear-gradient(135deg, #020204, #5d185f 52%, #d2a64b);
+}
+
 .premium-theme-card {
   border-color: rgba(255, 207, 97, 0.34);
+}
+
+.premium-animated-card {
+  grid-column: span 2;
+  height: 108px;
+  grid-template-columns: 52px minmax(0, 1fr);
+  padding: 18px;
+  border-color: rgba(255, 207, 97, 0.54);
+  background:
+    linear-gradient(135deg, rgba(255, 207, 97, 0.09), transparent 55%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.premium-animated-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.11) 48%, transparent 66%);
+  transform: translateX(-120%);
+}
+
+.premium-animated-card:hover::after,
+.premium-animated-card.is-active::after {
+  animation: premium-card-sweep 1.8s ease-in-out infinite;
+}
+
+.premium-animated-card .swatch {
+  width: 46px;
+  height: 46px;
+  box-shadow:
+    0 0 0 1px rgba(255, 207, 97, 0.2),
+    0 0 18px rgba(255, 207, 97, 0.16);
+  animation: premium-swatch-pulse 2.4s ease-in-out infinite;
+}
+
+.theme-card-copy {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.theme-card-copy strong {
+  overflow: hidden;
+  display: -webkit-box;
+  line-height: 1.12;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.theme-card-copy small {
+  color: #ffcf61;
+  font-size: 9px;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+@keyframes premium-card-sweep {
+  0%, 22% {
+    transform: translateX(-120%);
+  }
+  70%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes premium-swatch-pulse {
+  0%, 100% {
+    filter: saturate(1) brightness(0.92);
+  }
+  50% {
+    filter: saturate(1.24) brightness(1.16);
+  }
 }
 
 .library-grid,
@@ -831,6 +966,46 @@ h3 {
   gap: 8px;
 }
 
+.skin-catalog-group {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(159, 224, 255, 0.13);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.skin-catalog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skin-catalog-heading strong {
+  color: #ffffff;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.skin-catalog-heading span {
+  color: rgba(237, 247, 255, 0.54);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.premium-skin-catalog {
+  border-color: rgba(255, 207, 97, 0.32);
+  background:
+    linear-gradient(135deg, rgba(255, 207, 97, 0.09), transparent 55%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.premium-skin-catalog .skin-catalog-heading strong {
+  color: #ffcf61;
+}
+
 .skin-chip {
   height: 36px;
   padding: 8px 10px;
@@ -927,6 +1102,85 @@ h3 {
 .skin-chip.emerald {
   background: linear-gradient(135deg, #022c22, #10b981, #d4af37);
   color: #ffffff;
+}
+
+.skin-chip.premium {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(255, 207, 97, 0.55);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.skin-chip.premium::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, 0.2) 48%, transparent 70%);
+  transform: translateX(-130%);
+  transition: transform 420ms ease;
+}
+
+.skin-chip.premium:hover::after,
+.skin-chip.premium.is-active::after {
+  transform: translateX(130%);
+}
+
+.skin-chip.storm {
+  background: linear-gradient(135deg, #07111f, #526a8c 58%, #eaf87a);
+}
+
+.skin-chip.cyber-city {
+  background: linear-gradient(135deg, #06131d, #00d9ff 52%, #ffe547);
+  color: #06131d;
+}
+
+.skin-chip.treasure {
+  background: linear-gradient(135deg, #2b1700, #c68b24 55%, #fff0a6);
+}
+
+.skin-chip.boss {
+  background: linear-gradient(135deg, #160d29, #7139ff 50%, #ff3f6c);
+}
+
+.skin-chip.cosmic {
+  background: linear-gradient(135deg, #080522, #7626b9 52%, #39e7ff);
+}
+
+.skin-chip.haunted {
+  background: linear-gradient(135deg, #07140f, #3c6553 55%, #8950a5);
+}
+
+.skin-chip.broadcast {
+  background: linear-gradient(135deg, #071827, #009dec 52%, #ff394f);
+}
+
+.skin-chip.anime {
+  background: linear-gradient(135deg, #32117e, #ff5531 52%, #fff168);
+  color: #170729;
+}
+
+.skin-chip.candy-rush {
+  background: linear-gradient(135deg, #ff68bd, #6cecff 52%, #ffe367);
+  color: #39112d;
+}
+
+.skin-chip.nightclub {
+  background: linear-gradient(135deg, #020204, #6d1a70 55%, #d2a64b);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-animated-card::after,
+  .premium-animated-card .swatch {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .premium-animated-card {
+    grid-column: span 1;
+  }
 }
 
 .sound-pad {

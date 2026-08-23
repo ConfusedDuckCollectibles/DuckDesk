@@ -310,7 +310,8 @@ If Whatnot events do not trigger yet:
 
 The Mac app includes a Library section with add-ons that update the live overlay immediately:
 
-- `20 Total Themes` includes 3 base themes plus 17 extra stream skins in the main Overlay Theme area.
+- `30 Total Themes` includes 20 standard looks and 10 Premium Animated themes in the main Overlay Theme area, all included free with the open-source app.
+- Premium Animated themes include Thunderstorm Arena, Cyber Duck City, Treasure Vault, Arcade Boss Battle, Cosmic Auction, Haunted Drop, Sports Broadcast, Anime Power-Up, Candy Rush, and Luxury Nightclub.
 - Event sounds are built into the Mac app with an always-visible Sound On/Off toggle.
 - `Noise Machines` adds extra sound-pad controls for previewing sale, bid, and audience cues.
 - `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.

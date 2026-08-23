@@ -43,7 +43,17 @@ export type OverlaySkin =
   | "holiday_spark"
   | "ocean_depth"
   | "pixel_party"
-  | "emerald_vault";
+  | "emerald_vault"
+  | "storm_front"
+  | "cyber_duck_city"
+  | "treasure_vault"
+  | "boss_battle"
+  | "cosmic_auction"
+  | "haunted_drop"
+  | "sports_broadcast"
+  | "anime_powerup"
+  | "candy_rush"
+  | "luxury_nightclub";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action";
@@ -333,7 +343,17 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "holiday_spark" ||
     value === "ocean_depth" ||
     value === "pixel_party" ||
-    value === "emerald_vault"
+    value === "emerald_vault" ||
+    value === "storm_front" ||
+    value === "cyber_duck_city" ||
+    value === "treasure_vault" ||
+    value === "boss_battle" ||
+    value === "cosmic_auction" ||
+    value === "haunted_drop" ||
+    value === "sports_broadcast" ||
+    value === "anime_powerup" ||
+    value === "candy_rush" ||
+    value === "luxury_nightclub"
   );
 }
 

@@ -202,6 +202,719 @@ body,
   --accent: #ffffff;
 }
 
+/* Premium themes are complete broadcast packages, not palette swaps. */
+.skin-storm_front {
+  --panel: #050914;
+  --ink: #f5f9ff;
+  --primary: #75d8ff;
+  --secondary: #e7f5ff;
+  --accent: #a684ff;
+  --theme-font: "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  --premium-radius: 3px;
+  --premium-border: 3px;
+  --premium-hud-bg: linear-gradient(112deg, rgba(6, 12, 25, 0.97), rgba(18, 29, 50, 0.91) 56%, rgba(74, 65, 122, 0.84));
+  --premium-event-bg: linear-gradient(145deg, rgba(8, 15, 31, 0.98), rgba(32, 43, 70, 0.96) 58%, rgba(80, 66, 128, 0.95));
+}
+
+.skin-cyber_duck_city {
+  --panel: #05040d;
+  --ink: #f9ffff;
+  --primary: #00f0ff;
+  --secondary: #ff48d7;
+  --accent: #efff38;
+  --theme-font: "Avenir Next Condensed", "Arial Black", sans-serif;
+  --premium-radius: 0;
+  --premium-border: 2px;
+  --premium-hud-bg: linear-gradient(105deg, rgba(4, 5, 17, 0.96), rgba(11, 18, 34, 0.9) 62%, rgba(48, 5, 53, 0.9));
+  --premium-event-bg: linear-gradient(135deg, rgba(7, 11, 26, 0.98), rgba(10, 45, 58, 0.96) 52%, rgba(63, 7, 66, 0.95));
+}
+
+.skin-treasure_vault {
+  --panel: #100a04;
+  --ink: #fff7d5;
+  --primary: #dda93d;
+  --secondary: #fff0a3;
+  --accent: #43e2bd;
+  --theme-font: Didot, "Bodoni 72", Georgia, serif;
+  --premium-radius: 6px;
+  --premium-border: 4px;
+  --premium-hud-bg: linear-gradient(125deg, rgba(19, 11, 3, 0.98), rgba(73, 43, 8, 0.94) 48%, rgba(20, 67, 53, 0.91));
+  --premium-event-bg: radial-gradient(circle at 50% -20%, rgba(255, 244, 174, 0.42), transparent 43%), linear-gradient(145deg, rgba(35, 20, 5, 0.99), rgba(105, 62, 10, 0.97));
+}
+
+.skin-boss_battle {
+  --panel: #090a19;
+  --ink: #ffffff;
+  --primary: #ff355e;
+  --secondary: #ffcf32;
+  --accent: #3eeeff;
+  --theme-font: Monaco, "Courier New", monospace;
+  --premium-radius: 0;
+  --premium-border: 4px;
+  --premium-hud-bg: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 4px, transparent 4px 8px), linear-gradient(135deg, rgba(8, 9, 24, 0.98), rgba(35, 9, 34, 0.96));
+  --premium-event-bg: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 3px, transparent 3px 7px), linear-gradient(135deg, rgba(25, 8, 28, 0.99), rgba(89, 10, 35, 0.98));
+}
+
+.skin-cosmic_auction {
+  --panel: #050611;
+  --ink: #f8f5ff;
+  --primary: #8a7cff;
+  --secondary: #ff6bd8;
+  --accent: #54eeff;
+  --theme-font: Futura, "Avenir Next", sans-serif;
+  --premium-radius: 8px;
+  --premium-border: 2px;
+  --premium-hud-bg: linear-gradient(125deg, rgba(5, 6, 21, 0.94), rgba(26, 16, 64, 0.91) 48%, rgba(55, 11, 69, 0.88));
+  --premium-event-bg: radial-gradient(circle at 50% 0, rgba(84, 238, 255, 0.22), transparent 44%), linear-gradient(145deg, rgba(10, 8, 31, 0.98), rgba(52, 20, 89, 0.95));
+}
+
+.skin-haunted_drop {
+  --panel: #06100d;
+  --ink: #edf9ef;
+  --primary: #76efbd;
+  --secondary: #d0ff78;
+  --accent: #a886ff;
+  --theme-font: Copperplate, "Palatino Linotype", serif;
+  --premium-radius: 2px;
+  --premium-border: 3px;
+  --premium-hud-bg: linear-gradient(110deg, rgba(4, 13, 10, 0.96), rgba(13, 39, 30, 0.91), rgba(32, 24, 56, 0.89));
+  --premium-event-bg: radial-gradient(ellipse at 50% 110%, rgba(118, 239, 189, 0.25), transparent 53%), linear-gradient(145deg, rgba(4, 17, 13, 0.98), rgba(30, 25, 54, 0.96));
+}
+
+.skin-sports_broadcast {
+  --panel: #06111f;
+  --ink: #ffffff;
+  --primary: #f5f8ff;
+  --secondary: #ff3158;
+  --accent: #27c5ff;
+  --theme-font: "Avenir Next Condensed", "Arial Black", sans-serif;
+  --premium-radius: 0;
+  --premium-border: 3px;
+  --premium-hud-bg: linear-gradient(104deg, rgba(5, 17, 32, 0.98) 0 58%, rgba(12, 72, 105, 0.94) 58% 75%, rgba(176, 13, 47, 0.95) 75%);
+  --premium-event-bg: linear-gradient(110deg, rgba(5, 17, 32, 0.99) 0 16%, rgba(21, 54, 83, 0.98) 16% 76%, rgba(188, 14, 48, 0.98) 76%);
+}
+
+.skin-anime_powerup {
+  --panel: #06111b;
+  --ink: #ffffff;
+  --primary: #4de9ff;
+  --secondary: #ffda45;
+  --accent: #ff4279;
+  --theme-font: "Avenir Next Condensed", Futura, sans-serif;
+  --premium-radius: 1px;
+  --premium-border: 4px;
+  --premium-hud-bg: linear-gradient(118deg, rgba(4, 14, 25, 0.96), rgba(8, 48, 65, 0.91) 56%, rgba(74, 14, 48, 0.91));
+  --premium-event-bg: linear-gradient(135deg, rgba(5, 22, 34, 0.98), rgba(9, 83, 98, 0.96) 48%, rgba(117, 22, 65, 0.96));
+}
+
+.skin-candy_rush {
+  --panel: #241124;
+  --ink: #fffaff;
+  --primary: #ff7bcc;
+  --secondary: #75e9ff;
+  --accent: #ffe767;
+  --theme-font: "Avenir Next", "Arial Rounded MT Bold", sans-serif;
+  --premium-radius: 8px;
+  --premium-border: 4px;
+  --premium-hud-bg: linear-gradient(125deg, rgba(92, 18, 75, 0.94), rgba(38, 89, 116, 0.92) 58%, rgba(119, 87, 13, 0.92));
+  --premium-event-bg: radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.34), transparent 24%), linear-gradient(135deg, rgba(130, 27, 99, 0.98), rgba(23, 116, 140, 0.96));
+}
+
+.skin-luxury_nightclub {
+  --panel: #050407;
+  --ink: #fff9ed;
+  --primary: #ff38c8;
+  --secondary: #e8c875;
+  --accent: #3ce8ff;
+  --theme-font: Didot, "Bodoni 72", Georgia, serif;
+  --premium-radius: 2px;
+  --premium-border: 2px;
+  --premium-hud-bg: linear-gradient(115deg, rgba(4, 3, 8, 0.96), rgba(42, 8, 39, 0.9) 58%, rgba(42, 35, 14, 0.9));
+  --premium-event-bg: radial-gradient(circle at 50% -20%, rgba(232, 200, 117, 0.25), transparent 48%), linear-gradient(145deg, rgba(7, 4, 11, 0.98), rgba(54, 9, 49, 0.95));
+}
+
+.skin-premium {
+  font-family: var(--theme-font);
+}
+
+.skin-premium.addon-stream_skins .show-hud,
+.skin-premium.addon-stream_skins .event-card,
+.skin-premium.addon-stream_skins .score-strip div,
+.skin-premium.addon-stream_skins .bid-ladder,
+.skin-premium.addon-stream_skins .leaderboard-deck,
+.skin-premium.addon-stream_skins .goal-widget,
+.skin-premium.addon-stream_skins .activity-feed,
+.skin-premium.addon-stream_skins .show-recap,
+.skin-premium.addon-stream_skins .auction-timer,
+.skin-premium.addon-stream_skins .hype-meter,
+.skin-premium.addon-stream_skins .milestone-card,
+.skin-premium.addon-stream_skins .jumbotron-stage,
+.skin-premium.addon-stream_skins .scene-state {
+  border-color: color-mix(in srgb, var(--primary) 86%, white);
+  border-radius: var(--premium-radius);
+  color: var(--ink);
+  font-family: var(--theme-font);
+  backdrop-filter: blur(9px);
+}
+
+.skin-premium.addon-stream_skins .show-hud {
+  border-width: var(--premium-border);
+  outline: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+  background: var(--premium-hud-bg);
+  box-shadow:
+    0 8px 0 color-mix(in srgb, var(--panel) 92%, transparent),
+    0 20px 54px rgba(0, 0, 0, 0.42),
+    0 0 44px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+.skin-premium .hud-brand strong,
+.skin-premium .hud-live,
+.skin-premium .ticker,
+.skin-premium .ticker-item {
+  color: var(--ink);
+  font-family: var(--theme-font);
+}
+
+.skin-premium .hud-brand strong {
+  text-shadow: 0 0 16px color-mix(in srgb, var(--primary) 72%, transparent);
+  -webkit-text-stroke: 0;
+}
+
+.skin-premium .brand-stack em {
+  color: var(--secondary);
+  font-family: var(--theme-font);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--secondary) 50%, transparent);
+}
+
+.skin-premium .hud-live {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+}
+
+.skin-premium .promo-banner {
+  border-color: var(--primary);
+  color: var(--ink);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 72%, var(--panel)), color-mix(in srgb, var(--primary) 55%, var(--panel)));
+}
+
+.skin-premium.addon-stream_skins .event-card {
+  border-width: calc(var(--premium-border) + 2px);
+  outline: 1px solid color-mix(in srgb, var(--accent) 68%, white);
+  background: var(--premium-event-bg);
+  box-shadow:
+    0 12px 0 color-mix(in srgb, var(--panel) 94%, transparent),
+    0 30px 72px rgba(0, 0, 0, 0.52),
+    0 0 58px color-mix(in srgb, var(--primary) 31%, transparent);
+}
+
+.skin-premium .event-kicker,
+.skin-premium .event-amount {
+  color: var(--ink);
+  font-family: var(--theme-font);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--primary) 72%, transparent);
+}
+
+.skin-premium .event-primary {
+  color: var(--secondary);
+}
+
+.skin-premium .event-detail {
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+
+.skin-premium.addon-stream_skins .score-strip div,
+.skin-premium.addon-stream_skins .bid-ladder,
+.skin-premium.addon-stream_skins .leaderboard-deck,
+.skin-premium.addon-stream_skins .goal-widget,
+.skin-premium.addon-stream_skins .activity-feed,
+.skin-premium.addon-stream_skins .show-recap {
+  outline: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  background:
+    linear-gradient(130deg, color-mix(in srgb, var(--primary) 16%, transparent), color-mix(in srgb, var(--accent) 10%, transparent)),
+    color-mix(in srgb, var(--panel) 91%, transparent);
+  box-shadow:
+    0 7px 0 color-mix(in srgb, var(--panel) 92%, transparent),
+    0 0 34px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+
+.skin-premium .score-strip strong,
+.skin-premium .bid-ladder strong,
+.skin-premium .leaderboard-deck strong,
+.skin-premium .leaderboard-deck em,
+.skin-premium .goal-widget strong,
+.skin-premium .activity-feed strong,
+.skin-premium .show-recap strong {
+  color: var(--secondary);
+  font-family: var(--theme-font);
+}
+
+.premium-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  contain: strict;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.premium-sky,
+.premium-motion,
+.premium-foreground {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.premium-sky::before,
+.premium-sky::after,
+.premium-foreground::before,
+.premium-foreground::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.premium-motion span {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  opacity: 0;
+  will-change: transform, opacity;
+  --speed: 5s;
+  --delay: 0s;
+  --scale: 1;
+}
+
+.premium-motion span:nth-child(1) { --x: 6%; --y: 7%; --speed: 4.2s; --delay: -0.4s; --scale: 0.7; }
+.premium-motion span:nth-child(2) { --x: 15%; --y: 31%; --speed: 5.6s; --delay: -3.1s; --scale: 1.1; }
+.premium-motion span:nth-child(3) { --x: 24%; --y: 68%; --speed: 4.8s; --delay: -1.8s; --scale: 0.8; }
+.premium-motion span:nth-child(4) { --x: 33%; --y: 17%; --speed: 6.2s; --delay: -4.2s; --scale: 1.25; }
+.premium-motion span:nth-child(5) { --x: 42%; --y: 48%; --speed: 5.1s; --delay: -2.4s; --scale: 0.65; }
+.premium-motion span:nth-child(6) { --x: 51%; --y: 81%; --speed: 4.4s; --delay: -0.9s; --scale: 1; }
+.premium-motion span:nth-child(7) { --x: 59%; --y: 12%; --speed: 5.9s; --delay: -3.7s; --scale: 0.75; }
+.premium-motion span:nth-child(8) { --x: 67%; --y: 42%; --speed: 4.6s; --delay: -1.3s; --scale: 1.2; }
+.premium-motion span:nth-child(9) { --x: 74%; --y: 72%; --speed: 6.4s; --delay: -5.1s; --scale: 0.85; }
+.premium-motion span:nth-child(10) { --x: 82%; --y: 22%; --speed: 5.3s; --delay: -2.9s; --scale: 1.15; }
+.premium-motion span:nth-child(11) { --x: 89%; --y: 56%; --speed: 4.1s; --delay: -1.7s; --scale: 0.72; }
+.premium-motion span:nth-child(12) { --x: 95%; --y: 88%; --speed: 5.7s; --delay: -4.5s; --scale: 1.3; }
+
+.premium-foreground i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.premium-foreground i:nth-child(1) { top: 11%; left: 5%; }
+.premium-foreground i:nth-child(2) { top: 17%; right: 5%; }
+.premium-foreground i:nth-child(3) { right: 7%; bottom: 9%; }
+.premium-foreground i:nth-child(4) { bottom: 13%; left: 6%; }
+
+/* Thunderstorm Arena */
+.skin-storm_front .premium-sky {
+  background:
+    radial-gradient(ellipse at 18% 3%, rgba(138, 155, 188, 0.32), transparent 30%),
+    radial-gradient(ellipse at 77% 0, rgba(86, 76, 144, 0.32), transparent 34%),
+    linear-gradient(180deg, rgba(4, 8, 20, 0.78), transparent 57%);
+}
+
+.skin-storm_front .premium-sky::before {
+  inset: -12% -35%;
+  background: repeating-linear-gradient(106deg, transparent 0 18px, rgba(167, 222, 255, 0.2) 19px 20px, transparent 21px 42px);
+  animation: storm-rain 900ms linear infinite;
+}
+
+.skin-storm_front .premium-sky::after {
+  top: -4%;
+  left: 58%;
+  width: 22%;
+  height: 58%;
+  background: linear-gradient(180deg, #ffffff, #a9eaff 62%, transparent);
+  clip-path: polygon(48% 0, 69% 0, 53% 35%, 77% 32%, 35% 100%, 47% 52%, 26% 55%);
+  filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 32px #75d8ff);
+  animation: storm-lightning 6.3s steps(1, end) infinite;
+}
+
+.skin-storm_front .premium-motion span {
+  width: 3px;
+  height: 15%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, transparent, rgba(178, 228, 255, 0.78), transparent);
+  transform: rotate(8deg);
+  animation: storm-drop var(--speed) linear var(--delay) infinite;
+}
+
+.skin-storm_front.addon-stream_skins .overlay-frame {
+  border-color: rgba(117, 216, 255, 0.78);
+  box-shadow: inset 0 0 64px rgba(117, 216, 255, 0.18), 0 0 22px rgba(166, 132, 255, 0.72);
+  animation: storm-frame 6.3s steps(1, end) infinite;
+}
+
+.skin-storm_front .premium-foreground i {
+  width: 34px;
+  height: 72px;
+  background: linear-gradient(180deg, #ffffff, #75d8ff);
+  clip-path: polygon(45% 0, 86% 0, 58% 38%, 82% 38%, 18% 100%, 40% 53%, 16% 53%);
+  opacity: 0.42;
+  animation: storm-spark 3.8s steps(1, end) infinite;
+}
+
+.skin-storm_front .sale-alert-enter-active { animation: storm-alert 520ms cubic-bezier(0.15, 0.84, 0.3, 1.25) both; }
+
+/* Cyber Duck City */
+.skin-cyber_duck_city .premium-sky {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(0, 240, 255, 0.15), transparent 48%),
+    linear-gradient(180deg, transparent 0 47%, rgba(0, 240, 255, 0.05) 72%, rgba(255, 72, 215, 0.11));
+}
+
+.skin-cyber_duck_city .premium-sky::before {
+  right: -35%;
+  bottom: -18%;
+  left: -35%;
+  height: 55%;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0, 240, 255, 0.26) 0 1px, transparent 1px 58px),
+    repeating-linear-gradient(0deg, rgba(255, 72, 215, 0.24) 0 1px, transparent 1px 46px);
+  transform: perspective(360px) rotateX(62deg);
+  transform-origin: bottom;
+  animation: cyber-grid 4s linear infinite;
+}
+
+.skin-cyber_duck_city .premium-sky::after {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2px;
+  background: #00f0ff;
+  box-shadow: 0 0 18px #00f0ff;
+  animation: cyber-scan 3.2s linear infinite;
+}
+
+.skin-cyber_duck_city .premium-foreground::after {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 31%;
+  background:
+    repeating-linear-gradient(90deg, rgba(5, 5, 18, 0.58) 0 5%, transparent 5% 8%, rgba(5, 5, 18, 0.42) 8% 13%, transparent 13% 16%),
+    repeating-linear-gradient(90deg, transparent 0 3%, rgba(0, 240, 255, 0.35) 3% 3.35%, transparent 3.35% 7%);
+  -webkit-mask-image: linear-gradient(transparent, rgba(0, 0, 0, 0.86) 34%, #000000);
+  mask-image: linear-gradient(transparent, rgba(0, 0, 0, 0.86) 34%, #000000);
+}
+
+.skin-cyber_duck_city .premium-motion span {
+  width: calc(10px * var(--scale));
+  height: calc(32px * var(--scale));
+  border: 1px solid var(--primary);
+  background: color-mix(in srgb, var(--secondary) 32%, transparent);
+  box-shadow: 0 0 12px var(--primary);
+  animation: cyber-data var(--speed) linear var(--delay) infinite;
+}
+
+.skin-cyber_duck_city.addon-stream_skins .show-hud,
+.skin-cyber_duck_city.addon-stream_skins .event-card {
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
+}
+
+.skin-cyber_duck_city .sale-alert-enter-active { animation: cyber-alert 440ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.skin-cyber_duck_city .sparkle-field,
+.skin-boss_battle .sparkle-field,
+.skin-sports_broadcast .sparkle-field {
+  display: none;
+}
+
+.skin-storm_front .sparkle-field,
+.skin-haunted_drop .sparkle-field,
+.skin-anime_powerup .sparkle-field {
+  opacity: 0.24;
+}
+
+/* Treasure Vault */
+.skin-treasure_vault .premium-sky {
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255, 227, 129, 0.25), transparent 28%),
+    repeating-radial-gradient(circle at 50% 52%, transparent 0 70px, rgba(221, 169, 61, 0.1) 72px 74px, transparent 76px 112px);
+  animation: vault-breathe 5.4s ease-in-out infinite alternate;
+}
+
+.skin-treasure_vault .premium-sky::before {
+  inset: 18px;
+  border: 2px double rgba(255, 240, 163, 0.46);
+  box-shadow: inset 0 0 56px rgba(221, 169, 61, 0.16);
+}
+
+.skin-treasure_vault .premium-motion span {
+  width: calc(18px * var(--scale));
+  aspect-ratio: 1;
+  border: 2px solid #fff0a3;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff7c7, #d6951f 58%, #6f3d04);
+  box-shadow: 0 0 16px rgba(255, 220, 99, 0.58);
+  animation: vault-coin var(--speed) ease-in var(--delay) infinite;
+}
+
+.skin-treasure_vault .premium-foreground i {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #fff0a3;
+  background: linear-gradient(135deg, #43e2bd, #0a725d);
+  box-shadow: 0 0 20px rgba(67, 226, 189, 0.76);
+  transform: rotate(45deg);
+  animation: vault-gem 2.4s ease-in-out infinite alternate;
+}
+
+.skin-treasure_vault.addon-stream_skins .overlay-frame {
+  border: 14px double #dda93d;
+  box-shadow: inset 0 0 0 3px #5d3608, inset 0 0 68px rgba(221, 169, 61, 0.26);
+}
+
+.skin-treasure_vault .sale-alert-enter-active { animation: vault-alert 650ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Arcade Boss Battle */
+.skin-boss_battle .premium-sky {
+  background:
+    linear-gradient(rgba(62, 238, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 53, 94, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  animation: boss-grid 3s steps(6, end) infinite;
+}
+
+.skin-boss_battle .premium-sky::before {
+  top: 26%;
+  left: -8%;
+  width: 116%;
+  height: 10px;
+  border: 3px solid #ffffff;
+  background: linear-gradient(90deg, #ff355e 0 72%, rgba(255, 255, 255, 0.12) 72%);
+  box-shadow: 0 0 0 4px #090a19, 0 0 0 7px #ffcf32;
+  opacity: 0.34;
+}
+
+.skin-boss_battle .premium-motion span {
+  width: calc(12px * var(--scale));
+  height: calc(12px * var(--scale));
+  background: var(--accent);
+  box-shadow: 8px 0 0 var(--primary), 0 8px 0 var(--secondary);
+  animation: boss-pixel var(--speed) steps(5, end) var(--delay) infinite;
+}
+
+.skin-boss_battle.addon-stream_skins .show-hud,
+.skin-boss_battle.addon-stream_skins .event-card,
+.skin-boss_battle.addon-stream_skins .score-strip div {
+  box-shadow: 8px 8px 0 #000000, 12px 12px 0 color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.skin-boss_battle .event-kicker { text-shadow: 5px 5px 0 #000000, 8px 8px 0 var(--primary); }
+.skin-boss_battle .sale-alert-enter-active { animation: boss-alert 560ms steps(7, end) both; }
+
+/* Cosmic Auction */
+.skin-cosmic_auction .premium-sky {
+  background:
+    radial-gradient(ellipse at 18% 32%, rgba(138, 124, 255, 0.27), transparent 33%),
+    radial-gradient(ellipse at 82% 68%, rgba(255, 107, 216, 0.22), transparent 36%),
+    radial-gradient(circle at 50% 50%, rgba(84, 238, 255, 0.08), transparent 58%);
+  animation: cosmic-nebula 9s ease-in-out infinite alternate;
+}
+
+.skin-cosmic_auction .premium-sky::after {
+  top: 12%;
+  left: -30%;
+  width: 36%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffffff, #54eeff);
+  box-shadow: 0 0 16px #54eeff;
+  transform: rotate(-24deg);
+  animation: cosmic-meteor 6.8s ease-in infinite;
+}
+
+.skin-cosmic_auction .premium-motion span {
+  width: calc(4px * var(--scale));
+  height: calc(4px * var(--scale));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 11px var(--accent);
+  animation: cosmic-star var(--speed) ease-in-out var(--delay) infinite;
+}
+
+.skin-cosmic_auction .premium-foreground::before {
+  top: 35%;
+  left: 50%;
+  width: 70vw;
+  height: 70vw;
+  border: 1px solid rgba(138, 124, 255, 0.16);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 70px rgba(255, 107, 216, 0.08);
+}
+
+.skin-cosmic_auction .sale-alert-enter-active { animation: cosmic-alert 680ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Haunted Drop */
+.skin-haunted_drop .premium-sky {
+  background:
+    radial-gradient(ellipse at 14% 66%, rgba(118, 239, 189, 0.19), transparent 36%),
+    radial-gradient(ellipse at 86% 38%, rgba(168, 134, 255, 0.17), transparent 33%);
+  filter: saturate(0.82);
+}
+
+.skin-haunted_drop .premium-sky::before,
+.skin-haunted_drop .premium-sky::after {
+  left: -38%;
+  width: 176%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(201, 255, 229, 0.16), transparent 66%);
+  filter: blur(14px);
+  animation: haunted-fog 8s ease-in-out infinite alternate;
+}
+
+.skin-haunted_drop .premium-sky::before { top: 28%; }
+.skin-haunted_drop .premium-sky::after { bottom: 2%; animation-delay: -4s; animation-direction: alternate-reverse; }
+
+.skin-haunted_drop .premium-motion span {
+  width: calc(44px * var(--scale));
+  height: calc(18px * var(--scale));
+  border: 1px solid rgba(208, 255, 120, 0.42);
+  border-radius: 50%;
+  background: rgba(118, 239, 189, 0.09);
+  filter: blur(3px);
+  animation: haunted-wisp var(--speed) ease-in-out var(--delay) infinite;
+}
+
+.skin-haunted_drop.addon-stream_skins .overlay-frame {
+  border-style: double;
+  animation: haunted-frame 4.8s ease-in-out infinite;
+}
+
+.skin-haunted_drop .sale-alert-enter-active { animation: haunted-alert 820ms ease-out both; }
+
+/* Sports Broadcast */
+.skin-sports_broadcast .premium-sky {
+  background: repeating-linear-gradient(118deg, transparent 0 90px, rgba(39, 197, 255, 0.08) 92px 112px, transparent 114px 190px);
+  animation: sports-field 8s linear infinite;
+}
+
+.skin-sports_broadcast .premium-sky::before {
+  top: 0;
+  bottom: 0;
+  left: 9%;
+  width: 2px;
+  background: rgba(245, 248, 255, 0.28);
+  box-shadow: 78vw 0 0 rgba(245, 248, 255, 0.28);
+}
+
+.skin-sports_broadcast .premium-motion span {
+  width: calc(88px * var(--scale));
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--secondary), var(--accent));
+  animation: sports-sting var(--speed) cubic-bezier(0.4, 0, 0.2, 1) var(--delay) infinite;
+}
+
+.skin-sports_broadcast.addon-stream_skins .show-hud,
+.skin-sports_broadcast.addon-stream_skins .event-card {
+  clip-path: polygon(0 0, 96% 0, 100% 28%, 100% 100%, 4% 100%, 0 72%);
+}
+
+.skin-sports_broadcast .event-kicker { font-style: italic; }
+.skin-sports_broadcast .sale-alert-enter-active { animation: sports-alert 460ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Anime Power-Up */
+.skin-anime_powerup .premium-sky::before {
+  inset: -22%;
+  background: repeating-conic-gradient(from 0deg at 50% 48%, transparent 0 5deg, rgba(77, 233, 255, 0.11) 5.4deg 6.4deg, transparent 6.8deg 13deg, rgba(255, 66, 121, 0.09) 13.4deg 14.4deg);
+  animation: anime-lines 11s linear infinite;
+}
+
+.skin-anime_powerup .premium-sky::after {
+  top: 46%;
+  left: 50%;
+  width: 44vw;
+  height: 44vw;
+  border: 5px solid rgba(77, 233, 255, 0.18);
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(255, 218, 69, 0.2), inset 0 0 50px rgba(255, 66, 121, 0.14);
+  transform: translate(-50%, -50%);
+  animation: anime-aura 1.3s ease-in-out infinite alternate;
+}
+
+.skin-anime_powerup .premium-motion span {
+  width: calc(5px * var(--scale));
+  height: calc(58px * var(--scale));
+  background: linear-gradient(180deg, transparent, #ffffff, var(--accent));
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  animation: anime-shard var(--speed) ease-out var(--delay) infinite;
+}
+
+.skin-anime_powerup.addon-stream_skins .show-hud {
+  transform: skewX(-1deg);
+}
+
+.skin-anime_powerup .event-kicker { font-style: italic; text-shadow: 4px 4px 0 var(--accent), -3px -3px 0 var(--primary); }
+.skin-anime_powerup .sale-alert-enter-active { animation: anime-alert 560ms cubic-bezier(0.1, 0.9, 0.2, 1.3) both; }
+
+/* Candy Rush */
+.skin-candy_rush .premium-sky {
+  background:
+    radial-gradient(circle at 8% 18%, rgba(255, 123, 204, 0.2) 0 28px, transparent 30px),
+    radial-gradient(circle at 92% 42%, rgba(117, 233, 255, 0.18) 0 36px, transparent 38px),
+    radial-gradient(circle at 18% 83%, rgba(255, 231, 103, 0.15) 0 42px, transparent 44px);
+}
+
+.skin-candy_rush .premium-motion span {
+  width: calc(7px * var(--scale));
+  height: calc(24px * var(--scale));
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 10px rgba(255, 123, 204, 0.55);
+  animation: candy-sprinkle var(--speed) linear var(--delay) infinite;
+}
+
+.skin-candy_rush .premium-motion span:nth-child(3n + 2) { background: var(--secondary); }
+.skin-candy_rush .premium-motion span:nth-child(3n) { background: var(--accent); }
+
+.skin-candy_rush.addon-stream_skins .overlay-frame {
+  border-style: dotted;
+  animation: candy-frame 2.2s ease-in-out infinite alternate;
+}
+
+.skin-candy_rush .sale-alert-enter-active { animation: candy-alert 700ms cubic-bezier(0.16, 1.35, 0.45, 1) both; }
+
+/* Luxury Nightclub */
+.skin-luxury_nightclub .premium-sky {
+  background:
+    conic-gradient(from 202deg at 13% -8%, transparent 0 12deg, rgba(255, 56, 200, 0.13) 13deg 20deg, transparent 21deg 360deg),
+    conic-gradient(from 154deg at 87% -8%, transparent 0 12deg, rgba(232, 200, 117, 0.14) 13deg 20deg, transparent 21deg 360deg);
+  animation: club-lights 5.8s ease-in-out infinite alternate;
+}
+
+.skin-luxury_nightclub .premium-sky::after {
+  right: -35%;
+  bottom: 9%;
+  left: -35%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ff38c8, #e8c875, #3ce8ff, transparent);
+  box-shadow: 0 0 18px rgba(255, 56, 200, 0.72);
+  animation: club-laser 4s ease-in-out infinite alternate;
+}
+
+.skin-luxury_nightclub .premium-motion span {
+  width: calc(3px * var(--scale));
+  height: calc(3px * var(--scale));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 14px var(--secondary);
+  animation: club-glint var(--speed) ease-in-out var(--delay) infinite;
+}
+
+.skin-luxury_nightclub.addon-stream_skins .overlay-frame {
+  border: 10px double rgba(232, 200, 117, 0.82);
+  box-shadow: inset 0 0 78px rgba(255, 56, 200, 0.15), 0 0 26px rgba(60, 232, 255, 0.28);
+  animation: club-frame 3.4s ease-in-out infinite alternate;
+}
+
+.skin-luxury_nightclub .sale-alert-enter-active { animation: club-alert 620ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 .addon-stream_skins .show-hud,
 .addon-stream_skins .score-strip div,
 .addon-stream_skins .event-card {
@@ -1590,6 +2303,244 @@ body,
   100% {
     opacity: 0;
     transform: translateY(-28px) scale(0.92) rotate(2deg);
+  }
+}
+
+@keyframes storm-rain {
+  from { transform: translate3d(-2%, -6%, 0); }
+  to { transform: translate3d(4%, 9%, 0); }
+}
+
+@keyframes storm-drop {
+  0% { opacity: 0; transform: translate3d(-22px, -180%, 0) rotate(8deg) scale(var(--scale)); }
+  12% { opacity: 0.62; }
+  100% { opacity: 0; transform: translate3d(50px, 760%, 0) rotate(8deg) scale(var(--scale)); }
+}
+
+@keyframes storm-lightning {
+  0%, 7%, 9%, 47%, 49%, 100% { opacity: 0; }
+  7.5%, 8.4%, 47.4%, 48.2% { opacity: 0.96; }
+}
+
+@keyframes storm-frame {
+  0%, 7%, 9%, 47%, 49%, 100% { filter: brightness(0.88); opacity: 0.72; }
+  7.5%, 8.4%, 47.4%, 48.2% { filter: brightness(2.4); opacity: 1; }
+}
+
+@keyframes storm-spark {
+  0%, 14%, 16%, 68%, 70%, 100% { opacity: 0; }
+  14.5%, 15.4%, 68.5%, 69.4% { opacity: 0.62; }
+}
+
+@keyframes storm-alert {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-120px) scale(0.88); filter: brightness(2.5); }
+  48% { opacity: 1; transform: translateX(calc(-50% - 9px)) translateY(6px) scale(1.03); }
+  62% { transform: translateX(calc(-50% + 7px)) translateY(0) scale(1); }
+  76% { transform: translateX(calc(-50% - 3px)); }
+  100% { opacity: 1; transform: translateX(-50%); filter: brightness(1); }
+}
+
+@keyframes cyber-grid {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 58px 0, 0 46px; }
+}
+
+@keyframes cyber-scan {
+  0% { opacity: 0; transform: translateX(-105vw); }
+  12%, 72% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateX(4vw); }
+}
+
+@keyframes cyber-data {
+  0% { opacity: 0; transform: translateY(180px) scaleY(0.2) scale(var(--scale)); }
+  18%, 68% { opacity: 0.62; }
+  100% { opacity: 0; transform: translateY(-260px) scaleY(1.8) scale(var(--scale)); }
+}
+
+@keyframes cyber-alert {
+  0% { opacity: 0; transform: translateX(42vw) skewX(-12deg); clip-path: inset(0 0 82% 0); }
+  58% { opacity: 1; transform: translateX(calc(-50% - 12px)) skewX(2deg); clip-path: inset(0 0 0 0); }
+  74% { transform: translateX(calc(-50% + 6px)) skewX(-1deg); }
+  100% { opacity: 1; transform: translateX(-50%) skewX(0); }
+}
+
+@keyframes vault-breathe {
+  from { opacity: 0.55; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes vault-coin {
+  0% { opacity: 0; transform: translateY(-190px) rotateY(0deg) scale(var(--scale)); }
+  16%, 72% { opacity: 0.78; }
+  100% { opacity: 0; transform: translateY(430px) rotateY(900deg) scale(var(--scale)); }
+}
+
+@keyframes vault-gem {
+  from { opacity: 0.35; filter: brightness(0.9); }
+  to { opacity: 0.82; filter: brightness(1.7); }
+}
+
+@keyframes vault-alert {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.3) rotateY(82deg); filter: brightness(2); }
+  62% { opacity: 1; transform: translateX(-50%) scale(1.04) rotateY(-4deg); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) rotateY(0); filter: brightness(1); }
+}
+
+@keyframes boss-grid {
+  0%, 100% { background-position: 0 0, 0 0; }
+  50% { background-position: 16px 16px, 16px 16px; }
+}
+
+@keyframes boss-pixel {
+  0% { opacity: 0; transform: translateY(120px) scale(var(--scale)); }
+  24%, 76% { opacity: 0.58; }
+  100% { opacity: 0; transform: translateY(-170px) scale(var(--scale)); }
+}
+
+@keyframes boss-alert {
+  0% { opacity: 0; transform: translateX(-50%) scale(3); filter: contrast(2); }
+  42% { opacity: 1; transform: translateX(-50%) scale(0.88); }
+  68% { transform: translateX(-50%) scale(1.08); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); filter: contrast(1); }
+}
+
+@keyframes cosmic-nebula {
+  from { opacity: 0.62; transform: scale(1) rotate(-1deg); }
+  to { opacity: 1; transform: scale(1.1) rotate(2deg); }
+}
+
+@keyframes cosmic-meteor {
+  0%, 58% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-24deg); }
+  62% { opacity: 1; }
+  82%, 100% { opacity: 0; transform: translate3d(150vw, 72vh, 0) rotate(-24deg); }
+}
+
+@keyframes cosmic-star {
+  0%, 100% { opacity: 0.12; transform: scale(calc(var(--scale) * 0.55)); }
+  45% { opacity: 1; transform: scale(calc(var(--scale) * 1.8)); }
+}
+
+@keyframes cosmic-alert {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.1) rotate(-10deg); filter: blur(18px) brightness(2); }
+  64% { opacity: 1; transform: translateX(-50%) scale(1.06) rotate(1deg); filter: blur(0) brightness(1.3); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0); filter: none; }
+}
+
+@keyframes haunted-fog {
+  from { opacity: 0.45; transform: translateX(-8%) scaleX(0.9); }
+  to { opacity: 0.82; transform: translateX(8%) scaleX(1.08); }
+}
+
+@keyframes haunted-wisp {
+  0% { opacity: 0; transform: translate3d(-70px, 28px, 0) scale(var(--scale)); }
+  28%, 68% { opacity: 0.54; }
+  100% { opacity: 0; transform: translate3d(120px, -46px, 0) scale(calc(var(--scale) * 1.5)); }
+}
+
+@keyframes haunted-frame {
+  0%, 100% { opacity: 0.56; filter: blur(0); }
+  38% { opacity: 0.88; }
+  42% { opacity: 0.4; filter: blur(1px); }
+  48% { opacity: 0.9; filter: blur(0); }
+}
+
+@keyframes haunted-alert {
+  0% { opacity: 0; transform: translateX(-50%) translateY(30px) scale(1.08); filter: blur(24px); }
+  72% { opacity: 0.96; transform: translateX(-50%) translateY(-4px) scale(1.01); filter: blur(1px); }
+  100% { opacity: 1; transform: translateX(-50%); filter: blur(0); }
+}
+
+@keyframes sports-field {
+  from { background-position: -190px 0; }
+  to { background-position: 190px 0; }
+}
+
+@keyframes sports-sting {
+  0%, 12% { opacity: 0; transform: translateX(-360px) skewX(-22deg) scaleX(0.4); }
+  34%, 60% { opacity: 0.78; }
+  86%, 100% { opacity: 0; transform: translateX(420px) skewX(-22deg) scaleX(1.4); }
+}
+
+@keyframes sports-alert {
+  0% { opacity: 0; transform: translateX(-115%) skewX(-9deg); }
+  62% { opacity: 1; transform: translateX(calc(-50% + 12px)) skewX(2deg); }
+  100% { opacity: 1; transform: translateX(-50%) skewX(0); }
+}
+
+@keyframes anime-lines {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(360deg) scale(1.08); }
+}
+
+@keyframes anime-aura {
+  from { opacity: 0.34; transform: translate(-50%, -50%) scale(0.86); }
+  to { opacity: 0.76; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes anime-shard {
+  0% { opacity: 0; transform: translate3d(0, 100px, 0) rotate(16deg) scale(var(--scale)); }
+  22%, 60% { opacity: 0.72; }
+  100% { opacity: 0; transform: translate3d(0, -260px, 0) rotate(24deg) scale(calc(var(--scale) * 1.4)); }
+}
+
+@keyframes anime-alert {
+  0% { opacity: 0; transform: translateX(-50%) scaleX(0.08) scaleY(1.8); filter: brightness(3); }
+  46% { opacity: 1; transform: translateX(-50%) scaleX(1.1) scaleY(0.92); }
+  68% { transform: translateX(-50%) scaleX(0.97) scaleY(1.04); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); filter: brightness(1); }
+}
+
+@keyframes candy-sprinkle {
+  0% { opacity: 0; transform: translateY(-190px) rotate(0deg) scale(var(--scale)); }
+  14%, 72% { opacity: 0.86; }
+  100% { opacity: 0; transform: translateY(480px) rotate(620deg) scale(var(--scale)); }
+}
+
+@keyframes candy-frame {
+  from { filter: hue-rotate(-12deg) brightness(0.9); opacity: 0.72; }
+  to { filter: hue-rotate(18deg) brightness(1.3); opacity: 1; }
+}
+
+@keyframes candy-alert {
+  0% { opacity: 0; transform: translateX(-50%) translateY(110px) scale(0.55) rotate(-7deg); }
+  46% { opacity: 1; transform: translateX(-50%) translateY(-22px) scale(1.1) rotate(3deg); }
+  66% { transform: translateX(-50%) translateY(8px) scale(0.96) rotate(-1deg); }
+  82% { transform: translateX(-50%) translateY(-3px) scale(1.02); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes club-lights {
+  from { opacity: 0.54; transform: rotate(-3deg) scale(1.06); }
+  to { opacity: 0.95; transform: rotate(4deg) scale(1.12); }
+}
+
+@keyframes club-laser {
+  from { opacity: 0.28; transform: translateY(-18vh) rotate(-8deg); }
+  to { opacity: 0.9; transform: translateY(20vh) rotate(7deg); }
+}
+
+@keyframes club-glint {
+  0%, 100% { opacity: 0.08; transform: scale(calc(var(--scale) * 0.4)); }
+  48% { opacity: 0.95; transform: scale(calc(var(--scale) * 2)); }
+}
+
+@keyframes club-frame {
+  from { opacity: 0.68; filter: brightness(0.86); }
+  to { opacity: 1; filter: brightness(1.32); }
+}
+
+@keyframes club-alert {
+  0% { opacity: 0; transform: translateX(-50%) translateY(100px) scaleY(0.5); filter: brightness(2); }
+  58% { opacity: 1; transform: translateX(-50%) translateY(-8px) scaleY(1.04); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scaleY(1); filter: brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-atmosphere *,
+  .skin-premium .overlay-frame,
+  .skin-premium .sale-alert-enter-active {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
