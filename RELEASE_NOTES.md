@@ -1,24 +1,20 @@
-# Duck Desk v0.1.0-alpha.2
+# Duck Desk v0.1.0-alpha.3
 
-Duck Desk alpha 2 makes live bid and sale moments faster, smaller, and easier to follow without covering the product area.
+Duck Desk alpha 3 replaces the complete bundled sound library with richer,
+better-balanced cues designed for long live shows.
 
-## New In Alpha 2
+## New In Alpha 3
 
-- Removed the permanent Hype and Last/Bid panels below the live header.
-- Replaced oversized bottom event cards with compact themed alerts directly below the header.
-- Bid alerts now stay briefly, while sale alerts remain slightly longer for recognition.
-- Rapid auctions retain the first visible bid and newest pending bid instead of replaying stale intermediate bids.
-- Long usernames and item names now fit safely at both 1080x1920 and phone-preview sizes.
-- Added compact Tip Received and Show Shared alerts, live dashboard totals, activity-feed entries, ticker messages, and sounds.
-- Added Audio Studio with 10 distinct sound worlds, 50 original bundled cues, a saved master volume control with immediate mute, and separate custom-file overrides for bids, sales, audience actions, tips, and shares.
-- Custom sound imports are normalized to stream-safe WAV files so Mac and OBS playback stay consistent.
-- Added clear dashboard section icons and a substantially larger full-frame stream preview.
-- Added Demo Mode buttons for testing tips and shares without changing live totals.
-- Added conservative live share-count detection and visible-chat tip detection to the Chrome extension.
-- The extension now baselines existing page data instead of replaying old visible events when it starts.
-- Improved release asset naming and refreshed the automated GitHub build pipeline.
-- Expanded the customer-friendly download, build, and release documentation.
-- Added a direct Whatnot follow link for Confused Duck Collectibles.
+- Rebuilt all 50 bid, sale, tip, share, and audience-action cues across the 10 sound themes.
+- Replaced pitch-shifted synthesizer variations with individually layered digital, broadcast, glass, tabletop, mechanical, crowd, weather, and organic recordings.
+- Redesigned Thunder Strike with distant thunder, filtered wind, and restrained accents instead of the previous harsh synthetic crack.
+- Gave every sound theme a distinct identity while keeping each event recognizable during a busy show.
+- Shortened bid cues and allowed sales and tips slightly more room without drowning out the seller.
+- Trimmed dead air from source-pack effects so alerts react promptly.
+- Applied consistent loudness targets, gentle peak control, and quieter mastering for Storm and Soft Focus.
+- Added a deterministic audio build pipeline so all 50 mastered WAV files can be reproduced from a clean checkout.
+- Added curated CC0 source recordings, original pack licenses, and detailed third-party audio credits.
+- Kept custom per-event sound files, the master effects-volume control, and immediate mute behavior unchanged.
 
 ## Highlights
 
@@ -35,7 +31,7 @@ Duck Desk alpha 2 makes live bid and sale moments faster, smaller, and easier to
 
 ## Download
 
-Download `DuckDesk-0.1.0-alpha.2-arm64.dmg` from the Assets section below.
+Download `DuckDesk-0.1.0-alpha.3-arm64.dmg` from the Assets section below.
 
 This build requires an Apple-silicon Mac. Intel Mac and Windows builds are not included in this alpha.
 
