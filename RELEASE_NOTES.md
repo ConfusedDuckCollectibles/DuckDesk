@@ -9,6 +9,13 @@ Duck Desk alpha 2 makes live bid and sale moments faster, smaller, and easier to
 - Bid alerts now stay briefly, while sale alerts remain slightly longer for recognition.
 - Rapid auctions retain the first visible bid and newest pending bid instead of replaying stale intermediate bids.
 - Long usernames and item names now fit safely at both 1080x1920 and phone-preview sizes.
+- Added compact Tip Received and Show Shared alerts, live dashboard totals, activity-feed entries, ticker messages, and sounds.
+- Added Audio Studio with 10 distinct sound worlds, 50 original bundled cues, a saved master volume control with immediate mute, and separate custom-file overrides for bids, sales, audience actions, tips, and shares.
+- Custom sound imports are normalized to stream-safe WAV files so Mac and OBS playback stay consistent.
+- Added clear dashboard section icons and a substantially larger full-frame stream preview.
+- Added Demo Mode buttons for testing tips and shares without changing live totals.
+- Added conservative live share-count detection and visible-chat tip detection to the Chrome extension.
+- The extension now baselines existing page data instead of replaying old visible events when it starts.
 - Improved release asset naming and refreshed the automated GitHub build pipeline.
 - Expanded the customer-friendly download, build, and release documentation.
 - Added a direct Whatnot follow link for Confused Duck Collectibles.
@@ -20,7 +27,7 @@ Duck Desk alpha 2 makes live bid and sale moments faster, smaller, and easier to
 - 30 included themes: 20 standard themes and 10 animated premium-style themes.
 - Persistent themed frame, live header, ticker, and open-source footer.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
-- Bid, sale, and audience sounds with a master mute control.
+- 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.
 - Hype bursts, goals, milestones, timers, promo banners, leaderboards, scenes, jumbotron, activity feed, and show recap.
 - Live Preflight checks for the local bridge, OBS source, Chrome extension, seller page, and real event path.
 - Local automatic saving for creator preferences without saving demo data or OBS passwords.
@@ -45,7 +52,7 @@ The alpha is not yet signed or notarized with an Apple Developer certificate. Do
 ## Important Alpha Notes
 
 - Whatnot event recognition reads visible seller-page content and may need updates when Whatnot changes its interface.
-- Real bid and sale detection must continue to be validated during rehearsal and live shows.
+- Real bid, sale, tip, and share detection must continue to be validated during rehearsal and live shows.
 - Duck Desk should not be treated as the authoritative record for orders, payments, inventory, or buyer information.
 - The Chrome extension is loaded manually as an unpacked extension in this alpha.
 - Automatic app updates are not included yet.

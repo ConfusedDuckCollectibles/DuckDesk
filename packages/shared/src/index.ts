@@ -22,6 +22,22 @@ export interface AudienceActionEvent {
   timestamp: number;
 }
 
+export interface TipEvent {
+  type: "tip";
+  tipper: string;
+  amount: number;
+  message?: string;
+  timestamp: number;
+}
+
+export interface ShareEvent {
+  type: "share";
+  actor?: string;
+  shareCount?: number;
+  delta?: number;
+  timestamp: number;
+}
+
 export type OverlayTheme = "neon" | "arena" | "duck";
 export type OverlaySkin =
   | "none"
@@ -56,7 +72,18 @@ export type OverlaySkin =
   | "luxury_nightclub";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
-export type SoundKind = "sale" | "bid" | "action";
+export type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
+export type AudioTheme =
+  | "neon_pulse"
+  | "arcade_8bit"
+  | "broadcast"
+  | "crystal"
+  | "duck_party"
+  | "luxury"
+  | "retro"
+  | "stadium"
+  | "storm"
+  | "zen";
 export type SceneMode = "none" | "starting" | "auction" | "break" | "winner" | "ending";
 export type GoalKind = "sales" | "orders" | "hype" | "follows";
 export interface GoalConfig {
@@ -87,6 +114,9 @@ export interface OverlayConfigMessage {
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  soundVolume: number;
+  audioTheme: AudioTheme;
+  customSoundUrls: Partial<Record<SoundKind, string>>;
   streamTitle: string;
   customGifUrls: string[];
   gifPlacement: GifPlacement;
@@ -156,7 +186,7 @@ export interface OverlayRecapTriggerMessage {
   timestamp: number;
 }
 
-export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent;
+export type ShowEvent = SaleEvent | BidEvent | AudienceActionEvent | TipEvent | ShareEvent;
 export type BridgeMessage =
   | ShowEvent
   | OverlayConfigMessage
@@ -185,6 +215,14 @@ export function normalizeShowEvent(input: unknown): ShowEvent {
 
   if (input.type === "audience_action") {
     return normalizeAudienceActionEvent(input);
+  }
+
+  if (input.type === "tip") {
+    return normalizeTipEvent(input);
+  }
+
+  if (input.type === "share") {
+    return normalizeShareEvent(input);
   }
 
   throw new Error("Unsupported event type.");
@@ -229,6 +267,12 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     Array.isArray(value.addOns) &&
     value.addOns.every(isAddOnId) &&
     typeof value.soundsEnabled === "boolean" &&
+    typeof value.soundVolume === "number" &&
+    Number.isFinite(value.soundVolume) &&
+    value.soundVolume >= 0 &&
+    value.soundVolume <= 1 &&
+    isAudioTheme(value.audioTheme) &&
+    isCustomSoundUrls(value.customSoundUrls) &&
     typeof value.streamTitle === "string" &&
     Array.isArray(value.customGifUrls) &&
     value.customGifUrls.every((url) => typeof url === "string") &&
@@ -366,7 +410,30 @@ export function isGifSize(value: unknown): value is GifSize {
 }
 
 export function isSoundKind(value: unknown): value is SoundKind {
-  return value === "sale" || value === "bid" || value === "action";
+  return value === "sale" || value === "bid" || value === "action" || value === "tip" || value === "share";
+}
+
+export function isAudioTheme(value: unknown): value is AudioTheme {
+  return (
+    value === "neon_pulse" ||
+    value === "arcade_8bit" ||
+    value === "broadcast" ||
+    value === "crystal" ||
+    value === "duck_party" ||
+    value === "luxury" ||
+    value === "retro" ||
+    value === "stadium" ||
+    value === "storm" ||
+    value === "zen"
+  );
+}
+
+function isCustomSoundUrls(value: unknown): value is Partial<Record<SoundKind, string>> {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return Object.entries(value).every(([kind, url]) => isSoundKind(kind) && typeof url === "string");
 }
 
 export function isSceneMode(value: unknown): value is SceneMode {
@@ -447,6 +514,60 @@ function normalizeAudienceActionEvent(input: Record<string, unknown>): AudienceA
     message,
     timestamp
   };
+}
+
+function normalizeTipEvent(input: Record<string, unknown>): TipEvent {
+  const tipper = readString(input.tipper, "tipper");
+  const amount = readAmount(input.amount);
+  const timestamp = readTimestamp(input.timestamp);
+  const message = readOptionalString(input.message);
+
+  return {
+    type: "tip",
+    tipper,
+    amount,
+    message,
+    timestamp
+  };
+}
+
+function normalizeShareEvent(input: Record<string, unknown>): ShareEvent {
+  const actor = readOptionalString(input.actor)?.replace(/^@/, "");
+  const shareCount = readOptionalWholeNumber(input.shareCount, "shareCount", true);
+  const delta = readOptionalWholeNumber(input.delta, "delta", false);
+  if (!actor && shareCount === undefined && delta === undefined) {
+    throw new Error('A share event must include "actor", "shareCount", or "delta".');
+  }
+
+  return {
+    type: "share",
+    actor,
+    shareCount,
+    delta,
+    timestamp: readTimestamp(input.timestamp)
+  };
+}
+
+function readOptionalString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim().slice(0, 160)
+    : undefined;
+}
+
+function readOptionalWholeNumber(value: unknown, field: string, allowZero: boolean): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    (allowZero ? value < 0 : value <= 0)
+  ) {
+    throw new Error(`Event field "${field}" must be a positive whole number.`);
+  }
+
+  return value;
 }
 
 function readString(value: unknown, field: string): string {

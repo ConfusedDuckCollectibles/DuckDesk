@@ -1,4 +1,25 @@
 import "./styles.css";
+import {
+  Activity,
+  AudioWaveform,
+  CircleDollarSign,
+  createIcons,
+  Gauge,
+  Gavel,
+  HandCoins,
+  Heart,
+  LibraryBig,
+  MonitorPlay,
+  Palette,
+  Play,
+  PlugZap,
+  Radio,
+  RotateCcw,
+  Share2,
+  SlidersHorizontal,
+  Upload,
+  Volume2
+} from "lucide";
 
 type DesktopStatus = {
   ok: boolean;
@@ -9,10 +30,18 @@ type DesktopStatus = {
   grossSales: number;
   bidCount: number;
   audienceActions: number;
+  tipCount: number;
+  tipTotal: number;
+  shareCount: number;
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  soundVolume: number;
+  audioTheme: AudioTheme;
+  customSounds: Partial<Record<SoundKind, string>>;
+  audioNotice: string;
+  audioRevision: number;
   demoMode: boolean;
   streamTitle: string;
   customGifUrls: string[];
@@ -67,7 +96,18 @@ type OverlaySkin =
   | "luxury_nightclub";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
-type SoundKind = "sale" | "bid" | "action";
+type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
+type AudioTheme =
+  | "neon_pulse"
+  | "arcade_8bit"
+  | "broadcast"
+  | "crystal"
+  | "duck_party"
+  | "luxury"
+  | "retro"
+  | "stadium"
+  | "storm"
+  | "zen";
 type SceneMode = "none" | "starting" | "auction" | "break" | "winner" | "ending";
 type GoalKind = "sales" | "orders" | "hype" | "follows";
 type CustomGif = {
@@ -106,10 +146,16 @@ type DesktopApi = {
   sendTestSale: () => Promise<void>;
   sendTestBid: () => Promise<void>;
   sendTestAction: () => Promise<void>;
+  sendTestTip: () => Promise<void>;
+  sendTestShare: () => Promise<void>;
   setTheme: (theme: OverlayTheme) => Promise<DesktopStatus>;
   setSkin: (skin: OverlaySkin) => Promise<DesktopStatus>;
   setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
   setSoundsEnabled: (enabled: boolean) => Promise<DesktopStatus>;
+  setSoundVolume: (volume: number) => Promise<DesktopStatus>;
+  setAudioTheme: (theme: AudioTheme) => Promise<DesktopStatus>;
+  selectCustomSound: (kind: SoundKind) => Promise<DesktopStatus>;
+  removeCustomSound: (kind: SoundKind) => Promise<DesktopStatus>;
   setDemoMode: (enabled: boolean) => Promise<DesktopStatus>;
   setStreamTitle: (title: string) => Promise<DesktopStatus>;
   addCustomGif: (url: string) => Promise<DesktopStatus>;
@@ -138,7 +184,10 @@ type ShowEventLog = {
   buyer?: string;
   bidder?: string;
   actor?: string;
+  tipper?: string;
   amount?: number;
+  shareCount?: number;
+  delta?: number;
   item?: string;
   message?: string;
 };
@@ -158,6 +207,8 @@ const salesCount = readElement<HTMLElement>("sales-count");
 const grossSales = readElement<HTMLElement>("gross-sales");
 const bidCount = readElement<HTMLElement>("bid-count");
 const audienceCount = readElement<HTMLElement>("audience-count");
+const tipTotal = readElement<HTMLElement>("tip-total");
+const shareCount = readElement<HTMLElement>("share-count");
 const eventLog = readElement<HTMLOListElement>("event-log");
 const copyUrl = readElement<HTMLButtonElement>("copy-url");
 const openOverlay = readElement<HTMLButtonElement>("open-overlay");
@@ -174,6 +225,8 @@ const demoToggle = readElement<HTMLButtonElement>("demo-toggle");
 const sendTest = readElement<HTMLButtonElement>("send-test");
 const sendBid = readElement<HTMLButtonElement>("send-bid");
 const sendAction = readElement<HTMLButtonElement>("send-action");
+const sendTip = readElement<HTMLButtonElement>("send-tip");
+const sendShare = readElement<HTMLButtonElement>("send-share");
 const activeThemeLabel = readElement<HTMLElement>("active-theme-label");
 const libraryStatus = readElement<HTMLElement>("library-status");
 const activeAddonsStatus = readElement<HTMLElement>("active-addons-status");
@@ -182,12 +235,19 @@ const moduleBids = readElement<HTMLElement>("module-bids");
 const moduleLeaderboard = readElement<HTMLElement>("module-leaderboard");
 const moduleActivityCount = readElement<HTMLElement>("module-activity-count");
 const soundStatus = readElement<HTMLElement>("sound-status");
+const activeAudioTheme = readElement<HTMLElement>("active-audio-theme");
+const soundVolume = readElement<HTMLInputElement>("sound-volume");
+const soundVolumeValue = readElement<HTMLOutputElement>("sound-volume-value");
 const gifUrl = readElement<HTMLInputElement>("gif-url");
 const addGifUrl = readElement<HTMLButtonElement>("add-gif-url");
 const gifUrlStatus = readElement<HTMLElement>("gif-url-status");
 const triggerGif = readElement<HTMLButtonElement>("trigger-gif");
 const customGifList = readElement<HTMLElement>("custom-gif-list");
 const soundToggles = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-toggle]"));
+const audioThemeActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-audio-theme]"));
+const soundPreviewActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-preview]"));
+const soundUploadActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-upload]"));
+const soundResetActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sound-reset]"));
 const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".theme-card"));
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
 const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-panel]"));
@@ -212,8 +272,31 @@ const saveAuctionTimer = readElement<HTMLButtonElement>("save-auction-timer");
 const triggerAuctionTimer = readElement<HTMLButtonElement>("trigger-auction-timer");
 const triggerRecap = readElement<HTMLButtonElement>("trigger-recap");
 
-let audioContext: AudioContext | undefined;
 let currentStatus: DesktopStatus | undefined;
+let volumeSaveTimer: number | undefined;
+
+createIcons({
+  icons: {
+    Activity,
+    AudioWaveform,
+    CircleDollarSign,
+    Gauge,
+    Gavel,
+    HandCoins,
+    Heart,
+    LibraryBig,
+    MonitorPlay,
+    Palette,
+    Play,
+    PlugZap,
+    Radio,
+    RotateCcw,
+    Share2,
+    SlidersHorizontal,
+    Upload,
+    Volume2
+  }
+});
 
 const dollars = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -304,6 +387,14 @@ sendAction.addEventListener("click", () => {
   void window.duckDesk.sendTestAction();
 });
 
+sendTip.addEventListener("click", () => {
+  void window.duckDesk.sendTestTip();
+});
+
+sendShare.addEventListener("click", () => {
+  void window.duckDesk.sendTestShare();
+});
+
 for (const card of themeCards) {
   card.addEventListener("click", async () => {
     const theme = card.dataset.theme;
@@ -324,10 +415,6 @@ for (const action of addonActions) {
     const enabled = !card.classList.contains("is-added");
     const status = await window.duckDesk.setAddOn(addOn, enabled);
     renderStatus(status);
-    if (addOn === "noise_machines" && enabled && status.soundsEnabled) {
-      void resumeAudio();
-      playLocalTone("action");
-    }
   });
   action.dataset.defaultLabel = action.textContent ?? "Add";
 }
@@ -384,9 +471,71 @@ for (const soundToggle of soundToggles) {
     const enabled = !(currentStatus?.soundsEnabled ?? true);
     const status = await window.duckDesk.setSoundsEnabled(enabled);
     renderStatus(status);
-    if (enabled) {
-      await resumeAudio();
-      playLocalTone("action");
+  });
+}
+
+soundVolume.addEventListener("input", () => {
+  const volume = Math.max(0, Math.min(100, Number(soundVolume.value)));
+  soundVolumeValue.value = `${Math.round(volume)}%`;
+  window.clearTimeout(volumeSaveTimer);
+  volumeSaveTimer = window.setTimeout(() => {
+    void window.duckDesk.setSoundVolume(volume / 100).then(renderStatus);
+  }, 90);
+});
+
+soundVolume.addEventListener("change", () => {
+  window.clearTimeout(volumeSaveTimer);
+  const volume = Math.max(0, Math.min(100, Number(soundVolume.value)));
+  void window.duckDesk.setSoundVolume(volume / 100).then(renderStatus);
+});
+
+for (const action of audioThemeActions) {
+  action.addEventListener("click", async () => {
+    const theme = action.dataset.audioTheme;
+    if (!isAudioTheme(theme)) {
+      return;
+    }
+
+    let status = await window.duckDesk.setAudioTheme(theme);
+    renderStatus(status);
+    if (status.soundsEnabled) {
+      status = await window.duckDesk.triggerSound("action");
+      renderStatus(status);
+    }
+  });
+}
+
+for (const action of soundPreviewActions) {
+  action.addEventListener("click", async () => {
+    const kind = action.dataset.soundPreview;
+    if (isSoundKind(kind)) {
+      renderStatus(await window.duckDesk.triggerSound(kind));
+    }
+  });
+}
+
+for (const action of soundUploadActions) {
+  action.addEventListener("click", async () => {
+    const kind = action.dataset.soundUpload;
+    if (!isSoundKind(kind)) {
+      return;
+    }
+
+    const beforeRevision = currentStatus?.audioRevision;
+    let status = await window.duckDesk.selectCustomSound(kind);
+    renderStatus(status);
+    if (status.soundsEnabled && status.audioRevision !== beforeRevision && status.customSounds[kind]) {
+      status = await window.duckDesk.triggerSound(kind);
+      renderStatus(status);
+    }
+  });
+}
+
+for (const action of soundResetActions) {
+  action.addEventListener("click", async () => {
+    const kind = action.dataset.soundReset;
+    if (isSoundKind(kind)) {
+      renderStatus(await window.duckDesk.removeCustomSound(kind));
     }
   });
 }
@@ -496,9 +645,11 @@ function renderStatus(status: DesktopStatus): void {
   grossSales.textContent = dollars.format(status.grossSales);
   bidCount.textContent = String(status.bidCount);
   audienceCount.textContent = String(status.audienceActions);
+  tipTotal.textContent = dollars.format(status.tipTotal);
+  shareCount.textContent = String(status.shareCount);
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
-  moduleActivityCount.textContent = `${status.salesCount + status.bidCount + status.audienceActions} events`;
+  moduleActivityCount.textContent = `${status.salesCount + status.bidCount + status.audienceActions + status.tipCount + status.shareCount} events`;
   activeThemeLabel.textContent = status.skin === "none" ? themeName(status.theme) : skinName(status.skin);
   for (const soundToggle of soundToggles) {
     const prefix = soundToggle.closest(".actions") ? "Event " : "";
@@ -506,13 +657,33 @@ function renderStatus(status: DesktopStatus): void {
     soundToggle.classList.toggle("is-on", status.soundsEnabled);
     soundToggle.setAttribute("aria-pressed", String(status.soundsEnabled));
   }
-  soundStatus.textContent = status.soundsEnabled
-    ? "Armed for bids, sales, and audience actions."
-    : "Muted. Event sounds are paused.";
+  if (document.activeElement !== soundVolume) {
+    soundVolume.value = String(Math.round(status.soundVolume * 100));
+  }
+  soundVolumeValue.value = `${Math.round(status.soundVolume * 100)}%`;
+  activeAudioTheme.textContent = audioThemeName(status.audioTheme);
+  soundStatus.textContent = status.soundsEnabled ? status.audioNotice : "Muted. Event sounds are paused.";
+  for (const action of audioThemeActions) {
+    const isActive = action.dataset.audioTheme === status.audioTheme;
+    action.classList.toggle("is-active", isActive);
+    action.setAttribute("aria-pressed", String(isActive));
+  }
+  for (const kind of ["sale", "bid", "action", "tip", "share"] as const) {
+    const fileLabel = readElement<HTMLElement>(`sound-file-${kind}`);
+    const customFile = status.customSounds[kind];
+    fileLabel.textContent = customFile ?? `${audioThemeName(status.audioTheme)} default`;
+    fileLabel.title = customFile ?? "";
+    const row = document.querySelector<HTMLElement>(`[data-custom-sound="${kind}"]`);
+    row?.classList.toggle("has-custom-sound", Boolean(customFile));
+    const reset = soundResetActions.find((action) => action.dataset.soundReset === kind);
+    if (reset) {
+      reset.hidden = !customFile;
+    }
+  }
   demoToggle.textContent = status.demoMode ? "Demo Mode On" : "Demo Mode Off";
   demoToggle.classList.toggle("is-on", status.demoMode);
   demoToggle.setAttribute("aria-pressed", String(status.demoMode));
-  for (const action of [sendTest, sendBid, sendAction]) {
+  for (const action of [sendTest, sendBid, sendAction, sendTip, sendShare]) {
     action.disabled = !status.demoMode;
     action.title = status.demoMode ? "" : "Turn on Demo Mode to send test events to the overlay.";
   }
@@ -576,6 +747,16 @@ function formatEventLog(event: ShowEventLog): string {
 
   if (event.type === "bid") {
     return `BID @${event.bidder} ${dollars.format(event.amount ?? 0)}${event.item ? ` - ${event.item}` : ""}`;
+  }
+
+  if (event.type === "tip") {
+    return `TIP @${event.tipper} ${dollars.format(event.amount ?? 0)}${event.message ? ` - ${event.message}` : ""}`;
+  }
+
+  if (event.type === "share") {
+    const actor = event.actor ? ` @${event.actor}` : "";
+    const count = event.delta && event.delta > 1 ? ` +${event.delta}` : event.shareCount ? ` (${event.shareCount} total)` : "";
+    return `SHARE${actor}${count}`;
   }
 
   return `AUDIENCE @${event.actor}${event.message ? ` - ${event.message}` : ""}`;
@@ -743,7 +924,37 @@ function isGifSize(value: unknown): value is GifSize {
 }
 
 function isSoundKind(value: unknown): value is SoundKind {
-  return value === "sale" || value === "bid" || value === "action";
+  return value === "sale" || value === "bid" || value === "action" || value === "tip" || value === "share";
+}
+
+function isAudioTheme(value: unknown): value is AudioTheme {
+  return (
+    value === "neon_pulse" ||
+    value === "arcade_8bit" ||
+    value === "broadcast" ||
+    value === "crystal" ||
+    value === "duck_party" ||
+    value === "luxury" ||
+    value === "retro" ||
+    value === "stadium" ||
+    value === "storm" ||
+    value === "zen"
+  );
+}
+
+function audioThemeName(theme: AudioTheme): string {
+  return {
+    neon_pulse: "Neon Pulse",
+    arcade_8bit: "8-Bit Arcade",
+    broadcast: "Broadcast Pro",
+    crystal: "Crystal Chimes",
+    duck_party: "Duck Party",
+    luxury: "Luxury Lounge",
+    retro: "Retro Console",
+    stadium: "Stadium Hype",
+    storm: "Thunder Strike",
+    zen: "Soft Focus"
+  }[theme];
 }
 
 function renderCustomGifs(gifs: CustomGif[]): void {
@@ -869,39 +1080,6 @@ function compactUrl(url: string): string {
     return parsed.hostname.replace(/^www\./, "");
   } catch {
     return url.slice(0, 28);
-  }
-}
-
-function playLocalTone(kind: "sale" | "bid" | "action"): void {
-  try {
-    audioContext ??= new AudioContext();
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const frequency = kind === "sale" ? 740 : kind === "bid" ? 520 : 360;
-
-    oscillator.type = kind === "action" ? "sawtooth" : "triangle";
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.4, audioContext.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.22, audioContext.currentTime + 0.018);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.24);
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.26);
-  } catch {
-    // Some system audio routes can block Web Audio.
-  }
-}
-
-async function resumeAudio(): Promise<void> {
-  try {
-    audioContext ??= new AudioContext();
-    if (audioContext.state !== "running") {
-      await audioContext.resume();
-    }
-  } catch {
-    // Native app sounds still play from the main process.
   }
 }
 

@@ -12,6 +12,7 @@ import {
   isOverlaySoundTriggerMessage,
   isShowEvent,
   type AddOnId,
+  type AudioTheme,
   type BridgeMessage,
   type GifPlacement,
   type GifSize,
@@ -34,6 +35,9 @@ const theme = ref<OverlayTheme>("neon");
 const skin = ref<OverlaySkin>("none");
 const activeAddOns = ref<AddOnId[]>([]);
 const soundsEnabled = ref(true);
+const soundVolume = ref(0.75);
+const audioTheme = ref<AudioTheme>("neon_pulse");
+const customSoundUrls = ref<Partial<Record<SoundKind, string>>>({});
 const streamTitle = ref("");
 const customGifUrls = ref<string[]>([]);
 const gifPlacement = ref<GifPlacement>("center");
@@ -67,6 +71,21 @@ const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
 const latestEventType = computed(() => recentEvents.value[0]?.type ?? "idle");
+const latestEventLabel = computed(() => {
+  if (latestEventType.value === "sale") {
+    return "SOLD";
+  }
+  if (latestEventType.value === "bid") {
+    return "BID";
+  }
+  if (latestEventType.value === "tip") {
+    return "TIP";
+  }
+  if (latestEventType.value === "share") {
+    return "SHARE";
+  }
+  return "CHAT";
+});
 const jumbotronLabel = computed(() => recentEvents.value[0]?.type.toUpperCase() ?? "ROOM READY");
 const displayedGif = computed(() => manualGifUrl.value);
 const activePromo = computed(() => promoBanners.value[promoIndex.value % Math.max(1, promoBanners.value.length)] ?? "");
@@ -154,12 +173,16 @@ let hypeTimer: number | undefined;
 let auctionTimerInterval: number | undefined;
 let recapTimer: number | undefined;
 let audioContext: AudioContext | undefined;
+let activeAudioPlayer: HTMLAudioElement | null = null;
 let cameraStream: MediaStream | null = null;
+const audioOutputEnabled = new URLSearchParams(window.location.search).get("audio") !== "off";
 
 const eventDisplayDurations: Record<ShowEvent["type"], number> = {
   bid: 1600,
   sale: 3400,
-  audience_action: 2200
+  audience_action: 2200,
+  tip: 3200,
+  share: 2400
 };
 
 onMounted(connect);
@@ -172,6 +195,7 @@ onBeforeUnmount(() => {
   window.clearInterval(hypeTimer);
   window.clearInterval(auctionTimerInterval);
   window.clearTimeout(recapTimer);
+  stopAudioPlayback();
   stopCamera();
   socket?.close();
 });
@@ -205,6 +229,9 @@ function connect(): void {
       skin.value = parsed.skin;
       activeAddOns.value = parsed.addOns;
       soundsEnabled.value = parsed.soundsEnabled;
+      soundVolume.value = parsed.soundVolume;
+      audioTheme.value = parsed.audioTheme;
+      customSoundUrls.value = parsed.customSoundUrls;
       streamTitle.value = parsed.streamTitle;
       customGifUrls.value = parsed.customGifUrls;
       gifPlacement.value = parsed.gifPlacement;
@@ -216,6 +243,11 @@ function connect(): void {
       sceneMode.value = parsed.sceneMode;
       goals.value = parsed.goals;
       auctionTimerSeconds.value = parsed.auctionTimerSeconds;
+      if (!soundsEnabled.value || soundVolume.value === 0) {
+        stopAudioPlayback();
+      } else if (activeAudioPlayer) {
+        activeAudioPlayer.volume = soundVolume.value;
+      }
       return;
     }
 
@@ -225,7 +257,7 @@ function connect(): void {
     }
 
     if (isOverlaySoundTriggerMessage(parsed)) {
-      if (hasAddOn("noise_machines") && soundsEnabled.value) {
+      if (audioOutputEnabled && soundsEnabled.value && soundVolume.value > 0) {
         playSoundKind(parsed.kind);
       }
       return;
@@ -269,7 +301,7 @@ function connect(): void {
     if (isShowEvent(parsed)) {
       applyHypeEvent(parsed);
       applyEventStats(parsed);
-      if (hasAddOn("noise_machines") && soundsEnabled.value) {
+      if (audioOutputEnabled && soundsEnabled.value && soundVolume.value > 0) {
         playEventTone(parsed);
       }
       if (hasAddOn("hype_bursts")) {
@@ -423,6 +455,12 @@ function formatActivityAction(event: ShowEvent): string {
   if (event.type === "bid") {
     return "Bid";
   }
+  if (event.type === "tip") {
+    return "Tip";
+  }
+  if (event.type === "share") {
+    return "Share";
+  }
   if (event.action === "follow") {
     return "Follow";
   }
@@ -442,6 +480,12 @@ function formatActivityActor(event: ShowEvent): string {
   if (event.type === "bid") {
     return `@${event.bidder}`;
   }
+  if (event.type === "tip") {
+    return `@${event.tipper}`;
+  }
+  if (event.type === "share") {
+    return event.actor ? `@${event.actor}` : "Viewers";
+  }
   return `@${event.actor}`;
 }
 
@@ -449,30 +493,141 @@ function formatActivityMeta(event: ShowEvent): string {
   if (event.type === "sale" || event.type === "bid") {
     return `$${event.amount.toLocaleString()}${event.item ? ` - ${event.item}` : ""}`;
   }
+  if (event.type === "tip") {
+    return `$${event.amount.toLocaleString()}${event.message ? ` - ${event.message}` : ""}`;
+  }
+  if (event.type === "share") {
+    if (event.delta && event.delta > 1) {
+      return `+${event.delta} new shares`;
+    }
+    return event.shareCount === undefined ? "Shared the show" : `${event.shareCount.toLocaleString()} total shares`;
+  }
   return event.message ?? "Audience action";
 }
 
 function playEventTone(event: ShowEvent): void {
-  playSoundKind(event.type === "sale" ? "sale" : event.type === "bid" ? "bid" : "action");
+  playSoundKind(event.type === "audience_action" ? "action" : event.type);
 }
 
 function playSoundKind(kind: SoundKind): void {
+  stopAudioPlayback();
+  const selectedUrl = customSoundUrls.value[kind] ?? `/overlay/audio/${audioTheme.value}/${kind}.wav`;
+  const audio = new Audio(new URL(selectedUrl, window.location.origin).href);
+  audio.volume = soundVolume.value;
+  activeAudioPlayer = audio;
+  const release = () => {
+    if (activeAudioPlayer === audio) {
+      activeAudioPlayer = null;
+    }
+  };
+  audio.addEventListener("ended", release, { once: true });
+  audio.addEventListener("error", release, { once: true });
+  void audio.play().catch(() => {
+    release();
+    playSynthSound(kind);
+  });
+}
+
+function stopAudioPlayback(): void {
+  if (activeAudioPlayer) {
+    activeAudioPlayer.pause();
+    activeAudioPlayer.currentTime = 0;
+    activeAudioPlayer = null;
+  }
+}
+
+type AudioProfile = {
+  wave: OscillatorType;
+  frequencies: Record<SoundKind, number[]>;
+  volume: number;
+  step: number;
+};
+
+const audioProfiles: Record<AudioTheme, AudioProfile> = {
+  neon_pulse: {
+    wave: "triangle",
+    frequencies: { sale: [620, 880, 1240], bid: [470, 680], action: [320, 560], tip: [760, 1080], share: [410, 610, 820] },
+    volume: 0.18,
+    step: 0.075
+  },
+  arcade_8bit: {
+    wave: "square",
+    frequencies: { sale: [523, 784, 1047], bid: [392, 523], action: [262, 330, 392], tip: [659, 988], share: [330, 494, 659] },
+    volume: 0.105,
+    step: 0.065
+  },
+  broadcast: {
+    wave: "sine",
+    frequencies: { sale: [330, 494, 659], bid: [440, 554], action: [220, 330], tip: [554, 740], share: [294, 392, 523] },
+    volume: 0.2,
+    step: 0.09
+  },
+  crystal: {
+    wave: "sine",
+    frequencies: { sale: [784, 1175, 1568], bid: [659, 988], action: [523, 784], tip: [988, 1480], share: [698, 1047, 1397] },
+    volume: 0.14,
+    step: 0.11
+  },
+  duck_party: {
+    wave: "square",
+    frequencies: { sale: [370, 554, 740], bid: [294, 440], action: [220, 370, 294], tip: [494, 740, 988], share: [262, 392, 523] },
+    volume: 0.1,
+    step: 0.075
+  },
+  luxury: {
+    wave: "sine",
+    frequencies: { sale: [262, 392, 523], bid: [330, 415], action: [196, 294], tip: [440, 659], share: [247, 330, 494] },
+    volume: 0.17,
+    step: 0.13
+  },
+  retro: {
+    wave: "sawtooth",
+    frequencies: { sale: [440, 660, 880], bid: [349, 466], action: [233, 311, 415], tip: [587, 784], share: [277, 415, 554] },
+    volume: 0.075,
+    step: 0.07
+  },
+  stadium: {
+    wave: "triangle",
+    frequencies: { sale: [294, 587, 880], bid: [392, 587], action: [196, 294, 392], tip: [523, 784, 1047], share: [262, 523, 784] },
+    volume: 0.22,
+    step: 0.095
+  },
+  storm: {
+    wave: "sawtooth",
+    frequencies: { sale: [110, 220, 440], bid: [147, 294], action: [98, 196, 147], tip: [220, 440, 660], share: [123, 247, 370] },
+    volume: 0.09,
+    step: 0.12
+  },
+  zen: {
+    wave: "sine",
+    frequencies: { sale: [392, 523, 659], bid: [330, 440], action: [262, 349], tip: [494, 659], share: [294, 392, 523] },
+    volume: 0.12,
+    step: 0.16
+  }
+};
+
+function playSynthSound(kind: SoundKind): void {
   try {
     audioContext ??= new AudioContext();
+    const profile = audioProfiles[audioTheme.value];
+    const frequencies = profile.frequencies[kind];
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
-    const frequency = kind === "sale" ? 660 : kind === "bid" ? 480 : 320;
+    const start = audioContext.currentTime;
+    const duration = Math.max(0.22, frequencies.length * profile.step + 0.1);
 
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, audioContext.currentTime + 0.14);
+    oscillator.type = profile.wave;
+    oscillator.frequency.setValueAtTime(frequencies[0], start);
+    frequencies.slice(1).forEach((frequency, index) => {
+      oscillator.frequency.exponentialRampToValueAtTime(frequency, start + (index + 1) * profile.step);
+    });
     gain.gain.setValueAtTime(0.001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.018);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.26);
+    gain.gain.exponentialRampToValueAtTime(profile.volume * soundVolume.value, start + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.28);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.02);
   } catch {
     // OBS or the browser preview can block audio until user interaction.
   }
@@ -573,6 +728,12 @@ function applyHypeEvent(event: ShowEvent): void {
   if (event.type === "sale") {
     hypeMeter.value.participants.add(event.buyer);
   }
+  if (event.type === "tip") {
+    hypeMeter.value.participants.add(event.tipper);
+  }
+  if (event.type === "share" && event.actor) {
+    hypeMeter.value.participants.add(event.actor);
+  }
 }
 
 async function syncCamera(): Promise<void> {
@@ -664,9 +825,9 @@ onMounted(() => {
       :class="`gif-${latestEventType}`"
       aria-hidden="true"
     >
-      <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
-      <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
-      <span>{{ latestEventType === "sale" ? "SOLD" : latestEventType === "bid" ? "BID" : "CHAT" }}</span>
+      <span>{{ latestEventLabel }}</span>
+      <span>{{ latestEventLabel }}</span>
+      <span>{{ latestEventLabel }}</span>
     </div>
     <div v-if="hasAddOn('stream_skins') && skin !== 'none'" class="skin-frame" aria-hidden="true">
       <span />
@@ -708,6 +869,10 @@ onMounted(() => {
           >
             <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
             <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
+            <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
+            <template v-else-if="event.type === 'share'">
+              SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
+            </template>
             <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
           </span>
         </div>

@@ -45,7 +45,8 @@ Duck Desk does not update itself yet. Check the [Releases page](https://github.c
 - 30 stream themes, including 10 animated premium-style themes.
 - A persistent vertical stream frame, live header, ticker, and open-source footer.
 - Manual GIF reactions with names, sizes, and screen positions.
-- Bid, sale, and audience sound effects with a master mute switch.
+- 10 audio themes with 50 original bundled cues for bids, sales, tips, shares, and audience actions, plus a master mute switch.
+- Custom sound files for each individual event type, plus a saved master effects-volume control. Duck Desk safely copies files into its private app-data folder.
 - Hype bursts, milestones, auction timers, goals, promo banners, and show recaps.
 - Bid ladder, activity feed, buyer leaderboard, jumbotron, and show scenes.
 - One-click OBS source setup with repair and refresh.
@@ -165,7 +166,7 @@ Background              bottom
 
 ### 6. Install The Duck Desk Chrome Extension
 
-The extension watches only the visible Whatnot seller page and sends recognized events to Duck Desk on your Mac.
+The extension watches only the visible Whatnot seller page and sends recognized events to Duck Desk on your Mac. Keep that seller page open while you stream.
 
 1. In Duck Desk, click `Chrome Extension`.
 2. Finder opens the correct extension folder for you.
@@ -177,19 +178,38 @@ The extension watches only the visible Whatnot seller page and sends recognized 
 
 After installing a newer Duck Desk build, return to `chrome://extensions`, click the reload icon on Duck Desk, and refresh the Whatnot seller page once.
 
+For tip alerts, leave Whatnot's buyer tip message visible in live chat. Whatnot normally announces live tips in chat, but sellers can disable that message; Duck Desk needs the visible announcement to read the tipper and amount. See Whatnot's official [Receive tips as a seller](https://help.whatnot.com/hc/en-us/articles/15296059461005-Receive-tips-as-a-seller) guide.
+
+For share alerts, Duck Desk establishes the visible show share count as its starting point and alerts only when that count increases. When Whatnot displays a sharer's name, the alert includes it. When only the count is available, the alert says `Community Boost` instead of making up a username.
+
 ### 7. Test Before Going Live
 
 1. In Duck Desk, turn `Demo Mode` on.
 2. Click `Test Sale`.
 3. Click `Test Bid`.
 4. Click `Audience Action`.
-5. Watch the Duck Desk preview and the OBS canvas.
-6. Confirm that animations and sounds work.
-7. Turn `Demo Mode` off.
+5. Click `Test Tip`.
+6. Click `Test Share`.
+7. Watch the Duck Desk preview and the OBS canvas.
+8. Confirm that animations and sounds work.
+9. Turn `Demo Mode` off.
 
-Turning Demo Mode off clears test events and test counters. The overlay will not show invented names, bids, or sales while Demo Mode is off.
+Demo events do not change the live totals in the dashboard. Turning Demo Mode off clears test alerts from the overlay, and the overlay will not show invented names, bids, tips, sales, or shares while Demo Mode is off.
 
 Whatnot Rehearsal Mode, when available for your seller account, is the best place to practice realistic show activity. A private show is useful for checking camera, audio, OBS, and overlays, but any actual purchases made there are still real purchases.
+
+#### Test A Real Share In A Private Show
+
+This is the easiest free test of the complete Whatnot-to-Duck-Desk connection.
+
+1. Start your private show and keep its seller page visible in Chrome on the Mac.
+2. Confirm Duck Desk's Live Preflight says `Seller page connected`.
+3. Send the private-show link to a second Whatnot account.
+4. From that account, open the show and use Whatnot's Share button.
+5. Watch for the compact `Show Shared` alert under the Duck Desk header in both the preview and OBS.
+6. If it does not appear, refresh the seller page once, reload the Duck Desk extension at `chrome://extensions`, and try one more share.
+
+Whatnot allows people with a private-show link to share it, and its visible share count updates live. See Whatnot's [private show](https://help.whatnot.com/hc/en-us/articles/6218017419021-Schedule-a-private-show) and [show sharing](https://help.whatnot.com/hc/en-us/articles/48071443244557-Share-your-show-as-a-seller) guides.
 
 ### 8. Connect OBS To Your Whatnot Show
 
@@ -219,8 +239,12 @@ See Whatnot's official [Using OBS with your Livestream](https://help.whatnot.com
 - Enter your show name under `Stream Title`, then click `Apply`.
 - Use `GIF Reactions` for manual animated reactions at any time.
 - Use GIF position and size controls to keep media away from the product.
-- Use `Noise Machines` for manual sound buttons.
-- Keep `Event Sound On` enabled for automatic bid, sale, and audience cues, or mute it at any time.
+- Add `Audio Studio` from the library, then choose any of the 10 sound themes. Each theme uses its own instrument and texture set, not a stock sound with a different pitch.
+- Press the play icon beside Bid, Sale, Audience, Tip, or Share to preview that exact cue.
+- Use `Effects Volume` to set every sound from subtle to full volume. The percentage is saved automatically.
+- Press `Choose` beside an event to use your own MP3, WAV, M4A, AAC, AIFF, or CAF file. Files must be under 20 MB and 12 seconds or shorter. Duck Desk converts the file to a stream-safe WAV automatically so the Mac preview and OBS use the same cue.
+- Press the reset icon to return one event to the selected theme without changing the other event sounds.
+- Keep `Event Sound On` enabled for automatic live cues, or mute every event sound at any time.
 - Use scenes for Starting, Auction, Break, Winner, and Ending screens.
 - Click `Repair + Refresh` if OBS ever looks one update behind.
 
@@ -258,15 +282,15 @@ Your choices are saved automatically. Demo Mode, live sales totals, test counter
 5. Refresh the Whatnot seller page.
 6. Open the Duck Desk extension popup and check both status rows.
 
-### Tests work but real bids or sales do not
+### Tests work but real events do not
 
-The overlay and OBS connection are working if Demo Mode tests appear. Real event detection is separate and intentionally conservative. Whatnot can change its visible seller-page layout, and its public seller webhooks do not currently provide every individual live bid. Please report the show-page state and Duck Desk version through [GitHub Issues](https://github.com/ConfusedDuckCollectibles/DuckDesk/issues) without sharing passwords, stream keys, addresses, or customer payment information.
+The overlay and OBS connection are working if Demo Mode tests appear. Real event detection is separate and intentionally conservative. Keep the seller page visible, keep tip announcements enabled in chat, and reload the extension plus seller page after upgrading Duck Desk. Whatnot can change its visible seller-page layout. Please report the show-page state and Duck Desk version through [GitHub Issues](https://github.com/ConfusedDuckCollectibles/DuckDesk/issues) without sharing passwords, stream keys, addresses, or customer payment information.
 
 ### Sounds are silent
 
 1. Confirm `Event Sound On` is enabled.
 2. Turn up the Mac output volume.
-3. Add `Noise Machines` and press one of its manual sound buttons.
+3. Add `Audio Studio` and press the play icon beside an event sound.
 4. Check that OBS and the Whatnot stream are using the intended audio source.
 
 ## Privacy And Safety

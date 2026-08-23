@@ -23,6 +23,7 @@
     "dev:desktop": "npm run dev -w @duck-desk/desktop",
     "build": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/server && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build -w @duck-desk/desktop",
     "typecheck": "npm run build -w @duck-desk/shared && npm run typecheck -w @duck-desk/server && npm run typecheck -w @duck-desk/overlay && npm run typecheck -w @duck-desk/extension && npm run typecheck -w @duck-desk/desktop",
+    "audio:generate": "node scripts/generate-audio-themes.mjs",
     "mac:app": "npm run dist -w @duck-desk/desktop",
     "mac:dmg": "npm run dist:dmg -w @duck-desk/desktop",
     "mock:sale": "curl -X POST http://localhost:8741/events -H 'Content-Type: application/json' -d '{\"type\":\"sale\",\"buyer\":\"TestBuyer\",\"amount\":28,\"item\":\"Test Wheel Spin\",\"timestamp\":123456789}'"

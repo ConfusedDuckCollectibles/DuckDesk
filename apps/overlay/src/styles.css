@@ -2116,6 +2116,30 @@ body,
   background: var(--secondary);
 }
 
+.event-tip {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #ffe36e 88%, white), color-mix(in srgb, var(--accent) 72%, transparent)),
+    var(--panel);
+  box-shadow:
+    0 7px 0 var(--panel),
+    0 16px 34px var(--shadow),
+    0 0 38px color-mix(in srgb, #ffe36e 42%, transparent);
+}
+
+.event-tip::before {
+  background: #ffe36e;
+}
+
+.event-share {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #74f8c9 84%, white), color-mix(in srgb, var(--primary) 68%, transparent)),
+    var(--panel);
+}
+
+.event-share::before {
+  background: #74f8c9;
+}
+
 .event-main {
   width: 100%;
   display: grid;

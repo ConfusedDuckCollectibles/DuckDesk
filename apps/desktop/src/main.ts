@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -10,12 +10,15 @@ import {
   app as electronApp,
   BrowserWindow,
   clipboard,
+  dialog,
   ipcMain,
-  shell
+  shell,
+  type OpenDialogOptions
 } from "electron";
 import { WebSocket, WebSocketServer } from "ws";
 import {
   isAddOnId,
+  isAudioTheme,
   isGifPlacement,
   isGifSize,
   isOverlaySkin,
@@ -23,6 +26,7 @@ import {
   isSceneMode,
   isSoundKind,
   type AddOnId,
+  type AudioTheme,
   type GifPlacement,
   type GifSize,
   type GoalConfig,
@@ -38,6 +42,7 @@ const port = 8741;
 const overlayUrl = `http://localhost:${port}/overlay`;
 const obsUrl = "ws://127.0.0.1:4455";
 const obsSourceName = "Duck Desk Overlay";
+const customAudioToken = randomUUID();
 
 let mainWindow: BrowserWindow | null = null;
 let server: Server | null = null;
@@ -49,12 +54,21 @@ const stats = {
   salesCount: 0,
   grossSales: 0,
   bidCount: 0,
-  audienceActions: 0
+  audienceActions: 0,
+  tipCount: 0,
+  tipTotal: 0,
+  shareCount: 0
 };
 let activeTheme: OverlayTheme = "neon";
 let activeSkin: OverlaySkin = "none";
 const activeAddOns = new Set<AddOnId>();
 let soundsEnabled = true;
+let soundVolume = 0.75;
+let audioTheme: AudioTheme = "neon_pulse";
+let customSounds: Partial<Record<SoundKind, CustomSoundSelection>> = {};
+let audioNotice = "Ready";
+let audioRevision = 0;
+let nativeSoundPlayer: ChildProcess | null = null;
 let demoMode = false;
 let streamTitle = "";
 let customGifs: CustomGif[] = [];
@@ -83,12 +97,23 @@ type CustomGif = {
   url: string;
 };
 
+type CustomSoundSelection = {
+  storedFileName: string;
+  displayName: string;
+};
+
+const allowedAudioExtensions = ["mp3", "wav", "m4a", "aac", "aiff", "aif", "caf"] as const;
+const maxCustomSoundBytes = 20 * 1024 * 1024;
+
 type PersistedSettings = {
   version: 1;
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  soundVolume: number;
+  audioTheme: AudioTheme;
+  customSounds: Partial<Record<SoundKind, CustomSoundSelection>>;
   streamTitle: string;
   customGifUrls: string[];
   customGifs: CustomGif[];
@@ -136,6 +161,7 @@ electronApp.on("window-all-closed", () => {
 });
 
 electronApp.on("before-quit", () => {
+  stopNativeSound();
   if (settingsSaveTimer) {
     clearTimeout(settingsSaveTimer);
     settingsSaveTimer = null;
@@ -173,11 +199,25 @@ async function startLocalBridge(): Promise<void> {
   log(`starting local bridge on ${port}`);
   log(`overlay path: ${overlayPath}`);
 
-  expressApp.use(cors({ origin: true }));
+  expressApp.use(cors({
+    origin(origin, callback) {
+      callback(null, !origin || isAllowedBridgeOrigin(origin));
+    }
+  }));
   expressApp.use(express.json({ limit: "256kb" }));
 
   expressApp.get("/health", (_request, response) => {
-    response.json(getStatus());
+    const status = getStatus();
+    response.json({
+      ok: status.ok,
+      port: status.port,
+      clients: status.clients,
+      obsStatus: status.obsStatus,
+      extensionConnected: status.extensionConnected,
+      whatnotPageActive: status.whatnotPageActive,
+      lastRealEventAt: status.lastRealEventAt,
+      hasError: Boolean(status.lastError)
+    });
   });
 
   expressApp.post("/events", (request, response) => {
@@ -218,6 +258,29 @@ async function startLocalBridge(): Promise<void> {
     }
   });
 
+  expressApp.get("/custom-audio/:kind", (request, response) => {
+    const kind = request.params.kind;
+    if (!isSoundKind(kind) || request.query.token !== customAudioToken) {
+      response.sendStatus(404);
+      return;
+    }
+
+    const selection = customSounds[kind];
+    if (!selection) {
+      response.sendStatus(404);
+      return;
+    }
+
+    const soundPath = resolveCustomSoundPath(selection);
+    if (!fs.existsSync(soundPath)) {
+      response.sendStatus(404);
+      return;
+    }
+
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.sendFile(soundPath);
+  });
+
   expressApp.use("/overlay", (_request, response, next) => {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     response.setHeader("Pragma", "no-cache");
@@ -236,7 +299,11 @@ async function startLocalBridge(): Promise<void> {
   });
 
   server = createServer(expressApp);
-  wss = new WebSocketServer({ server, path: "/ws" });
+  wss = new WebSocketServer({
+    server,
+    path: "/ws",
+    verifyClient: ({ origin }: { origin: string }) => isAllowedWebSocketOrigin(origin)
+  });
 
   wss.on("connection", (socket) => {
     clients.add(socket);
@@ -276,7 +343,7 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:open-overlay", () => {
-    void shell.openExternal(overlayUrl);
+    void shell.openExternal(`${overlayUrl}?audio=off`);
   });
 
   ipcMain.handle("duck-desk:reveal-extension", () => {
@@ -304,7 +371,7 @@ function registerIpc(): void {
       amount: 28,
       item: "Desktop Test Sale",
       timestamp: Date.now()
-    });
+    }, true);
   });
 
   ipcMain.handle("duck-desk:send-test-bid", () => {
@@ -318,7 +385,7 @@ function registerIpc(): void {
       amount: 34,
       item: "Live Auction Demo",
       timestamp: Date.now()
-    });
+    }, true);
   });
 
   ipcMain.handle("duck-desk:send-test-action", () => {
@@ -332,7 +399,34 @@ function registerIpc(): void {
       action: "reaction",
       message: "Audience surge",
       timestamp: Date.now()
-    });
+    }, true);
+  });
+
+  ipcMain.handle("duck-desk:send-test-tip", () => {
+    if (!demoMode) {
+      return getStatus();
+    }
+
+    receiveEvent({
+      type: "tip",
+      tipper: "TestTipper",
+      amount: 5,
+      message: "Thanks for supporting the show!",
+      timestamp: Date.now()
+    }, true);
+  });
+
+  ipcMain.handle("duck-desk:send-test-share", () => {
+    if (!demoMode) {
+      return getStatus();
+    }
+
+    receiveEvent({
+      type: "share",
+      actor: "TestSharer",
+      delta: 1,
+      timestamp: Date.now()
+    }, true);
   });
 
   ipcMain.handle("duck-desk:set-theme", (_event, theme: unknown) => {
@@ -384,8 +478,133 @@ function registerIpc(): void {
     }
 
     soundsEnabled = enabled;
+    if (!enabled) {
+      stopNativeSound();
+    }
     broadcast(createOverlayConfig());
     broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-sound-volume", (_event, volume: unknown) => {
+    if (typeof volume !== "number" || !Number.isFinite(volume)) {
+      return getStatus();
+    }
+
+    soundVolume = Math.max(0, Math.min(1, volume));
+    stopNativeSound();
+    audioNotice = `Effects volume ${Math.round(soundVolume * 100)}%`;
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-audio-theme", (_event, theme: unknown) => {
+    if (!isAudioTheme(theme)) {
+      return getStatus();
+    }
+
+    audioTheme = theme;
+    audioNotice = `${audioThemeName(theme)} selected`;
+    activeAddOns.add("noise_machines");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:select-custom-sound", async (_event, kind: unknown) => {
+    if (!isSoundKind(kind)) {
+      return getStatus();
+    }
+
+    const options: OpenDialogOptions = {
+      title: `Choose a sound for ${soundKindName(kind)}`,
+      properties: ["openFile"],
+      filters: [
+        { name: "Audio", extensions: [...allowedAudioExtensions] },
+        { name: "All Files", extensions: ["*"] }
+      ]
+    };
+    const result = mainWindow
+      ? await dialog.showOpenDialog(mainWindow, options)
+      : await dialog.showOpenDialog(options);
+    const sourcePath = result.filePaths[0];
+    if (result.canceled || !sourcePath) {
+      return getStatus();
+    }
+
+    try {
+      const sourceStats = fs.statSync(sourcePath);
+      if (
+        !sourceStats.isFile() ||
+        sourceStats.size < 256 ||
+        sourceStats.size > maxCustomSoundBytes ||
+        !isAllowedAudioFileName(path.basename(sourcePath))
+      ) {
+        audioNotice = "Choose a valid MP3, WAV, M4A, AAC, AIFF, or CAF file under 20 MB";
+        broadcastStatus();
+        return getStatus();
+      }
+      const inspection = inspectAudioFile(sourcePath);
+      if (!inspection.ok) {
+        audioNotice = inspection.message;
+        broadcastStatus();
+        return getStatus();
+      }
+
+      const soundDirectory = resolveCustomSoundDirectory();
+      fs.mkdirSync(soundDirectory, { recursive: true });
+      const storedFileName = `${kind}.wav`;
+      const destinationPath = path.join(soundDirectory, storedFileName);
+      const conversion = convertCustomSoundToWav(sourcePath, destinationPath);
+      if (!conversion.ok) {
+        audioNotice = conversion.message;
+        broadcastStatus();
+        return getStatus();
+      }
+
+      const previous = customSounds[kind];
+      customSounds[kind] = {
+        storedFileName,
+        displayName: path.basename(sourcePath).slice(0, 100)
+      };
+      if (previous && previous.storedFileName !== storedFileName) {
+        fs.rmSync(resolveCustomSoundPath(previous), { force: true });
+      }
+      audioNotice = `${soundKindName(kind)} now uses ${path.basename(sourcePath).slice(0, 100)}`;
+      audioRevision += 1;
+      activeAddOns.add("noise_machines");
+      broadcast(createOverlayConfig());
+      broadcastStatus();
+      return getStatus();
+    } catch (error) {
+      log(`unable to add custom sound: ${error instanceof Error ? error.message : String(error)}`);
+      audioNotice = "Duck Desk could not add that sound file";
+      broadcastStatus();
+      return getStatus();
+    }
+  });
+
+  ipcMain.handle("duck-desk:remove-custom-sound", (_event, kind: unknown) => {
+    if (!isSoundKind(kind)) {
+      return getStatus();
+    }
+
+    try {
+      const previous = customSounds[kind];
+      if (previous) {
+        fs.rmSync(resolveCustomSoundPath(previous), { force: true });
+        delete customSounds[kind];
+        audioRevision += 1;
+      }
+      audioNotice = `${soundKindName(kind)} reset to ${audioThemeName(audioTheme)}`;
+      broadcast(createOverlayConfig());
+      broadcastStatus();
+    } catch (error) {
+      log(`unable to reset custom sound: ${error instanceof Error ? error.message : String(error)}`);
+      audioNotice = "Duck Desk could not reset that sound file";
+      broadcastStatus();
+    }
     return getStatus();
   });
 
@@ -623,15 +842,22 @@ function registerIpc(): void {
   });
 }
 
-function receiveEvent(event: ShowEvent): void {
-  if (event.type === "sale") {
-    stats.salesCount += 1;
-    stats.grossSales += event.amount;
-    checkMilestones();
-  } else if (event.type === "bid") {
-    stats.bidCount += 1;
-  } else if (event.type === "audience_action") {
-    stats.audienceActions += 1;
+function receiveEvent(event: ShowEvent, isDemoEvent = false): void {
+  if (!isDemoEvent) {
+    if (event.type === "sale") {
+      stats.salesCount += 1;
+      stats.grossSales += event.amount;
+      checkMilestones();
+    } else if (event.type === "bid") {
+      stats.bidCount += 1;
+    } else if (event.type === "audience_action") {
+      stats.audienceActions += 1;
+    } else if (event.type === "tip") {
+      stats.tipCount += 1;
+      stats.tipTotal += event.amount;
+    } else if (event.type === "share") {
+      stats.shareCount += event.delta ?? 1;
+    }
   }
 
   playEventSound(event);
@@ -683,6 +909,20 @@ function applyConfigPatch(input: unknown): void {
       throw new Error("Invalid sound setting.");
     }
     soundsEnabled = input.soundsEnabled;
+  }
+
+  if ("soundVolume" in input) {
+    if (typeof input.soundVolume !== "number" || !Number.isFinite(input.soundVolume)) {
+      throw new Error("Invalid sound volume.");
+    }
+    soundVolume = Math.max(0, Math.min(1, input.soundVolume));
+  }
+
+  if ("audioTheme" in input) {
+    if (!isAudioTheme(input.audioTheme)) {
+      throw new Error("Invalid audio theme.");
+    }
+    audioTheme = input.audioTheme;
   }
 
   if ("streamTitle" in input) {
@@ -808,32 +1048,47 @@ function checkMilestones(): void {
       completedMilestones.add(threshold);
       broadcast(createOverlayMilestoneTrigger(threshold));
       broadcast(createOverlayBurstTrigger());
-      playSoundKind("sale");
     }
   }
 }
 
 function playEventSound(event: ShowEvent): void {
-  if (!soundsEnabled) {
+  if (!soundsEnabled || soundVolume === 0) {
     return;
   }
 
-  playSoundKind(event.type === "sale" ? "sale" : event.type === "bid" ? "bid" : "action");
+  playSoundKind(event.type === "audience_action" ? "action" : event.type);
 }
 
 function playSoundKind(kind: SoundKind): void {
-  const soundFile = kind === "sale" ? "Glass.aiff" : kind === "bid" ? "Pop.aiff" : "Ping.aiff";
-  const soundPath = path.join("/System/Library/Sounds", soundFile);
+  const selection = customSounds[kind];
+  const soundPath = selection
+    ? resolveCustomSoundPath(selection)
+    : path.join(resolveOverlayPath(), "audio", audioTheme, `${kind}.wav`);
 
   try {
-    const player = spawn("/usr/bin/afplay", [soundPath], {
+    stopNativeSound();
+    const player = spawn("/usr/bin/afplay", ["-v", String(soundVolume), soundPath], {
       detached: true,
       stdio: "ignore"
+    });
+    nativeSoundPlayer = player;
+    player.once("exit", () => {
+      if (nativeSoundPlayer === player) {
+        nativeSoundPlayer = null;
+      }
     });
     player.unref();
   } catch (error) {
     log(`unable to play sound: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+function stopNativeSound(): void {
+  if (nativeSoundPlayer && !nativeSoundPlayer.killed) {
+    nativeSoundPlayer.kill();
+  }
+  nativeSoundPlayer = null;
 }
 
 function broadcast(
@@ -891,6 +1146,45 @@ function loadSettings(): void {
       }
       customGifs = loadedGifs.slice(0, 24);
     }
+    if (isRecord(parsed.customSounds)) {
+      const loadedSounds: Partial<Record<SoundKind, CustomSoundSelection>> = {};
+      for (const [kind, candidate] of Object.entries(parsed.customSounds)) {
+        if (!isSoundKind(kind) || !isRecord(candidate)) {
+          continue;
+        }
+        const storedFileName = typeof candidate.storedFileName === "string"
+          ? path.basename(candidate.storedFileName)
+          : "";
+        const displayName = typeof candidate.displayName === "string"
+          ? path.basename(candidate.displayName).slice(0, 100)
+          : storedFileName;
+        if (!isAllowedAudioFileName(storedFileName)) {
+          continue;
+        }
+
+        const selection = { storedFileName, displayName };
+        const sourcePath = resolveCustomSoundPath(selection);
+        if (!fs.existsSync(sourcePath)) {
+          continue;
+        }
+
+        if (path.extname(storedFileName).toLowerCase() === ".wav") {
+          loadedSounds[kind] = selection;
+          continue;
+        }
+
+        const migratedFileName = `${kind}.wav`;
+        const migratedSelection = { storedFileName: migratedFileName, displayName };
+        const conversion = convertCustomSoundToWav(sourcePath, resolveCustomSoundPath(migratedSelection));
+        if (conversion.ok) {
+          loadedSounds[kind] = migratedSelection;
+          fs.rmSync(sourcePath, { force: true });
+        } else {
+          log(`unable to migrate custom ${kind} sound: ${conversion.message}`);
+        }
+      }
+      customSounds = loadedSounds;
+    }
     log(`loaded creator settings version ${readNumber(parsed, "version") ?? 1}`);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
@@ -922,6 +1216,9 @@ function saveSettings(): void {
     skin: activeSkin,
     addOns: [...activeAddOns],
     soundsEnabled,
+    soundVolume,
+    audioTheme,
+    customSounds,
     streamTitle,
     customGifUrls: customGifs.map((gif) => gif.url),
     customGifs,
@@ -957,6 +1254,135 @@ function resolveSettingsPath(): string {
   return path.join(electronApp.getPath("userData"), "creator-settings.json");
 }
 
+function resolveCustomSoundDirectory(): string {
+  return path.join(electronApp.getPath("userData"), "custom-audio");
+}
+
+function resolveCustomSoundPath(selection: CustomSoundSelection): string {
+  return path.join(resolveCustomSoundDirectory(), path.basename(selection.storedFileName));
+}
+
+function isAllowedAudioFileName(fileName: string): boolean {
+  const extension = path.extname(fileName).slice(1).toLowerCase();
+  return path.basename(fileName) === fileName && allowedAudioExtensions.includes(extension as typeof allowedAudioExtensions[number]);
+}
+
+function inspectAudioFile(filePath: string): { ok: true } | { ok: false; message: string } {
+  const inspection = spawnSync("/usr/bin/afinfo", [filePath], {
+    encoding: "utf8",
+    timeout: 5_000,
+    maxBuffer: 512 * 1024
+  });
+  if (inspection.status !== 0 || inspection.error) {
+    return { ok: false, message: "That file is not playable audio" };
+  }
+
+  const details = `${inspection.stdout}\n${inspection.stderr}`;
+  const durationMatch = details.match(/estimated duration:\s*([\d.]+)\s*sec/i);
+  const duration = durationMatch ? Number(durationMatch[1]) : Number.NaN;
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return { ok: false, message: "Duck Desk could not read that audio file" };
+  }
+  if (duration > 12) {
+    return { ok: false, message: "Choose a sound that is 12 seconds or shorter" };
+  }
+  return { ok: true };
+}
+
+function convertCustomSoundToWav(
+  sourcePath: string,
+  destinationPath: string
+): { ok: true } | { ok: false; message: string } {
+  const temporaryPath = `${destinationPath}.${randomUUID()}.tmp.wav`;
+  const conversion = spawnSync(
+    "/usr/bin/afconvert",
+    [sourcePath, temporaryPath, "-f", "WAVE", "-d", "LEI16@32000", "-c", "1"],
+    {
+      encoding: "utf8",
+      timeout: 15_000,
+      maxBuffer: 512 * 1024
+    }
+  );
+
+  if (conversion.status !== 0 || conversion.error || !fs.existsSync(temporaryPath)) {
+    fs.rmSync(temporaryPath, { force: true });
+    log(`audio conversion failed: ${conversion.error?.message ?? conversion.stderr ?? "unknown error"}`);
+    return { ok: false, message: "Duck Desk could not prepare that sound for OBS" };
+  }
+
+  try {
+    fs.renameSync(temporaryPath, destinationPath);
+    return { ok: true };
+  } catch (error) {
+    fs.rmSync(temporaryPath, { force: true });
+    log(`unable to store converted sound: ${error instanceof Error ? error.message : String(error)}`);
+    return { ok: false, message: "Duck Desk could not store that sound" };
+  }
+}
+
+function isAllowedBridgeOrigin(origin: string): boolean {
+  if (origin.startsWith("chrome-extension://")) {
+    return true;
+  }
+  try {
+    const url = new URL(origin);
+    return url.protocol === "https:" && (url.hostname === "whatnot.com" || url.hostname.endsWith(".whatnot.com"));
+  } catch {
+    return false;
+  }
+}
+
+function isAllowedWebSocketOrigin(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    return url.protocol === "http:"
+      && (url.hostname === "localhost" || url.hostname === "127.0.0.1")
+      && url.port === String(port);
+  } catch {
+    return false;
+  }
+}
+
+function createCustomSoundUrls(): Partial<Record<SoundKind, string>> {
+  const urls: Partial<Record<SoundKind, string>> = {};
+  for (const kind of ["sale", "bid", "action", "tip", "share"] as const) {
+    const selection = customSounds[kind];
+    if (!selection) {
+      continue;
+    }
+    const soundPath = resolveCustomSoundPath(selection);
+    if (fs.existsSync(soundPath)) {
+      urls[kind] = `/custom-audio/${kind}?token=${encodeURIComponent(customAudioToken)}&v=${Math.round(fs.statSync(soundPath).mtimeMs)}`;
+    }
+  }
+  return urls;
+}
+
+function audioThemeName(theme: AudioTheme): string {
+  return {
+    neon_pulse: "Neon Pulse",
+    arcade_8bit: "8-Bit Arcade",
+    broadcast: "Broadcast Pro",
+    crystal: "Crystal Chimes",
+    duck_party: "Duck Party",
+    luxury: "Luxury Lounge",
+    retro: "Retro Console",
+    stadium: "Stadium Hype",
+    storm: "Thunder Strike",
+    zen: "Soft Focus"
+  }[theme];
+}
+
+function soundKindName(kind: SoundKind): string {
+  return {
+    sale: "Sale",
+    bid: "Bid",
+    action: "Audience action",
+    tip: "Tip",
+    share: "Share"
+  }[kind];
+}
+
 function broadcastStatus(): void {
   if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send("duck-desk:status", getStatus());
@@ -972,10 +1398,18 @@ function getStatus(): {
   grossSales: number;
   bidCount: number;
   audienceActions: number;
+  tipCount: number;
+  tipTotal: number;
+  shareCount: number;
   theme: OverlayTheme;
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  soundVolume: number;
+  audioTheme: AudioTheme;
+  customSounds: Partial<Record<SoundKind, string>>;
+  audioNotice: string;
+  audioRevision: number;
   demoMode: boolean;
   streamTitle: string;
   customGifUrls: string[];
@@ -1005,10 +1439,20 @@ function getStatus(): {
     grossSales: stats.grossSales,
     bidCount: stats.bidCount,
     audienceActions: stats.audienceActions,
+    tipCount: stats.tipCount,
+    tipTotal: stats.tipTotal,
+    shareCount: stats.shareCount,
     theme: activeTheme,
     skin: activeSkin,
     addOns: [...activeAddOns],
     soundsEnabled,
+    soundVolume,
+    audioTheme,
+    customSounds: Object.fromEntries(
+      Object.entries(customSounds).map(([kind, selection]) => [kind, selection.displayName])
+    ),
+    audioNotice,
+    audioRevision,
     demoMode,
     streamTitle,
     customGifUrls: customGifs.map((gif) => gif.url),
@@ -1036,6 +1480,9 @@ function createOverlayConfig(): {
   skin: OverlaySkin;
   addOns: AddOnId[];
   soundsEnabled: boolean;
+  soundVolume: number;
+  audioTheme: AudioTheme;
+  customSoundUrls: Partial<Record<SoundKind, string>>;
   streamTitle: string;
   customGifUrls: string[];
   gifPlacement: GifPlacement;
@@ -1055,6 +1502,9 @@ function createOverlayConfig(): {
     skin: activeSkin,
     addOns: [...activeAddOns],
     soundsEnabled,
+    soundVolume,
+    audioTheme,
+    customSoundUrls: createCustomSoundUrls(),
     streamTitle,
     customGifUrls: customGifs.map((gif) => gif.url),
     gifPlacement,

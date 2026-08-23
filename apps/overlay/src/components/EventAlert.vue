@@ -20,6 +20,14 @@ function headline(): string {
     return "NEW BID";
   }
 
+  if (props.event.type === "tip") {
+    return "TIP RECEIVED";
+  }
+
+  if (props.event.type === "share") {
+    return props.event.delta && props.event.delta > 1 ? `${props.event.delta} NEW SHARES` : "SHOW SHARED";
+  }
+
   if (props.event.action === "follow") {
     return "NEW FOLLOW";
   }
@@ -44,11 +52,19 @@ function primary(): string {
     return `@${props.event.bidder}`;
   }
 
+  if (props.event.type === "tip") {
+    return `@${props.event.tipper}`;
+  }
+
+  if (props.event.type === "share") {
+    return props.event.actor ? `@${props.event.actor}` : "COMMUNITY BOOST";
+  }
+
   return `@${props.event.actor}`;
 }
 
 function amount(): string | null {
-  if (props.event.type === "sale" || props.event.type === "bid") {
+  if (props.event.type === "sale" || props.event.type === "bid" || props.event.type === "tip") {
     return dollars.format(props.event.amount);
   }
 
@@ -58,6 +74,14 @@ function amount(): string | null {
 function detail(): string | undefined {
   if (props.event.type === "audience_action") {
     return props.event.message;
+  }
+
+  if (props.event.type === "tip") {
+    return props.event.message;
+  }
+
+  if (props.event.type === "share") {
+    return props.event.shareCount === undefined ? undefined : `${props.event.shareCount.toLocaleString()} total show shares`;
   }
 
   return props.event.item;

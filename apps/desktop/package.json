@@ -7,19 +7,20 @@
   "type": "module",
   "main": "dist/main.cjs",
   "scripts": {
-    "dev": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build:renderer && npm run build:main && npm run build:preload && electron .",
+    "dev": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build:renderer && npm run build:main && npm run build:preload && electron .",
     "build": "npm run build:renderer && npm run build:main && npm run build:preload",
     "build:main": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/main.cjs --external:electron",
     "build:preload": "esbuild src/preload.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/preload.cjs --external:electron",
     "build:renderer": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "dist": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build && electron-builder --mac --dir --arm64",
-    "dist:dmg": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build && electron-builder --mac dmg --arm64"
+    "dist": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac --dir --arm64",
+    "dist:dmg": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac dmg --arm64"
   },
   "dependencies": {
     "@duck-desk/shared": "file:../../packages/shared",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "lucide": "^1.33.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {
