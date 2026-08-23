@@ -23,6 +23,8 @@ type DesktopStatus = {
   hypeMeterSeconds: number;
   jumbotronCameraEnabled: boolean;
   promoBanners: string[];
+  sceneMode: SceneMode;
+  goals: GoalConfig[];
   obsStatus: string;
   lastError?: string;
 };
@@ -32,10 +34,17 @@ type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
 type SoundKind = "sale" | "bid" | "action";
+type SceneMode = "none" | "starting" | "auction" | "break" | "winner" | "ending";
+type GoalKind = "sales" | "orders" | "hype" | "follows";
 type CustomGif = {
   id: string;
   label: string;
   url: string;
+};
+type GoalConfig = {
+  kind: GoalKind;
+  target: number;
+  label: string;
 };
 type AddOnId =
   | "stream_skins"
@@ -47,7 +56,9 @@ type AddOnId =
   | "milestones"
   | "hype_meter"
   | "jumbotron"
-  | "promo_banners";
+  | "promo_banners"
+  | "scene_switcher"
+  | "goal_widgets";
 
 type DesktopApi = {
   getStatus: () => Promise<DesktopStatus>;
@@ -76,6 +87,8 @@ type DesktopApi = {
   setHypeMeterSeconds: (seconds: number) => Promise<DesktopStatus>;
   setJumbotronCamera: (enabled: boolean) => Promise<DesktopStatus>;
   setPromoBanners: (banners: string) => Promise<DesktopStatus>;
+  setSceneMode: (mode: SceneMode) => Promise<DesktopStatus>;
+  setGoals: (goals: string) => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -143,6 +156,9 @@ const triggerHypeMeter = readElement<HTMLButtonElement>("trigger-hype-meter");
 const toggleJumbotronCamera = readElement<HTMLButtonElement>("toggle-jumbotron-camera");
 const promoBanners = readElement<HTMLTextAreaElement>("promo-banners");
 const savePromoBanners = readElement<HTMLButtonElement>("save-promo-banners");
+const sceneActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-scene-mode]"));
+const goalConfig = readElement<HTMLTextAreaElement>("goal-config");
+const saveGoals = readElement<HTMLButtonElement>("save-goals");
 
 let audioContext: AudioContext | undefined;
 let currentStatus: DesktopStatus | undefined;
@@ -320,6 +336,19 @@ savePromoBanners.addEventListener("click", async () => {
   renderStatus(await window.duckDesk.setPromoBanners(promoBanners.value));
 });
 
+for (const action of sceneActions) {
+  action.addEventListener("click", async () => {
+    const mode = action.dataset.sceneMode;
+    if (isSceneMode(mode)) {
+      renderStatus(await window.duckDesk.setSceneMode(mode));
+    }
+  });
+}
+
+saveGoals.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setGoals(goalConfig.value));
+});
+
 demoToggle.addEventListener("click", async () => {
   const enabled = !(currentStatus?.demoMode ?? false);
   renderStatus(await window.duckDesk.setDemoMode(enabled));
@@ -351,6 +380,7 @@ function renderStatus(status: DesktopStatus): void {
   toggleJumbotronCamera.textContent = status.jumbotronCameraEnabled ? "Camera On" : "Camera Off";
   toggleJumbotronCamera.classList.toggle("is-on", status.jumbotronCameraEnabled);
   promoBanners.value = status.promoBanners.join("\n");
+  goalConfig.value = formatGoals(status.goals);
   clientCount.textContent = String(status.clients);
   salesCount.textContent = String(status.salesCount);
   grossSales.textContent = dollars.format(status.grossSales);
@@ -384,6 +414,9 @@ function renderStatus(status: DesktopStatus): void {
   }
   for (const action of gifSizeActions) {
     action.classList.toggle("is-active", action.dataset.gifSize === status.gifSize);
+  }
+  for (const action of sceneActions) {
+    action.classList.toggle("is-active", action.dataset.sceneMode === status.sceneMode);
   }
 
   for (const card of themeCards) {
@@ -484,8 +517,27 @@ function isAddOnId(value: unknown): value is AddOnId {
     value === "milestones" ||
     value === "hype_meter" ||
     value === "jumbotron" ||
-    value === "promo_banners"
+    value === "promo_banners" ||
+    value === "scene_switcher" ||
+    value === "goal_widgets"
   );
+}
+
+function isSceneMode(value: unknown): value is SceneMode {
+  return (
+    value === "none" ||
+    value === "starting" ||
+    value === "auction" ||
+    value === "break" ||
+    value === "winner" ||
+    value === "ending"
+  );
+}
+
+function formatGoals(goals: GoalConfig[]): string {
+  return goals
+    .map((goal) => `${goal.kind}|${goal.target}|${goal.label}`)
+    .join("\n");
 }
 
 function isOverlaySkin(value: unknown): value is OverlaySkin {

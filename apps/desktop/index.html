@@ -127,7 +127,7 @@
         <section class="library-panel">
           <div class="section-heading">
             <h2>Add-On Library</h2>
-            <span id="library-status">10 Available</span>
+            <span id="library-status">12 Available</span>
           </div>
           <div class="library-grid">
             <article class="addon-card featured" data-addon="stream_skins">
@@ -199,6 +199,22 @@
                 <span class="addon-type">Promo</span>
                 <h3>Promo Banners</h3>
                 <p>Rotate show messages between lots without putting text in OBS manually.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="scene_switcher">
+              <div>
+                <span class="addon-type">Scene</span>
+                <h3>Scene Switcher</h3>
+                <p>Run starting, auction, break, winner, and ending screen states from the Mac app.</p>
+              </div>
+              <button class="addon-action" type="button">Add</button>
+            </article>
+            <article class="addon-card" data-addon="goal_widgets">
+              <div>
+                <span class="addon-type">Goal</span>
+                <h3>Goal Widgets</h3>
+                <p>Track sales, orders, hype, and follower goals as live progress bars on stream.</p>
               </div>
               <button class="addon-action" type="button">Add</button>
             </article>
@@ -367,6 +383,32 @@
 Bookmark your favorite lots
 Ask questions in chat</textarea>
               <button id="save-promo-banners" type="button" class="module-command">Save Banners</button>
+            </article>
+
+            <article class="addon-module module-scenes" data-addon-panel="scene_switcher" hidden>
+              <div class="module-header">
+                <span>Scene</span>
+                <strong>Scene Switcher</strong>
+              </div>
+              <div class="scene-grid">
+                <button type="button" data-scene-mode="none">Clear</button>
+                <button type="button" data-scene-mode="starting">Starting</button>
+                <button type="button" data-scene-mode="auction">Auction Live</button>
+                <button type="button" data-scene-mode="break">Break</button>
+                <button type="button" data-scene-mode="winner">Winner</button>
+                <button type="button" data-scene-mode="ending">Ending</button>
+              </div>
+            </article>
+
+            <article class="addon-module module-goals" data-addon-panel="goal_widgets" hidden>
+              <div class="module-header">
+                <span>Goal</span>
+                <strong>Goal Widgets</strong>
+              </div>
+              <p class="module-note">One goal per line: type|target|label. Types: sales, orders, hype, follows.</p>
+              <textarea id="goal-config" rows="5">sales|250|Sales Goal
+orders|10|Order Goal</textarea>
+              <button id="save-goals" type="button" class="module-command">Save Goals</button>
             </article>
           </div>
         </section>

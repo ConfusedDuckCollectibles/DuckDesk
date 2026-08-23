@@ -20,7 +20,7 @@
 }
 
 body {
-  min-width: 900px;
+  min-width: 1000px;
   min-height: 620px;
   margin: 0;
   color: #edf7ff;
@@ -303,7 +303,7 @@ h2 {
 
 .control-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.8fr);
+  grid-template-columns: minmax(520px, 1fr) minmax(420px, 0.8fr);
   gap: 14px;
 }
 
@@ -361,13 +361,13 @@ textarea {
 
 .actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   padding: 14px;
 }
 
 .actions .primary {
-  grid-column: span 2;
+  grid-column: span 3;
 }
 
 .preview-panel {
@@ -570,6 +570,10 @@ textarea {
   gap: 12px;
 }
 
+.active-addons-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
 .addon-card {
   min-height: 178px;
   display: grid;
@@ -612,7 +616,9 @@ textarea {
 
 .addon-card[data-addon="hype_meter"],
 .addon-card[data-addon="jumbotron"],
-.addon-card[data-addon="promo_banners"] {
+.addon-card[data-addon="promo_banners"],
+.addon-card[data-addon="scene_switcher"],
+.addon-card[data-addon="goal_widgets"] {
   background:
     linear-gradient(135deg, rgba(255, 91, 214, 0.12), rgba(52, 231, 255, 0.08)),
     rgba(6, 13, 18, 0.88);
@@ -706,7 +712,9 @@ h3 {
 .module-milestones,
 .module-hype-meter,
 .module-jumbotron,
-.module-promos {
+.module-promos,
+.module-scenes,
+.module-goals {
   grid-column: span 2;
   align-content: start;
 }
@@ -840,6 +848,25 @@ h3 {
   border-color: rgba(255, 207, 97, 0.9);
   color: #071014;
   background: linear-gradient(135deg, #ffcf61, #34e7ff);
+}
+
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.scene-grid button {
+  min-height: 58px;
+  background:
+    linear-gradient(135deg, rgba(52, 231, 255, 0.08), rgba(255, 91, 214, 0.05)),
+    rgba(255, 255, 255, 0.06);
+}
+
+.scene-grid button.is-active {
+  border-color: rgba(255, 207, 97, 0.7);
+  color: #071014;
+  background: linear-gradient(135deg, #ffcf61, #a5ffcb);
 }
 
 .gif-workspace {

@@ -31,6 +31,8 @@ contextBridge.exposeInMainWorld("duckDesk", {
   setHypeMeterSeconds: (seconds: unknown) => ipcRenderer.invoke("duck-desk:set-hype-meter-seconds", seconds),
   setJumbotronCamera: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-jumbotron-camera", enabled),
   setPromoBanners: (banners: unknown) => ipcRenderer.invoke("duck-desk:set-promo-banners", banners),
+  setSceneMode: (mode: unknown) => ipcRenderer.invoke("duck-desk:set-scene-mode", mode),
+  setGoals: (goals: unknown) => ipcRenderer.invoke("duck-desk:set-goals", goals),
   onStatus: (callback: (status: unknown) => void) => {
     ipcRenderer.on("duck-desk:status", (_event, status) => callback(status));
   },

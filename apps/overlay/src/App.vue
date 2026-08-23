@@ -13,7 +13,9 @@ import {
   type BridgeMessage,
   type GifPlacement,
   type GifSize,
+  type GoalConfig,
   type OverlaySkin,
+  type SceneMode,
   type OverlayTheme,
   type ShowEvent,
   type SoundKind
@@ -37,6 +39,8 @@ const milestoneThresholds = ref<number[]>([]);
 const hypeMeterSeconds = ref(30);
 const jumbotronCameraEnabled = ref(false);
 const promoBanners = ref<string[]>([]);
+const sceneMode = ref<SceneMode>("none");
+const goals = ref<GoalConfig[]>([]);
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
 const hypeMeter = ref<{ startedAt: number; durationSeconds: number; participants: Set<string> } | null>(null);
@@ -44,6 +48,9 @@ const manualGifUrl = ref("");
 const manualGifTimestamp = ref(0);
 const cameraVideo = ref<HTMLVideoElement | null>(null);
 const buyerTotals = ref<Record<string, number>>({});
+const grossSales = ref(0);
+const orderCount = ref(0);
+const followCount = ref(0);
 const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
@@ -63,6 +70,29 @@ const hypeProgress = computed(() => {
 const gifPositionClass = computed(() => `gif-position-${gifPlacement.value}`);
 const gifSizeClass = computed(() => `gif-size-${gifSize.value}`);
 const hypeScore = computed(() => recentEvents.value.length === 0 ? 0 : Math.min(99, recentEvents.value.length * 18));
+const activeGoals = computed(() => goals.value.slice(0, 4).map((goal) => ({
+  ...goal,
+  current: readGoalCurrent(goal),
+  progress: Math.min(100, Math.round((readGoalCurrent(goal) / goal.target) * 100))
+})));
+const sceneContent = computed(() => {
+  if (sceneMode.value === "starting") {
+    return { eyebrow: "Starting Soon", title: "Show starts soon", detail: "Get ready for the next drop." };
+  }
+  if (sceneMode.value === "auction") {
+    return { eyebrow: "Auction Live", title: "Bids are open", detail: "Watch the ticker for live action." };
+  }
+  if (sceneMode.value === "break") {
+    return { eyebrow: "Be Right Back", title: "Quick break", detail: "The show will resume shortly." };
+  }
+  if (sceneMode.value === "winner") {
+    return { eyebrow: "Winner Moment", title: "Winner!", detail: "Congrats to the latest buyer." };
+  }
+  if (sceneMode.value === "ending") {
+    return { eyebrow: "Ending Soon", title: "Final call", detail: "Last chances before we wrap." };
+  }
+  return null;
+});
 const topBuyers = computed(() => (
   Object.entries(buyerTotals.value)
     .sort((left, right) => right[1] - left[1])
@@ -128,6 +158,8 @@ function connect(): void {
       hypeMeterSeconds.value = parsed.hypeMeterSeconds;
       jumbotronCameraEnabled.value = parsed.jumbotronCameraEnabled;
       promoBanners.value = parsed.promoBanners;
+      sceneMode.value = parsed.sceneMode;
+      goals.value = parsed.goals;
       return;
     }
 
@@ -241,6 +273,9 @@ function clearOverlayData(): void {
   activeEvent.value = null;
   recentEvents.value = [];
   buyerTotals.value = {};
+  grossSales.value = 0;
+  orderCount.value = 0;
+  followCount.value = 0;
   burstKey.value = 0;
   manualGifUrl.value = "";
   manualGifTimestamp.value = 0;
@@ -259,13 +294,38 @@ function hasAddOn(addOn: AddOnId): boolean {
 
 function applyEventStats(event: ShowEvent): void {
   if (event.type !== "sale") {
+    if (event.type === "audience_action" && event.action === "follow") {
+      followCount.value += 1;
+    }
     return;
   }
 
+  grossSales.value += event.amount;
+  orderCount.value += 1;
   buyerTotals.value = {
     ...buyerTotals.value,
     [event.buyer]: (buyerTotals.value[event.buyer] ?? 0) + event.amount
   };
+}
+
+function readGoalCurrent(goal: GoalConfig): number {
+  if (goal.kind === "sales") {
+    return grossSales.value;
+  }
+  if (goal.kind === "orders") {
+    return orderCount.value;
+  }
+  if (goal.kind === "hype") {
+    return hypeScore.value;
+  }
+  return followCount.value;
+}
+
+function formatGoalValue(goal: GoalConfig, value: number): string {
+  if (goal.kind === "sales") {
+    return `$${Math.round(value).toLocaleString()} / $${Math.round(goal.target).toLocaleString()}`;
+  }
+  return `${Math.round(value).toLocaleString()} / ${Math.round(goal.target).toLocaleString()}`;
 }
 
 function playEventTone(event: ShowEvent): void {
@@ -484,6 +544,26 @@ onMounted(() => {
         muted
         playsinline
       />
+    </section>
+
+    <section
+      v-if="hasAddOn('scene_switcher') && sceneContent"
+      class="scene-state"
+      :class="`scene-${sceneMode}`"
+    >
+      <span>{{ sceneContent.eyebrow }}</span>
+      <strong>{{ sceneContent.title }}</strong>
+      <em>{{ sceneContent.detail }}</em>
+    </section>
+
+    <section v-if="hasAddOn('goal_widgets') && activeGoals.length > 0" class="goal-stack">
+      <article v-for="goal in activeGoals" :key="`${goal.kind}-${goal.label}`" class="goal-widget">
+        <div>
+          <span>{{ goal.label }}</span>
+          <strong>{{ formatGoalValue(goal, goal.current) }}</strong>
+        </div>
+        <i><b :style="{ width: `${goal.progress}%` }" /></i>
+      </article>
     </section>
 
     <section v-if="hypeMeter" class="hype-meter">

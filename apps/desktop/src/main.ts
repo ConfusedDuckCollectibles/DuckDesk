@@ -20,11 +20,14 @@ import {
   isGifSize,
   isOverlaySkin,
   isOverlayTheme,
+  isSceneMode,
   isSoundKind,
   type AddOnId,
   type GifPlacement,
   type GifSize,
+  type GoalConfig,
   type OverlaySkin,
+  type SceneMode,
   normalizeShowEvent,
   type SoundKind,
   type OverlayTheme,
@@ -61,6 +64,11 @@ const completedMilestones = new Set<number>();
 let hypeMeterSeconds = 30;
 let jumbotronCameraEnabled = false;
 let promoBanners = ["Follow the show for new drops", "Bookmark your favorite lots", "Ask questions in chat"];
+let sceneMode: SceneMode = "none";
+let goals: GoalConfig[] = [
+  { kind: "sales", target: 250, label: "Sales Goal" },
+  { kind: "orders", target: 10, label: "Order Goal" }
+];
 let obsStatus = "Not connected";
 
 type CustomGif = {
@@ -107,9 +115,9 @@ electronApp.on("before-quit", () => {
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1040,
-    height: 820,
-    minWidth: 900,
+    width: 1280,
+    height: 900,
+    minWidth: 1000,
     minHeight: 720,
     title: "Duck Desk",
     backgroundColor: "#f7f4e7",
@@ -512,6 +520,32 @@ function registerIpc(): void {
     broadcastStatus();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:set-scene-mode", (_event, mode: unknown) => {
+    if (!isSceneMode(mode)) {
+      return getStatus();
+    }
+
+    sceneMode = mode;
+    if (mode !== "none") {
+      activeAddOns.add("scene_switcher");
+    }
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-goals", (_event, rawGoals: unknown) => {
+    if (typeof rawGoals !== "string") {
+      return getStatus();
+    }
+
+    goals = parseGoals(rawGoals);
+    activeAddOns.add("goal_widgets");
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
 }
 
 function receiveEvent(event: ShowEvent): void {
@@ -643,6 +677,41 @@ function applyConfigPatch(input: unknown): void {
     }
     promoBanners = input.promoBanners.map((banner) => banner.trim()).filter(Boolean).slice(0, 12);
   }
+
+  if ("sceneMode" in input) {
+    if (!isSceneMode(input.sceneMode)) {
+      throw new Error("Invalid scene mode.");
+    }
+    sceneMode = input.sceneMode;
+  }
+
+  if ("goals" in input) {
+    if (!Array.isArray(input.goals)) {
+      throw new Error("Invalid goals.");
+    }
+
+    goals = input.goals
+      .map((goal) => {
+        if (!isRecord(goal)) {
+          return null;
+        }
+        const kind = goal.kind;
+        const target = goal.target;
+        const label = goal.label;
+        if (
+          (kind !== "sales" && kind !== "orders" && kind !== "hype" && kind !== "follows") ||
+          typeof target !== "number" ||
+          !Number.isFinite(target) ||
+          target <= 0 ||
+          typeof label !== "string"
+        ) {
+          return null;
+        }
+        return { kind, target, label: sanitizeGoalLabel(label) };
+      })
+      .filter((goal): goal is GoalConfig => goal !== null)
+      .slice(0, 4);
+  }
 }
 
 function checkMilestones(): void {
@@ -730,6 +799,8 @@ function getStatus(): {
   hypeMeterSeconds: number;
   jumbotronCameraEnabled: boolean;
   promoBanners: string[];
+  sceneMode: SceneMode;
+  goals: GoalConfig[];
   obsStatus: string;
   lastError?: string;
 } {
@@ -756,6 +827,8 @@ function getStatus(): {
     hypeMeterSeconds,
     jumbotronCameraEnabled,
     promoBanners,
+    sceneMode,
+    goals,
     obsStatus,
     lastError
   };
@@ -775,6 +848,8 @@ function createOverlayConfig(): {
   hypeMeterSeconds: number;
   jumbotronCameraEnabled: boolean;
   promoBanners: string[];
+  sceneMode: SceneMode;
+  goals: GoalConfig[];
   timestamp: number;
 } {
   return {
@@ -791,8 +866,54 @@ function createOverlayConfig(): {
     hypeMeterSeconds,
     jumbotronCameraEnabled,
     promoBanners,
+    sceneMode,
+    goals,
     timestamp: Date.now()
   };
+}
+
+function parseGoals(rawGoals: string): GoalConfig[] {
+  return rawGoals
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line): GoalConfig | null => {
+      const [kindInput, targetInput, ...labelParts] = line.split("|").map((part) => part.trim());
+      const target = Number(targetInput);
+      const kind = kindInput?.toLowerCase();
+      if (
+        (kind !== "sales" && kind !== "orders" && kind !== "hype" && kind !== "follows") ||
+        !Number.isFinite(target) ||
+        target <= 0
+      ) {
+        return null;
+      }
+
+      return {
+        kind,
+        target,
+        label: sanitizeGoalLabel(labelParts.join(" | ") || defaultGoalLabel(kind))
+      };
+    })
+    .filter((goal): goal is GoalConfig => goal !== null)
+    .slice(0, 4);
+}
+
+function sanitizeGoalLabel(label: string): string {
+  return label.replace(/\s+/g, " ").trim().slice(0, 34);
+}
+
+function defaultGoalLabel(kind: GoalConfig["kind"]): string {
+  if (kind === "sales") {
+    return "Sales Goal";
+  }
+  if (kind === "orders") {
+    return "Order Goal";
+  }
+  if (kind === "hype") {
+    return "Hype Goal";
+  }
+  return "Follower Goal";
 }
 
 function createOverlayGifTrigger(url: string): {

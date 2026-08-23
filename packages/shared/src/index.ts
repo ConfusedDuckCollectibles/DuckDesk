@@ -27,6 +27,13 @@ export type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action";
+export type SceneMode = "none" | "starting" | "auction" | "break" | "winner" | "ending";
+export type GoalKind = "sales" | "orders" | "hype" | "follows";
+export interface GoalConfig {
+  kind: GoalKind;
+  target: number;
+  label: string;
+}
 export type AddOnId =
   | "stream_skins"
   | "noise_machines"
@@ -37,7 +44,9 @@ export type AddOnId =
   | "milestones"
   | "hype_meter"
   | "jumbotron"
-  | "promo_banners";
+  | "promo_banners"
+  | "scene_switcher"
+  | "goal_widgets";
 
 export interface OverlayConfigMessage {
   type: "overlay_config";
@@ -53,6 +62,8 @@ export interface OverlayConfigMessage {
   hypeMeterSeconds: number;
   jumbotronCameraEnabled: boolean;
   promoBanners: string[];
+  sceneMode: SceneMode;
+  goals: GoalConfig[];
   timestamp: number;
 }
 
@@ -177,7 +188,10 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     typeof value.hypeMeterSeconds === "number" &&
     typeof value.jumbotronCameraEnabled === "boolean" &&
     Array.isArray(value.promoBanners) &&
-    value.promoBanners.every((banner) => typeof banner === "string")
+    value.promoBanners.every((banner) => typeof banner === "string") &&
+    isSceneMode(value.sceneMode) &&
+    Array.isArray(value.goals) &&
+    value.goals.every(isGoalConfig)
   );
 }
 
@@ -250,6 +264,32 @@ export function isSoundKind(value: unknown): value is SoundKind {
   return value === "sale" || value === "bid" || value === "action";
 }
 
+export function isSceneMode(value: unknown): value is SceneMode {
+  return (
+    value === "none" ||
+    value === "starting" ||
+    value === "auction" ||
+    value === "break" ||
+    value === "winner" ||
+    value === "ending"
+  );
+}
+
+export function isGoalKind(value: unknown): value is GoalKind {
+  return value === "sales" || value === "orders" || value === "hype" || value === "follows";
+}
+
+export function isGoalConfig(value: unknown): value is GoalConfig {
+  return (
+    isRecord(value) &&
+    isGoalKind(value.kind) &&
+    typeof value.target === "number" &&
+    Number.isFinite(value.target) &&
+    value.target > 0 &&
+    typeof value.label === "string"
+  );
+}
+
 export function isAddOnId(value: unknown): value is AddOnId {
   return (
     value === "stream_skins" ||
@@ -261,7 +301,9 @@ export function isAddOnId(value: unknown): value is AddOnId {
     value === "milestones" ||
     value === "hype_meter" ||
     value === "jumbotron" ||
-    value === "promo_banners"
+    value === "promo_banners" ||
+    value === "scene_switcher" ||
+    value === "goal_widgets"
   );
 }
 
