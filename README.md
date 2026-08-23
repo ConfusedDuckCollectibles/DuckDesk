@@ -13,6 +13,7 @@
   <a href="#download-the-mac-app">Download</a> ·
   <a href="#simple-setup-guide">Simple Setup</a> ·
   <a href="#troubleshooting">Troubleshooting</a> ·
+  <a href="https://www.whatnot.com/user/confusedduckcollectibles">Follow on Whatnot</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
@@ -285,6 +286,8 @@ Duck Desk is not affiliated with or endorsed by Whatnot. Sellers remain responsi
 ## Open Source
 
 Duck Desk is released under the [MIT License](LICENSE). The goal is to give live sellers a capable stream toolkit without subscriptions or closed ownership.
+
+Duck Desk is created by Confused Duck Collectibles. [Follow Confused Duck Collectibles on Whatnot](https://www.whatnot.com/user/confusedduckcollectibles) to see upcoming shows and Duck Desk in action.
 
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
