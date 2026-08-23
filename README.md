@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk">Project Home</a> ·
+  <a href="#download-the-mac-app">Download</a> ·
   <a href="#simple-setup-guide">Simple Setup</a> ·
   <a href="#troubleshooting">Troubleshooting</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
@@ -22,6 +23,21 @@ Duck Desk adds a professional, game-like layer to a vertical live-selling stream
 No subscription is required. There are no Duck Desk accounts, cloud services, hidden analytics, or AI assistant features.
 
 ![Duck Desk dashboard showing OBS setup and live preflight](docs/images/duck-desk-dashboard.png)
+
+## Download The Mac App
+
+Most people should download the finished Mac app. You do not need the source code, Node.js, or Terminal.
+
+1. Open [Duck Desk v0.1.0-alpha.1](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.1).
+2. Find the `Assets` area near the bottom of the release.
+3. Download the file ending in `arm64.dmg`. This is the Mac installer.
+4. Do not download the `Source code` files unless you plan to work on Duck Desk as a developer.
+
+This first build supports Apple-silicon Macs. To check your Mac, open the Apple menu and choose `About This Mac`. It is supported when the `Chip` line says Apple M1, M2, M3, M4, or a newer Apple chip. Intel Macs are not supported by this alpha.
+
+The alpha is not yet signed or notarized through Apple's developer program. macOS may therefore ask you to right-click Duck Desk and choose `Open` the first time. The app is built directly from the public source in this repository, and every release includes a matching `.sha256` checksum file for integrity checking.
+
+Duck Desk does not update itself yet. Check the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases) for newer builds and install them over the existing copy in Applications. Your creator settings are stored separately and remain available after an update.
 
 ## What Duck Desk Includes
 
@@ -91,11 +107,9 @@ The OBS canvas should now be tall like a phone screen, not wide like a televisio
 
 ### 3. Install Duck Desk
 
-When a public Mac build is available:
-
 1. Open the [Duck Desk Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases).
-2. Open the newest release.
-3. Download the file ending in `.dmg`.
+2. Open the newest release marked `Pre-release` or `Latest`.
+3. Under `Assets`, download the file ending in `arm64.dmg`.
 4. Double-click the downloaded DMG.
 5. Drag `Duck Desk` into `Applications`.
 6. Open `Applications`, then open Duck Desk.
@@ -312,6 +326,12 @@ npm run mac:dmg
 ```
 
 The local artifacts are created under `apps/desktop/release/` and are intentionally excluded from Git.
+
+### Publish an official GitHub build
+
+Official downloads are created by the [Publish Mac release workflow](https://github.com/ConfusedDuckCollectibles/DuckDesk/actions/workflows/release.yml). GitHub starts with a clean Mac runner, installs the locked dependencies, typechecks every workspace, builds the Chrome extension and Apple-silicon app, creates the DMG and SHA-256 checksum, and publishes both files to a tagged release.
+
+Before running the workflow, commit the new version in the package files and update `RELEASE_NOTES.md`. Then open `Actions` → `Publish Mac release` → `Run workflow`, enter that exact version without a leading `v`, choose whether it is a prerelease, and run it. A successful workflow creates the tag and Releases page automatically; no manual DMG upload is needed.
 
 ### Run development services
 
