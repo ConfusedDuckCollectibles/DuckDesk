@@ -1,434 +1,347 @@
-# Duck Desk
+<p align="center">
+  <img src="docs/images/duck-desk-neon-duck.png" width="190" alt="Duck Desk neon duck logo">
+</p>
 
-Mac-native, local-first live seller companion prototype for Whatnot sellers.
+<h1 align="center">Duck Desk</h1>
 
-Duck Desk is intended to become a free, open-source alternative for sellers who want professional live stream overlays without subscriptions, cloud lock-in, or closed tooling. The project is MIT licensed and built around visible browser events, localhost communication, and transparent code.
+<p align="center">
+  A free, open-source Mac companion for interactive Whatnot streams.
+</p>
 
-V0 now has a double-clickable Mac app that starts the local event bridge automatically:
+<p align="center">
+  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk">Project Home</a> ·
+  <a href="#simple-setup-guide">Simple Setup</a> ·
+  <a href="#troubleshooting">Troubleshooting</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
+
+> **Public alpha:** Duck Desk is under active development. The source code is available now. A simple downloadable Mac installer will be published on the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases) as release builds are prepared.
+
+Duck Desk adds a professional, game-like layer to a vertical live-selling stream. It runs locally on your Mac, sends its transparent overlay to OBS, and gives you one place to control themes, GIFs, sounds, goals, timers, leaderboards, and stream effects.
+
+No subscription is required. There are no Duck Desk accounts, cloud services, hidden analytics, or AI assistant features.
+
+![Duck Desk dashboard showing OBS setup and live preflight](docs/images/duck-desk-dashboard.png)
+
+## What Duck Desk Includes
+
+- 30 stream themes, including 10 animated premium-style themes.
+- A persistent vertical stream frame, live header, ticker, and open-source footer.
+- Manual GIF reactions with names, sizes, and screen positions.
+- Bid, sale, and audience sound effects with a master mute switch.
+- Hype bursts, milestones, auction timers, goals, promo banners, and show recaps.
+- Bid ladder, activity feed, buyer leaderboard, jumbotron, and show scenes.
+- One-click OBS source setup with repair and refresh.
+- A Live Preflight strip that checks the Mac app, OBS, Chrome extension, seller page, and real event path.
+- Automatic saving for your themes, add-ons, title, GIF library, sounds, goals, banners, and timers.
+
+## What You Need
+
+- A Mac with Apple silicon.
+- [OBS Studio](https://obsproject.com/download).
+- Google Chrome.
+- A Whatnot seller account.
+- A phone, webcam, or capture card for your product camera.
+- Duck Desk open on the Mac while you stream.
+
+You do **not** need Terminal for normal use.
+
+## How The Pieces Fit Together
 
 ```text
-Chrome Extension or test sale -> Duck Desk Mac app -> WebSocket -> OBS overlay
+Your phone or camera
+        +
+Duck Desk transparent overlay
+        ↓
+       OBS
+        ↓
+Your vertical Whatnot stream
 ```
 
-AI assistant, accounts, subscriptions, cloud services, databases, private Whatnot APIs, and undocumented protocol reverse engineering are intentionally out of scope for V0.
+Your camera stays underneath. Duck Desk stays above it as one transparent OBS Browser Source. You do not add a separate OBS source for every effect.
+
+<p align="center">
+  <img src="docs/images/duck-desk-overlay.jpg" width="360" alt="Vertical Duck Desk overlay with live header, themed frame, and open-source footer">
+</p>
+
+<p align="center"><em>The open center is where your phone or product camera remains visible.</em></p>
+
+## Simple Setup Guide
+
+### 1. Install OBS
+
+1. Download [OBS Studio for macOS](https://obsproject.com/download).
+2. Open the downloaded installer.
+3. Move OBS into your Applications folder when asked.
+4. Open OBS.
+
+If OBS shows an automatic setup wizard, it is okay to close the wizard. The next step sets the correct vertical size.
+
+### 2. Make OBS Vertical
+
+1. In OBS, click `OBS` in the Mac menu bar.
+2. Click `Settings`.
+3. Click `Video` on the left.
+4. Set `Base (Canvas) Resolution` to `1080x1920`.
+5. Set `Output (Scaled) Resolution` to `1080x1920`.
+6. Set `Common FPS Values` to `30`.
+7. Click `OK`.
+
+The OBS canvas should now be tall like a phone screen, not wide like a television.
+
+### 3. Install Duck Desk
+
+When a public Mac build is available:
+
+1. Open the [Duck Desk Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases).
+2. Open the newest release.
+3. Download the file ending in `.dmg`.
+4. Double-click the downloaded DMG.
+5. Drag `Duck Desk` into `Applications`.
+6. Open `Applications`, then open Duck Desk.
+
+The current alpha is not Apple-notarized. If macOS refuses the first launch, right-click Duck Desk, choose `Open`, then choose `Open` again. You only need to do that once.
+
+### 4. Add Duck Desk To OBS
+
+1. Open OBS first.
+2. Open Duck Desk.
+3. In the `OBS Connection` section, click `Connect + Add`.
+4. Wait for the message to turn green.
+5. Confirm that Live Preflight says `OBS Source: Ready`.
+
+Duck Desk automatically authenticates with the OBS WebSocket server, adds `Duck Desk Overlay` to the current scene, fits it to the canvas, and refreshes old overlay files. It reads the standard local OBS password when available but does not save or log that password.
+
+If Duck Desk cannot detect the password:
+
+1. In OBS, click `Tools`.
+2. Click `WebSocket Server Settings`.
+3. Make sure `Enable WebSocket server` is checked.
+4. Copy the password shown there.
+5. Enter it in Duck Desk and click `Connect + Add` again.
+
+After the first setup, the button becomes `Repair + Refresh`. Use it whenever OBS appears to show an older version of the overlay. It repairs the existing source instead of creating duplicates.
+
+### 5. Add Your Phone Camera
+
+#### Easiest iPhone option: Continuity Camera
+
+1. Put the iPhone on a tripod, stand, or overhead mount.
+2. Connect the iPhone to power. A USB cable is recommended for long streams.
+3. Make sure the iPhone and Mac use the same Apple Account and have Wi-Fi and Bluetooth enabled.
+4. In OBS, click `+` under `Sources`.
+5. Choose `Video Capture Device`.
+6. Choose the iPhone camera.
+7. Resize the camera until it fills the vertical canvas.
+
+Apple provides additional Continuity Camera help in the [macOS User Guide](https://support.apple.com/guide/mac-help/use-iphone-as-a-webcam-mchl77879b8a/mac).
+
+#### Android, older iPhone, webcam, or capture card
+
+You can use any camera source that appears in OBS, including Camo, DroidCam, NDI camera apps, a USB webcam, or a capture card. Install the camera maker's Mac software if it requires one, then add it through `Sources` → `Video Capture Device`.
+
+In the OBS Sources list, keep this order:
+
+```text
+Duck Desk Overlay       top
+Phone/Product Camera    underneath
+Background              bottom
+```
+
+### 6. Install The Duck Desk Chrome Extension
+
+The extension watches only the visible Whatnot seller page and sends recognized events to Duck Desk on your Mac.
+
+1. In Duck Desk, click `Chrome Extension`.
+2. Finder opens the correct extension folder for you.
+3. In Chrome, enter `chrome://extensions` in the address bar.
+4. Turn on `Developer mode` in the upper-right corner.
+5. Click `Load unpacked`.
+6. Select the folder Duck Desk opened in Finder.
+7. Pin Duck Desk from Chrome's Extensions menu so its status is easy to check.
+
+After installing a newer Duck Desk build, return to `chrome://extensions`, click the reload icon on Duck Desk, and refresh the Whatnot seller page once.
+
+### 7. Test Before Going Live
+
+1. In Duck Desk, turn `Demo Mode` on.
+2. Click `Test Sale`.
+3. Click `Test Bid`.
+4. Click `Audience Action`.
+5. Watch the Duck Desk preview and the OBS canvas.
+6. Confirm that animations and sounds work.
+7. Turn `Demo Mode` off.
+
+Turning Demo Mode off clears test events and test counters. The overlay will not show invented names, bids, or sales while Demo Mode is off.
+
+Whatnot Rehearsal Mode, when available for your seller account, is the best place to practice realistic show activity. A private show is useful for checking camera, audio, OBS, and overlays, but any actual purchases made there are still real purchases.
+
+### 8. Connect OBS To Your Whatnot Show
+
+1. Keep Duck Desk, OBS, and Chrome open.
+2. In Chrome, sign in to Whatnot.
+3. Open the seller tools for the show you are about to run.
+4. Use Whatnot's OBS connection flow.
+5. Confirm the outgoing layout is vertical.
+6. Start the show from the Whatnot show tools.
+
+See Whatnot's official [Using OBS with your Livestream](https://help.whatnot.com/hc/en-us/articles/5497980244749-Using-OBS-with-your-Livestream) guide for the current Whatnot-side connection steps.
+
+## Understanding Live Preflight
+
+| Check | Ready message | What it means |
+| --- | --- | --- |
+| Local Bridge | `Online` | Duck Desk's private local service is running. |
+| OBS Source | `Ready` | OBS accepted and refreshed the Duck Desk overlay. |
+| Seller Page | `Seller page connected` | The Chrome extension can see an open Whatnot page. |
+| Real Data | `Received just now` | A real page event reached Duck Desk. |
+
+`No real events yet` is normal before a show begins. It does not generate filler data for the stream.
+
+## Using Duck Desk During A Show
+
+- Pick a theme from the top theme area. Installed theme packs appear there automatically.
+- Enter your show name under `Stream Title`, then click `Apply`.
+- Use `GIF Reactions` for manual animated reactions at any time.
+- Use GIF position and size controls to keep media away from the product.
+- Use `Noise Machines` for manual sound buttons.
+- Keep `Event Sound On` enabled for automatic bid, sale, and audience cues, or mute it at any time.
+- Use scenes for Starting, Auction, Break, Winner, and Ending screens.
+- Click `Repair + Refresh` if OBS ever looks one update behind.
+
+Your choices are saved automatically. Demo Mode, live sales totals, test counters, and OBS passwords are intentionally not restored when the app restarts.
+
+## Troubleshooting
+
+### OBS says setup is needed
+
+1. Make sure OBS is open.
+2. In OBS, open `Tools` → `WebSocket Server Settings`.
+3. Enable the WebSocket server.
+4. Return to Duck Desk and click `Connect + Add`.
+5. If needed, enter the OBS WebSocket password shown in that settings window.
+
+### OBS shows an old Duck Desk design
+
+1. Keep OBS and Duck Desk open.
+2. Click `Repair + Refresh` in Duck Desk.
+3. Wait for the green confirmation message.
+
+### The overlay is tiny, sideways, or cropped
+
+1. In OBS, open `Settings` → `Video`.
+2. Confirm both resolutions are `1080x1920`.
+3. In Sources, right-click `Duck Desk Overlay`.
+4. Choose `Transform` → `Fit to Screen`.
+
+### The seller page is not connected
+
+1. Open Chrome.
+2. Open the Whatnot seller page for the show.
+3. Confirm Duck Desk is enabled at `chrome://extensions`.
+4. Click the extension reload icon.
+5. Refresh the Whatnot seller page.
+6. Open the Duck Desk extension popup and check both status rows.
+
+### Tests work but real bids or sales do not
+
+The overlay and OBS connection are working if Demo Mode tests appear. Real event detection is separate and intentionally conservative. Whatnot can change its visible seller-page layout, and its public seller webhooks do not currently provide every individual live bid. Please report the show-page state and Duck Desk version through [GitHub Issues](https://github.com/ConfusedDuckCollectibles/DuckDesk/issues) without sharing passwords, stream keys, addresses, or customer payment information.
+
+### Sounds are silent
+
+1. Confirm `Event Sound On` is enabled.
+2. Turn up the Mac output volume.
+3. Add `Noise Machines` and press one of its manual sound buttons.
+4. Check that OBS and the Whatnot stream are using the intended audio source.
+
+## Privacy And Safety
+
+Duck Desk is local-first:
+
+- The overlay service listens only on your Mac at `127.0.0.1`.
+- Duck Desk does not require an account.
+- Duck Desk does not send analytics or telemetry to a Duck Desk server.
+- OBS passwords are used only for the local connection and are not added to saved creator settings.
+- The extension is designed to observe visible seller-page content, not passwords, cookies, private APIs, or hidden account data.
+
+Do not share logs or screenshots containing stream keys, passwords, addresses, order details, or customer payment information.
+
+Duck Desk is not affiliated with or endorsed by Whatnot. Sellers remain responsible for following Whatnot rules, giveaway requirements, and applicable laws.
 
 ## Open Source
 
-- License: MIT.
-- Contributing guide: `CONTRIBUTING.md`.
-- Security policy: `SECURITY.md`.
-- Roadmap: `ROADMAP.md`.
+Duck Desk is released under the [MIT License](LICENSE). The goal is to give live sellers a capable stream toolkit without subscriptions or closed ownership.
 
-Duck Desk should only observe visible seller-page content that the seller can already see in their browser. Do not contribute credential scraping, private API usage, stream-key handling, or hidden telemetry.
+- [Contributing guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Community standards](CODE_OF_CONDUCT.md)
+- [Product roadmap](ROADMAP.md)
+- [Report a bug or request a feature](https://github.com/ConfusedDuckCollectibles/DuckDesk/issues)
 
-## Structure
+<details>
+<summary><strong>Developer setup and project structure</strong></summary>
 
-```text
-apps/
-  desktop/    Electron macOS app that starts the bridge and serves the overlay
-  extension/  Chrome MV3 extension and Whatnot DOM observer adapter
-  overlay/    Vue 3 transparent OBS overlay
-  server/     Local HTTP/WebSocket service
-packages/
-  shared/     Shared event types and normalization
-```
+### Requirements
 
-## Use The Mac App
+- Node.js 20 or newer
+- npm
+- macOS for the packaged desktop build
 
-The packaged app lives at:
-
-```text
-apps/desktop/release/mac-arm64/Duck Desk.app
-```
-
-The DMG lives at:
-
-```text
-apps/desktop/release/Duck Desk-0.0.1-arm64.dmg
-```
-
-Open `Duck Desk.app`. The app starts the local bridge automatically on:
-
-```text
-http://localhost:8741
-```
-
-In OBS, add a Browser Source with:
-
-```text
-http://localhost:8741/overlay
-```
-
-Set the Browser Source size to `1080 x 1920` for a phone-first Whatnot layout. Use the app buttons to copy the overlay URL, open an overlay preview, reveal the Chrome extension folder, send test sale/bid/audience events, and switch overlay themes.
-
-Because this prototype is not code-signed yet, macOS may require right-clicking the app and choosing Open the first time.
-
-Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck Desk banner. `GIF Reactions` supports temporary external `.gif`, `.webp`, and Giphy page URLs that stay available in the app until Duck Desk is restarted. Saved GIFs can be renamed, triggered manually from the app, positioned center/top/bottom/left/right, and sized small/medium/big.
-
-The current add-on set also includes OBS auto-add, a jumbotron stage with optional camera frame, milestone thresholds, a timed Hype Meter, promo banner rotation, and improved local Whatnot page detection for bids, sales, chat, follows, bookmarks, and reactions.
-
-The `Live Preflight` strip reports the local bridge, OBS source, active seller page, and last real event separately. The Chrome extension popup reports the same Mac-app and seller-page connection health without generating fake sales.
-
-## Full Whatnot Setup Guide
-
-This setup uses one phone-first OBS scene:
-
-```text
-Phone camera or Whatnot stream source
-        +
-Duck Desk Overlay Browser Source
-        =
-Vertical Whatnot show layout
-```
-
-Duck Desk should be one overlay source that sits above your camera/product feed for the whole show. You do not need a separate overlay source for every effect.
-
-### 1. Install OBS Studio
-
-Download OBS Studio from:
-
-```text
-https://obsproject.com/download
-```
-
-Install it with the default options. If OBS opens an auto-configuration wizard, you can cancel it for now because this project uses a vertical Whatnot-style canvas.
-
-### 2. Set OBS To A Phone-First Canvas
-
-Open OBS, then go to:
-
-```text
-Settings -> Video
-```
-
-Set both of these to:
-
-```text
-1080x1920
-```
-
-Use:
-
-```text
-Base (Canvas) Resolution: 1080x1920
-Output (Scaled) Resolution: 1080x1920
-Common FPS Values: 30
-```
-
-This makes OBS match a vertical phone stream instead of a normal landscape desktop stream.
-
-### 3. Stream Your Phone Camera To The Mac
-
-Most Whatnot sellers point a phone at the table or product area, then let OBS on the Mac combine that camera with the Duck Desk overlay.
-
-Recommended iPhone route:
-
-1. Put the iPhone on a tripod or overhead mount.
-2. Keep the iPhone and Mac near each other, on the same Apple ID when using Continuity Camera.
-3. Plug the iPhone into power. USB is best for long shows.
-4. In OBS, click `+` under Sources.
-5. Choose `Video Capture Device`.
-6. Pick your iPhone camera if it appears.
-7. Resize the camera to fill the vertical canvas.
-
-Other phone camera routes also work:
-
-- Camo
-- EpocCam
-- DroidCam
-- NDI camera apps
-- any USB webcam or capture card that OBS can see
-
-For those apps, install the phone app and the matching Mac app or OBS plugin, then add it in OBS as a camera/video source.
-
-Audio tips:
-
-1. Use a Mac mic, USB mic, or the phone camera app's audio if it is reliable.
-2. Watch the OBS audio meters before going live.
-3. Keep the audio source below clipping, usually in the yellow but not pinned red.
-
-In OBS:
-
-1. Click `+` under Sources.
-2. Add your camera source.
-3. Put the camera below the overlay source.
-4. Resize it to fill the vertical canvas.
-
-The product/camera source is the bottom layer.
-
-### 4. Open Duck Desk
-
-Open:
-
-```text
-apps/desktop/release/mac-arm64/Duck Desk.app
-```
-
-Duck Desk starts the local overlay bridge automatically:
-
-```text
-http://localhost:8741
-```
-
-Keep Duck Desk open while streaming.
-
-Duck Desk saves your creator setup automatically on this Mac. Your theme, add-ons, stream title, GIF library, GIF placement, sounds, milestones, goals, banners, scene choice, and timer return after a relaunch. Demo Mode, test counters, live totals, and OBS passwords are never restored as part of that setup.
-
-### 5. Add The Duck Desk Overlay To OBS
-
-The easiest option is the `Connect + Add` button in Duck Desk. Open OBS first, then click the button. Duck Desk authenticates with the local OBS WebSocket server, adds the browser source to the current scene, fits it to the canvas, and refreshes any existing Duck Desk source. On a standard Mac OBS installation, the password is detected locally. If detection is unavailable, enter the WebSocket password shown under `OBS -> Tools -> WebSocket Server Settings`; Duck Desk does not store the password.
-
-Click `Repair + Refresh` any time OBS is showing an older overlay. It updates the existing source and does not create duplicates.
-
-To add the source manually instead:
-
-In OBS:
-
-1. Click `+` under Sources.
-2. Choose `Browser`.
-3. Name it `Duck Desk Overlay`.
-4. Set URL to:
-
-```text
-http://localhost:8741/overlay
-```
-
-5. Set Width to:
-
-```text
-1080
-```
-
-6. Set Height to:
-
-```text
-1920
-```
-
-7. Click OK.
-8. Put this Browser Source above your camera/product source.
-9. Right-click the source and choose `Transform -> Fit to Screen` if it does not fill the canvas.
-
-The overlay should show a persistent top HUD/ticker even when no sale is happening.
-
-### 6. Test The Overlay
-
-In Duck Desk, click:
-
-- `Test Sale`
-- `Test Bid`
-- `Audience Action`
-
-These buttons are disabled unless `Demo Mode` is on. Demo Mode is for local overlay testing only; turning it off clears test events from the OBS overlay. You can also switch themes in Duck Desk and see the top HUD/ticker change immediately.
-
-### 7. Load The Chrome Extension
-
-Duck Desk includes a button named:
-
-```text
-Chrome Extension
-```
-
-Click it to reveal the built extension folder.
-
-Then in Chrome:
-
-1. Open `chrome://extensions`.
-2. Turn on Developer Mode.
-3. Click `Load unpacked`.
-4. Select the extension folder that Duck Desk revealed.
-
-The extension is the piece that watches the Whatnot seller page and sends local events into Duck Desk.
-
-### 8. Connect OBS To Whatnot And Start The Show
-
-Use the official Whatnot OBS flow from Chrome on the Mac.
-
-Typical flow:
-
-1. Log into Whatnot.
-2. Open the show tools for the show you are about to run.
-3. Connect Whatnot to OBS from the show tools page.
-4. Let Whatnot apply the stream settings to OBS.
-5. Start the show from the show tools page.
-6. Keep Chrome, OBS, and Duck Desk open while streaming.
-
-Important details:
-
-- Use Chrome for the Whatnot-to-OBS connection.
-- If a Chrome extension blocks the connection, try an Incognito window with only the needed extensions enabled.
-- Do not start the OBS show from the regular livestream page when using the show tools flow.
-- If Whatnot reports `1920x1080`, the canvas is wrong for this phone-first layout. Reopen OBS and confirm both video resolutions are `1080x1920`.
-- On first setup after updating the OBS profile, you may need to close OBS, reopen it, reconnect from Whatnot show tools, and then start the show.
-
-Official Whatnot references:
-
-- `https://help.whatnot.com/hc/en-us/articles/5497980244749-Using-OBS-with-your-Livestream`
-- `https://selleracademy.whatnot.com/productionguide`
-
-For V0, the Whatnot detection is intentionally DOM-based and conservative. If a real auction/sale state is not detected yet, use the Duck Desk test buttons while we tune the Whatnot adapter against the actual seller page.
-
-### 9. Practice Bids Before A Public Show
-
-Whatnot has two useful practice paths:
-
-- `Rehearsal Mode` is the best path for simulated buyers and practice bids, when your seller account has access to it.
-- `Private Show` is useful for testing camera, OBS, audio, overlays, and seller tools, but purchases in a private show are real if someone joins and buys.
-
-Duck Desk can prove the OBS overlay, sound, and event animation path with its built-in test buttons. Real Whatnot bid/win detection still needs to be validated against the actual seller page DOM during Rehearsal Mode or a real/private show with bidding activity.
-
-### 10. Layer Order In OBS
-
-Your OBS sources should look roughly like this:
-
-```text
-Duck Desk Overlay        top
-Phone/Product Camera     below it
-Background/Other         bottom
-```
-
-The overlay is transparent except for its HUD, ticker, alerts, and effects.
-
-### 11. Troubleshooting
-
-If nothing appears in OBS:
-
-1. Make sure Duck Desk is open.
-2. Open `http://localhost:8741/overlay` in a browser.
-3. Confirm OBS Browser Source URL is exactly `http://localhost:8741/overlay`.
-4. Confirm Browser Source Width is `1080`.
-5. Confirm Browser Source Height is `1920`.
-6. Click `Refresh` on the OBS Browser Source.
-7. Click `Test Sale` in Duck Desk.
-
-If the overlay looks tiny or sideways:
-
-1. Go to `OBS -> Settings -> Video`.
-2. Set Base Canvas to `1080x1920`.
-3. Set Output Resolution to `1080x1920`.
-4. Right-click the overlay source.
-5. Choose `Transform -> Fit to Screen`.
-
-If Whatnot events do not trigger yet:
-
-1. Confirm the Chrome extension is loaded.
-2. Keep the Whatnot seller page open in Chrome.
-3. Use Duck Desk test buttons to verify OBS is working.
-4. Update `apps/extension/src/content/adapters/whatnot.ts` once you can inspect the real seller page DOM.
-
-## Add-On Library
-
-The Mac app includes a Library section with add-ons that update the live overlay immediately:
-
-- `30 Total Themes` includes 20 standard looks and 10 Premium Animated themes in the main Overlay Theme area, all included free with the open-source app.
-- Premium Animated themes include Thunderstorm Arena, Cyber Duck City, Treasure Vault, Arcade Boss Battle, Cosmic Auction, Haunted Drop, Sports Broadcast, Anime Power-Up, Candy Rush, and Luxury Nightclub.
-- Event sounds are built into the Mac app with an always-visible Sound On/Off toggle.
-- `Noise Machines` adds extra sound-pad controls for previewing sale, bid, and audience cues.
-- `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.
-- `Hype Bursts` adds screen-edge flashes and animated sticker-style loops when audience or auction events hit.
-- `GIF Reactions` adds named animated GIF stickers that are triggered manually from the Mac app.
-- `Leaderboard Deck` adds a visible stream panel immediately, then fills with top buyers from detected sales.
-
-Click `Add` in the Library, then watch the `Active Add-Ons` section in the Mac app and the OBS overlay. The app loads add-on controls immediately, theme packs add new choices to the top theme picker, and the overlay changes without restarting OBS or re-adding the Browser Source. Click `Added` again to turn an add-on off.
-
-## Install
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-## Build The Mac App
+### Typecheck everything
 
 ```bash
-npm run mac:app
+npm run typecheck
 ```
 
-Build a DMG:
+### Build everything
+
+```bash
+npm run build
+```
+
+### Build the Mac app and DMG
 
 ```bash
 npm run mac:dmg
 ```
 
-## Run The Local Service
+The local artifacts are created under `apps/desktop/release/` and are intentionally excluded from Git.
+
+### Run development services
 
 ```bash
 npm run dev:server
-```
-
-The service listens on:
-
-```text
-http://localhost:8741
-ws://localhost:8741/ws
-```
-
-Health check:
-
-```bash
-curl http://localhost:8741/health
-```
-
-## Run The Overlay
-
-In another terminal:
-
-```bash
 npm run dev:overlay
 ```
 
-Open:
+The development overlay is available at `http://localhost:5173`. The packaged app serves the production overlay at `http://localhost:8741/overlay` and the WebSocket bridge at `ws://localhost:8741/ws`.
 
-```text
-http://localhost:5173
-```
-
-For development OBS testing without the Mac app, add a Browser Source pointed at `http://localhost:5173`. Set the browser source size to `1080 x 1920` and keep the background transparent.
-
-## Trigger A Fake Sale
-
-With the server and overlay running:
-
-```bash
-npm run mock:sale
-```
-
-Or:
-
-```bash
-curl -X POST http://localhost:8741/events \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type":"sale",
-    "buyer":"TestBuyer",
-    "amount":28,
-    "item":"Test Wheel Spin",
-    "timestamp":123456789
-  }'
-```
-
-The overlay should queue the sale and show an animated `SOLD!` alert.
-
-## Build And Load The Chrome Extension
-
-Build the extension:
+### Build the Chrome extension
 
 ```bash
 npm run build -w @duck-desk/extension
 ```
 
-Then in Chrome:
+Load `apps/extension/dist` as an unpacked Chrome extension.
 
-1. Open `chrome://extensions`.
-2. Enable Developer Mode.
-3. Click Load unpacked.
-4. Select `apps/extension/dist`.
+### Project structure
 
-The extension popup includes a `Send Fake Sale` debug button. The content script also starts a defensive `MutationObserver` on `https://www.whatnot.com/*` and sends detected sale events to the local service through the background service worker.
+```text
+apps/
+  desktop/    Electron Mac app, local bridge, and OBS integration
+  extension/  Chrome extension and visible-page event adapter
+  overlay/    Vue transparent OBS overlay
+  server/     Standalone local development server
+packages/
+  shared/     Shared event types and validation
+```
 
-The Mac app also packages the built extension and includes a `Reveal Chrome Extension` button.
+Whatnot-specific visible-page parsing lives in `apps/extension/src/content/adapters/whatnot.ts`. The rest of Duck Desk consumes normalized events from `packages/shared`.
 
-## Development Notes
-
-- Whatnot-specific DOM parsing lives in `apps/extension/src/content/adapters/whatnot.ts`.
-- The rest of the app only understands normalized `ShowEvent` objects from `packages/shared`.
-- The first parser is intentionally conservative and text-driven. It should be updated against the real seller page DOM after the mock pipeline and debug extension path are verified.
+</details>

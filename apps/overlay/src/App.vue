@@ -821,6 +821,11 @@ onMounted(() => {
       </div>
     </section>
 
+    <footer class="open-source-banner">
+      <span>Get the free open source Duck Desk at</span>
+      <strong>https://github.com/ConfusedDuckCollectibles/DuckDesk</strong>
+    </footer>
+
     <Transition name="sale-alert">
       <EventAlert v-if="activeEvent" :event="activeEvent" />
     </Transition>
