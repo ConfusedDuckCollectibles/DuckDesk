@@ -23,7 +23,27 @@ export interface AudienceActionEvent {
 }
 
 export type OverlayTheme = "neon" | "arena" | "duck";
-export type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
+export type OverlaySkin =
+  | "none"
+  | "cyber_market"
+  | "arcade_drop"
+  | "sports_desk"
+  | "card_shop"
+  | "retro_toy"
+  | "midnight_gold"
+  | "pastel_pop"
+  | "lava_lamp"
+  | "icebox"
+  | "comic_burst"
+  | "luxury_black"
+  | "jungle_neon"
+  | "cotton_candy"
+  | "synthwave"
+  | "streetwear"
+  | "holiday_spark"
+  | "ocean_depth"
+  | "pixel_party"
+  | "emerald_vault";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action";
@@ -293,7 +313,28 @@ export function isOverlayRecapTriggerMessage(value: unknown): value is OverlayRe
 }
 
 export function isOverlaySkin(value: unknown): value is OverlaySkin {
-  return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+  return (
+    value === "none" ||
+    value === "cyber_market" ||
+    value === "arcade_drop" ||
+    value === "sports_desk" ||
+    value === "card_shop" ||
+    value === "retro_toy" ||
+    value === "midnight_gold" ||
+    value === "pastel_pop" ||
+    value === "lava_lamp" ||
+    value === "icebox" ||
+    value === "comic_burst" ||
+    value === "luxury_black" ||
+    value === "jungle_neon" ||
+    value === "cotton_candy" ||
+    value === "synthwave" ||
+    value === "streetwear" ||
+    value === "holiday_spark" ||
+    value === "ocean_depth" ||
+    value === "pixel_party" ||
+    value === "emerald_vault"
+  );
 }
 
 export function isGifPlacement(value: unknown): value is GifPlacement {

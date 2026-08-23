@@ -310,7 +310,7 @@ If Whatnot events do not trigger yet:
 
 The Mac app includes a Library section with add-ons that update the live overlay immediately:
 
-- `100+ Stream Skins` unlocks Cyber Market, Arcade Drop, and Sports Desk choices in the main Overlay Theme area.
+- `20 Total Themes` includes 3 base themes plus 17 extra stream skins in the main Overlay Theme area.
 - Event sounds are built into the Mac app with an always-visible Sound On/Off toggle.
 - `Noise Machines` adds extra sound-pad controls for previewing sale, bid, and audience cues.
 - `Bid Ladder` adds a live bid panel showing the latest bidder and next bid target.

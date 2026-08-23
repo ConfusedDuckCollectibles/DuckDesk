@@ -31,7 +31,27 @@ type DesktopStatus = {
 };
 
 type OverlayTheme = "neon" | "arena" | "duck";
-type OverlaySkin = "none" | "cyber_market" | "arcade_drop" | "sports_desk";
+type OverlaySkin =
+  | "none"
+  | "cyber_market"
+  | "arcade_drop"
+  | "sports_desk"
+  | "card_shop"
+  | "retro_toy"
+  | "midnight_gold"
+  | "pastel_pop"
+  | "lava_lamp"
+  | "icebox"
+  | "comic_burst"
+  | "luxury_black"
+  | "jungle_neon"
+  | "cotton_candy"
+  | "synthwave"
+  | "streetwear"
+  | "holiday_spark"
+  | "ocean_depth"
+  | "pixel_party"
+  | "emerald_vault";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
 type SoundKind = "sale" | "bid" | "action";
@@ -484,19 +504,29 @@ function themeName(theme: OverlayTheme): string {
 }
 
 function skinName(skin: OverlaySkin): string {
-  if (skin === "arcade_drop") {
-    return "Arcade Drop";
-  }
-
-  if (skin === "sports_desk") {
-    return "Sports Desk";
-  }
-
-  if (skin === "cyber_market") {
-    return "Cyber Market";
-  }
-
-  return "No Skin";
+  const names: Record<OverlaySkin, string> = {
+    none: "No Skin",
+    cyber_market: "Cyber Market",
+    arcade_drop: "Arcade Drop",
+    sports_desk: "Sports Desk",
+    card_shop: "Card Shop",
+    retro_toy: "Retro Toy",
+    midnight_gold: "Midnight Gold",
+    pastel_pop: "Pastel Pop",
+    lava_lamp: "Lava Lamp",
+    icebox: "Icebox",
+    comic_burst: "Comic Burst",
+    luxury_black: "Luxury Black",
+    jungle_neon: "Jungle Neon",
+    cotton_candy: "Cotton Candy",
+    synthwave: "Synthwave",
+    streetwear: "Streetwear",
+    holiday_spark: "Holiday Spark",
+    ocean_depth: "Ocean Depth",
+    pixel_party: "Pixel Party",
+    emerald_vault: "Emerald Vault"
+  };
+  return names[skin];
 }
 
 function updateLibraryStatus(): void {
@@ -570,7 +600,28 @@ function formatGoals(goals: GoalConfig[]): string {
 }
 
 function isOverlaySkin(value: unknown): value is OverlaySkin {
-  return value === "none" || value === "cyber_market" || value === "arcade_drop" || value === "sports_desk";
+  return (
+    value === "none" ||
+    value === "cyber_market" ||
+    value === "arcade_drop" ||
+    value === "sports_desk" ||
+    value === "card_shop" ||
+    value === "retro_toy" ||
+    value === "midnight_gold" ||
+    value === "pastel_pop" ||
+    value === "lava_lamp" ||
+    value === "icebox" ||
+    value === "comic_burst" ||
+    value === "luxury_black" ||
+    value === "jungle_neon" ||
+    value === "cotton_candy" ||
+    value === "synthwave" ||
+    value === "streetwear" ||
+    value === "holiday_spark" ||
+    value === "ocean_depth" ||
+    value === "pixel_party" ||
+    value === "emerald_vault"
+  );
 }
 
 function isGifPlacement(value: unknown): value is GifPlacement {

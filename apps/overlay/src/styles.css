@@ -74,6 +74,134 @@ body,
   --accent: #ffcf61;
 }
 
+.skin-card_shop {
+  --panel: #101728;
+  --ink: #fffaf2;
+  --primary: #ef233c;
+  --secondary: #f8f7f2;
+  --accent: #34e7ff;
+}
+
+.skin-retro_toy {
+  --panel: #101417;
+  --ink: #ffffff;
+  --primary: #ff4f64;
+  --secondary: #ffd84d;
+  --accent: #34e7ff;
+}
+
+.skin-midnight_gold {
+  --panel: #05070d;
+  --ink: #fff6c7;
+  --primary: #d8b35a;
+  --secondary: #fff0a8;
+  --accent: #34e7ff;
+}
+
+.skin-pastel_pop {
+  --panel: #1a1524;
+  --ink: #ffffff;
+  --primary: #ff9fd8;
+  --secondary: #a5ffcb;
+  --accent: #b8c7ff;
+}
+
+.skin-lava_lamp {
+  --panel: #17081d;
+  --ink: #fff8f0;
+  --primary: #ff3d6e;
+  --secondary: #ffcf61;
+  --accent: #9b5cff;
+}
+
+.skin-icebox {
+  --panel: #07131d;
+  --ink: #f3fdff;
+  --primary: #e8fbff;
+  --secondary: #34e7ff;
+  --accent: #3555ff;
+}
+
+.skin-comic_burst {
+  --panel: #111318;
+  --ink: #ffffff;
+  --primary: #ffcf61;
+  --secondary: #ff4f64;
+  --accent: #34e7ff;
+}
+
+.skin-luxury_black {
+  --panel: #030303;
+  --ink: #fff6d8;
+  --primary: #d8b35a;
+  --secondary: #fff0a8;
+  --accent: #ffffff;
+}
+
+.skin-jungle_neon {
+  --panel: #052e1a;
+  --ink: #f4fff8;
+  --primary: #38ff7a;
+  --secondary: #a5ffcb;
+  --accent: #ff5bd6;
+}
+
+.skin-cotton_candy {
+  --panel: #1a1420;
+  --ink: #ffffff;
+  --primary: #ff9fd8;
+  --secondary: #75d9ff;
+  --accent: #ffffff;
+}
+
+.skin-synthwave {
+  --panel: #11052b;
+  --ink: #ffffff;
+  --primary: #ff4fd8;
+  --secondary: #34e7ff;
+  --accent: #ffcf61;
+}
+
+.skin-streetwear {
+  --panel: #101417;
+  --ink: #f4f2ea;
+  --primary: #f4f2ea;
+  --secondary: #ff4f64;
+  --accent: #34e7ff;
+}
+
+.skin-holiday_spark {
+  --panel: #0f2d24;
+  --ink: #fffaf0;
+  --primary: #0f9b63;
+  --secondary: #f7f3e8;
+  --accent: #d62828;
+}
+
+.skin-ocean_depth {
+  --panel: #001b2e;
+  --ink: #eefcff;
+  --primary: #006d77;
+  --secondary: #83eaf1;
+  --accent: #ffcf61;
+}
+
+.skin-pixel_party {
+  --panel: #101417;
+  --ink: #ffffff;
+  --primary: #34e7ff;
+  --secondary: #ffcf61;
+  --accent: #ff5bd6;
+}
+
+.skin-emerald_vault {
+  --panel: #022c22;
+  --ink: #fff8dd;
+  --primary: #10b981;
+  --secondary: #d4af37;
+  --accent: #ffffff;
+}
+
 .addon-stream_skins .show-hud,
 .addon-stream_skins .score-strip div,
 .addon-stream_skins .event-card {
@@ -136,6 +264,47 @@ body,
 .skin-sports_desk.addon-stream_skins .overlay-frame {
   border-color: #ffffff;
   border-style: double;
+}
+
+.skin-card_shop.addon-stream_skins .overlay-frame,
+.skin-luxury_black.addon-stream_skins .overlay-frame,
+.skin-emerald_vault.addon-stream_skins .overlay-frame {
+  border-style: double;
+}
+
+.skin-retro_toy.addon-stream_skins .show-hud,
+.skin-comic_burst.addon-stream_skins .show-hud,
+.skin-pixel_party.addon-stream_skins .show-hud {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.18) 0 8px, transparent 8px 16px),
+    linear-gradient(135deg, var(--primary), var(--secondary)),
+    var(--panel);
+}
+
+.skin-lava_lamp.addon-stream_skins .show-hud,
+.skin-cotton_candy.addon-stream_skins .show-hud,
+.skin-synthwave.addon-stream_skins .show-hud {
+  background:
+    radial-gradient(circle at 22% 36%, color-mix(in srgb, var(--accent) 48%, transparent), transparent 30%),
+    radial-gradient(circle at 78% 24%, color-mix(in srgb, var(--secondary) 44%, transparent), transparent 34%),
+    linear-gradient(135deg, var(--primary), var(--panel));
+}
+
+.skin-icebox.addon-stream_skins .show-hud,
+.skin-ocean_depth.addon-stream_skins .show-hud,
+.skin-jungle_neon.addon-stream_skins .show-hud {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--primary) 82%, white), color-mix(in srgb, var(--secondary) 72%, transparent)),
+    var(--panel);
+}
+
+.skin-midnight_gold.addon-stream_skins .show-hud,
+.skin-luxury_black.addon-stream_skins .show-hud,
+.skin-emerald_vault.addon-stream_skins .show-hud {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 28% 72%, rgba(216, 179, 90, 0.22)),
+    linear-gradient(135deg, var(--panel), color-mix(in srgb, var(--primary) 36%, var(--panel))),
+    var(--panel);
 }
 
 .overlay-frame {

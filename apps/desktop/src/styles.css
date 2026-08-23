@@ -494,7 +494,7 @@ textarea {
 
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
 }
 
@@ -569,6 +569,70 @@ textarea {
   background:
     linear-gradient(90deg, #ffffff 0 24%, #34e7ff 24% 76%, #ffcf61 76%),
     #071014;
+}
+
+.swatch.card-shop {
+  background: linear-gradient(135deg, #14213d, #ef233c 48%, #f8f7f2);
+}
+
+.swatch.retro-toy {
+  background: linear-gradient(135deg, #ff4f64, #ffd84d 50%, #34e7ff);
+}
+
+.swatch.midnight-gold {
+  background: linear-gradient(135deg, #05070d, #a37b24 52%, #fff0a8);
+}
+
+.swatch.pastel-pop {
+  background: linear-gradient(135deg, #ff9fd8, #a5ffcb 48%, #b8c7ff);
+}
+
+.swatch.lava-lamp {
+  background: radial-gradient(circle at 32% 32%, #ffcf61, transparent 34%), linear-gradient(135deg, #ff3d6e, #60156f);
+}
+
+.swatch.icebox {
+  background: linear-gradient(135deg, #e8fbff, #34e7ff 48%, #3555ff);
+}
+
+.swatch.comic-burst {
+  background: repeating-linear-gradient(45deg, #ffcf61 0 8px, #ff4f64 8px 16px, #34e7ff 16px 24px);
+}
+
+.swatch.luxury-black {
+  background: linear-gradient(135deg, #030303, #111318 50%, #d8b35a);
+}
+
+.swatch.jungle-neon {
+  background: linear-gradient(135deg, #052e1a, #38ff7a 48%, #ff5bd6);
+}
+
+.swatch.cotton-candy {
+  background: linear-gradient(135deg, #ff9fd8, #ffffff 50%, #75d9ff);
+}
+
+.swatch.synthwave {
+  background: linear-gradient(135deg, #2d0b59, #ff4fd8 48%, #34e7ff);
+}
+
+.swatch.streetwear {
+  background: linear-gradient(135deg, #101417, #f4f2ea 50%, #ff4f64);
+}
+
+.swatch.holiday-spark {
+  background: linear-gradient(135deg, #0f5132, #f7f3e8 48%, #d62828);
+}
+
+.swatch.ocean-depth {
+  background: linear-gradient(135deg, #001b2e, #006d77 48%, #83eaf1);
+}
+
+.swatch.pixel-party {
+  background: repeating-linear-gradient(90deg, #34e7ff 0 8px, #ff5bd6 8px 16px, #ffcf61 16px 24px);
+}
+
+.swatch.emerald-vault {
+  background: linear-gradient(135deg, #022c22, #10b981 50%, #d4af37);
 }
 
 .premium-theme-card {
@@ -794,6 +858,75 @@ h3 {
 
 .skin-chip.sports {
   background: linear-gradient(135deg, #ffffff, #34e7ff);
+}
+
+.skin-chip.card {
+  background: linear-gradient(135deg, #14213d, #ef233c, #f8f7f2);
+}
+
+.skin-chip.toy {
+  background: linear-gradient(135deg, #ff4f64, #ffd84d, #34e7ff);
+}
+
+.skin-chip.gold {
+  background: linear-gradient(135deg, #05070d, #d8b35a);
+  color: #fff6c7;
+}
+
+.skin-chip.pastel {
+  background: linear-gradient(135deg, #ff9fd8, #a5ffcb, #b8c7ff);
+}
+
+.skin-chip.lava {
+  background: linear-gradient(135deg, #ff3d6e, #ffcf61);
+}
+
+.skin-chip.ice {
+  background: linear-gradient(135deg, #e8fbff, #34e7ff, #3555ff);
+}
+
+.skin-chip.comic {
+  background: linear-gradient(135deg, #ffcf61, #ff4f64, #34e7ff);
+}
+
+.skin-chip.luxury {
+  background: linear-gradient(135deg, #030303, #d8b35a);
+  color: #fff6c7;
+}
+
+.skin-chip.jungle {
+  background: linear-gradient(135deg, #052e1a, #38ff7a, #ff5bd6);
+}
+
+.skin-chip.candy {
+  background: linear-gradient(135deg, #ff9fd8, #ffffff, #75d9ff);
+}
+
+.skin-chip.synth {
+  background: linear-gradient(135deg, #2d0b59, #ff4fd8, #34e7ff);
+  color: #ffffff;
+}
+
+.skin-chip.street {
+  background: linear-gradient(135deg, #101417, #f4f2ea, #ff4f64);
+}
+
+.skin-chip.holiday {
+  background: linear-gradient(135deg, #0f5132, #f7f3e8, #d62828);
+}
+
+.skin-chip.ocean {
+  background: linear-gradient(135deg, #001b2e, #006d77, #83eaf1);
+  color: #ffffff;
+}
+
+.skin-chip.pixel {
+  background: linear-gradient(135deg, #34e7ff, #ff5bd6, #ffcf61);
+}
+
+.skin-chip.emerald {
+  background: linear-gradient(135deg, #022c22, #10b981, #d4af37);
+  color: #ffffff;
 }
 
 .sound-pad {
