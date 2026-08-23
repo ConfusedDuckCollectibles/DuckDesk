@@ -67,6 +67,8 @@ Use `Stream Title` in the Mac app to add viewer-facing show text under the Duck 
 
 The current add-on set also includes OBS auto-add, a jumbotron stage with optional camera frame, milestone thresholds, a timed Hype Meter, promo banner rotation, and improved local Whatnot page detection for bids, sales, chat, follows, bookmarks, and reactions.
 
+The `Live Preflight` strip reports the local bridge, OBS source, active seller page, and last real event separately. The Chrome extension popup reports the same Mac-app and seller-page connection health without generating fake sales.
+
 ## Full Whatnot Setup Guide
 
 This setup uses one phone-first OBS scene:
@@ -170,7 +172,15 @@ http://localhost:8741
 
 Keep Duck Desk open while streaming.
 
+Duck Desk saves your creator setup automatically on this Mac. Your theme, add-ons, stream title, GIF library, GIF placement, sounds, milestones, goals, banners, scene choice, and timer return after a relaunch. Demo Mode, test counters, live totals, and OBS passwords are never restored as part of that setup.
+
 ### 5. Add The Duck Desk Overlay To OBS
+
+The easiest option is the `Connect + Add` button in Duck Desk. Open OBS first, then click the button. Duck Desk authenticates with the local OBS WebSocket server, adds the browser source to the current scene, fits it to the canvas, and refreshes any existing Duck Desk source. On a standard Mac OBS installation, the password is detected locally. If detection is unavailable, enter the WebSocket password shown under `OBS -> Tools -> WebSocket Server Settings`; Duck Desk does not store the password.
+
+Click `Repair + Refresh` any time OBS is showing an older overlay. It updates the existing source and does not create duplicates.
+
+To add the source manually instead:
 
 In OBS:
 

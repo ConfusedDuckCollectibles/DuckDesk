@@ -27,6 +27,9 @@ type DesktopStatus = {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   obsStatus: string;
+  extensionConnected: boolean;
+  whatnotPageActive: boolean;
+  lastRealEventAt?: number;
   lastError?: string;
 };
 
@@ -99,7 +102,7 @@ type DesktopApi = {
   copyOverlayUrl: () => Promise<void>;
   openOverlay: () => Promise<void>;
   revealExtension: () => Promise<void>;
-  autoAddObsOverlay: () => Promise<DesktopStatus>;
+  autoAddObsOverlay: (password?: string) => Promise<DesktopStatus>;
   sendTestSale: () => Promise<void>;
   sendTestBid: () => Promise<void>;
   sendTestAction: () => Promise<void>;
@@ -159,6 +162,13 @@ const eventLog = readElement<HTMLOListElement>("event-log");
 const copyUrl = readElement<HTMLButtonElement>("copy-url");
 const openOverlay = readElement<HTMLButtonElement>("open-overlay");
 const autoObs = readElement<HTMLButtonElement>("auto-obs");
+const obsPassword = readElement<HTMLInputElement>("obs-password");
+const obsConnectionStatus = readElement<HTMLElement>("obs-connection-status");
+const preflightSummary = readElement<HTMLElement>("preflight-summary");
+const preflightBridge = readElement<HTMLElement>("preflight-bridge");
+const preflightObs = readElement<HTMLElement>("preflight-obs");
+const preflightWhatnot = readElement<HTMLElement>("preflight-whatnot");
+const preflightData = readElement<HTMLElement>("preflight-data");
 const revealExtension = readElement<HTMLButtonElement>("reveal-extension");
 const demoToggle = readElement<HTMLButtonElement>("demo-toggle");
 const sendTest = readElement<HTMLButtonElement>("send-test");
@@ -249,10 +259,33 @@ openOverlay.addEventListener("click", () => {
   void window.duckDesk.openOverlay();
 });
 
-autoObs.addEventListener("click", async () => {
+async function connectObs(): Promise<void> {
+  autoObs.disabled = true;
   autoObs.textContent = "Connecting...";
-  const status = await window.duckDesk.autoAddObsOverlay();
-  renderStatus(status);
+  obsConnectionStatus.textContent = "Authenticating with OBS and checking the current scene...";
+  obsConnectionStatus.className = "obs-status-line is-connecting";
+  try {
+    const status = await window.duckDesk.autoAddObsOverlay(obsPassword.value);
+    renderStatus(status);
+    if (isObsReady(status.obsStatus)) {
+      obsPassword.value = "";
+    }
+  } catch {
+    obsConnectionStatus.textContent = "Duck Desk could not complete the OBS setup. Try again.";
+    obsConnectionStatus.className = "obs-status-line is-error";
+  } finally {
+    autoObs.disabled = false;
+  }
+}
+
+autoObs.addEventListener("click", () => {
+  void connectObs();
+});
+
+obsPassword.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    void connectObs();
+  }
 });
 
 revealExtension.addEventListener("click", () => {
@@ -420,14 +453,36 @@ window.duckDesk.onEvent((event) => {
 });
 
 void window.duckDesk.getStatus().then(renderStatus);
+window.setInterval(() => {
+  void window.duckDesk.getStatus().then(renderStatus);
+}, 5_000);
 
 function renderStatus(status: DesktopStatus): void {
   currentStatus = status;
   statusPill.textContent = status.ok ? "Running" : "Needs Attention";
   statusPill.classList.toggle("ok", status.ok);
   overlayUrl.value = status.overlayUrl;
-  autoObs.textContent = status.obsStatus.startsWith("Added") ? "OBS Added" : "Auto Add to OBS";
+  const obsReady = isObsReady(status.obsStatus);
+  const obsConnecting = status.obsStatus.startsWith("Connecting");
+  autoObs.textContent = obsReady ? "Repair + Refresh" : obsConnecting ? "Connecting..." : "Connect + Add";
   autoObs.title = status.obsStatus;
+  obsConnectionStatus.textContent = status.obsStatus;
+  obsConnectionStatus.className = `obs-status-line${obsReady ? " is-ready" : obsConnecting ? " is-connecting" : status.obsStatus === "Not connected" ? "" : " is-error"}`;
+  renderPreflightCheck(preflightBridge, status.ok, status.ok ? "Online" : "Needs attention");
+  renderPreflightCheck(preflightObs, obsReady, obsReady ? "Ready" : obsConnecting ? "Connecting" : "Setup needed", obsConnecting);
+  renderPreflightCheck(
+    preflightWhatnot,
+    status.whatnotPageActive,
+    status.whatnotPageActive ? "Seller page connected" : status.extensionConnected ? "Open seller page" : "Extension waiting"
+  );
+  renderPreflightCheck(
+    preflightData,
+    Boolean(status.lastRealEventAt),
+    status.lastRealEventAt ? `Received ${formatRelativeTime(status.lastRealEventAt)}` : "No real events yet",
+    !status.lastRealEventAt
+  );
+  const readyChecks = [status.ok, obsReady, status.whatnotPageActive].filter(Boolean).length;
+  preflightSummary.textContent = readyChecks === 3 ? "Ready to stream" : `${readyChecks} of 3 ready`;
   streamTitle.value = status.streamTitle;
   milestoneThresholds.value = status.milestoneThresholds.join(", ");
   hypeSeconds.value = String(status.hypeMeterSeconds);
@@ -487,6 +542,31 @@ function renderStatus(status: DesktopStatus): void {
 
   renderAddOns(status.addOns);
   renderCustomGifs(status.customGifs);
+}
+
+function isObsReady(status: string): boolean {
+  return status.startsWith("Added") || status.startsWith("Updated");
+}
+
+function renderPreflightCheck(element: HTMLElement, ready: boolean, detail: string, pending = false): void {
+  const detailElement = element.querySelector("strong");
+  if (detailElement) {
+    detailElement.textContent = detail;
+  }
+  element.classList.toggle("is-ready", ready);
+  element.classList.toggle("is-pending", !ready && pending);
+  element.classList.toggle("is-warning", !ready && !pending);
+}
+
+function formatRelativeTime(timestamp: number): string {
+  const seconds = Math.max(0, Math.round((Date.now() - timestamp) / 1000));
+  if (seconds < 5) {
+    return "just now";
+  }
+  if (seconds < 60) {
+    return `${seconds}s ago`;
+  }
+  return `${Math.floor(seconds / 60)}m ago`;
 }
 
 function formatEventLog(event: ShowEventLog): string {

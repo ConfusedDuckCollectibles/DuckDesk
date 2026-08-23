@@ -8,9 +8,22 @@
   </head>
   <body>
     <main>
-      <h1>Duck Desk</h1>
-      <p id="status">Ready</p>
-      <button id="fake-sale" type="button">Send Fake Sale</button>
+      <div class="heading-row">
+        <div class="mark">DD</div>
+        <div>
+          <h1>Duck Desk</h1>
+          <p>Live connection</p>
+        </div>
+      </div>
+      <div class="status-card">
+        <span>Mac app</span>
+        <strong id="app-status">Checking</strong>
+      </div>
+      <div class="status-card">
+        <span>Seller page</span>
+        <strong id="page-status">Checking</strong>
+      </div>
+      <button id="refresh-status" type="button">Refresh Status</button>
     </main>
   </body>
 </html>

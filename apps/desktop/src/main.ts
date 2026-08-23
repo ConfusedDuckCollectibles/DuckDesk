@@ -1,6 +1,6 @@
 import { createServer, type Server } from "node:http";
 import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -37,6 +37,7 @@ import {
 const port = 8741;
 const overlayUrl = `http://localhost:${port}/overlay`;
 const obsUrl = "ws://127.0.0.1:4455";
+const obsSourceName = "Duck Desk Overlay";
 
 let mainWindow: BrowserWindow | null = null;
 let server: Server | null = null;
@@ -71,11 +72,35 @@ let goals: GoalConfig[] = [
 ];
 let auctionTimerSeconds = 45;
 let obsStatus = "Not connected";
+let extensionLastSeenAt = 0;
+let whatnotPageReportedActive = false;
+let lastRealEventAt = 0;
+let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 type CustomGif = {
   id: string;
   label: string;
   url: string;
+};
+
+type PersistedSettings = {
+  version: 1;
+  theme: OverlayTheme;
+  skin: OverlaySkin;
+  addOns: AddOnId[];
+  soundsEnabled: boolean;
+  streamTitle: string;
+  customGifUrls: string[];
+  customGifs: CustomGif[];
+  gifPlacement: GifPlacement;
+  gifSize: GifSize;
+  milestoneThresholds: number[];
+  hypeMeterSeconds: number;
+  jumbotronCameraEnabled: boolean;
+  promoBanners: string[];
+  sceneMode: SceneMode;
+  goals: GoalConfig[];
+  auctionTimerSeconds: number;
 };
 
 process.on("uncaughtException", (error) => {
@@ -92,6 +117,7 @@ process.on("unhandledRejection", (error) => {
 
 void electronApp.whenReady().then(async () => {
   log("app ready");
+  loadSettings();
   registerIpc();
   createWindow();
   await startLocalBridge();
@@ -110,6 +136,11 @@ electronApp.on("window-all-closed", () => {
 });
 
 electronApp.on("before-quit", () => {
+  if (settingsSaveTimer) {
+    clearTimeout(settingsSaveTimer);
+    settingsSaveTimer = null;
+    saveSettings();
+  }
   wss?.close();
   server?.close();
 });
@@ -131,6 +162,9 @@ function createWindow(): void {
 
   const appPath = electronApp.getAppPath();
   void mainWindow.loadFile(path.join(appPath, "dist", "renderer", "index.html"));
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
 }
 
 async function startLocalBridge(): Promise<void> {
@@ -149,12 +183,22 @@ async function startLocalBridge(): Promise<void> {
   expressApp.post("/events", (request, response) => {
     try {
       const event = normalizeShowEvent(request.body);
+      extensionLastSeenAt = Date.now();
+      whatnotPageReportedActive = true;
+      lastRealEventAt = Date.now();
       receiveEvent(event);
       response.status(202).json({ ok: true, event });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Invalid event.";
       response.status(400).json({ ok: false, error: message });
     }
+  });
+
+  expressApp.post("/extension/heartbeat", (request, response) => {
+    extensionLastSeenAt = Date.now();
+    whatnotPageReportedActive = isRecord(request.body) && request.body.whatnotPageActive === true;
+    broadcastStatus();
+    response.status(202).json({ ok: true });
   });
 
   expressApp.get("/config", (_request, response) => {
@@ -239,8 +283,12 @@ function registerIpc(): void {
     void shell.openPath(resolveExtensionPath());
   });
 
-  ipcMain.handle("duck-desk:auto-add-obs-overlay", async () => {
-    obsStatus = await autoAddObsOverlay();
+  ipcMain.handle("duck-desk:auto-add-obs-overlay", async (_event, password: unknown) => {
+    const suppliedPassword = typeof password === "string" ? password.trim().slice(0, 256) : "";
+    obsStatus = "Connecting to OBS...";
+    broadcastStatus();
+    obsStatus = await autoAddObsOverlay(suppliedPassword);
+    log(`OBS auto-add result: ${obsStatus}`);
     broadcastStatus();
     return getStatus();
   });
@@ -587,7 +635,9 @@ function receiveEvent(event: ShowEvent): void {
   }
 
   playEventSound(event);
-  mainWindow?.webContents.send("duck-desk:event", event);
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("duck-desk:event", event);
+  }
   broadcast(event);
   broadcastStatus();
 }
@@ -799,6 +849,9 @@ function broadcast(
     | ReturnType<typeof createOverlayAuctionTimerTrigger>
     | ReturnType<typeof createOverlayRecapTrigger>
 ): void {
+  if (event.type === "overlay_config") {
+    scheduleSettingsSave();
+  }
   const payload = JSON.stringify(event);
 
   for (const client of clients) {
@@ -808,8 +861,106 @@ function broadcast(
   }
 }
 
+function loadSettings(): void {
+  const settingsPath = resolveSettingsPath();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(settingsPath, "utf8")) as unknown;
+    if (!isRecord(parsed)) {
+      throw new Error("Settings file does not contain an object.");
+    }
+
+    applyConfigPatch(parsed);
+    if (Array.isArray(parsed.customGifs)) {
+      const loadedGifs: CustomGif[] = [];
+      const seenUrls = new Set<string>();
+      for (const candidate of parsed.customGifs) {
+        if (!isRecord(candidate)) {
+          continue;
+        }
+        const url = typeof candidate.url === "string" ? normalizeGifUrl(candidate.url) : null;
+        if (!url || seenUrls.has(url)) {
+          continue;
+        }
+        seenUrls.add(url);
+        loadedGifs.push({
+          id: typeof candidate.id === "string" && candidate.id.length <= 80 ? candidate.id : randomUUID(),
+          label: sanitizeGifLabel(typeof candidate.label === "string" ? candidate.label : "")
+            || createDefaultGifLabel(url, loadedGifs.length + 1),
+          url
+        });
+      }
+      customGifs = loadedGifs.slice(0, 24);
+    }
+    log(`loaded creator settings version ${readNumber(parsed, "version") ?? 1}`);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      log(`unable to load creator settings: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+}
+
+function scheduleSettingsSave(): void {
+  if (!electronApp.isReady()) {
+    return;
+  }
+  if (settingsSaveTimer) {
+    clearTimeout(settingsSaveTimer);
+  }
+  settingsSaveTimer = setTimeout(() => {
+    settingsSaveTimer = null;
+    saveSettings();
+  }, 150);
+}
+
+function saveSettings(): void {
+  const settingsPath = resolveSettingsPath();
+  const temporaryPath = `${settingsPath}.tmp`;
+  const backupPath = `${settingsPath}.bak`;
+  const settings: PersistedSettings = {
+    version: 1,
+    theme: activeTheme,
+    skin: activeSkin,
+    addOns: [...activeAddOns],
+    soundsEnabled,
+    streamTitle,
+    customGifUrls: customGifs.map((gif) => gif.url),
+    customGifs,
+    gifPlacement,
+    gifSize,
+    milestoneThresholds,
+    hypeMeterSeconds,
+    jumbotronCameraEnabled,
+    promoBanners,
+    sceneMode,
+    goals,
+    auctionTimerSeconds
+  };
+
+  try {
+    fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+    if (fs.existsSync(settingsPath)) {
+      fs.copyFileSync(settingsPath, backupPath);
+    }
+    fs.writeFileSync(temporaryPath, `${JSON.stringify(settings, null, 2)}\n`, { mode: 0o600 });
+    fs.renameSync(temporaryPath, settingsPath);
+  } catch (error) {
+    log(`unable to save creator settings: ${error instanceof Error ? error.message : String(error)}`);
+    try {
+      fs.rmSync(temporaryPath, { force: true });
+    } catch {
+      // Best-effort cleanup after an interrupted settings write.
+    }
+  }
+}
+
+function resolveSettingsPath(): string {
+  return path.join(electronApp.getPath("userData"), "creator-settings.json");
+}
+
 function broadcastStatus(): void {
-  mainWindow?.webContents.send("duck-desk:status", getStatus());
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("duck-desk:status", getStatus());
+  }
 }
 
 function getStatus(): {
@@ -839,8 +990,12 @@ function getStatus(): {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   obsStatus: string;
+  extensionConnected: boolean;
+  whatnotPageActive: boolean;
+  lastRealEventAt?: number;
   lastError?: string;
 } {
+  const extensionConnected = Date.now() - extensionLastSeenAt < 30_000;
   return {
     ok: !lastError,
     port,
@@ -868,6 +1023,9 @@ function getStatus(): {
     goals,
     auctionTimerSeconds,
     obsStatus,
+    extensionConnected,
+    whatnotPageActive: extensionConnected && whatnotPageReportedActive,
+    lastRealEventAt: lastRealEventAt || undefined,
     lastError
   };
 }
@@ -1084,83 +1242,282 @@ function log(message: string): void {
   console.log(line.trim());
 }
 
-async function autoAddObsOverlay(): Promise<string> {
-  return new Promise((resolve) => {
-    const socket = new WebSocket(obsUrl);
-    const timeout = setTimeout(() => {
+async function autoAddObsOverlay(suppliedPassword = ""): Promise<string> {
+  let socket: WebSocket | null = null;
+
+  try {
+    socket = await connectObsWebSocket(suppliedPassword);
+    const sceneResponse = requireObsRequest(await sendObsRequest(socket, "GetCurrentProgramScene"));
+    const currentScene = readString(sceneResponse, "sceneName")
+      ?? readString(sceneResponse, "currentProgramSceneName")
+      ?? "Scene";
+    const browserSettings = {
+      url: overlayUrl,
+      width: 1080,
+      height: 1920,
+      css: "body { background-color: rgba(0, 0, 0, 0); margin: 0; overflow: hidden; }",
+      shutdown: false,
+      restart_when_active: true
+    };
+
+    const existingInput = await sendObsRequest(socket, "GetInputSettings", { inputName: obsSourceName });
+    let sceneItemId: number | undefined;
+    let resultVerb = "Added";
+
+    if (existingInput.ok) {
+      const existingKind = readString(existingInput.data, "inputKind");
+      if (existingKind && existingKind !== "browser_source") {
+        throw new Error(`OBS already has a non-browser source named "${obsSourceName}". Rename that source and try again.`);
+      }
+
+      requireObsRequest(await sendObsRequest(socket, "SetInputSettings", {
+        inputName: obsSourceName,
+        inputSettings: browserSettings,
+        overlay: false
+      }));
+      resultVerb = "Updated";
+
+      const sceneItem = await sendObsRequest(socket, "GetSceneItemId", {
+        sceneName: currentScene,
+        sourceName: obsSourceName,
+        searchOffset: -1
+      });
+      if (sceneItem.ok) {
+        sceneItemId = readNumber(sceneItem.data, "sceneItemId");
+      } else {
+        const createdItem = requireObsRequest(await sendObsRequest(socket, "CreateSceneItem", {
+          sceneName: currentScene,
+          sourceName: obsSourceName,
+          sceneItemEnabled: true
+        }));
+        sceneItemId = readNumber(createdItem, "sceneItemId");
+        resultVerb = "Added";
+      }
+    } else {
+      const createdInput = requireObsRequest(await sendObsRequest(socket, "CreateInput", {
+        sceneName: currentScene,
+        inputName: obsSourceName,
+        inputKind: "browser_source",
+        inputSettings: browserSettings,
+        sceneItemEnabled: true
+      }));
+      sceneItemId = readNumber(createdInput, "sceneItemId");
+    }
+
+    if (sceneItemId !== undefined) {
+      requireObsRequest(await sendObsRequest(socket, "SetSceneItemEnabled", {
+        sceneName: currentScene,
+        sceneItemId,
+        sceneItemEnabled: true
+      }));
+
+      const videoSettings = await sendObsRequest(socket, "GetVideoSettings");
+      const baseWidth = readNumber(videoSettings.data, "baseWidth") ?? 1080;
+      const baseHeight = readNumber(videoSettings.data, "baseHeight") ?? 1920;
+      const scale = Math.min(baseWidth / 1080, baseHeight / 1920);
+      requireObsRequest(await sendObsRequest(socket, "SetSceneItemTransform", {
+        sceneName: currentScene,
+        sceneItemId,
+        sceneItemTransform: {
+          positionX: Math.round((baseWidth - (1080 * scale)) / 2),
+          positionY: Math.round((baseHeight - (1920 * scale)) / 2),
+          rotation: 0,
+          scaleX: scale,
+          scaleY: scale,
+          cropTop: 0,
+          cropRight: 0,
+          cropBottom: 0,
+          cropLeft: 0
+        }
+      }));
+    }
+
+    await sendObsRequest(socket, "PressInputPropertiesButton", {
+      inputName: obsSourceName,
+      propertyName: "refreshnocache"
+    });
+
+    return `${resultVerb} and refreshed ${obsSourceName} in OBS scene "${currentScene}".`;
+  } catch (error) {
+    return formatObsError(error);
+  } finally {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.close(1000);
+    }
+  }
+}
+
+type ObsRequestResult = {
+  ok: boolean;
+  code?: number;
+  comment?: string;
+  data: Record<string, unknown>;
+};
+
+async function connectObsWebSocket(suppliedPassword: string): Promise<WebSocket> {
+  const socket = new WebSocket(obsUrl);
+  const helloPromise = waitForObsMessage(socket, (message) => message.op === 0, 5000);
+  await waitForObsOpen(socket, 5000);
+  const hello = await helloPromise;
+  const helloData = isRecord(hello.d) ? hello.d : {};
+  const identify: Record<string, unknown> = {
+    rpcVersion: Math.min(readNumber(helloData, "rpcVersion") ?? 1, 1),
+    eventSubscriptions: 0
+  };
+  const authentication = isRecord(helloData.authentication) ? helloData.authentication : null;
+
+  if (authentication) {
+    const challenge = readString(authentication, "challenge");
+    const salt = readString(authentication, "salt");
+    const password = suppliedPassword || readLocalObsPassword();
+    if (!challenge || !salt || !password) {
       socket.close();
-      resolve("OBS WebSocket timed out. Enable Tools > WebSocket Server Settings in OBS.");
-    }, 4500);
-    let currentScene = "Scene";
+      throw new Error("OBS requires a WebSocket password. Enter it in Duck Desk and try again.");
+    }
+    identify.authentication = createObsAuthentication(password, salt, challenge);
+  }
 
-    socket.on("message", (data) => {
-      const message = parseObsMessage(data.toString());
-      if (!message) {
-        return;
-      }
+  const identifiedPromise = waitForObsMessage(socket, (message) => message.op === 2, 5000);
+  socket.send(JSON.stringify({ op: 1, d: identify }));
+  await identifiedPromise;
+  return socket;
+}
 
-      if (message.op === 0) {
-        socket.send(JSON.stringify({ op: 1, d: { rpcVersion: 1 } }));
-        return;
-      }
-
-      if (message.op === 2) {
-        socket.send(JSON.stringify({
-          op: 6,
-          d: {
-            requestType: "GetCurrentProgramScene",
-            requestId: "duck-current-scene"
-          }
-        }));
-        return;
-      }
-
-      if (message.op !== 7 || !isRecord(message.d)) {
-        return;
-      }
-
-      if (message.d.requestId === "duck-current-scene") {
-        const responseData = isRecord(message.d.responseData) ? message.d.responseData : {};
-        currentScene = typeof responseData.currentProgramSceneName === "string"
-          ? responseData.currentProgramSceneName
-          : "Scene";
-        socket.send(JSON.stringify({
-          op: 6,
-          d: {
-            requestType: "CreateInput",
-            requestId: "duck-create-input",
-            requestData: {
-              sceneName: currentScene,
-              inputName: "Duck Desk Overlay",
-              inputKind: "browser_source",
-              inputSettings: {
-                url: overlayUrl,
-                width: 1080,
-                height: 1920,
-                css: "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
-              }
-            }
-          }
-        }));
-        return;
-      }
-
-      if (message.d.requestId === "duck-create-input") {
-        const status = isRecord(message.d.requestStatus) ? message.d.requestStatus : {};
-        const result = status.result === true
-          ? `Added Duck Desk Overlay to OBS scene "${currentScene}".`
-          : "OBS overlay source may already exist. If needed, refresh the Duck Desk Overlay browser source.";
-        clearTimeout(timeout);
-        socket.close();
-        resolve(result);
-      }
-    });
-
-    socket.on("error", () => {
+function waitForObsOpen(socket: WebSocket, timeoutMs: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => finish(new Error("OBS WebSocket connection timed out.")), timeoutMs);
+    const onOpen = () => finish();
+    const onError = () => finish(new Error("Could not reach OBS on port 4455."));
+    const finish = (error?: Error) => {
       clearTimeout(timeout);
-      resolve("Could not reach OBS. Open OBS and enable Tools > WebSocket Server Settings.");
-    });
+      socket.off("open", onOpen);
+      socket.off("error", onError);
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    };
+    socket.on("open", onOpen);
+    socket.on("error", onError);
   });
+}
+
+function waitForObsMessage(
+  socket: WebSocket,
+  predicate: (message: { op?: number; d?: unknown }) => boolean,
+  timeoutMs: number
+): Promise<{ op?: number; d?: unknown }> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => finish(new Error("OBS did not respond in time.")), timeoutMs);
+    const onMessage = (data: WebSocket.RawData) => {
+      const message = parseObsMessage(data.toString());
+      if (message && predicate(message)) {
+        finish(undefined, message);
+      }
+    };
+    const onClose = (code: number) => {
+      const message = code === 4009
+        ? "OBS rejected the WebSocket password. Enter the current password and try again."
+        : `OBS closed the connection (${code}).`;
+      finish(new Error(message));
+    };
+    const onError = () => finish(new Error("OBS WebSocket connection failed."));
+    const finish = (error?: Error, message?: { op?: number; d?: unknown }) => {
+      clearTimeout(timeout);
+      socket.off("message", onMessage);
+      socket.off("close", onClose);
+      socket.off("error", onError);
+      if (error) {
+        reject(error);
+      } else if (message) {
+        resolve(message);
+      }
+    };
+    socket.on("message", onMessage);
+    socket.on("close", onClose);
+    socket.on("error", onError);
+  });
+}
+
+async function sendObsRequest(
+  socket: WebSocket,
+  requestType: string,
+  requestData?: Record<string, unknown>
+): Promise<ObsRequestResult> {
+  const requestId = `duck-${randomUUID()}`;
+  const responsePromise = waitForObsMessage(
+    socket,
+    (message) => message.op === 7 && isRecord(message.d) && message.d.requestId === requestId,
+    5000
+  );
+  socket.send(JSON.stringify({
+    op: 6,
+    d: {
+      requestType,
+      requestId,
+      ...(requestData ? { requestData } : {})
+    }
+  }));
+  const response = await responsePromise;
+  const responseBody = isRecord(response.d) ? response.d : {};
+  const status = isRecord(responseBody.requestStatus) ? responseBody.requestStatus : {};
+  return {
+    ok: status.result === true,
+    code: readNumber(status, "code"),
+    comment: readString(status, "comment"),
+    data: isRecord(responseBody.responseData) ? responseBody.responseData : {}
+  };
+}
+
+function requireObsRequest(result: ObsRequestResult): Record<string, unknown> {
+  if (!result.ok) {
+    const detail = result.comment || (result.code ? `OBS request failed with code ${result.code}.` : "OBS request failed.");
+    throw new Error(detail);
+  }
+  return result.data;
+}
+
+function createObsAuthentication(password: string, salt: string, challenge: string): string {
+  const secret = createHash("sha256").update(password + salt).digest("base64");
+  return createHash("sha256").update(secret + challenge).digest("base64");
+}
+
+function readLocalObsPassword(): string {
+  const configPath = path.join(
+    os.homedir(),
+    "Library",
+    "Application Support",
+    "obs-studio",
+    "plugin_config",
+    "obs-websocket",
+    "config.json"
+  );
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8")) as unknown;
+    if (isRecord(config) && config.auth_required === true && typeof config.server_password === "string") {
+      return config.server_password;
+    }
+  } catch {
+    // A password can still be supplied in the Duck Desk connection field.
+  }
+  return "";
+}
+
+function formatObsError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "Unknown OBS connection error.";
+  if (message.includes("Could not reach") || message.includes("connection failed")) {
+    return "Could not reach OBS. Open OBS and enable Tools > WebSocket Server Settings.";
+  }
+  return message;
+}
+
+function readString(record: Record<string, unknown>, key: string): string | undefined {
+  return typeof record[key] === "string" ? record[key] : undefined;
+}
+
+function readNumber(record: Record<string, unknown>, key: string): number | undefined {
+  return typeof record[key] === "number" && Number.isFinite(record[key]) ? record[key] : undefined;
 }
 
 function parseObsMessage(payload: string): { op?: number; d?: unknown } | null {

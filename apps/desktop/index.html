@@ -55,6 +55,12 @@
               <button id="copy-url" type="button">Copy</button>
             </div>
             <p class="source-size">Use Browser Source size 1080 x 1920 for phone-first Whatnot streams.</p>
+            <label for="obs-password">OBS Connection</label>
+            <div class="obs-row">
+              <input id="obs-password" type="password" autocomplete="off" placeholder="Password auto-detected on this Mac" />
+              <button id="auto-obs" type="button">Connect + Add</button>
+            </div>
+            <p id="obs-connection-status" class="obs-status-line" aria-live="polite">Not connected</p>
             <label for="stream-title">Stream Title</label>
             <div class="title-row">
               <input id="stream-title" maxlength="88" placeholder="Surprise Sets with Confused Duck Collectibles" />
@@ -64,7 +70,6 @@
 
           <section class="actions">
             <button id="open-overlay" type="button">Overlay Preview</button>
-            <button id="auto-obs" type="button">Auto Add to OBS</button>
             <button id="reveal-extension" type="button">Chrome Extension</button>
             <button class="sound-toggle is-on" data-sound-toggle type="button" aria-pressed="true">Event Sound On</button>
             <button id="demo-toggle" type="button" aria-pressed="false">Demo Mode Off</button>
@@ -72,6 +77,31 @@
             <button id="send-bid" type="button">Test Bid</button>
             <button id="send-action" type="button">Audience Action</button>
           </section>
+        </section>
+
+        <section class="preflight-panel" aria-labelledby="preflight-title">
+          <div class="section-heading">
+            <h2 id="preflight-title">Live Preflight</h2>
+            <span id="preflight-summary">Checking</span>
+          </div>
+          <div class="preflight-grid">
+            <div id="preflight-bridge" class="preflight-check">
+              <span>Local Bridge</span>
+              <strong>Checking</strong>
+            </div>
+            <div id="preflight-obs" class="preflight-check">
+              <span>OBS Source</span>
+              <strong>Not checked</strong>
+            </div>
+            <div id="preflight-whatnot" class="preflight-check">
+              <span>Seller Page</span>
+              <strong>Waiting</strong>
+            </div>
+            <div id="preflight-data" class="preflight-check">
+              <span>Real Data</span>
+              <strong>No events yet</strong>
+            </div>
+          </div>
         </section>
 
         <section class="preview-panel">
