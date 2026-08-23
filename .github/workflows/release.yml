@@ -6,7 +6,7 @@ on:
       version:
         description: Version without the leading v
         required: true
-        default: 0.1.0-alpha.1
+        default: 0.1.0-alpha.2
         type: string
       prerelease:
         description: Mark this release as a prerelease
@@ -22,10 +22,10 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -54,8 +54,10 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           cd apps/desktop/release
-          DMG="Duck Desk-${RELEASE_VERSION}-arm64.dmg"
-          test -f "$DMG"
+          SOURCE_DMG="Duck Desk-${RELEASE_VERSION}-arm64.dmg"
+          DMG="DuckDesk-${RELEASE_VERSION}-arm64.dmg"
+          test -f "$SOURCE_DMG"
+          mv "$SOURCE_DMG" "$DMG"
           LC_ALL=C LANG=C shasum -a 256 "$DMG" > "${DMG}.sha256"
 
       - name: Publish GitHub release
@@ -65,7 +67,7 @@ jobs:
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
           TAG="v${RELEASE_VERSION}"
-          DMG="apps/desktop/release/Duck Desk-${RELEASE_VERSION}-arm64.dmg"
+          DMG="apps/desktop/release/DuckDesk-${RELEASE_VERSION}-arm64.dmg"
           RELEASE_ARGS=(
             "$TAG"
             "$DMG"

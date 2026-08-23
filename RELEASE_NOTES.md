@@ -1,6 +1,17 @@
-# Duck Desk v0.1.0-alpha.1
+# Duck Desk v0.1.0-alpha.2
 
-The first public Duck Desk alpha is a free, open-source Mac control room for interactive vertical Whatnot streams.
+Duck Desk alpha 2 makes live bid and sale moments faster, smaller, and easier to follow without covering the product area.
+
+## New In Alpha 2
+
+- Removed the permanent Hype and Last/Bid panels below the live header.
+- Replaced oversized bottom event cards with compact themed alerts directly below the header.
+- Bid alerts now stay briefly, while sale alerts remain slightly longer for recognition.
+- Rapid auctions retain the first visible bid and newest pending bid instead of replaying stale intermediate bids.
+- Long usernames and item names now fit safely at both 1080x1920 and phone-preview sizes.
+- Improved release asset naming and refreshed the automated GitHub build pipeline.
+- Expanded the customer-friendly download, build, and release documentation.
+- Added a direct Whatnot follow link for Confused Duck Collectibles.
 
 ## Highlights
 
@@ -17,7 +28,7 @@ The first public Duck Desk alpha is a free, open-source Mac control room for int
 
 ## Download
 
-Download `Duck Desk-0.1.0-alpha.1-arm64.dmg` from the Assets section below.
+Download `DuckDesk-0.1.0-alpha.2-arm64.dmg` from the Assets section below.
 
 This build requires an Apple-silicon Mac. Intel Mac and Windows builds are not included in this alpha.
 

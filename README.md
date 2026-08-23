@@ -17,7 +17,7 @@
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
-> **Public alpha:** Duck Desk `v0.1.0-alpha.1` is available from the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.1). Download the Apple-silicon `.dmg` file to install it without Terminal.
+> **Public alpha:** Duck Desk `v0.1.0-alpha.2` is available from the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.2). Download the Apple-silicon `.dmg` file to install it without Terminal.
 
 Duck Desk adds a professional, game-like layer to a vertical live-selling stream. It runs locally on your Mac, sends its transparent overlay to OBS, and gives you one place to control themes, GIFs, sounds, goals, timers, leaderboards, and stream effects.
 
@@ -29,7 +29,7 @@ No subscription is required. There are no Duck Desk accounts, cloud services, hi
 
 Most people should download the finished Mac app. You do not need the source code, Node.js, or Terminal.
 
-1. Open [Duck Desk v0.1.0-alpha.1](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.1).
+1. Open [Duck Desk v0.1.0-alpha.2](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.2).
 2. Find the `Assets` area near the bottom of the release.
 3. Download the file ending in `arm64.dmg`. This is the Mac installer.
 4. Do not download the `Source code` files unless you plan to work on Duck Desk as a developer.
