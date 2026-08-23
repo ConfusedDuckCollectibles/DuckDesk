@@ -66,9 +66,11 @@ function detail(): string | undefined {
 
 <template>
   <section class="event-card" :class="`event-${event.type}`">
-    <div class="event-kicker">{{ headline() }}</div>
-    <div class="event-primary">{{ primary() }}</div>
-    <div v-if="amount()" class="event-amount">{{ amount() }}</div>
+    <div class="event-main">
+      <div class="event-kicker">{{ headline() }}</div>
+      <div class="event-primary">{{ primary() }}</div>
+      <div v-if="amount()" class="event-amount">{{ amount() }}</div>
+    </div>
     <div v-if="detail()" class="event-detail">{{ detail() }}</div>
   </section>
 </template>

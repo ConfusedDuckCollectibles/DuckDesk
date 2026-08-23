@@ -156,6 +156,12 @@ let recapTimer: number | undefined;
 let audioContext: AudioContext | undefined;
 let cameraStream: MediaStream | null = null;
 
+const eventDisplayDurations: Record<ShowEvent["type"], number> = {
+  bid: 1600,
+  sale: 3400,
+  audience_action: 2200
+};
+
 onMounted(connect);
 onBeforeUnmount(() => {
   window.clearTimeout(reconnectTimer);
@@ -269,6 +275,9 @@ function connect(): void {
       if (hasAddOn("hype_bursts")) {
         burstKey.value += 1;
       }
+      if (parsed.type === "bid") {
+        queue.value = queue.value.filter((event) => event.type !== "bid");
+      }
       queue.value.push(parsed);
       recentEvents.value.unshift(parsed);
       recentEvents.value = recentEvents.value.slice(0, 5);
@@ -301,11 +310,16 @@ function showNextEvent(): void {
     return;
   }
 
-  activeEvent.value = queue.value.shift() ?? null;
+  const nextEvent = queue.value.shift();
+  if (!nextEvent) {
+    return;
+  }
+
+  activeEvent.value = nextEvent;
   dismissTimer = window.setTimeout(() => {
     activeEvent.value = null;
-    window.setTimeout(showNextEvent, 350);
-  }, 4200);
+    window.setTimeout(showNextEvent, 180);
+  }, eventDisplayDurations[nextEvent.type]);
 }
 
 function parseMessage(data: unknown): BridgeMessage | null {
@@ -671,32 +685,38 @@ onMounted(() => {
       <span />
       <span />
     </div>
-    <section class="show-hud">
-      <div class="hud-brand">
-        <span class="live-cluster">
-          <i class="live-light" :class="{ connected }" />
-          <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
-        </span>
-        <span class="brand-stack">
-          <strong>DUCK DESK</strong>
-          <em v-if="streamTitle">{{ streamTitle }}</em>
-        </span>
-      </div>
-      <div v-if="hasAddOn('promo_banners') && activePromo" class="promo-banner">
-        {{ activePromo }}
-      </div>
-      <div class="ticker">
-        <span
-          v-for="event in recentEvents"
-          :key="`${event.type}-${event.timestamp}`"
-          class="ticker-item"
-        >
-          <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
-          <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
-          <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
-        </span>
-      </div>
-    </section>
+    <div class="top-stack">
+      <section class="show-hud">
+        <div class="hud-brand">
+          <span class="live-cluster">
+            <i class="live-light" :class="{ connected }" />
+            <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
+          </span>
+          <span class="brand-stack">
+            <strong>DUCK DESK</strong>
+            <em v-if="streamTitle">{{ streamTitle }}</em>
+          </span>
+        </div>
+        <div v-if="hasAddOn('promo_banners') && activePromo" class="promo-banner">
+          {{ activePromo }}
+        </div>
+        <div class="ticker">
+          <span
+            v-for="event in recentEvents"
+            :key="`${event.type}-${event.timestamp}`"
+            class="ticker-item"
+          >
+            <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
+            <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
+            <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
+          </span>
+        </div>
+      </section>
+
+      <Transition name="sale-alert">
+        <EventAlert v-if="activeEvent" :event="activeEvent" />
+      </Transition>
+    </div>
 
     <section v-if="hasAddOn('jumbotron')" class="jumbotron-stage">
       <div class="jumbotron-screen">
@@ -786,17 +806,6 @@ onMounted(() => {
       <em>{{ milestoneCard.label }}</em>
     </section>
 
-    <section v-if="recentEvents.length > 0 && !hasAddOn('jumbotron')" class="score-strip">
-      <div>
-        <span>Hype</span>
-        <strong>{{ hypeScore }}</strong>
-      </div>
-      <div>
-        <span>Last</span>
-        <strong>{{ recentEvents[0]?.type ?? "-" }}</strong>
-      </div>
-    </section>
-
     <section
       v-if="(hasAddOn('bid_ladder') || hasAddOn('leaderboard_deck')) && !hasAddOn('jumbotron')"
       class="add-on-stack"
@@ -826,8 +835,5 @@ onMounted(() => {
       <strong>https://github.com/ConfusedDuckCollectibles/DuckDesk</strong>
     </footer>
 
-    <Transition name="sale-alert">
-      <EventAlert v-if="activeEvent" :event="activeEvent" />
-    </Transition>
   </main>
 </template>
