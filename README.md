@@ -84,7 +84,7 @@ Duck Desk does not update itself yet. When a newer build is out, install it over
 
 ## What you get
 
-- 36 stream looks, including 16 animated premium themes
+- 56 stream looks, including 36 animated premium themes
 - A live header, ticker, and vertical frame around your camera
 - Sounds for bids, sales, tips, shares, and audience energy
 - GIF reactions, goals, timers, scenes, and a jumbotron

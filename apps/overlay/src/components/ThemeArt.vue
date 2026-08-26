@@ -479,6 +479,206 @@ const auroraStars = [
     </svg>
   </div>
 
+  <div v-else-if="skin === 'solar_flare'" class="theme-art theme-art-solar" aria-hidden="true">
+    <div class="solar-disc"><i /><i /><i /></div>
+    <svg class="solar-rays" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <circle cx="540" cy="1940" r="390" />
+      <path d="M540 1520V1360 M390 1552l-62-148 M690 1552l62-148 M270 1650l-120-94 M810 1650l120-94 M206 1794l-158-28 M874 1794l158-28" />
+    </svg>
+    <div class="solar-prominence"><i /><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'glacier_cavern'" class="theme-art theme-art-glacier" aria-hidden="true">
+    <div class="glacier-mist" />
+    <svg class="glacier-ice glacier-ice-top" viewBox="0 0 1080 260" preserveAspectRatio="none">
+      <path d="M0 0H1080V44L1018 102 970 58 908 172 842 76 764 132 706 54 628 198 552 70 476 148 402 48 326 186 254 68 188 136 116 52 54 110 0 72Z" />
+    </svg>
+    <svg class="glacier-ice glacier-ice-bottom" viewBox="0 0 1080 220" preserveAspectRatio="none">
+      <path d="M0 220H1080V176L1010 126 948 168 884 82 812 154 736 40 662 150 586 88 512 166 438 58 356 158 286 96 212 176 142 118 70 172 0 140Z" />
+    </svg>
+    <div class="glacier-snow"><i v-for="i in 14" :key="`snow-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'noir_detective'" class="theme-art theme-art-noir" aria-hidden="true">
+    <div class="noir-spotlight" />
+    <div class="noir-blinds" />
+    <div class="noir-rain"><i v-for="i in 18" :key="`noir-rain-${i}`" :style="{ '--i': i }" /></div>
+    <div class="noir-film"><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'retro_spaceport'" class="theme-art theme-art-spaceport" aria-hidden="true">
+    <div class="spaceport-stars" />
+    <svg class="spaceport-radar" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <g transform="translate(540 1640)">
+        <circle r="300" /><circle r="224" /><circle r="148" /><circle r="72" />
+        <path d="M-330 0H330 M0-330V330 M-234-234l468 468 M234-234l-468 468" />
+      </g>
+    </svg>
+    <div class="spaceport-sweep" />
+    <div class="spaceport-beacons"><i /><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'royal_tournament'" class="theme-art theme-art-royal" aria-hidden="true">
+    <div class="royal-velvet" />
+    <svg class="royal-pennants" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path class="royal-cord" d="M0 240Q270 330 540 240T1080 240 M0 1680Q270 1590 540 1680T1080 1680" />
+      <path class="royal-flag royal-flag-a" d="M92 268l92 22-58 126-74-82z M896 290l92-22 40 66-74 82z" />
+      <path class="royal-flag royal-flag-b" d="M250 302l86 10-32 132-78-70z M744 312l86-10 24 72-78 70z" />
+    </svg>
+    <div class="royal-seal"><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'desert_mirage'" class="theme-art theme-art-desert" aria-hidden="true">
+    <div class="desert-sun" />
+    <div class="desert-heat" />
+    <svg class="desert-dunes" viewBox="0 0 1080 520" preserveAspectRatio="none">
+      <path class="dune dune-back" d="M0 520V270Q190 96 420 274T820 226Q960 168 1080 238V520Z" />
+      <path class="dune dune-mid" d="M0 520V350Q220 192 472 342T846 302Q970 260 1080 322V520Z" />
+      <path class="dune dune-front" d="M0 520V420Q246 310 520 410T900 384Q1000 356 1080 404V520Z" />
+    </svg>
+  </div>
+
+  <div v-else-if="skin === 'enchanted_forest'" class="theme-art theme-art-forest" aria-hidden="true">
+    <div class="forest-canopy" />
+    <svg class="forest-vines" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M26 0C182 210-48 370 108 584S-20 918 126 1136-20 1502 94 1920" />
+      <path d="M1054 0C898 210 1128 370 972 584s128 334-18 552 146 366 32 784" />
+      <path d="M42 438q92-88 170-12 M1038 704q-98-92-184-18 M56 1260q96-78 168 8 M1024 1518q-90-84-174-2" />
+    </svg>
+    <div class="forest-fireflies"><i v-for="i in 12" :key="`firefly-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'steampunk_foundry'" class="theme-art theme-art-foundry" aria-hidden="true">
+    <svg class="foundry-pipes" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M0 430h118v180H44v286h74v180H0 M1080 430H962v180h74v286h-74v180h118" />
+      <path d="M180 0v92h210V34h300v58h210V0 M180 1920v-92h210v58h300v-58h210v92" />
+    </svg>
+    <div class="foundry-gears"><i /><i /><i /><i /></div>
+    <div class="foundry-steam"><i /><i /><i /></div>
+    <div class="foundry-ember" />
+  </div>
+
+  <div v-else-if="skin === 'hologram_lab'" class="theme-art theme-art-hologram" aria-hidden="true">
+    <div class="holo-grid" />
+    <div class="holo-scan" />
+    <svg class="holo-reticles" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <g transform="translate(146 620)"><circle r="68" /><circle r="42" /><path d="M-92 0h38 M54 0h38 M0-92v38 M0 54v38" /></g>
+      <g transform="translate(934 1260)"><circle r="68" /><circle r="42" /><path d="M-92 0h38 M54 0h38 M0-92v38 M0 54v38" /></g>
+    </svg>
+    <div class="holo-nodes"><i v-for="i in 8" :key="`holo-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'stained_glass'" class="theme-art theme-art-glass" aria-hidden="true">
+    <svg class="glass-window" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path class="glass-lead" d="M0 0H1080V1920H0Z M76 76H1004V1844H76Z" fill-rule="evenodd" />
+      <path class="glass-pane pane-a" d="M0 0h300L76 354 0 280Z M1080 0H780l224 354 76-74Z M0 1920h300L76 1566 0 1640Z M1080 1920H780l224-354 76 74Z" />
+      <path class="glass-pane pane-b" d="M300 0h240L372 280 76 354Z M780 0H540l168 280 296 74Z M300 1920h240l-168-280-296-74Z M780 1920H540l168-280 296-74Z" />
+      <path class="glass-pane pane-c" d="M0 280l76 74v390L0 620Z M1080 280l-76 74v390l76-124Z M0 1640l76-74v-390L0 1300Z M1080 1640l-76-74v-390l76 124Z" />
+    </svg>
+    <div class="glass-light" />
+  </div>
+
+  <div v-else-if="skin === 'paper_theater'" class="theme-art theme-art-paper" aria-hidden="true">
+    <div class="paper-sun" />
+    <div class="paper-layer paper-layer-back" />
+    <div class="paper-layer paper-layer-mid" />
+    <div class="paper-layer paper-layer-front" />
+    <div class="paper-cloud"><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'midnight_library'" class="theme-art theme-art-library" aria-hidden="true">
+    <div class="library-lamp" />
+    <svg class="library-shelves" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path class="shelf-frame" d="M0 380h156v1180H0 M1080 380H924v1180h156" />
+      <path class="shelf-line" d="M0 650h156 M0 920h156 M0 1190h156 M0 1460h156 M1080 650H924 M1080 920H924 M1080 1190H924 M1080 1460H924" />
+      <path class="book-spines" d="M18 404v220 M42 404v220 M78 404v220 M112 404v220 M134 404v220 M946 674v220 M970 674v220 M1004 674v220 M1038 674v220 M18 944v220 M52 944v220 M86 944v220 M122 944v220 M946 1214v220 M980 1214v220 M1016 1214v220 M1042 1214v220" />
+    </svg>
+    <div class="library-dust"><i v-for="i in 10" :key="`dust-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'carnival_nights'" class="theme-art theme-art-carnival" aria-hidden="true">
+    <div class="carnival-canopy" />
+    <div class="carnival-bulbs"><i v-for="i in 18" :key="`bulb-${i}`" :style="{ '--i': i }" /></div>
+    <svg class="carnival-wheel" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <g transform="translate(900 1580)"><circle r="210" /><circle r="22" /><path d="M-210 0H210 M0-210V210 M-148-148l296 296 M148-148l-296 296" /></g>
+    </svg>
+    <div class="carnival-confetti"><i v-for="i in 12" :key="`c-confetti-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'moonlit_tide'" class="theme-art theme-art-moonlit" aria-hidden="true">
+    <div class="moonlit-moon" />
+    <div class="moonlit-reflection" />
+    <svg class="moonlit-waves" viewBox="0 0 1080 420" preserveAspectRatio="none">
+      <path class="moon-wave wave-back" d="M0 210Q135 102 270 210t270 0 270 0 270 0V420H0Z" />
+      <path class="moon-wave wave-mid" d="M0 286Q135 164 270 286t270 0 270 0 270 0V420H0Z" />
+      <path class="moon-wave wave-front" d="M0 350Q135 244 270 350t270 0 270 0 270 0V420H0Z" />
+    </svg>
+  </div>
+
+  <div v-else-if="skin === 'koi_pond'" class="theme-art theme-art-koi" aria-hidden="true">
+    <div class="koi-water" />
+    <svg class="koi-ripples" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <g transform="translate(170 520)"><ellipse rx="128" ry="54" /><ellipse rx="86" ry="36" /><ellipse rx="44" ry="18" /></g>
+      <g transform="translate(900 1330)"><ellipse rx="138" ry="58" /><ellipse rx="92" ry="38" /><ellipse rx="48" ry="20" /></g>
+    </svg>
+    <svg class="koi-fish koi-fish-a" viewBox="0 0 180 90"><path d="M18 45C48 8 112 10 148 45C112 80 48 82 18 45Z" /><path d="M18 45L0 18V72Z" /><circle cx="126" cy="34" r="3" /></svg>
+    <svg class="koi-fish koi-fish-b" viewBox="0 0 180 90"><path d="M18 45C48 8 112 10 148 45C112 80 48 82 18 45Z" /><path d="M18 45L0 18V72Z" /><circle cx="126" cy="34" r="3" /></svg>
+    <div class="koi-leaves"><i /><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'crystal_cavern'" class="theme-art theme-art-crystal" aria-hidden="true">
+    <div class="crystal-beam"><i /><i /><i /></div>
+    <svg class="crystal-cluster crystal-cluster-left" viewBox="0 0 300 720" preserveAspectRatio="none">
+      <path d="M0 720L18 280 86 64 132 316 190 0 224 348 286 122 300 720Z" />
+      <path d="M18 280L132 316 190 0 224 348 286 122" />
+    </svg>
+    <svg class="crystal-cluster crystal-cluster-right" viewBox="0 0 300 720" preserveAspectRatio="none">
+      <path d="M0 720L18 280 86 64 132 316 190 0 224 348 286 122 300 720Z" />
+      <path d="M18 280L132 316 190 0 224 348 286 122" />
+    </svg>
+    <div class="crystal-sparks"><i v-for="i in 9" :key="`crystal-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'racing_grid'" class="theme-art theme-art-racing" aria-hidden="true">
+    <div class="racing-asphalt" />
+    <svg class="racing-track" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path class="track-edge" d="M94 0C284 360 36 620 198 960S62 1554 184 1920 M986 0C796 360 1044 620 882 960s136 594 14 960" />
+      <path class="track-center" d="M540 0V1920" />
+    </svg>
+    <div class="racing-streaks"><i v-for="i in 8" :key="`race-${i}`" :style="{ '--i': i }" /></div>
+    <div class="racing-checker" />
+  </div>
+
+  <div v-else-if="skin === 'wild_west'" class="theme-art theme-art-west" aria-hidden="true">
+    <div class="west-sun" />
+    <div class="west-mesa" />
+    <svg class="west-rope" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M54 360V140Q54 54 140 54H940Q1026 54 1026 140v220 M54 1560v220q0 86 86 86h800q86 0 86-86v-220" />
+      <circle cx="54" cy="470" r="24" /><circle cx="1026" cy="470" r="24" /><circle cx="54" cy="1450" r="24" /><circle cx="1026" cy="1450" r="24" />
+    </svg>
+    <div class="west-dust"><i v-for="i in 10" :key="`west-dust-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'celestial_clockwork'" class="theme-art theme-art-celestial" aria-hidden="true">
+    <div class="celestial-sky" />
+    <svg class="celestial-orrery" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <g transform="translate(540 1500)">
+        <ellipse rx="390" ry="172" /><ellipse rx="302" ry="128" /><ellipse rx="210" ry="88" /><circle r="44" />
+        <circle class="orrery-planet planet-a" cx="390" r="17" /><circle class="orrery-planet planet-b" cx="-302" r="12" /><circle class="orrery-planet planet-c" cy="-88" r="9" />
+      </g>
+    </svg>
+    <div class="celestial-gears"><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'sakura_festival'" class="theme-art theme-art-sakura" aria-hidden="true">
+    <div class="sakura-moon" />
+    <svg class="sakura-gate" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M54 360V96H1026V360 M112 96V42 M968 96V42 M22 42H1058 M76 80H1004 M54 1560v264h972v-264" />
+    </svg>
+    <div class="sakura-lanterns"><i /><i /><i /><i /></div>
+    <div class="sakura-petals"><i v-for="i in 12" :key="`sakura-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
   <div v-else-if="skin === 'sports_broadcast'" class="theme-art theme-art-sports" aria-hidden="true">
     <div class="sports-score-glow" />
     <svg class="sports-hash" viewBox="0 0 1080 1920" preserveAspectRatio="none">

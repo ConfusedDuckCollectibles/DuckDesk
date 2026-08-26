@@ -1,0 +1,384 @@
+/* Twenty additional premium broadcast packages. This file is intentionally
+   additive: existing themes keep their established craft layer unchanged. */
+
+/* --------------------------------------------------------------------------
+   Palette, material, and panel silhouette
+   -------------------------------------------------------------------------- */
+
+.overlay-shell.skin-solar_flare {
+  --panel: #160907; --ink: #fff8e8; --primary: #ff5a24; --secondary: #ffd65a; --accent: #fff4c4;
+  --theme-font: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: none; --mat-tint: rgba(255, 106, 32, 0.25);
+  --mat-rail: linear-gradient(180deg, #fff4b8, #ffb52e 46%, #d93516);
+}
+
+.overlay-shell.skin-glacier_cavern {
+  --panel: #061924; --ink: #effcff; --primary: #74dcff; --secondary: #d8f8ff; --accent: #9d8cff;
+  --theme-font: "Manrope", "Avenir Next", sans-serif;
+  --mat-radius: 0; --mat-shape: polygon(3% 0, 94% 0, 100% 26%, 97% 100%, 7% 100%, 0 76%);
+  --mat-tint: rgba(105, 221, 255, 0.2); --mat-rail: linear-gradient(180deg, #ffffff, #7ce5ff 48%, #5b79d8);
+}
+
+.overlay-shell.skin-noir_detective {
+  --panel: #0a0a0b; --ink: #f5f2e8; --primary: #d7d1bf; --secondary: #b43b36; --accent: #f0c36b;
+  --theme-font: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --mat-radius: 0; --mat-shape: polygon(0 0, 100% 0, 100% 78%, 96% 100%, 0 100%);
+  --mat-tint: rgba(255, 245, 220, 0.08); --mat-rail: linear-gradient(180deg, #f4efe2, #8d897f 56%, #272729);
+}
+
+.overlay-shell.skin-retro_spaceport {
+  --panel: #071018; --ink: #effff8; --primary: #54f2bc; --secondary: #ffb34f; --accent: #74b7ff;
+  --theme-font: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  --mat-radius: 0; --mat-shape: polygon(3% 0, 97% 0, 100% 22%, 100% 78%, 97% 100%, 3% 100%, 0 78%, 0 22%);
+  --mat-tint: rgba(64, 235, 180, 0.16); --mat-rail: linear-gradient(180deg, #b7ffe4, #54f2bc 48%, #ff9d3b);
+}
+
+.overlay-shell.skin-royal_tournament {
+  --panel: #160a24; --ink: #fff9e8; --primary: #7f4bd8; --secondary: #f1c95b; --accent: #d94b61;
+  --theme-font: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
+  --mat-radius: 0; --mat-shape: polygon(2% 0, 98% 0, 100% 16%, 100% 82%, 54% 82%, 50% 100%, 46% 82%, 0 82%, 0 16%);
+  --mat-tint: rgba(126, 72, 210, 0.24); --mat-rail: linear-gradient(180deg, #fff0a6, #ddb747 52%, #6f3bbd);
+}
+
+.overlay-shell.skin-desert_mirage {
+  --panel: #24120c; --ink: #fff2df; --primary: #ef8e48; --secondary: #ffd07a; --accent: #4fc7c2;
+  --theme-font: "Manrope", "Avenir Next", sans-serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: polygon(0 10%, 5% 0, 100% 0, 100% 90%, 95% 100%, 0 100%);
+  --mat-tint: rgba(239, 142, 72, 0.2); --mat-rail: linear-gradient(180deg, #ffe4a8, #ef8e48 52%, #8f4425);
+}
+
+.overlay-shell.skin-enchanted_forest {
+  --panel: #07150e; --ink: #efffe9; --primary: #55d17f; --secondary: #d5f06a; --accent: #b783ff;
+  --theme-font: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: polygon(4% 0, 96% 0, 100% 28%, 98% 100%, 2% 100%, 0 28%);
+  --mat-tint: rgba(62, 185, 105, 0.18); --mat-rail: linear-gradient(180deg, #ddff96, #55d17f 50%, #315f3e);
+}
+
+.overlay-shell.skin-steampunk_foundry {
+  --panel: #17100b; --ink: #fff1d5; --primary: #c97a35; --secondary: #e8b85f; --accent: #69b9a9;
+  --theme-font: "Barlow Condensed", "Avenir Next Condensed", sans-serif;
+  --mat-radius: 0; --mat-shape: polygon(0 0, 92% 0, 92% 8%, 100% 8%, 100% 100%, 8% 100%, 8% 92%, 0 92%);
+  --mat-tint: rgba(201, 122, 53, 0.22); --mat-rail: linear-gradient(180deg, #f3cf86, #b9662d 48%, #473021);
+}
+
+.overlay-shell.skin-hologram_lab {
+  --panel: #030d18; --ink: #eaffff; --primary: #25f0ec; --secondary: #7a8cff; --accent: #f05bff;
+  --theme-font: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  --mat-radius: 0; --mat-shape: polygon(3% 0, 97% 0, 100% 28%, 97% 100%, 3% 100%, 0 72%);
+  --mat-tint: rgba(37, 240, 236, 0.17); --mat-rail: linear-gradient(180deg, #b9ffff, #25f0ec 46%, #7a8cff);
+}
+
+.overlay-shell.skin-stained_glass {
+  --panel: #0d0917; --ink: #fffaf1; --primary: #39c9d8; --secondary: #f0b94d; --accent: #db4e86;
+  --theme-font: Didot, "Bodoni 72", Georgia, serif;
+  --mat-radius: 0; --mat-shape: polygon(4% 0, 36% 0, 40% 8%, 60% 8%, 64% 0, 96% 0, 100% 24%, 96% 100%, 4% 100%, 0 76%);
+  --mat-tint: rgba(57, 201, 216, 0.14); --mat-rail: linear-gradient(180deg, #fff1a8, #39c9d8 48%, #db4e86);
+}
+
+.overlay-shell.skin-paper_theater {
+  --panel: #282138; --ink: #fffaf2; --primary: #ef7d8f; --secondary: #f2c96d; --accent: #69bdd0;
+  --theme-font: "Manrope", "Avenir Next", sans-serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: polygon(0 0, 100% 0, 100% 88%, 94% 100%, 82% 92%, 70% 100%, 58% 92%, 46% 100%, 34% 92%, 22% 100%, 10% 92%, 0 100%);
+  --mat-tint: rgba(239, 125, 143, 0.18); --mat-rail: linear-gradient(180deg, #fff1b4, #ef7d8f 48%, #69bdd0);
+}
+
+.overlay-shell.skin-midnight_library {
+  --panel: #110d16; --ink: #fff4df; --primary: #a9784e; --secondary: #e5bc68; --accent: #637cc7;
+  --theme-font: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
+  --mat-radius: 0; --mat-shape: polygon(0 18%, 4% 18%, 8% 0, 92% 0, 96% 18%, 100% 18%, 100% 100%, 0 100%);
+  --mat-tint: rgba(169, 120, 78, 0.17); --mat-rail: linear-gradient(180deg, #f1d696, #a9784e 52%, #3e2a25);
+}
+
+.overlay-shell.skin-carnival_nights {
+  --panel: #170821; --ink: #fffbea; --primary: #ff4f78; --secondary: #ffd558; --accent: #39d8df;
+  --theme-font: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --mat-radius: 0; --mat-shape: polygon(0 0, 8% 6%, 16% 0, 24% 6%, 32% 0, 40% 6%, 48% 0, 56% 6%, 64% 0, 72% 6%, 80% 0, 88% 6%, 100% 0, 100% 100%, 0 100%);
+  --mat-tint: rgba(255, 79, 120, 0.2); --mat-rail: linear-gradient(180deg, #fff3a2, #ff4f78 50%, #39d8df);
+}
+
+.overlay-shell.skin-moonlit_tide {
+  --panel: #050e20; --ink: #f3f8ff; --primary: #478ad8; --secondary: #b9d9ff; --accent: #68d7cf;
+  --theme-font: "Manrope", "Avenir Next", sans-serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: polygon(0 0, 100% 0, 100% 86%, 88% 100%, 76% 90%, 64% 100%, 52% 90%, 40% 100%, 28% 90%, 16% 100%, 0 86%);
+  --mat-tint: rgba(71, 138, 216, 0.18); --mat-rail: linear-gradient(180deg, #eff7ff, #6ba9ec 48%, #225292);
+}
+
+.overlay-shell.skin-koi_pond {
+  --panel: #0b1c1b; --ink: #f5fff7; --primary: #55bca9; --secondary: #ff8b62; --accent: #e6cf76;
+  --theme-font: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: polygon(0 0, 94% 0, 100% 50%, 94% 100%, 0 100%, 3% 50%);
+  --mat-tint: rgba(85, 188, 169, 0.17); --mat-rail: linear-gradient(180deg, #d9fff6, #55bca9 52%, #ff8b62);
+}
+
+.overlay-shell.skin-crystal_cavern {
+  --panel: #0b0b22; --ink: #f7f2ff; --primary: #a478ff; --secondary: #65e5ed; --accent: #ef8fff;
+  --theme-font: "Manrope", "Avenir Next", sans-serif;
+  --mat-radius: 0; --mat-shape: polygon(5% 0, 95% 0, 100% 30%, 96% 62%, 100% 100%, 6% 100%, 0 70%, 4% 36%);
+  --mat-tint: rgba(164, 120, 255, 0.2); --mat-rail: linear-gradient(180deg, #f8ebff, #a478ff 46%, #45ccd7);
+}
+
+.overlay-shell.skin-racing_grid {
+  --panel: #080b0e; --ink: #f8fbfd; --primary: #f04444; --secondary: #f4e84e; --accent: #41c8e8;
+  --theme-font: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --mat-radius: 0; --mat-shape: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+  --mat-tint: rgba(240, 68, 68, 0.17); --mat-rail: linear-gradient(180deg, #ffffff, #f04444 48%, #f4e84e);
+}
+
+.overlay-shell.skin-wild_west {
+  --panel: #1e1109; --ink: #fff1d7; --primary: #b66532; --secondary: #e5b65e; --accent: #5fae9e;
+  --theme-font: "Rockwell", "Roboto Slab", Georgia, serif;
+  --mat-radius: calc(8 * var(--u)); --mat-shape: polygon(4% 0, 96% 0, 100% 24%, 96% 50%, 100% 76%, 96% 100%, 4% 100%, 0 76%, 4% 50%, 0 24%);
+  --mat-tint: rgba(182, 101, 50, 0.2); --mat-rail: linear-gradient(180deg, #f4d188, #b66532 52%, #5e321b);
+}
+
+.overlay-shell.skin-celestial_clockwork {
+  --panel: #080b1c; --ink: #fff8df; --primary: #768bd9; --secondary: #d8b75e; --accent: #66d5cb;
+  --theme-font: Didot, "Bodoni 72", Georgia, serif;
+  --mat-radius: 0; --mat-shape: polygon(5% 0, 44% 0, 50% 10%, 56% 0, 95% 0, 100% 50%, 95% 100%, 56% 100%, 50% 90%, 44% 100%, 5% 100%, 0 50%);
+  --mat-tint: rgba(118, 139, 217, 0.18); --mat-rail: linear-gradient(180deg, #f6dea0, #d8b75e 48%, #768bd9);
+}
+
+.overlay-shell.skin-sakura_festival {
+  --panel: #1b101b; --ink: #fff7f7; --primary: #ef8fb0; --secondary: #ffd18b; --accent: #8ac7c2;
+  --theme-font: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
+  --mat-radius: 0; --mat-shape: polygon(0 12%, 6% 12%, 6% 0, 94% 0, 94% 12%, 100% 12%, 100% 100%, 0 100%);
+  --mat-tint: rgba(239, 143, 176, 0.17); --mat-rail: linear-gradient(180deg, #ffe6ee, #ef8fb0 48%, #9d4e6d);
+}
+
+/* --------------------------------------------------------------------------
+   Unique frame assemblies
+   -------------------------------------------------------------------------- */
+
+:is(.geometry-solar, .geometry-glacier, .geometry-noir, .geometry-spaceport, .geometry-royal,
+  .geometry-desert, .geometry-forest, .geometry-foundry, .geometry-hologram, .geometry-glass,
+  .geometry-paper, .geometry-library, .geometry-carnival, .geometry-moonlit, .geometry-koi,
+  .geometry-crystal, .geometry-racing, .geometry-west, .geometry-celestial, .geometry-sakura) {
+  --frame-dark: #071015;
+  --frame-bright: var(--primary);
+  --frame-detail: var(--secondary);
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:is(.geometry-solar, .geometry-glacier, .geometry-noir, .geometry-spaceport, .geometry-royal,
+  .geometry-desert, .geometry-forest, .geometry-foundry, .geometry-hologram, .geometry-glass,
+  .geometry-paper, .geometry-library, .geometry-carnival, .geometry-moonlit, .geometry-koi,
+  .geometry-crystal, .geometry-racing, .geometry-west, .geometry-celestial, .geometry-sakura) > path:first-child {
+  stroke: color-mix(in srgb, var(--panel) 82%, black);
+  stroke-width: 18;
+}
+
+:is(.geometry-solar, .geometry-glacier, .geometry-noir, .geometry-spaceport, .geometry-royal,
+  .geometry-desert, .geometry-forest, .geometry-foundry, .geometry-hologram, .geometry-glass,
+  .geometry-paper, .geometry-library, .geometry-carnival, .geometry-moonlit, .geometry-koi,
+  .geometry-crystal, .geometry-racing, .geometry-west, .geometry-celestial, .geometry-sakura) > path:not(:first-child) {
+  stroke: var(--frame-detail);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--frame-bright) 52%, transparent));
+}
+
+.geometry-foundry .foundry-frame-gears { fill: var(--panel); stroke: var(--secondary); stroke-width: 3; }
+.geometry-solar .solar-rays-frame { animation: expansion-frame-pulse 2.6s ease-in-out infinite; }
+.geometry-glacier .glacier-facets { animation: expansion-frame-glint 3.8s ease-in-out infinite; }
+.geometry-noir .noir-cuts { stroke-dasharray: 54 22; animation: expansion-frame-march 5s linear infinite; }
+.geometry-spaceport .spaceport-dock { stroke-dasharray: 26 14; animation: expansion-frame-march 4s linear infinite; }
+.geometry-royal .royal-crown { animation: expansion-frame-pulse 3.4s ease-in-out infinite; }
+.geometry-desert .desert-ripple { stroke-dasharray: 72 18; animation: expansion-frame-march 8s linear infinite; }
+.geometry-forest .forest-leaves { fill: color-mix(in srgb, var(--primary) 28%, transparent); animation: expansion-frame-breathe 4.6s ease-in-out infinite; }
+.geometry-foundry .foundry-rivets { stroke-dasharray: 2 28; animation: expansion-frame-march 7s linear infinite; }
+.geometry-hologram .holo-corners { stroke-dasharray: 34 12 6 12; animation: expansion-frame-march 3s linear infinite; }
+.geometry-glass .glass-facets { animation: expansion-frame-prism 5s ease-in-out infinite; }
+.geometry-paper .paper-scallop { stroke-dasharray: 36 10; animation: expansion-frame-breathe 4s ease-in-out infinite; }
+.geometry-library .library-books { stroke-width: 8; stroke-dasharray: 18 8; }
+.geometry-carnival .carnival-bulb-line { stroke-width: 7; stroke-dasharray: 0.025 0.024; animation: expansion-bulb-run 2.1s linear infinite; }
+.geometry-moonlit .moonlit-wave-frame { animation: expansion-frame-wave 6s ease-in-out infinite; }
+.geometry-koi .koi-rings-frame { animation: expansion-frame-ripple 4s ease-out infinite; }
+.geometry-crystal .crystal-facets-frame { animation: expansion-frame-prism 3.8s ease-in-out infinite; }
+.geometry-racing .racing-stripes-frame { stroke-width: 8; animation: expansion-frame-pulse 1.2s steps(2, end) infinite; }
+.geometry-west .west-knots-frame { stroke-dasharray: 12 7; animation: expansion-frame-march 7s linear infinite; }
+.geometry-celestial .celestial-orbits-frame { stroke-dasharray: 42 12; animation: expansion-frame-march 9s linear infinite; }
+.geometry-sakura .sakura-branches-frame { animation: expansion-frame-breathe 5s ease-in-out infinite; }
+
+@keyframes expansion-frame-pulse { 50% { opacity: 0.42; filter: drop-shadow(0 0 14px var(--frame-bright)); } }
+@keyframes expansion-frame-glint { 0%, 72%, 100% { opacity: 0.44; } 80% { opacity: 1; stroke: white; } }
+@keyframes expansion-frame-march { to { stroke-dashoffset: -180; } }
+@keyframes expansion-frame-breathe { 50% { opacity: 0.46; transform: scale(0.995); transform-origin: center; } }
+@keyframes expansion-frame-prism { 50% { stroke: var(--primary); filter: drop-shadow(0 0 15px var(--accent)); } }
+@keyframes expansion-bulb-run { to { stroke-dashoffset: -0.098; } }
+@keyframes expansion-frame-wave { 50% { transform: translateY(calc(7 * var(--u))); opacity: 0.56; } }
+@keyframes expansion-frame-ripple { 0% { opacity: 1; } 100% { opacity: 0.18; transform: scale(1.08); transform-origin: center; } }
+
+/* --------------------------------------------------------------------------
+   Signature art: Solar through Stained Glass
+   -------------------------------------------------------------------------- */
+
+.theme-art-solar { background: radial-gradient(circle at 50% 104%, rgba(255, 93, 24, 0.32), transparent 44%); }
+.solar-disc { position: absolute; left: 50%; bottom: calc(-320 * var(--u)); width: calc(760 * var(--u)); aspect-ratio: 1; border-radius: 50%; transform: translateX(-50%); background: radial-gradient(circle, #fff9ce 0 28%, #ffc635 48%, #f4511e 72%, transparent 73%); filter: drop-shadow(0 0 calc(70 * var(--u)) rgba(255, 95, 26, 0.62)); animation: solar-breathe 5s ease-in-out infinite; }
+.solar-disc i { position: absolute; inset: calc(-42 * var(--u)); border: calc(3 * var(--u)) solid rgba(255, 205, 80, 0.42); border-radius: 50%; animation: solar-corona 8s linear infinite; }
+.solar-disc i:nth-child(2) { inset: calc(-82 * var(--u)); border-style: dashed; animation-direction: reverse; animation-duration: 13s; }
+.solar-disc i:nth-child(3) { inset: calc(-126 * var(--u)); border-color: rgba(255, 92, 35, 0.18); animation-duration: 17s; }
+.solar-rays { position: absolute; inset: 0; fill: none; stroke: rgba(255, 218, 104, 0.38); stroke-width: 4; }
+.solar-prominence i { position: absolute; bottom: calc(60 * var(--u)); width: calc(120 * var(--u)); height: calc(210 * var(--u)); border: calc(10 * var(--u)) solid rgba(255, 101, 28, 0.42); border-bottom: 0; border-radius: 50% 50% 0 0; animation: solar-prominence 4.2s ease-in-out infinite; }
+.solar-prominence i:nth-child(1) { left: 8%; }.solar-prominence i:nth-child(2) { left: 27%; animation-delay: -1s; }.solar-prominence i:nth-child(3) { right: 27%; animation-delay: -2s; }.solar-prominence i:nth-child(4) { right: 8%; animation-delay: -3s; }
+@keyframes solar-breathe { 50% { filter: drop-shadow(0 0 calc(100 * var(--u)) rgba(255, 95, 26, 0.78)); transform: translateX(-50%) scale(1.035); } }
+@keyframes solar-corona { to { rotate: 360deg; } }
+@keyframes solar-prominence { 50% { opacity: 0.42; transform: translateY(calc(-40 * var(--u))) scaleY(1.18); } }
+
+.theme-art-glacier { background: linear-gradient(180deg, rgba(105, 220, 255, 0.12), transparent 38% 72%, rgba(110, 137, 255, 0.1)); }
+.glacier-mist { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 16%, rgba(224, 252, 255, 0.18), transparent 48%), radial-gradient(ellipse at 50% 88%, rgba(132, 206, 255, 0.12), transparent 44%); animation: glacier-mist 9s ease-in-out infinite alternate; }
+.glacier-ice { position: absolute; left: 0; width: 100%; display: block; fill: rgba(175, 234, 255, 0.34); stroke: rgba(235, 253, 255, 0.68); stroke-width: 2; filter: drop-shadow(0 0 calc(18 * var(--u)) rgba(103, 214, 255, 0.4)); }
+.glacier-ice-top { top: 0; }.glacier-ice-bottom { bottom: 0; transform: rotate(180deg); opacity: 0.68; }
+.glacier-snow i { position: absolute; left: calc(var(--i) * 6.7%); top: calc(-20 * var(--u)); width: calc(4 * var(--u)); height: calc(4 * var(--u)); border-radius: 50%; background: white; opacity: 0.65; animation: glacier-snow calc(6s + var(--i) * 0.17s) linear calc(var(--i) * -0.5s) infinite; }
+@keyframes glacier-mist { to { opacity: 0.52; transform: translateX(3%) scale(1.05); } }
+@keyframes glacier-snow { to { transform: translate(calc(80 * var(--u)), calc(1940 * var(--u))); opacity: 0; } }
+
+.theme-art-noir { background: linear-gradient(112deg, rgba(255,255,255,0.05), transparent 42%), rgba(0,0,0,0.08); filter: grayscale(1); }
+.noir-spotlight { position: absolute; top: 0; left: 8%; width: 58%; height: 100%; background: linear-gradient(108deg, rgba(255, 244, 210, 0.12), transparent 52%); clip-path: polygon(0 0, 24% 0, 100% 100%, 50% 100%); animation: noir-light 8s ease-in-out infinite alternate; }
+.noir-blinds { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent 0 calc(72 * var(--u)), rgba(0,0,0,0.22) calc(72 * var(--u)) calc(92 * var(--u))); opacity: 0.46; }
+.noir-rain i { position: absolute; left: calc(var(--i) * 5.2%); top: -6%; width: calc(1 * var(--u)); height: calc(82 * var(--u)); background: linear-gradient(transparent, rgba(235,240,244,0.42)); transform: rotate(8deg); animation: noir-rain calc(1.2s + var(--i) * .035s) linear calc(var(--i) * -.16s) infinite; }
+.noir-film i { position: absolute; width: calc(2 * var(--u)); height: calc(2 * var(--u)); background: #f5edd9; opacity: 0.3; animation: noir-dust 4s steps(1,end) infinite; }.noir-film i:nth-child(1){left:18%;top:33%}.noir-film i:nth-child(2){left:72%;top:56%;animation-delay:-1.3s}.noir-film i:nth-child(3){left:43%;top:82%;animation-delay:-2.6s}
+@keyframes noir-light { to { transform: translateX(9%) skewX(-2deg); opacity: 0.54; } }
+@keyframes noir-rain { to { transform: translate(calc(-120 * var(--u)), calc(2050 * var(--u))) rotate(8deg); } }
+@keyframes noir-dust { 50% { transform: translate(18px,-11px); opacity: .7; } }
+
+.theme-art-spaceport { background: radial-gradient(ellipse at 50% 86%, rgba(74, 255, 199, 0.13), transparent 42%); }
+.spaceport-stars { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(215,255,244,.7) 0 1px, transparent 1.5px); background-size: calc(83 * var(--u)) calc(91 * var(--u)); opacity: .22; }
+.spaceport-radar { position: absolute; inset: 0; fill: none; stroke: rgba(84,242,188,.26); stroke-width: 2; }
+.spaceport-sweep { position: absolute; left: 50%; bottom: calc(-10 * var(--u)); width: calc(600 * var(--u)); height: calc(600 * var(--u)); transform-origin: 0 100%; background: conic-gradient(from -22deg, transparent 0 330deg, rgba(84,242,188,.34) 355deg, transparent 360deg); border-radius: 50%; animation: spaceport-sweep 7s linear infinite; }
+.spaceport-beacons i { position:absolute; width:calc(10 * var(--u)); height:calc(10 * var(--u)); border-radius:50%; background:#ffb34f; box-shadow:0 0 calc(14 * var(--u)) #ffb34f; animation:spaceport-beacon 1.8s steps(2,end) infinite; }.spaceport-beacons i:nth-child(1){left:8%;top:22%}.spaceport-beacons i:nth-child(2){right:8%;top:36%;animation-delay:-.5s}.spaceport-beacons i:nth-child(3){left:9%;bottom:28%;animation-delay:-1s}.spaceport-beacons i:nth-child(4){right:9%;bottom:16%;animation-delay:-1.5s}
+@keyframes spaceport-sweep { to { rotate: 360deg; } } @keyframes spaceport-beacon { 50% { opacity:.18; } }
+
+.theme-art-royal { background: radial-gradient(ellipse at 50% 12%, rgba(241,201,91,.12), transparent 42%); }
+.royal-velvet { position:absolute; inset:0; background:linear-gradient(90deg, rgba(127,75,216,.12), transparent 22% 78%, rgba(127,75,216,.12)); }
+.royal-pennants { position:absolute; inset:0; fill:none; stroke:#e3c15f; stroke-width:3; }.royal-pennants .royal-flag{fill:rgba(127,75,216,.45);stroke:#f1c95b;transform-box:fill-box;transform-origin:top center;animation:royal-flag 4s ease-in-out infinite}.royal-pennants .royal-flag-b{fill:rgba(217,75,97,.42);animation-delay:-2s}.royal-seal{position:absolute;left:50%;bottom:calc(64 * var(--u));width:calc(118 * var(--u));height:calc(118 * var(--u));border:calc(5 * var(--u)) double #f1c95b;border-radius:50%;transform:translateX(-50%);opacity:.36}.royal-seal i{position:absolute;inset:25%;background:#7f4bd8;clip-path:polygon(50% 0,62% 36%,100% 38%,70% 60%,80% 100%,50% 76%,20% 100%,30% 60%,0 38%,38% 36%)}
+@keyframes royal-flag { 50% { transform:skewX(4deg) scaleY(.94); } }
+
+.theme-art-desert { background:linear-gradient(180deg,rgba(255,180,90,.11),transparent 58%); }.desert-sun{position:absolute;top:calc(330 * var(--u));right:calc(100 * var(--u));width:calc(180 * var(--u));aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#ffe3a1,#ef8e48 66%,transparent 68%);filter:drop-shadow(0 0 calc(44 * var(--u)) rgba(239,142,72,.42))}.desert-heat{position:absolute;inset:18% 0 24%;background:repeating-linear-gradient(176deg,transparent 0 calc(70 * var(--u)),rgba(255,213,143,.045) calc(72 * var(--u)) calc(76 * var(--u)));filter:blur(calc(3 * var(--u)));animation:desert-heat 4.8s ease-in-out infinite alternate}.desert-dunes{position:absolute;right:0;bottom:0;left:0;height:calc(520 * var(--u));display:block}.dune-back{fill:rgba(151,72,42,.4)}.dune-mid{fill:rgba(202,111,59,.42)}.dune-front{fill:rgba(236,153,79,.5)}.dune{animation:desert-dune 9s ease-in-out infinite alternate}.dune-mid{animation-delay:-3s}.dune-front{animation-delay:-6s}
+@keyframes desert-heat{to{transform:skewX(1deg) translateX(calc(12 * var(--u)));opacity:.56}}@keyframes desert-dune{to{transform:translateX(calc(18 * var(--u))) scaleX(1.03)}}
+
+.theme-art-forest { background:radial-gradient(ellipse at 50% 100%,rgba(72,177,103,.14),transparent 48%); }.forest-canopy{position:absolute;inset:0;background:radial-gradient(circle at 0 0,rgba(80,190,105,.28),transparent 28%),radial-gradient(circle at 100% 0,rgba(125,82,168,.22),transparent 30%),radial-gradient(circle at 0 100%,rgba(47,120,76,.2),transparent 26%),radial-gradient(circle at 100% 100%,rgba(84,164,96,.2),transparent 28%)}.forest-vines{position:absolute;inset:0;fill:none;stroke:rgba(96,213,127,.52);stroke-width:9;filter:drop-shadow(0 0 calc(8 * var(--u)) rgba(85,209,127,.28));animation:forest-vine 7s ease-in-out infinite alternate}.forest-fireflies i{position:absolute;left:calc(var(--i) * 7.4%);top:calc(12% + var(--i) * 5.9%);width:calc(6 * var(--u));height:calc(6 * var(--u));border-radius:50%;background:#e9ff8f;box-shadow:0 0 calc(14 * var(--u)) #d5f06a;animation:forest-fly calc(3.4s + var(--i) * .18s) ease-in-out calc(var(--i) * -.4s) infinite}
+@keyframes forest-vine{to{transform:skewX(.5deg) scaleX(1.01)}}@keyframes forest-fly{50%{opacity:.18;transform:translate(calc(18 * var(--u)),calc(-28 * var(--u)))}}
+
+.theme-art-foundry { background:radial-gradient(ellipse at 50% 108%,rgba(210,92,30,.2),transparent 42%); }.foundry-pipes{position:absolute;inset:0;fill:none;stroke:rgba(185,116,55,.5);stroke-width:24}.foundry-gears i,.celestial-gears i{position:absolute;border:calc(12 * var(--u)) dotted currentColor;border-radius:50%;animation:foundry-gear 12s linear infinite}.foundry-gears{color:#c97a35}.foundry-gears i:nth-child(1){left:calc(-58 * var(--u));top:28%;width:calc(190 * var(--u));height:calc(190 * var(--u))}.foundry-gears i:nth-child(2){right:calc(-70 * var(--u));top:43%;width:calc(230 * var(--u));height:calc(230 * var(--u));animation-direction:reverse}.foundry-gears i:nth-child(3){left:calc(-48 * var(--u));bottom:16%;width:calc(150 * var(--u));height:calc(150 * var(--u));animation-duration:9s}.foundry-gears i:nth-child(4){right:calc(-40 * var(--u));top:12%;width:calc(130 * var(--u));height:calc(130 * var(--u));animation-direction:reverse;animation-duration:8s}.foundry-steam i{position:absolute;width:calc(130 * var(--u));height:calc(240 * var(--u));border-radius:50%;background:rgba(236,225,201,.08);filter:blur(calc(18 * var(--u)));animation:foundry-steam 6s ease-out infinite}.foundry-steam i:nth-child(1){left:8%;bottom:5%}.foundry-steam i:nth-child(2){right:12%;bottom:22%;animation-delay:-2s}.foundry-steam i:nth-child(3){left:16%;top:20%;animation-delay:-4s}.foundry-ember{position:absolute;inset:auto 0 0;height:20%;background:linear-gradient(transparent,rgba(201,94,32,.13))}
+@keyframes foundry-gear{to{rotate:360deg}}@keyframes foundry-steam{to{opacity:0;transform:translateY(calc(-260 * var(--u))) scale(1.6)}}
+
+.theme-art-hologram { background:radial-gradient(ellipse at 50% 50%,rgba(37,240,236,.07),transparent 52%); }.holo-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(37,240,236,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(37,240,236,.08) 1px,transparent 1px);background-size:calc(62 * var(--u)) calc(62 * var(--u));transform:perspective(calc(600 * var(--u))) rotateX(18deg);opacity:.3}.holo-scan{position:absolute;left:0;right:0;height:calc(4 * var(--u));background:#8dffff;box-shadow:0 0 calc(24 * var(--u)) rgba(37,240,236,.8);animation:holo-scan 6s linear infinite}.holo-reticles{position:absolute;inset:0;fill:none;stroke:rgba(37,240,236,.48);stroke-width:2;animation:holo-reticle 8s linear infinite}.holo-nodes i{position:absolute;left:calc(var(--i) * 10.5%);top:calc(12% + var(--i) * 8%);width:calc(12 * var(--u));height:calc(12 * var(--u));border:1px solid #f05bff;transform:rotate(45deg);animation:holo-node 2.8s ease-in-out calc(var(--i)*-.3s) infinite}
+@keyframes holo-scan{from{top:8%}to{top:92%}}@keyframes holo-reticle{to{stroke-dashoffset:-120}}@keyframes holo-node{50%{opacity:.22;scale:.55}}
+
+.glass-window{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 calc(12 * var(--u)) rgba(57,201,216,.18))}.glass-lead{fill:rgba(4,5,10,.72)}.glass-pane{stroke:rgba(245,229,190,.3);stroke-width:3;mix-blend-mode:screen}.pane-a{fill:rgba(219,78,134,.3)}.pane-b{fill:rgba(57,201,216,.28)}.pane-c{fill:rgba(240,185,77,.26)}.glass-light{position:absolute;inset:0;background:linear-gradient(118deg,transparent 18%,rgba(255,244,210,.15) 42%,transparent 62%);animation:glass-light 8s ease-in-out infinite}
+@keyframes glass-light{0%,100%{transform:translateX(-48%)}50%{transform:translateX(48%)}}
+
+/* --------------------------------------------------------------------------
+   Signature art: Paper Theater through Sakura Festival
+   -------------------------------------------------------------------------- */
+
+.theme-art-paper { background:linear-gradient(180deg,rgba(245,203,128,.08),transparent 55%); }.paper-sun{position:absolute;top:calc(300 * var(--u));left:calc(120 * var(--u));width:calc(140 * var(--u));aspect-ratio:1;border-radius:50%;background:#f2c96d;box-shadow:calc(8 * var(--u)) calc(10 * var(--u)) 0 rgba(98,58,93,.35)}.paper-layer{position:absolute;right:-3%;bottom:0;left:-3%;transform-origin:bottom;filter:drop-shadow(0 calc(-6 * var(--u)) calc(10 * var(--u)) rgba(0,0,0,.18));animation:paper-breathe 8s ease-in-out infinite alternate}.paper-layer-back{height:42%;background:#4d7595;clip-path:polygon(0 34%,14% 16%,28% 36%,42% 10%,56% 34%,72% 18%,86% 40%,100% 20%,100% 100%,0 100%)}.paper-layer-mid{height:32%;background:#745479;clip-path:polygon(0 38%,18% 12%,34% 42%,52% 20%,68% 46%,86% 16%,100% 36%,100% 100%,0 100%);animation-delay:-2.6s}.paper-layer-front{height:22%;background:#d87482;clip-path:polygon(0 42%,16% 22%,32% 48%,50% 18%,70% 46%,86% 26%,100% 42%,100% 100%,0 100%);animation-delay:-5.2s}.paper-cloud i{position:absolute;width:calc(130 * var(--u));height:calc(48 * var(--u));border-radius:50%;background:rgba(255,247,230,.16);animation:paper-cloud 14s linear infinite}.paper-cloud i:nth-child(1){top:25%;left:-12%}.paper-cloud i:nth-child(2){top:44%;left:-20%;animation-delay:-5s}.paper-cloud i:nth-child(3){top:62%;left:-16%;animation-delay:-10s}
+@keyframes paper-breathe{to{transform:scaleX(1.04) translateX(1%)}}@keyframes paper-cloud{to{transform:translateX(calc(1300 * var(--u)))}}
+
+.theme-art-library { background:radial-gradient(circle at 50% 18%,rgba(229,188,104,.13),transparent 35%); }.library-lamp{position:absolute;top:calc(160 * var(--u));left:50%;width:calc(620 * var(--u));height:calc(760 * var(--u));transform:translateX(-50%);background:conic-gradient(from 162deg at 50% 0,transparent 0 14deg,rgba(229,188,104,.12) 20deg,transparent 38deg);filter:blur(calc(10 * var(--u)));animation:library-lamp 6s ease-in-out infinite}.library-shelves{position:absolute;inset:0;fill:none}.shelf-frame{fill:rgba(42,26,28,.48);stroke:rgba(169,120,78,.52);stroke-width:8}.shelf-line{stroke:rgba(229,188,104,.35);stroke-width:5}.book-spines{stroke:#a9784e;stroke-width:14;stroke-dasharray:22 12}.library-dust i{position:absolute;left:calc(var(--i) * 8.5%);top:calc(14% + var(--i) * 6.5%);width:calc(3 * var(--u));height:calc(3 * var(--u));border-radius:50%;background:#f5d89a;animation:library-dust calc(7s + var(--i)*.22s) ease-in-out calc(var(--i)*-.6s) infinite}
+@keyframes library-lamp{50%{opacity:.56;transform:translateX(-50%) scaleX(1.08)}}@keyframes library-dust{50%{transform:translate(calc(16 * var(--u)),calc(-70 * var(--u)));opacity:.18}}
+
+.theme-art-carnival { background:radial-gradient(circle at 50% 12%,rgba(255,213,88,.13),transparent 42%); }.carnival-canopy{position:absolute;top:0;right:0;left:0;height:calc(300 * var(--u));background:repeating-conic-gradient(from -10deg at 50% 0,#ff4f78 0 8deg,#fff1c0 8deg 16deg,#39d8df 16deg 24deg);clip-path:polygon(0 0,100% 0,100% 16%,94% 72%,88% 24%,82% 72%,76% 24%,70% 72%,64% 24%,58% 72%,52% 24%,46% 72%,40% 24%,34% 72%,28% 24%,22% 72%,16% 24%,10% 72%,4% 24%,0 72%);opacity:.24}.carnival-bulbs{position:absolute;top:calc(52 * var(--u));right:5%;left:5%;display:flex;justify-content:space-between}.carnival-bulbs i{width:calc(10 * var(--u));height:calc(10 * var(--u));border-radius:50%;background:#ffd558;box-shadow:0 0 calc(14 * var(--u)) #ffd558;animation:carnival-bulb 1.8s steps(2,end) calc(var(--i)*-.1s) infinite}.carnival-wheel{position:absolute;inset:0;fill:none;stroke:rgba(57,216,223,.3);stroke-width:4;animation:carnival-wheel 18s linear infinite;transform-origin:900px 1580px}.carnival-confetti i{position:absolute;left:calc(var(--i) * 7.4%);top:calc(-20 * var(--u));width:calc(5 * var(--u));height:calc(16 * var(--u));background:var(--primary);animation:carnival-fall calc(7s + var(--i)*.2s) linear calc(var(--i)*-.5s) infinite}.carnival-confetti i:nth-child(3n){background:var(--secondary)}.carnival-confetti i:nth-child(3n+2){background:var(--accent)}
+@keyframes carnival-bulb{50%{opacity:.25}}@keyframes carnival-wheel{to{rotate:360deg}}@keyframes carnival-fall{to{transform:translate(calc(90 * var(--u)),calc(1980 * var(--u))) rotate(540deg)}}
+
+.theme-art-moonlit { background:linear-gradient(180deg,rgba(47,88,160,.12),transparent 55%); }.moonlit-moon{position:absolute;top:calc(270 * var(--u));right:calc(120 * var(--u));width:calc(180 * var(--u));aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f4f7ff,#b9d9ff 60%,#658bc3);box-shadow:0 0 calc(58 * var(--u)) rgba(185,217,255,.35)}.moonlit-reflection{position:absolute;top:calc(450 * var(--u));right:calc(120 * var(--u));width:calc(180 * var(--u));height:48%;background:linear-gradient(180deg,rgba(185,217,255,.22),transparent);clip-path:polygon(42% 0,58% 0,74% 18%,55% 26%,80% 42%,46% 50%,72% 68%,38% 74%,60% 100%,30% 100%);filter:blur(calc(6 * var(--u)));animation:moon-reflect 6s ease-in-out infinite}.moonlit-waves{position:absolute;right:0;bottom:0;left:0;height:calc(420 * var(--u));display:block}.wave-back{fill:rgba(45,86,150,.34);animation:moon-wave 9s ease-in-out infinite}.wave-mid{fill:rgba(56,121,178,.38);animation:moon-wave 7s ease-in-out -2s infinite reverse}.wave-front{fill:rgba(71,138,216,.46);animation:moon-wave 5s ease-in-out -3s infinite}
+@keyframes moon-reflect{50%{opacity:.52;transform:scaleX(1.24)}}@keyframes moon-wave{50%{transform:translateX(calc(34 * var(--u)))}}
+
+.theme-art-koi { background:radial-gradient(ellipse at 50% 50%,rgba(85,188,169,.1),transparent 60%); }.koi-water{position:absolute;inset:0;background:repeating-radial-gradient(ellipse at 50% 50%,transparent 0 calc(90 * var(--u)),rgba(116,205,188,.04) calc(92 * var(--u)) calc(94 * var(--u)));animation:koi-water 12s linear infinite}.koi-ripples{position:absolute;inset:0;fill:none;stroke:rgba(167,235,220,.38);stroke-width:2;animation:koi-ripple 5s ease-out infinite}.koi-fish{position:absolute;width:calc(180 * var(--u));height:calc(90 * var(--u));fill:#ff8b62;filter:drop-shadow(0 0 calc(9 * var(--u)) rgba(255,139,98,.32));animation:koi-swim 14s ease-in-out infinite}.koi-fish-a{left:4%;top:34%;transform:rotate(28deg)}.koi-fish-b{right:5%;bottom:28%;fill:#f5df9a;animation-delay:-7s;transform:rotate(208deg)}.koi-leaves i{position:absolute;width:calc(46 * var(--u));height:calc(30 * var(--u));border-radius:50%;background:rgba(85,188,130,.3)}.koi-leaves i:nth-child(1){left:8%;top:18%}.koi-leaves i:nth-child(2){right:12%;top:29%}.koi-leaves i:nth-child(3){left:13%;bottom:18%}.koi-leaves i:nth-child(4){right:7%;bottom:12%}
+@keyframes koi-water{to{transform:rotate(2deg) scale(1.03)}}@keyframes koi-ripple{from{opacity:.8}to{opacity:.15;transform:scale(1.08)}}@keyframes koi-swim{50%{transform:translate(calc(80 * var(--u)),calc(52 * var(--u))) rotate(34deg)}}
+
+.theme-art-crystal { background:radial-gradient(ellipse at 50% 108%,rgba(164,120,255,.18),transparent 48%); }.crystal-beam i{position:absolute;top:-8%;width:calc(200 * var(--u));height:78%;background:linear-gradient(180deg,rgba(101,229,237,.18),transparent 72%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);filter:blur(calc(5 * var(--u)));animation:crystal-beam 7s ease-in-out infinite alternate}.crystal-beam i:nth-child(1){left:5%;transform:rotate(-7deg)}.crystal-beam i:nth-child(2){left:40%;animation-delay:-2.3s}.crystal-beam i:nth-child(3){right:4%;transform:rotate(8deg);animation-delay:-4.6s}.crystal-cluster{position:absolute;bottom:0;width:calc(300 * var(--u));height:calc(720 * var(--u));fill:rgba(123,88,228,.4);stroke:rgba(196,241,255,.56);stroke-width:3;filter:drop-shadow(0 0 calc(24 * var(--u)) rgba(164,120,255,.35))}.crystal-cluster-left{left:-4%}.crystal-cluster-right{right:-4%;transform:scaleX(-1)}.crystal-sparks i{position:absolute;left:calc(var(--i) * 9.5%);top:calc(12% + var(--i) * 7.2%);width:calc(10 * var(--u));height:calc(10 * var(--u));background:white;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:crystal-spark calc(2.6s + var(--i)*.18s) ease-in-out calc(var(--i)*-.3s) infinite}
+@keyframes crystal-beam{to{opacity:.38;transform:translateX(calc(50 * var(--u))) rotate(4deg)}}@keyframes crystal-spark{50%{opacity:.12;transform:scale(.5) rotate(45deg)}}
+
+.theme-art-racing { background:linear-gradient(100deg,rgba(240,68,68,.08),transparent 30% 70%,rgba(65,200,232,.08)); }.racing-asphalt{position:absolute;inset:0;background:repeating-linear-gradient(103deg,transparent 0 calc(60 * var(--u)),rgba(255,255,255,.025) calc(61 * var(--u)) calc(63 * var(--u)));opacity:.46}.racing-track{position:absolute;inset:0;fill:none}.track-edge{stroke:rgba(240,68,68,.48);stroke-width:12;stroke-dasharray:46 20;animation:racing-track 3s linear infinite}.track-center{stroke:rgba(244,232,78,.2);stroke-width:4;stroke-dasharray:64 56;animation:racing-track 1.4s linear infinite}.racing-streaks i{position:absolute;left:calc(var(--i) * 9.5%);top:calc(8% + var(--i) * 9%);width:calc(180 * var(--u));height:calc(3 * var(--u));background:linear-gradient(90deg,transparent,var(--accent));transform:rotate(-7deg);animation:racing-streak 2.2s linear calc(var(--i)*-.22s) infinite}.racing-checker{position:absolute;right:0;bottom:0;width:calc(270 * var(--u));height:calc(180 * var(--u));background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0);background-size:calc(38 * var(--u)) calc(38 * var(--u));opacity:.12;clip-path:polygon(30% 0,100% 0,100% 100%,0 100%)}
+@keyframes racing-track{to{stroke-dashoffset:-132}}@keyframes racing-streak{from{transform:translateX(calc(-500 * var(--u))) rotate(-7deg);opacity:0}35%{opacity:.7}to{transform:translateX(calc(1300 * var(--u))) rotate(-7deg);opacity:0}}
+
+.theme-art-west { background:linear-gradient(180deg,rgba(219,128,58,.12),transparent 52%); }.west-sun{position:absolute;top:calc(360 * var(--u));left:calc(120 * var(--u));width:calc(180 * var(--u));aspect-ratio:1;border-radius:50%;background:#e5b65e;box-shadow:0 0 calc(60 * var(--u)) rgba(229,182,94,.28)}.west-mesa{position:absolute;right:0;bottom:0;left:0;height:calc(360 * var(--u));background:#5c2f1f;clip-path:polygon(0 46%,10% 46%,16% 18%,30% 18%,36% 44%,54% 44%,62% 8%,76% 8%,84% 48%,100% 48%,100% 100%,0 100%);opacity:.42}.west-rope{position:absolute;inset:0;fill:none;stroke:rgba(229,182,94,.52);stroke-width:13;stroke-dasharray:10 6;animation:west-rope 9s linear infinite}.west-dust i{position:absolute;left:calc(var(--i) * 8.7%);bottom:calc(3% + var(--i) * 2.1%);width:calc(22 * var(--u));height:calc(6 * var(--u));border-radius:50%;background:rgba(236,193,119,.28);filter:blur(calc(2 * var(--u)));animation:west-dust calc(6s + var(--i)*.25s) linear calc(var(--i)*-.5s) infinite}
+@keyframes west-rope{to{stroke-dashoffset:-128}}@keyframes west-dust{to{transform:translateX(calc(420 * var(--u))) scale(1.8);opacity:0}}
+
+.theme-art-celestial { background:radial-gradient(circle at 50% 78%,rgba(118,139,217,.13),transparent 48%); }.celestial-sky{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,248,223,.66) 0 1px,transparent 1.5px);background-size:calc(96 * var(--u)) calc(83 * var(--u));opacity:.2}.celestial-orrery{position:absolute;inset:0;fill:none;stroke:rgba(216,183,94,.44);stroke-width:3;transform-origin:540px 1500px;animation:celestial-orbit 24s linear infinite}.orrery-planet{fill:#768bd9;stroke:#fff1b6;stroke-width:2}.celestial-gears{color:#d8b75e}.celestial-gears i:nth-child(1){left:calc(-40 * var(--u));top:25%;width:calc(140 * var(--u));height:calc(140 * var(--u))}.celestial-gears i:nth-child(2){right:calc(-50 * var(--u));top:42%;width:calc(180 * var(--u));height:calc(180 * var(--u));animation-direction:reverse}.celestial-gears i:nth-child(3){left:calc(-35 * var(--u));bottom:14%;width:calc(120 * var(--u));height:calc(120 * var(--u));animation-duration:9s}
+@keyframes celestial-orbit{to{rotate:360deg}}
+
+.theme-art-sakura { background:radial-gradient(circle at 50% 14%,rgba(239,143,176,.12),transparent 36%); }.sakura-moon{position:absolute;top:calc(300 * var(--u));left:50%;width:calc(170 * var(--u));aspect-ratio:1;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle,#fff5e9,#ffd7c9 68%,transparent 70%);box-shadow:0 0 calc(42 * var(--u)) rgba(255,215,201,.24)}.sakura-gate{position:absolute;inset:0;fill:none;stroke:rgba(220,91,119,.48);stroke-width:18}.sakura-lanterns{position:absolute;top:calc(170 * var(--u));right:8%;left:8%;display:flex;justify-content:space-between}.sakura-lanterns i{width:calc(42 * var(--u));height:calc(60 * var(--u));border-radius:calc(8 * var(--u));background:linear-gradient(#ffd8aa,#ef8fb0);box-shadow:0 0 calc(22 * var(--u)) rgba(255,196,135,.42);animation:sakura-lantern 4s ease-in-out infinite}.sakura-lanterns i:nth-child(2){animation-delay:-1s}.sakura-lanterns i:nth-child(3){animation-delay:-2s}.sakura-lanterns i:nth-child(4){animation-delay:-3s}.sakura-petals i{position:absolute;left:calc(var(--i) * 7.5%);top:calc(-30 * var(--u));width:calc(13 * var(--u));height:calc(9 * var(--u));border-radius:70% 20% 70% 20%;background:#ef8fb0;animation:sakura-fall calc(9s + var(--i)*.3s) ease-in calc(var(--i)*-.7s) infinite}
+@keyframes sakura-lantern{50%{transform:translateY(calc(8 * var(--u))) rotate(2deg);opacity:.72}}@keyframes sakura-fall{to{transform:translate(calc(180 * var(--u)),calc(1980 * var(--u))) rotate(540deg);opacity:.18}}
+
+/* --------------------------------------------------------------------------
+   Alert and footer identity
+   -------------------------------------------------------------------------- */
+
+:is(.skin-solar_flare,.skin-glacier_cavern,.skin-noir_detective,.skin-retro_spaceport,.skin-royal_tournament,
+  .skin-desert_mirage,.skin-enchanted_forest,.skin-steampunk_foundry,.skin-hologram_lab,.skin-stained_glass,
+  .skin-paper_theater,.skin-midnight_library,.skin-carnival_nights,.skin-moonlit_tide,.skin-koi_pond,
+  .skin-crystal_cavern,.skin-racing_grid,.skin-wild_west,.skin-celestial_clockwork,.skin-sakura_festival) .brand-index {
+  border-color: color-mix(in srgb, var(--primary) 58%, white);
+  background: linear-gradient(145deg,color-mix(in srgb,var(--primary) 20%,transparent),color-mix(in srgb,var(--panel) 92%,black));
+}
+
+.skin-solar_flare .brand-index{border-radius:50%}.skin-glacier_cavern .brand-index{clip-path:polygon(50% 0,100% 25%,86% 100%,14% 100%,0 25%)}
+.skin-noir_detective .brand-index{border-radius:0;box-shadow:calc(5 * var(--u)) calc(5 * var(--u)) 0 #b43b36}.skin-retro_spaceport .brand-index{clip-path:polygon(20% 0,80% 0,100% 20%,100% 80%,80% 100%,20% 100%,0 80%,0 20%)}
+.skin-royal_tournament .brand-index{clip-path:polygon(50% 0,100% 20%,88% 78%,50% 100%,12% 78%,0 20%)}.skin-desert_mirage .brand-index{border-radius:50% 50% 8px 8px}
+.skin-enchanted_forest .brand-index{border-radius:50% 8px 50% 8px}.skin-steampunk_foundry .brand-index{border-radius:50%;box-shadow:inset 0 0 0 calc(6 * var(--u)) rgba(201,122,53,.15)}
+.skin-hologram_lab .brand-index{clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}.skin-stained_glass .brand-index{clip-path:polygon(50% 0,100% 28%,82% 100%,18% 100%,0 28%)}
+.skin-paper_theater .brand-index{border-radius:8px;transform:rotate(-2deg)!important;box-shadow:calc(5 * var(--u)) calc(6 * var(--u)) 0 rgba(105,189,208,.34)}.skin-midnight_library .brand-index{clip-path:polygon(50% 0,100% 30%,100% 100%,0 100%,0 30%)}
+.skin-carnival_nights .brand-index{clip-path:polygon(50% 0,62% 30%,100% 30%,70% 54%,82% 100%,50% 72%,18% 100%,30% 54%,0 30%,38% 30%)}.skin-moonlit_tide .brand-index{border-radius:50% 50% 8px 8px}
+.skin-koi_pond .brand-index{border-radius:50%}.skin-crystal_cavern .brand-index{clip-path:polygon(50% 0,100% 32%,82% 100%,18% 100%,0 32%)}
+.skin-racing_grid .brand-index{clip-path:polygon(18% 0,100% 0,82% 100%,0 100%)}.skin-wild_west .brand-index{clip-path:polygon(10% 0,90% 0,100% 30%,88% 50%,100% 70%,90% 100%,10% 100%,0 70%,12% 50%,0 30%)}
+.skin-celestial_clockwork .brand-index{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}.skin-sakura_festival .brand-index{clip-path:polygon(0 14%,18% 14%,18% 0,82% 0,82% 14%,100% 14%,100% 100%,0 100%)}
+
+:is(.skin-solar_flare,.skin-glacier_cavern,.skin-noir_detective,.skin-retro_spaceport,.skin-royal_tournament,
+  .skin-desert_mirage,.skin-enchanted_forest,.skin-steampunk_foundry,.skin-hologram_lab,.skin-stained_glass,
+  .skin-paper_theater,.skin-midnight_library,.skin-carnival_nights,.skin-moonlit_tide,.skin-koi_pond,
+  .skin-crystal_cavern,.skin-racing_grid,.skin-wild_west,.skin-celestial_clockwork,.skin-sakura_festival) .open-source-banner {
+  border-color: color-mix(in srgb,var(--primary) 42%,transparent);
+  background:color-mix(in srgb,var(--panel) 90%,transparent);
+}
+
+.skin-solar_flare .open-source-banner{border-radius:8px;box-shadow:inset 0 calc(-3 * var(--u)) var(--primary)}
+.skin-glacier_cavern .open-source-banner{clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%)}
+.skin-noir_detective .open-source-banner{border-radius:0;border-left:calc(5 * var(--u)) solid #b43b36}
+.skin-retro_spaceport .open-source-banner{clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%)}
+.skin-royal_tournament .open-source-banner{clip-path:polygon(0 0,46% 0,50% 22%,54% 0,100% 0,96% 100%,4% 100%)}
+.skin-desert_mirage .open-source-banner{border-radius:8px 0 8px 0}.skin-enchanted_forest .open-source-banner{border-radius:8px 0 8px 0}
+.skin-steampunk_foundry .open-source-banner{border-radius:0;box-shadow:inset 0 0 0 calc(3 * var(--u)) rgba(201,122,53,.28)}
+.skin-hologram_lab .open-source-banner{clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%)}
+.skin-stained_glass .open-source-banner{clip-path:polygon(4% 0,46% 0,50% 18%,54% 0,96% 0,100% 50%,96% 100%,4% 100%,0 50%)}
+.skin-paper_theater .open-source-banner{border-radius:8px;transform:rotate(.3deg)}.skin-midnight_library .open-source-banner{clip-path:polygon(0 22%,4% 22%,8% 0,92% 0,96% 22%,100% 22%,100% 100%,0 100%)}
+.skin-carnival_nights .open-source-banner{clip-path:polygon(0 0,8% 18%,16% 0,24% 18%,32% 0,40% 18%,48% 0,56% 18%,64% 0,72% 18%,80% 0,88% 18%,100% 0,100% 100%,0 100%)}
+.skin-moonlit_tide .open-source-banner{clip-path:polygon(0 0,100% 0,100% 78%,88% 100%,76% 82%,64% 100%,52% 82%,40% 100%,28% 82%,16% 100%,0 78%)}
+.skin-koi_pond .open-source-banner{border-radius:8px;clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%,3% 50%)}
+.skin-crystal_cavern .open-source-banner{clip-path:polygon(4% 0,96% 0,100% 36%,96% 100%,4% 100%,0 64%)}
+.skin-racing_grid .open-source-banner{border-radius:0;transform:skewX(-4deg);border-right:calc(6 * var(--u)) solid var(--secondary)}
+.skin-wild_west .open-source-banner{clip-path:polygon(4% 0,96% 0,100% 30%,96% 50%,100% 70%,96% 100%,4% 100%,0 70%,4% 50%,0 30%)}
+.skin-celestial_clockwork .open-source-banner{clip-path:polygon(4% 0,46% 0,50% 20%,54% 0,96% 0,100% 50%,96% 100%,54% 100%,50% 80%,46% 100%,4% 100%,0 50%)}
+.skin-sakura_festival .open-source-banner{clip-path:polygon(0 18%,6% 18%,6% 0,94% 0,94% 18%,100% 18%,100% 100%,0 100%)}
+
+.overlay-shell.skin-solar_flare .sale-alert-enter-active{animation:alert-solar .48s cubic-bezier(.16,.9,.28,1) both}.overlay-shell.skin-glacier_cavern .sale-alert-enter-active{animation:alert-glacier .52s cubic-bezier(.2,.8,.2,1) both}.overlay-shell.skin-noir_detective .sale-alert-enter-active{animation:alert-noir .64s steps(8,end) both}.overlay-shell.skin-retro_spaceport .sale-alert-enter-active{animation:alert-spaceport .5s steps(7,end) both}.overlay-shell.skin-royal_tournament .sale-alert-enter-active{animation:alert-royal .58s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-desert_mirage .sale-alert-enter-active{animation:alert-desert .62s ease-out both}.overlay-shell.skin-enchanted_forest .sale-alert-enter-active{animation:alert-forest .68s cubic-bezier(.2,.8,.2,1) both}.overlay-shell.skin-steampunk_foundry .sale-alert-enter-active{animation:alert-foundry .42s cubic-bezier(.2,.9,.3,1.2) both}.overlay-shell.skin-hologram_lab .sale-alert-enter-active{animation:alert-holo .48s steps(9,end) both}.overlay-shell.skin-stained_glass .sale-alert-enter-active{animation:alert-glass .62s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-paper_theater .sale-alert-enter-active{animation:alert-paper .56s ease-out both}.overlay-shell.skin-midnight_library .sale-alert-enter-active{animation:alert-library .62s ease-out both}.overlay-shell.skin-carnival_nights .sale-alert-enter-active{animation:alert-carnival .56s cubic-bezier(.2,1.3,.3,1) both}.overlay-shell.skin-moonlit_tide .sale-alert-enter-active{animation:alert-tide .68s ease-out both}.overlay-shell.skin-koi_pond .sale-alert-enter-active{animation:alert-koi .72s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-crystal_cavern .sale-alert-enter-active{animation:alert-crystal .52s cubic-bezier(.2,.9,.2,1) both}.overlay-shell.skin-racing_grid .sale-alert-enter-active{animation:alert-racing .38s cubic-bezier(.1,.8,.2,1) both}.overlay-shell.skin-wild_west .sale-alert-enter-active{animation:alert-west .62s cubic-bezier(.2,.8,.25,1.1) both}.overlay-shell.skin-celestial_clockwork .sale-alert-enter-active{animation:alert-celestial .7s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-sakura_festival .sale-alert-enter-active{animation:alert-sakura .7s ease-out both}
+
+@keyframes alert-solar{from{opacity:0;filter:brightness(2.4);transform:translateX(-50%) scale(.72)}to{opacity:1;filter:brightness(1);transform:translateX(-50%)}}
+@keyframes alert-glacier{from{opacity:0;clip-path:polygon(50% 0,50% 0,50% 100%,50% 100%);filter:blur(8px);transform:translateX(-50%)}to{opacity:1;clip-path:var(--mat-shape);filter:none;transform:translateX(-50%)}}
+@keyframes alert-noir{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateX(-50%)}to{opacity:1;clip-path:inset(0);transform:translateX(-50%)}}
+@keyframes alert-spaceport{from{opacity:0;filter:hue-rotate(80deg);clip-path:inset(48% 0);transform:translateX(-50%)}to{opacity:1;filter:none;clip-path:var(--mat-shape);transform:translateX(-50%)}}
+@keyframes alert-royal{from{opacity:0;transform:translateX(-50%) scaleY(.1);transform-origin:top}to{opacity:1;transform:translateX(-50%) scaleY(1)}}
+@keyframes alert-desert{from{opacity:0;filter:blur(12px);transform:translateX(-50%) translateY(calc(30 * var(--u)))}to{opacity:1;filter:none;transform:translateX(-50%)}}
+@keyframes alert-forest{from{opacity:0;clip-path:circle(4% at 0 50%);transform:translateX(-50%)}to{opacity:1;clip-path:var(--mat-shape);transform:translateX(-50%)}}
+@keyframes alert-foundry{from{opacity:0;transform:translateX(-50%) translateY(calc(-28 * var(--u))) scale(1.06)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes alert-holo{from{opacity:0;clip-path:polygon(0 0,8% 0,8% 22%,28% 22%,28% 50%,54% 50%,54% 78%,78% 78%,78% 100%,0 100%);transform:translateX(-50%)}to{opacity:1;clip-path:var(--mat-shape);transform:translateX(-50%)}}
+@keyframes alert-glass{from{opacity:0;filter:brightness(2) saturate(2);transform:translateX(-50%) scaleX(.18)}to{opacity:1;filter:none;transform:translateX(-50%)}}
+@keyframes alert-paper{from{opacity:0;transform:translateX(-50%) rotateX(-70deg);transform-origin:top}to{opacity:1;transform:translateX(-50%) rotateX(0)}}
+@keyframes alert-library{from{opacity:0;transform:translateX(-50%) perspective(700px) rotateY(-36deg);transform-origin:left}to{opacity:1;transform:translateX(-50%) rotateY(0)}}
+@keyframes alert-carnival{from{opacity:0;transform:translateX(-50%) translateY(calc(-35 * var(--u))) scale(.92)}70%{transform:translateX(-50%) translateY(calc(4 * var(--u))) scale(1.02)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes alert-tide{from{opacity:0;clip-path:polygon(0 100%,12% 80%,24% 100%,36% 80%,48% 100%,60% 80%,72% 100%,84% 80%,100% 100%);transform:translateX(-50%) translateY(calc(28 * var(--u)))}to{opacity:1;clip-path:var(--mat-shape);transform:translateX(-50%)}}
+@keyframes alert-koi{from{opacity:0;filter:blur(5px);transform:translateX(-50%) scale(.76)}65%{transform:translateX(-50%) scale(1.02)}to{opacity:1;filter:none;transform:translateX(-50%)}}
+@keyframes alert-crystal{from{opacity:0;filter:brightness(2.2);clip-path:polygon(50% 0,52% 50%,50% 100%,48% 50%);transform:translateX(-50%)}to{opacity:1;filter:none;clip-path:var(--mat-shape);transform:translateX(-50%)}}
+@keyframes alert-racing{from{opacity:0;transform:translateX(calc(-50% - 180 * var(--u))) skewX(-5deg)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes alert-west{from{opacity:0;transform:translateX(-50%) rotate(-2deg) translateY(calc(28 * var(--u)))}65%{transform:translateX(-50%) rotate(.6deg)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes alert-celestial{from{opacity:0;filter:blur(8px);transform:translateX(-50%) scale(.12) rotate(-4deg)}to{opacity:1;filter:none;transform:translateX(-50%)}}
+@keyframes alert-sakura{from{opacity:0;filter:blur(8px);transform:translateX(-50%) translate(calc(-34 * var(--u)),calc(-18 * var(--u)))}to{opacity:1;filter:none;transform:translateX(-50%)}}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.theme-art-solar,.theme-art-glacier,.theme-art-noir,.theme-art-spaceport,.theme-art-royal,.theme-art-desert,
+    .theme-art-forest,.theme-art-foundry,.theme-art-hologram,.theme-art-glass,.theme-art-paper,.theme-art-library,
+    .theme-art-carnival,.theme-art-moonlit,.theme-art-koi,.theme-art-crystal,.theme-art-racing,.theme-art-west,
+    .theme-art-celestial,.theme-art-sakura) * { animation-duration:1ms !important; animation-iteration-count:1 !important; }
+}

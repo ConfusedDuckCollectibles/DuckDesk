@@ -102,7 +102,27 @@ type OverlaySkin =
   | "zen_garden"
   | "vinyl_lounge"
   | "blueprint_draft"
-  | "aurora_peaks";
+  | "aurora_peaks"
+  | "solar_flare"
+  | "glacier_cavern"
+  | "noir_detective"
+  | "retro_spaceport"
+  | "royal_tournament"
+  | "desert_mirage"
+  | "enchanted_forest"
+  | "steampunk_foundry"
+  | "hologram_lab"
+  | "stained_glass"
+  | "paper_theater"
+  | "midnight_library"
+  | "carnival_nights"
+  | "moonlit_tide"
+  | "koi_pond"
+  | "crystal_cavern"
+  | "racing_grid"
+  | "wild_west"
+  | "celestial_clockwork"
+  | "sakura_festival";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
 type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -963,7 +983,27 @@ function skinName(skin: OverlaySkin): string {
     zen_garden: "Zen Garden",
     vinyl_lounge: "Vinyl Lounge",
     blueprint_draft: "Blueprint Studio",
-    aurora_peaks: "Aurora Peaks"
+    aurora_peaks: "Aurora Peaks",
+    solar_flare: "Solar Flare",
+    glacier_cavern: "Glacier Cavern",
+    noir_detective: "Noir After Dark",
+    retro_spaceport: "Retro Spaceport",
+    royal_tournament: "Royal Tournament",
+    desert_mirage: "Desert Mirage",
+    enchanted_forest: "Enchanted Forest",
+    steampunk_foundry: "Clockwork Foundry",
+    hologram_lab: "Hologram Lab",
+    stained_glass: "Stained Glass",
+    paper_theater: "Paper Theater",
+    midnight_library: "Midnight Library",
+    carnival_nights: "Carnival Nights",
+    moonlit_tide: "Moonlit Tide",
+    koi_pond: "Koi Pond",
+    crystal_cavern: "Crystal Cavern",
+    racing_grid: "Racing Grid",
+    wild_west: "Wild West",
+    celestial_clockwork: "Celestial Clockwork",
+    sakura_festival: "Sakura Festival"
   };
   return names[skin];
 }
@@ -1075,7 +1115,27 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "zen_garden" ||
     value === "vinyl_lounge" ||
     value === "blueprint_draft" ||
-    value === "aurora_peaks"
+    value === "aurora_peaks" ||
+    value === "solar_flare" ||
+    value === "glacier_cavern" ||
+    value === "noir_detective" ||
+    value === "retro_spaceport" ||
+    value === "royal_tournament" ||
+    value === "desert_mirage" ||
+    value === "enchanted_forest" ||
+    value === "steampunk_foundry" ||
+    value === "hologram_lab" ||
+    value === "stained_glass" ||
+    value === "paper_theater" ||
+    value === "midnight_library" ||
+    value === "carnival_nights" ||
+    value === "moonlit_tide" ||
+    value === "koi_pond" ||
+    value === "crystal_cavern" ||
+    value === "racing_grid" ||
+    value === "wild_west" ||
+    value === "celestial_clockwork" ||
+    value === "sakura_festival"
   );
 }
 

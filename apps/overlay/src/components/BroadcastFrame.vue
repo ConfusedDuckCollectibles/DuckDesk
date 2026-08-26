@@ -22,7 +22,27 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "zen_garden",
   "vinyl_lounge",
   "blueprint_draft",
-  "aurora_peaks"
+  "aurora_peaks",
+  "solar_flare",
+  "glacier_cavern",
+  "noir_detective",
+  "retro_spaceport",
+  "royal_tournament",
+  "desert_mirage",
+  "enchanted_forest",
+  "steampunk_foundry",
+  "hologram_lab",
+  "stained_glass",
+  "paper_theater",
+  "midnight_library",
+  "carnival_nights",
+  "moonlit_tide",
+  "koi_pond",
+  "crystal_cavern",
+  "racing_grid",
+  "wild_west",
+  "celestial_clockwork",
+  "sakura_festival"
 ]);
 
 const isPremium = computed(() => premiumSkins.has(props.skin));
@@ -305,6 +325,106 @@ const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
       <g v-if="skin === 'aurora_peaks'" class="premium-geometry geometry-aurora">
         <path class="aurora-plate" d="M28 340L28 92L186 28L344 92 M736 92L894 28L1052 92L1052 340 M28 1580L28 1828L186 1892L344 1828 M736 1828L894 1892L1052 1828L1052 1580" />
         <path class="aurora-inlay" d="M48 348L48 118L186 58L324 118 M756 118L894 58L1032 118L1032 348 M48 1572L48 1802L186 1862L324 1802 M756 1802L894 1862L1032 1802L1032 1572" />
+      </g>
+
+      <g v-if="skin === 'solar_flare'" class="premium-geometry geometry-solar">
+        <path class="solar-arc" d="M24 342A318 318 0 0 1 342 24 M738 24a318 318 0 0 1 318 318 M24 1578a318 318 0 0 0 318 318 M738 1896a318 318 0 0 0 318-318" />
+        <path class="solar-rays-frame" d="M88 112l62 62 M992 112l-62 62 M88 1808l62-62 M992 1808l-62-62 M24 520h74 M1056 520h-74 M24 1400h74 M1056 1400h-74" />
+      </g>
+
+      <g v-if="skin === 'glacier_cavern'" class="premium-geometry geometry-glacier">
+        <path class="glacier-frame" d="M28 352V92L104 28h260 M716 28h260l76 64v260 M28 1568v260l76 64h260 M716 1892h260l76-64v-260" />
+        <path class="glacier-facets" d="M104 28l52 72 52-72 58 92 58-92 M976 28l-52 72-52-72-58 92-58-92 M104 1892l52-72 52 72 58-92 58 92 M976 1892l-52-72-52 72-58-92-58 92" />
+      </g>
+
+      <g v-if="skin === 'noir_detective'" class="premium-geometry geometry-noir">
+        <path class="noir-frame" d="M28 330V28h330 M722 28h330v302 M28 1590v302h330 M722 1892h330v-302" />
+        <path class="noir-cuts" d="M28 448h96l34-34h84 M1052 448h-96l-34-34h-84 M28 1472h96l34 34h84 M1052 1472h-96l-34 34h-84" />
+      </g>
+
+      <g v-if="skin === 'retro_spaceport'" class="premium-geometry geometry-spaceport">
+        <path class="spaceport-frame" d="M118 28H962l90 90v244 M1052 1558v244l-90 90H118l-90-90v-244 M28 362V118l90-90 M962 28l90 90" />
+        <path class="spaceport-dock" d="M356 28l46 42h276l46-42 M356 1892l46-42h276l46 42 M28 620h52l34 34-34 34H28 M1052 1232h-52l-34 34 34 34h52" />
+      </g>
+
+      <g v-if="skin === 'royal_tournament'" class="premium-geometry geometry-royal">
+        <path class="royal-frame" d="M28 352V92l62-64h252 M738 28h252l62 64v260 M28 1568v260l62 64h252 M738 1892h252l62-64v-260" />
+        <path class="royal-crown" d="M342 28l48 62 52-62 50 62 48-62 48 62 50-62 52 62 48-62 M342 1892l48-62 52 62 50-62 48 62 48-62 50 62 52-62 48 62" />
+      </g>
+
+      <g v-if="skin === 'desert_mirage'" class="premium-geometry geometry-desert">
+        <path class="desert-frame" d="M26 344V116Q220 16 410 52 M670 52q190-36 384 64v228 M26 1576v228q194 100 384 64 M670 1868q190 36 384-64v-228" />
+        <path class="desert-ripple" d="M54 388V152Q230 72 398 94 M682 94q168-22 344 58v236 M54 1532v236q176 80 344 58 M682 1826q168 22 344-58v-236" />
+      </g>
+
+      <g v-if="skin === 'enchanted_forest'" class="premium-geometry geometry-forest">
+        <path class="forest-frame" d="M38 360C12 242 82 88 224 38h146 M710 38h146c142 50 212 204 186 322 M38 1560c-26 118 44 272 186 322h146 M710 1882h146c142-50 212-204 186-322" />
+        <path class="forest-leaves" d="M76 184q82-92 146-26-80 96-146 26Z M1004 184q-82-92-146-26 80 96 146 26Z M76 1736q82 92 146 26-80-96-146-26Z M1004 1736q-82 92-146 26 80-96 146-26Z" />
+      </g>
+
+      <g v-if="skin === 'steampunk_foundry'" class="premium-geometry geometry-foundry">
+        <path class="foundry-frame" d="M28 352V92h64V28h280 M708 28h280v64h64v260 M28 1568v260h64v64h280 M708 1892h280v-64h64v-260" />
+        <path class="foundry-rivets" d="M70 420v1080 M1010 420v1080" /><g class="foundry-frame-gears"><circle cx="70" cy="520" r="24" /><circle cx="1010" cy="1400" r="24" /></g>
+      </g>
+
+      <g v-if="skin === 'hologram_lab'" class="premium-geometry geometry-hologram">
+        <path class="holo-frame" d="M116 28H964l88 88v244 M1052 1560v244l-88 88H116l-88-88v-244 M28 360V116l88-88" />
+        <path class="holo-corners" d="M52 236l92-92h142 M794 144h142l92 92 M52 1684l92 92h142 M794 1776h142l92-92" />
+      </g>
+
+      <g v-if="skin === 'stained_glass'" class="premium-geometry geometry-glass">
+        <path class="glass-frame" d="M28 352V108L108 28h268 M704 28h268l80 80v244 M28 1568v244l80 80h268 M704 1892h268l80-80v-244" />
+        <path class="glass-facets" d="M108 28l92 90 86-90 90 120 M972 28l-92 90-86-90-90 120 M108 1892l92-90 86 90 90-120 M972 1892l-92-90-86 90-90-120" />
+      </g>
+
+      <g v-if="skin === 'paper_theater'" class="premium-geometry geometry-paper">
+        <path class="paper-frame" d="M48 346V86Q48 34 100 34h280 M700 34h280q52 0 52 52v260 M48 1574v260q0 52 52 52h280 M700 1886h280q52 0 52-52v-260" />
+        <path class="paper-scallop" d="M380 34q40 68 80 0 40 68 80 0 40 68 80 0 40 68 80 0 M380 1886q40-68 80 0 40-68 80 0 40-68 80 0 40-68 80 0" />
+      </g>
+
+      <g v-if="skin === 'midnight_library'" class="premium-geometry geometry-library">
+        <path class="library-frame" d="M34 360V184Q34 34 184 34h190 M706 34h190q150 0 150 150v176 M34 1560v176q0 150 150 150h190 M706 1886h190q150 0 150-150v-176" />
+        <path class="library-books" d="M54 446h76v162H54 M1026 446h-76v162h76 M54 1312h76v162H54 M1026 1312h-76v162h76" />
+      </g>
+
+      <g v-if="skin === 'carnival_nights'" class="premium-geometry geometry-carnival">
+        <path class="carnival-frame" d="M28 352V114Q118 28 222 28h636q104 0 194 86v238 M28 1568v238q90 86 194 86h636q104 0 194-86v-238" />
+        <path class="carnival-bulb-line" pathLength="1" d="M222 48h636 M222 1872h636" />
+      </g>
+
+      <g v-if="skin === 'moonlit_tide'" class="premium-geometry geometry-moonlit">
+        <path class="moonlit-frame" d="M28 350V110Q178 14 340 54 M740 54q162-40 312 56v240 M28 1570v240q150 96 312 56 M740 1866q162 40 312-56v-240" />
+        <path class="moonlit-wave-frame" d="M54 388V152q130-62 260 0t260 0 260 0 192 0v236 M54 1532v236q130 62 260 0t260 0 260 0 192 0v-236" />
+      </g>
+
+      <g v-if="skin === 'koi_pond'" class="premium-geometry geometry-koi">
+        <path class="koi-frame" d="M36 352V126Q36 36 126 36h246 M708 36h246q90 0 90 90v226 M36 1568v226q0 90 90 90h246 M708 1884h246q90 0 90-90v-226" />
+        <path class="koi-rings-frame" d="M68 442q80-54 160 0t160 0 M1012 1478q-80 54-160 0t-160 0" />
+      </g>
+
+      <g v-if="skin === 'crystal_cavern'" class="premium-geometry geometry-crystal">
+        <path class="crystal-frame" d="M28 350V108L118 28h264 M698 28h264l90 80v242 M28 1570v242l90 80h264 M698 1892h264l90-80v-242" />
+        <path class="crystal-facets-frame" d="M118 28l72 112 66-112 64 140 62-140 M962 28l-72 112-66-112-64 140-62-140 M118 1892l72-112 66 112 64-140 62 140 M962 1892l-72-112-66 112-64-140-62 140" />
+      </g>
+
+      <g v-if="skin === 'racing_grid'" class="premium-geometry geometry-racing">
+        <path class="racing-frame" d="M18 350L104 28h332 M644 28h418l-86 322 M18 1570l86 322h332 M644 1892h418l-86-322" />
+        <path class="racing-stripes-frame" d="M122 28l48 92 48-92 48 92 48-92 M958 1892l-48-92-48 92-48-92-48 92" />
+      </g>
+
+      <g v-if="skin === 'wild_west'" class="premium-geometry geometry-west">
+        <path class="west-frame" d="M34 350V148Q34 34 148 34h238 M694 34h238q114 0 114 114v202 M34 1570v202q0 114 114 114h238 M694 1886h238q114 0 114-114v-202" />
+        <path class="west-knots-frame" d="M34 450q76-48 0-96 M1046 450q-76-48 0-96 M34 1470q76 48 0 96 M1046 1470q-76 48 0 96" />
+      </g>
+
+      <g v-if="skin === 'celestial_clockwork'" class="premium-geometry geometry-celestial">
+        <path class="celestial-frame" d="M28 350A322 322 0 0 1 350 28 M730 28a322 322 0 0 1 322 322 M28 1570a322 322 0 0 0 322 322 M730 1892a322 322 0 0 0 322-322" />
+        <path class="celestial-orbits-frame" d="M104 146A276 124 0 0 1 392 42 M976 146A276 124 0 0 0 688 42 M104 1774a276 124 0 0 0 288 104 M976 1774a276 124 0 0 1-288 104" />
+      </g>
+
+      <g v-if="skin === 'sakura_festival'" class="premium-geometry geometry-sakura">
+        <path class="sakura-frame" d="M34 350V126h92V34h262 M692 34h262v92h92v224 M34 1570v224h92v92h262 M692 1886h262v-92h92v-224" />
+        <path class="sakura-branches-frame" d="M126 34q74 88 160 34 54-34 102 24 M954 34q-74 88-160 34-54-34-102 24 M126 1886q74-88 160-34 54 34 102-24 M954 1886q-74-88-160-34-54 34-102-24" />
       </g>
     </svg>
 

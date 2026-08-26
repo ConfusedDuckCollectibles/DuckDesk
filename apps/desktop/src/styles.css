@@ -1097,6 +1097,130 @@ textarea {
     linear-gradient(180deg, #070d20, #1a2a58);
 }
 
+.swatch.solar-flare {
+  background:
+    radial-gradient(circle at 72% 34%, #fff6af 0 11%, #ff9b31 12% 24%, transparent 25%),
+    conic-gradient(from 20deg, #1a0710, #d93420, #ffcc53, #1a0710);
+}
+
+.swatch.glacier-cavern {
+  background:
+    linear-gradient(128deg, transparent 0 35%, rgba(255, 255, 255, 0.82) 36% 42%, transparent 43%),
+    linear-gradient(145deg, #061426, #3b93bd 52%, #d9fbff);
+}
+
+.swatch.noir-detective {
+  background:
+    repeating-linear-gradient(96deg, transparent 0 7px, rgba(255, 255, 255, 0.14) 8px 9px),
+    radial-gradient(circle at 72% 28%, #f2d9a0, #26282d 30%, #07090c 68%);
+}
+
+.swatch.retro-spaceport {
+  background:
+    radial-gradient(circle at 62% 45%, transparent 0 18%, #f26b38 19% 22%, transparent 23%),
+    linear-gradient(135deg, #101d30, #2d8a89 50%, #f0c95b);
+}
+
+.swatch.royal-tournament {
+  background:
+    linear-gradient(28deg, transparent 0 42%, #f5d879 43% 50%, transparent 51%),
+    linear-gradient(135deg, #24091f, #8e2348 52%, #e6c35c);
+}
+
+.swatch.desert-mirage {
+  background:
+    radial-gradient(circle at 76% 26%, #fff1a6 0 10%, transparent 11%),
+    linear-gradient(165deg, #226b78 0 38%, #e4a55e 39% 67%, #87442d 68%);
+}
+
+.swatch.enchanted-forest {
+  background:
+    radial-gradient(circle at 28% 62%, #e9ff8f 0 3%, transparent 4%),
+    radial-gradient(circle at 70% 35%, #da8aff 0 4%, transparent 5%),
+    linear-gradient(135deg, #06170f, #217744 52%, #765099);
+}
+
+.swatch.steampunk-foundry {
+  background:
+    repeating-radial-gradient(circle at 72% 30%, transparent 0 5px, #bd7942 6px 8px, transparent 9px 12px),
+    linear-gradient(135deg, #1b100c, #754028 55%, #e1a45c);
+}
+
+.swatch.hologram-lab {
+  background:
+    linear-gradient(rgba(37, 240, 236, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 240, 236, 0.28) 1px, transparent 1px),
+    linear-gradient(135deg, #03131c, #166a78 52%, #f05bff);
+  background-size: 8px 8px, 8px 8px, auto;
+}
+
+.swatch.stained-glass {
+  background:
+    conic-gradient(from 32deg at 50% 50%, #ff4e6f 0 12%, #274d9d 13% 26%, #f2c94c 27% 39%, #2aa878 40% 55%, #a747b8 56% 72%, #111a36 73%);
+}
+
+.swatch.paper-theater {
+  background:
+    radial-gradient(circle at 72% 24%, #ef8e61 0 10%, transparent 11%),
+    linear-gradient(158deg, #f6e0ba 0 46%, #75a98d 47% 65%, #385f5d 66%);
+}
+
+.swatch.midnight-library {
+  background:
+    repeating-linear-gradient(90deg, #412624 0 6px, #a9784e 7px 10px, #21161a 11px 15px),
+    linear-gradient(135deg, #120d13, #e5bc68);
+}
+
+.swatch.carnival-nights {
+  background:
+    repeating-conic-gradient(from -10deg at 50% 0, #ff4f78 0 12deg, #fff1c0 13deg 24deg, #39d8df 25deg 36deg),
+    #151130;
+}
+
+.swatch.moonlit-tide {
+  background:
+    radial-gradient(circle at 72% 24%, #f5f1dd 0 11%, transparent 12%),
+    repeating-radial-gradient(ellipse at 50% 110%, #1c6680 0 7px, #071c35 8px 14px);
+}
+
+.swatch.koi-pond {
+  background:
+    radial-gradient(ellipse at 28% 62%, #f26445 0 9%, transparent 10%),
+    radial-gradient(circle at 72% 30%, #d9e8b3 0 11%, transparent 12%),
+    repeating-radial-gradient(circle, #166d78 0 7px, #0a3b49 8px 14px);
+}
+
+.swatch.crystal-cavern {
+  background:
+    conic-gradient(from 18deg at 62% 62%, #0d153d, #a478ff 12%, #65e5ed 22%, #152252 32%, #f4e7ff 43%, #0d153d 58%);
+}
+
+.swatch.racing-grid {
+  background:
+    conic-gradient(#ffffff 25%, #151515 0 50%, #ffffff 0 75%, #151515 0) right bottom / 18px 18px,
+    linear-gradient(135deg, #101216 0 45%, #f04444 46% 60%, #41c8e8 61%);
+}
+
+.swatch.wild-west {
+  background:
+    radial-gradient(circle at 22% 30%, #e5b65e 0 12%, transparent 13%),
+    linear-gradient(158deg, #5e8090 0 40%, #ba6c3c 41% 66%, #5c2f1f 67%);
+}
+
+.swatch.celestial-clockwork {
+  background:
+    repeating-radial-gradient(circle at 65% 36%, transparent 0 5px, #d9ad57 6px 8px, transparent 9px 13px),
+    radial-gradient(circle at 28% 60%, #efe6b8 0 4%, transparent 5%),
+    linear-gradient(135deg, #080f2c, #2d3068 52%, #b0755a);
+}
+
+.swatch.sakura-festival {
+  background:
+    radial-gradient(circle at 70% 25%, #fff5e9 0 12%, transparent 13%),
+    linear-gradient(32deg, transparent 0 44%, #dc5b77 45% 49%, transparent 50%),
+    linear-gradient(135deg, #15182f, #ef8fb0 55%, #ffd8aa);
+}
+
 .premium-theme-card {
   border-color: rgba(255, 207, 97, 0.34);
 }

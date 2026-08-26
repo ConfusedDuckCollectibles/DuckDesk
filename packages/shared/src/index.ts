@@ -75,7 +75,27 @@ export type OverlaySkin =
   | "zen_garden"
   | "vinyl_lounge"
   | "blueprint_draft"
-  | "aurora_peaks";
+  | "aurora_peaks"
+  | "solar_flare"
+  | "glacier_cavern"
+  | "noir_detective"
+  | "retro_spaceport"
+  | "royal_tournament"
+  | "desert_mirage"
+  | "enchanted_forest"
+  | "steampunk_foundry"
+  | "hologram_lab"
+  | "stained_glass"
+  | "paper_theater"
+  | "midnight_library"
+  | "carnival_nights"
+  | "moonlit_tide"
+  | "koi_pond"
+  | "crystal_cavern"
+  | "racing_grid"
+  | "wild_west"
+  | "celestial_clockwork"
+  | "sakura_festival";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -411,7 +431,27 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "zen_garden" ||
     value === "vinyl_lounge" ||
     value === "blueprint_draft" ||
-    value === "aurora_peaks"
+    value === "aurora_peaks" ||
+    value === "solar_flare" ||
+    value === "glacier_cavern" ||
+    value === "noir_detective" ||
+    value === "retro_spaceport" ||
+    value === "royal_tournament" ||
+    value === "desert_mirage" ||
+    value === "enchanted_forest" ||
+    value === "steampunk_foundry" ||
+    value === "hologram_lab" ||
+    value === "stained_glass" ||
+    value === "paper_theater" ||
+    value === "midnight_library" ||
+    value === "carnival_nights" ||
+    value === "moonlit_tide" ||
+    value === "koi_pond" ||
+    value === "crystal_cavern" ||
+    value === "racing_grid" ||
+    value === "wild_west" ||
+    value === "celestial_clockwork" ||
+    value === "sakura_festival"
   );
 }
 

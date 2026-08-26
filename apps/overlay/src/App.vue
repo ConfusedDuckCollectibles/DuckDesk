@@ -120,7 +120,27 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "zen_garden",
   "vinyl_lounge",
   "blueprint_draft",
-  "aurora_peaks"
+  "aurora_peaks",
+  "solar_flare",
+  "glacier_cavern",
+  "noir_detective",
+  "retro_spaceport",
+  "royal_tournament",
+  "desert_mirage",
+  "enchanted_forest",
+  "steampunk_foundry",
+  "hologram_lab",
+  "stained_glass",
+  "paper_theater",
+  "midnight_library",
+  "carnival_nights",
+  "moonlit_tide",
+  "koi_pond",
+  "crystal_cavern",
+  "racing_grid",
+  "wild_west",
+  "celestial_clockwork",
+  "sakura_festival"
 ]);
 const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
 const hypeProgress = computed(() => {
