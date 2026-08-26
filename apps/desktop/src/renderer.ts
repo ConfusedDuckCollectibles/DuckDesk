@@ -55,6 +55,9 @@ type DesktopStatus = {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
+  hideFooter: boolean;
+  firstRunComplete: boolean;
+  platform: string;
   obsStatus: string;
   extensionConnected: boolean;
   whatnotPageActive: boolean;
@@ -148,6 +151,8 @@ type DesktopApi = {
   copyOverlayUrl: () => Promise<void>;
   openOverlay: () => Promise<void>;
   revealExtension: () => Promise<void>;
+  completeFirstRun: () => Promise<DesktopStatus>;
+  setHideFooter: (hidden: boolean) => Promise<DesktopStatus>;
   autoAddObsOverlay: (password?: string) => Promise<DesktopStatus>;
   sendTestSale: () => Promise<void>;
   sendTestBid: () => Promise<void>;
@@ -198,6 +203,30 @@ type ShowEventLog = {
   message?: string;
 };
 
+type DeskView = "live" | "setup" | "library";
+type DeskTab =
+  | "live-show"
+  | "live-controls"
+  | "live-preview"
+  | "live-events"
+  | "setup-connection"
+  | "setup-preflight"
+  | "library-themes"
+  | "library-addons"
+  | "library-studio";
+
+const DESK_TABS: DeskTab[] = [
+  "live-show",
+  "live-controls",
+  "live-preview",
+  "live-events",
+  "setup-connection",
+  "setup-preflight",
+  "library-themes",
+  "library-addons",
+  "library-studio"
+];
+
 declare global {
   interface Window {
     duckDesk: DesktopApi;
@@ -205,6 +234,23 @@ declare global {
 }
 
 const statusPill = readElement<HTMLSpanElement>("status-pill");
+const statusError = readElement<HTMLElement>("status-error");
+const titlebarViewLabel = readElement<HTMLElement>("titlebar-view-label");
+const titlebarBridge = readElement<HTMLElement>("titlebar-bridge");
+const titlebarObs = readElement<HTMLElement>("titlebar-obs");
+const titlebarClients = readElement<HTMLElement>("titlebar-clients");
+const eventLogEmpty = readElement<HTMLElement>("event-log-empty");
+const hideFooter = readElement<HTMLInputElement>("hide-footer");
+const firstRun = readElement<HTMLElement>("first-run");
+const firstRunObs = readElement<HTMLButtonElement>("first-run-obs");
+const firstRunExtension = readElement<HTMLButtonElement>("first-run-extension");
+const firstRunDismiss = readElement<HTMLButtonElement>("first-run-dismiss");
+const dashboard = document.querySelector<HTMLElement>(".dashboard");
+const viewButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-desk-view]"));
+const tabButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-desk-tab]"));
+const tabSets = Array.from(document.querySelectorAll<HTMLElement>(".section-tab-set"));
+const tabPanels = Array.from(document.querySelectorAll<HTMLElement>(".dashboard > [data-tab]"));
+const liveSoundToggle = document.querySelector<HTMLButtonElement>("[data-live-sound]");
 const overlayUrl = readElement<HTMLInputElement>("overlay-url");
 const streamTitle = readElement<HTMLInputElement>("stream-title");
 const saveTitle = readElement<HTMLButtonElement>("save-title");
@@ -280,6 +326,11 @@ const triggerRecap = readElement<HTMLButtonElement>("trigger-recap");
 
 let currentStatus: DesktopStatus | undefined;
 let volumeSaveTimer: number | undefined;
+const lastDeskTabs: Record<DeskView, DeskTab> = {
+  live: "live-show",
+  setup: "setup-connection",
+  library: "library-themes"
+};
 
 createIcons({
   icons: {
@@ -346,6 +397,42 @@ triggerGif.addEventListener("click", async () => {
 
 openOverlay.addEventListener("click", () => {
   void window.duckDesk.openOverlay();
+});
+
+for (const button of viewButtons) {
+  button.addEventListener("click", () => {
+    const view = button.dataset.deskView;
+    if (view === "live" || view === "setup" || view === "library") {
+      setDeskView(view);
+    }
+  });
+}
+
+for (const button of tabButtons) {
+  button.addEventListener("click", () => {
+    const tab = button.dataset.deskTab;
+    if (isDeskTab(tab)) {
+      setDeskTab(tab);
+    }
+  });
+}
+
+hideFooter.addEventListener("change", async () => {
+  renderStatus(await window.duckDesk.setHideFooter(hideFooter.checked));
+});
+
+firstRunObs.addEventListener("click", async () => {
+  setDeskView("setup", "setup-connection");
+  renderStatus(await window.duckDesk.autoAddObsOverlay(obsPassword.value.trim()));
+});
+
+firstRunExtension.addEventListener("click", () => {
+  setDeskView("setup", "setup-connection");
+  void window.duckDesk.revealExtension();
+});
+
+firstRunDismiss.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.completeFirstRun());
 });
 
 async function connectObs(): Promise<void> {
@@ -601,12 +688,14 @@ window.duckDesk.onEvent((event) => {
   const item = document.createElement("li");
   item.textContent = formatEventLog(event);
   eventLog.prepend(item);
+  eventLogEmpty.hidden = true;
 
   while (eventLog.children.length > 8) {
     eventLog.lastElementChild?.remove();
   }
 });
 
+setDeskView("live");
 void window.duckDesk.getStatus().then(renderStatus);
 window.setInterval(() => {
   void window.duckDesk.getStatus().then(renderStatus);
@@ -614,8 +703,17 @@ window.setInterval(() => {
 
 function renderStatus(status: DesktopStatus): void {
   currentStatus = status;
-  statusPill.textContent = status.ok ? "Running" : "Needs Attention";
+  document.body.classList.toggle("platform-darwin", status.platform === "darwin");
+  document.body.classList.toggle("platform-win32", status.platform === "win32");
+  statusPill.textContent = status.ok ? "Running" : "Needs attention";
   statusPill.classList.toggle("ok", status.ok);
+  statusError.hidden = !status.lastError;
+  statusError.textContent = status.lastError ?? "";
+  firstRun.hidden = status.firstRunComplete;
+  hideFooter.checked = status.hideFooter;
+  if (liveSoundToggle) {
+    liveSoundToggle.hidden = status.addOns.includes("noise_machines");
+  }
   overlayUrl.value = status.overlayUrl;
   const obsReady = isObsReady(status.obsStatus);
   const obsConnecting = status.obsStatus.startsWith("Connecting");
@@ -623,6 +721,9 @@ function renderStatus(status: DesktopStatus): void {
   autoObs.title = status.obsStatus;
   obsConnectionStatus.textContent = status.obsStatus;
   obsConnectionStatus.className = `obs-status-line${obsReady ? " is-ready" : obsConnecting ? " is-connecting" : status.obsStatus === "Not connected" ? "" : " is-error"}`;
+  titlebarBridge.textContent = status.ok ? "Bridge on" : "Bridge";
+  titlebarObs.textContent = obsReady ? "OBS ready" : "OBS";
+  titlebarClients.textContent = `${status.clients} client${status.clients === 1 ? "" : "s"}`;
   renderPreflightCheck(preflightBridge, status.ok, status.ok ? "Online" : "Needs attention");
   renderPreflightCheck(preflightObs, obsReady, obsReady ? "Ready" : obsConnecting ? "Connecting" : "Setup needed", obsConnecting);
   renderPreflightCheck(
@@ -636,8 +737,8 @@ function renderStatus(status: DesktopStatus): void {
     status.lastRealEventAt ? `Received ${formatRelativeTime(status.lastRealEventAt)}` : "No real events yet",
     !status.lastRealEventAt
   );
-  const readyChecks = [status.ok, obsReady, status.whatnotPageActive].filter(Boolean).length;
-  preflightSummary.textContent = readyChecks === 3 ? "Ready to stream" : `${readyChecks} of 3 ready`;
+  const readyChecks = [status.ok, obsReady, status.whatnotPageActive, Boolean(status.lastRealEventAt)].filter(Boolean).length;
+  preflightSummary.textContent = readyChecks === 4 ? "Ready to stream" : `${readyChecks} of 4 ready`;
   streamTitle.value = status.streamTitle;
   milestoneThresholds.value = status.milestoneThresholds.join(", ");
   hypeSeconds.value = String(status.hypeMeterSeconds);
@@ -723,6 +824,51 @@ function renderStatus(status: DesktopStatus): void {
 
 function isObsReady(status: string): boolean {
   return status.startsWith("Added") || status.startsWith("Updated");
+}
+
+function setDeskView(view: DeskView, tab?: DeskTab): void {
+  const nextTab = tab ?? lastDeskTabs[view];
+  lastDeskTabs[view] = nextTab;
+  dashboard?.setAttribute("data-current-view", view);
+  dashboard?.setAttribute("data-current-tab", nextTab);
+  titlebarViewLabel.textContent = view === "live" ? "Live" : view === "setup" ? "Setup" : "Library";
+  for (const button of viewButtons) {
+    const active = button.dataset.deskView === view;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  }
+  for (const tabSet of tabSets) {
+    tabSet.hidden = tabSet.dataset.tabsFor !== view;
+  }
+  for (const button of tabButtons) {
+    const active = button.dataset.deskTab === nextTab;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-selected", String(active));
+  }
+  for (const panel of tabPanels) {
+    const tabs = panel.dataset.tab?.split(/\s+/) ?? [];
+    panel.classList.toggle("is-tab-hidden", !tabs.includes(nextTab));
+  }
+}
+
+function setDeskTab(tab: DeskTab): void {
+  const view = deskViewForTab(tab);
+  lastDeskTabs[view] = tab;
+  setDeskView(view, tab);
+}
+
+function deskViewForTab(tab: DeskTab): DeskView {
+  if (tab.startsWith("setup-")) {
+    return "setup";
+  }
+  if (tab.startsWith("library-")) {
+    return "library";
+  }
+  return "live";
+}
+
+function isDeskTab(value: string | undefined): value is DeskTab {
+  return DESK_TABS.includes(value as DeskTab);
 }
 
 function renderPreflightCheck(element: HTMLElement, ready: boolean, detail: string, pending = false): void {

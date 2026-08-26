@@ -13,6 +13,7 @@ import {
   clipboard,
   dialog,
   ipcMain,
+  nativeTheme,
   shell,
   type OpenDialogOptions
 } from "electron";
@@ -86,6 +87,9 @@ let goals: GoalConfig[] = [
   { kind: "orders", target: 10, label: "Order Goal" }
 ];
 let auctionTimerSeconds = 45;
+let hideFooter = false;
+let firstRunComplete = false;
+const showReadyAddOns: AddOnId[] = ["stream_skins", "noise_machines", "bid_ladder", "activity_feed"];
 let obsStatus = "Not connected";
 let extensionLastSeenAt = 0;
 let whatnotPageReportedActive = false;
@@ -127,6 +131,8 @@ type PersistedSettings = {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
+  hideFooter: boolean;
+  firstRunComplete: boolean;
 };
 
 process.on("uncaughtException", (error) => {
@@ -143,6 +149,7 @@ process.on("unhandledRejection", (error) => {
 
 void electronApp.whenReady().then(async () => {
   log("app ready");
+  nativeTheme.themeSource = "dark";
   loadSettings();
   registerIpc();
   createWindow();
@@ -176,10 +183,16 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 960,
-    minWidth: 1100,
+    minWidth: 960,
     minHeight: 720,
     title: "Duck Desk",
-    backgroundColor: "#f7f4e7",
+    backgroundColor: "#071014",
+    ...(process.platform === "darwin"
+      ? {
+          titleBarStyle: "hiddenInset" as const,
+          trafficLightPosition: { x: 16, y: 18 }
+        }
+      : {}),
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -349,6 +362,23 @@ function registerIpc(): void {
 
   ipcMain.handle("duck-desk:reveal-extension", () => {
     void shell.openPath(resolveExtensionPath());
+  });
+
+  ipcMain.handle("duck-desk:complete-first-run", () => {
+    firstRunComplete = true;
+    scheduleSettingsSave();
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-hide-footer", (_event, hidden: unknown) => {
+    if (typeof hidden !== "boolean") {
+      return getStatus();
+    }
+    hideFooter = hidden;
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
   });
 
   ipcMain.handle("duck-desk:auto-add-obs-overlay", async (_event, password: unknown) => {
@@ -1037,6 +1067,13 @@ function applyConfigPatch(input: unknown): void {
     }
     auctionTimerSeconds = Math.max(5, Math.min(900, Math.round(input.auctionTimerSeconds)));
   }
+
+  if ("hideFooter" in input) {
+    if (typeof input.hideFooter !== "boolean") {
+      throw new Error("Invalid footer setting.");
+    }
+    hideFooter = input.hideFooter;
+  }
 }
 
 function checkMilestones(): void {
@@ -1188,9 +1225,21 @@ function loadSettings(): void {
       }
       customSounds = loadedSounds;
     }
+    if (typeof parsed.firstRunComplete === "boolean") {
+      firstRunComplete = parsed.firstRunComplete;
+    } else {
+      firstRunComplete = true;
+    }
+    if (typeof parsed.hideFooter === "boolean") {
+      hideFooter = parsed.hideFooter;
+    }
     log(`loaded creator settings version ${readNumber(parsed, "version") ?? 1}`);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      for (const addOn of showReadyAddOns) {
+        activeAddOns.add(addOn);
+      }
+    } else {
       log(`unable to load creator settings: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -1233,7 +1282,9 @@ function saveSettings(): void {
     promoBanners,
     sceneMode,
     goals,
-    auctionTimerSeconds
+    auctionTimerSeconds,
+    hideFooter,
+    firstRunComplete
   };
 
   try {
@@ -1493,6 +1544,9 @@ function getStatus(): {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
+  hideFooter: boolean;
+  firstRunComplete: boolean;
+  platform: NodeJS.Platform;
   obsStatus: string;
   extensionConnected: boolean;
   whatnotPageActive: boolean;
@@ -1536,6 +1590,9 @@ function getStatus(): {
     sceneMode,
     goals,
     auctionTimerSeconds,
+    hideFooter,
+    firstRunComplete,
+    platform: process.platform,
     obsStatus,
     extensionConnected,
     whatnotPageActive: extensionConnected && whatnotPageReportedActive,
@@ -1564,6 +1621,7 @@ function createOverlayConfig(): {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
+  hideFooter: boolean;
   timestamp: number;
 } {
   return {
@@ -1586,6 +1644,7 @@ function createOverlayConfig(): {
     sceneMode,
     goals,
     auctionTimerSeconds,
+    hideFooter,
     timestamp: Date.now()
   };
 }

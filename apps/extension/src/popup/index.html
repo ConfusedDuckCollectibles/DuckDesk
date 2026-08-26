@@ -9,7 +9,13 @@
   <body>
     <main>
       <div class="heading-row">
-        <div class="mark">DD</div>
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <circle cx="13.5" cy="16.5" r="9" fill="currentColor" />
+            <circle cx="16.5" cy="13.5" r="1.7" fill="#03090d" />
+            <path d="M22 13.5 L30.5 11.2 L22 18.2 Z" fill="#ffcf61" />
+          </svg>
+        </div>
         <div>
           <h1>Duck Desk</h1>
           <p>Live connection</p>
@@ -23,7 +29,8 @@
         <span>Seller page</span>
         <strong id="page-status">Checking</strong>
       </div>
-      <button id="refresh-status" type="button">Refresh Status</button>
+      <p id="last-event" class="last-event">No events yet</p>
+      <button id="refresh-status" type="button">Refresh status</button>
     </main>
   </body>
 </html>

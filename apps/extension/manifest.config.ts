@@ -2,7 +2,7 @@ import type { ManifestV3Export } from "@crxjs/vite-plugin";
 
 const manifest: ManifestV3Export = {
   manifest_version: 3,
-  name: "Duck Desk Event Bridge",
+  name: "Duck Desk",
   description: "Detects Whatnot seller events and sends them to the local Duck Desk overlay service.",
   version: "0.1.0",
   permissions: ["activeTab", "scripting"],

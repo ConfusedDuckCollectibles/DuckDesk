@@ -478,4 +478,28 @@ const auroraStars = [
       />
     </svg>
   </div>
+
+  <div v-else-if="skin === 'sports_broadcast'" class="theme-art theme-art-sports" aria-hidden="true">
+    <div class="sports-score-glow" />
+    <svg class="sports-hash" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M0 1680 H1080 M0 1740 H1080 M0 1800 H1080" />
+      <path d="M90 1640 V1880 M990 1640 V1880" />
+    </svg>
+  </div>
+
+  <div v-else-if="skin === 'cyber_duck_city'" class="theme-art theme-art-city" aria-hidden="true">
+    <div class="city-scan" />
+    <svg class="city-skyline" viewBox="0 0 1080 240" preserveAspectRatio="none">
+      <path d="M0 240 L0 150 L70 150 L70 90 L130 90 L130 160 L190 160 L190 70 L250 70 L250 130 L330 130 L330 40 L390 40 L390 120 L470 120 L470 80 L540 80 L540 150 L620 150 L620 60 L700 60 L700 140 L780 140 L780 50 L860 50 L860 110 L940 110 L940 160 L1080 160 L1080 240 Z" />
+    </svg>
+  </div>
+
+  <div v-else-if="skin === 'luxury_nightclub'" class="theme-art theme-art-club" aria-hidden="true">
+    <div class="club-wash" />
+    <div class="club-spots">
+      <i />
+      <i />
+      <i />
+    </div>
+  </div>
 </template>

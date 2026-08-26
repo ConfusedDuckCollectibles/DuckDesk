@@ -21,7 +21,7 @@ better-balanced cues designed for long live shows.
 - Native Mac and Windows desktop apps with no Terminal or PowerShell required after installation.
 - Windows 64-bit installer published alongside the Apple-silicon Mac DMG from the same Electron app.
 - One-click authenticated OBS source setup, repair, canvas fitting, and refresh.
-- 30 included themes: 20 standard themes and 10 animated premium-style themes.
+- 36 included themes: 20 standard themes and 16 animated premium-style themes.
 - Persistent themed frame, live header, ticker, and open-source footer.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
 - 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.

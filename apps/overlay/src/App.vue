@@ -60,6 +60,7 @@ const promoBanners = ref<string[]>([]);
 const sceneMode = ref<SceneMode>("none");
 const goals = ref<GoalConfig[]>([]);
 const auctionTimerSeconds = ref(45);
+const hideFooter = ref(false);
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
 const hypeMeter = ref<{ startedAt: number; durationSeconds: number; participants: Set<string> } | null>(null);
@@ -98,6 +99,7 @@ const latestEventLabel = computed(() => {
   return "CHAT";
 });
 const jumbotronLabel = computed(() => recentEvents.value[0]?.type.toUpperCase() ?? "ROOM READY");
+const tickerTape = computed(() => [...recentEvents.value, ...recentEvents.value]);
 const displayedGif = computed(() => manualGifUrl.value);
 const activePromo = computed(() => promoBanners.value[promoIndex.value % Math.max(1, promoBanners.value.length)] ?? "");
 const hypeRemaining = ref(0);
@@ -264,6 +266,7 @@ function connect(): void {
       sceneMode.value = parsed.sceneMode;
       goals.value = parsed.goals;
       auctionTimerSeconds.value = parsed.auctionTimerSeconds;
+      hideFooter.value = parsed.hideFooter === true;
       if (!soundsEnabled.value || soundVolume.value === 0) {
         stopAudioPlayback();
       } else if (activeAudioPlayer) {
@@ -799,7 +802,11 @@ onMounted(() => {
     :class="[
       `theme-${theme}`,
       `skin-${skin}`,
-      { 'skin-premium': premiumSkinActive },
+      {
+        'skin-premium': premiumSkinActive,
+        'is-alert-active': Boolean(activeEvent),
+        'is-production': hideFooter
+      },
       activeAddOns.map((addOn) => `addon-${addOn}`)
     ]"
     aria-live="polite"
@@ -878,7 +885,13 @@ onMounted(() => {
         </div>
         <div class="hud-brand">
           <div class="brand-lockup">
-            <span class="brand-index" aria-hidden="true">D/D</span>
+            <span class="brand-index" aria-hidden="true">
+              <svg viewBox="0 0 32 32">
+                <circle cx="13.5" cy="16.5" r="9" fill="currentColor" />
+                <circle cx="16.5" cy="13.5" r="1.7" fill="#071014" />
+                <path d="M22 13.5 L30.5 11.2 L22 18.2 Z" fill="#ffcf61" />
+              </svg>
+            </span>
             <span class="brand-stack">
               <strong>DUCK DESK</strong>
               <em v-if="streamTitle">{{ streamTitle }}</em>
@@ -895,20 +908,22 @@ onMounted(() => {
         <div class="ticker">
           <span class="ticker-label"><i /> Live activity</span>
           <div class="ticker-track" :class="{ 'is-empty': recentEvents.length === 0 }">
-            <span
-              v-for="event in recentEvents"
-              :key="`${event.type}-${event.timestamp}`"
-              class="ticker-item"
-              :class="`ticker-${event.type}`"
-            >
-              <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
-              <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
-              <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
-              <template v-else-if="event.type === 'share'">
-                SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
-              </template>
-              <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
-            </span>
+            <div v-if="recentEvents.length > 0" class="ticker-marquee">
+              <span
+                v-for="(event, index) in tickerTape"
+                :key="`${event.type}-${event.timestamp}-${index}`"
+                class="ticker-item"
+                :class="`ticker-${event.type}`"
+              >
+                <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
+                <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
+                <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
+                <template v-else-if="event.type === 'share'">
+                  SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
+                </template>
+                <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -1030,7 +1045,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <footer class="open-source-banner">
+    <footer v-if="!hideFooter" class="open-source-banner">
       <span>Get the free open source Duck Desk at</span>
       <strong>https://github.com/ConfusedDuckCollectibles/DuckDesk</strong>
     </footer>

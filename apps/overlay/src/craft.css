@@ -241,6 +241,11 @@
   text-shadow: 0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.65);
 }
 
+.overlay-shell .brand-index svg {
+  width: calc(42 * var(--u));
+  height: calc(42 * var(--u));
+}
+
 .overlay-shell .brand-index::before,
 .overlay-shell .brand-index::after {
   content: none;
@@ -2295,3 +2300,185 @@
   );
   --mat-tint: rgba(16, 185, 129, 0.22);
 }
+
+.overlay-shell .ticker-marquee {
+  display: flex;
+  align-items: center;
+  gap: calc(28 * var(--u));
+  width: max-content;
+  animation: ticker-crawl 22s linear infinite;
+}
+
+.overlay-shell .ticker-track.is-empty .ticker-marquee {
+  display: none;
+}
+
+@keyframes ticker-crawl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.overlay-shell.is-alert-active .ticker-marquee {
+  animation-play-state: paused;
+}
+
+.overlay-shell.is-alert-active .theme-art,
+.overlay-shell.is-alert-active .theme-art *,
+.overlay-shell.is-alert-active .premium-atmosphere,
+.overlay-shell.is-alert-active .premium-atmosphere * {
+  animation-play-state: paused !important;
+}
+
+.overlay-shell.is-alert-active .show-hud {
+  backdrop-filter: none;
+}
+
+.overlay-shell.is-production .open-source-banner {
+  display: none;
+}
+
+.overlay-shell .jumbotron-stage {
+  top: calc(430 * var(--u));
+  left: calc(48 * var(--u));
+  right: calc(48 * var(--u));
+  min-height: calc(360 * var(--u));
+  max-height: calc(480 * var(--u));
+}
+
+.overlay-shell .activity-feed {
+  top: auto;
+  right: calc(48 * var(--u));
+  bottom: calc(210 * var(--u));
+  width: calc(300 * var(--u));
+}
+
+.overlay-shell .add-on-stack {
+  top: calc(430 * var(--u));
+  left: calc(48 * var(--u));
+  right: auto;
+  width: calc(300 * var(--u));
+}
+
+.overlay-shell .goal-stack {
+  left: calc(48 * var(--u));
+  right: calc(48 * var(--u));
+  bottom: calc(96 * var(--u));
+}
+
+.overlay-shell .scene-state {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay-shell .ticker-marquee {
+    animation: none;
+  }
+}
+
+.overlay-shell .theme-art-sports {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.overlay-shell .sports-score-glow {
+  position: absolute;
+  top: calc(36 * var(--u));
+  left: 50%;
+  width: calc(420 * var(--u));
+  height: calc(90 * var(--u));
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(255, 214, 64, 0.28), transparent 70%);
+}
+
+.overlay-shell .sports-hash {
+  position: absolute;
+  inset: 0;
+  opacity: 0.28;
+}
+
+.overlay-shell .sports-hash path {
+  fill: none;
+  stroke: #ffe082;
+  stroke-width: 3;
+}
+
+.overlay-shell .theme-art-city {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.overlay-shell .city-scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 calc(7 * var(--u)),
+    rgba(52, 231, 255, 0.08) calc(7 * var(--u)) calc(8 * var(--u))
+  );
+  animation: city-scan 8s linear infinite;
+}
+
+.overlay-shell .city-skyline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(40 * var(--u));
+  height: calc(220 * var(--u));
+  fill: color-mix(in srgb, var(--primary) 55%, #041018);
+  opacity: 0.72;
+}
+
+.overlay-shell .theme-art-club {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.overlay-shell .club-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 91, 214, 0.22), transparent 32%),
+    radial-gradient(circle at 82% 18%, rgba(120, 70, 255, 0.2), transparent 36%);
+}
+
+.overlay-shell .club-spots {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay-shell .club-spots i {
+  position: absolute;
+  top: calc(80 * var(--u));
+  width: calc(180 * var(--u));
+  height: calc(420 * var(--u));
+  background: linear-gradient(180deg, rgba(255, 220, 120, 0.22), transparent 70%);
+  clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+  animation: club-spot 4.8s ease-in-out infinite alternate;
+}
+
+.overlay-shell .club-spots i:nth-child(1) { left: 8%; animation-delay: 0s; }
+.overlay-shell .club-spots i:nth-child(2) { left: 42%; animation-delay: 0.6s; }
+.overlay-shell .club-spots i:nth-child(3) { left: 74%; animation-delay: 1.2s; }
+
+@keyframes city-scan {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(-8 * var(--u))); }
+}
+
+@keyframes club-spot {
+  from { opacity: 0.35; transform: rotate(-8deg); }
+  to { opacity: 0.7; transform: rotate(8deg); }
+}
+
+

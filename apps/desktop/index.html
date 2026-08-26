@@ -9,22 +9,72 @@
   <body>
     <main class="shell">
       <aside class="rail" aria-label="Duck Desk">
-        <div class="brand-mark">DD</div>
-        <div class="rail-line"></div>
-        <div class="rail-chip">0.1</div>
+        <div class="brand-mark" title="Duck Desk">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="13.5" cy="16.5" r="9" />
+            <circle cx="16.5" cy="13.5" r="1.7" fill="#071014" />
+            <path d="M22 13.5 L30.5 11.2 L22 18.2 Z" fill="#ffcf61" />
+          </svg>
+        </div>
+        <nav class="rail-nav" aria-label="App sections">
+          <button type="button" class="rail-nav-btn is-active" data-desk-view="live" aria-pressed="true" aria-label="Live" title="Live">
+            <i data-lucide="gauge" aria-hidden="true"></i>
+            <span>Live</span>
+          </button>
+          <button type="button" class="rail-nav-btn" data-desk-view="setup" aria-pressed="false" aria-label="Setup" title="Setup">
+            <i data-lucide="plug-zap" aria-hidden="true"></i>
+            <span>Setup</span>
+          </button>
+          <button type="button" class="rail-nav-btn" data-desk-view="library" aria-pressed="false" aria-label="Library" title="Library">
+            <i data-lucide="library-big" aria-hidden="true"></i>
+            <span>Library</span>
+          </button>
+        </nav>
       </aside>
 
-      <section class="dashboard">
-        <section class="status-panel">
-          <div>
+      <section class="dashboard" data-current-view="live" data-current-tab="live-show">
+        <header class="app-titlebar" data-view="live setup library">
+          <div class="titlebar-copy">
             <p class="eyebrow">Duck Desk</p>
-            <h1>Live overlay bridge</h1>
-            <p class="subhead">Local OBS event control for Whatnot streams.</p>
+            <strong id="titlebar-view-label">Live</strong>
+          </div>
+          <div class="titlebar-monitors" aria-live="polite">
+            <span id="titlebar-bridge">Bridge</span>
+            <span id="titlebar-obs">OBS</span>
+            <span id="titlebar-clients">0 clients</span>
           </div>
           <span id="status-pill" class="status-pill">Starting</span>
+        </header>
+
+        <nav class="section-tabs" aria-label="Section">
+          <div class="section-tab-set" data-tabs-for="live" role="tablist" aria-label="Live">
+            <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="live-show">Show</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-controls">Controls</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-preview">Preview</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-events">Events</button>
+          </div>
+          <div class="section-tab-set" data-tabs-for="setup" role="tablist" aria-label="Setup" hidden>
+            <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="setup-connection">Connection</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="setup-preflight">Preflight</button>
+          </div>
+          <div class="section-tab-set" data-tabs-for="library" role="tablist" aria-label="Library" hidden>
+            <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="library-themes">Themes</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="library-addons">Add-ons</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="library-studio">Studio</button>
+          </div>
+        </nav>
+
+        <section class="status-panel" data-view="live" data-tab="live-show">
+          <div>
+            <p class="eyebrow">Show control</p>
+            <h1>On air</h1>
+            <p class="subhead">Local OBS event control for Whatnot streams.</p>
+            <span class="console-badge">Production console</span>
+          </div>
+          <p id="status-error" class="status-error" hidden></p>
         </section>
 
-        <section class="metrics">
+        <section class="metrics" data-view="live" data-tab="live-show">
           <div class="metric-card">
             <span>Sales</span>
             <strong id="sales-count">0</strong>
@@ -55,8 +105,7 @@
           </div>
         </section>
 
-        <section class="control-grid">
-          <section class="url-panel" aria-labelledby="stream-connection-title">
+        <section class="url-panel" aria-labelledby="stream-connection-title" data-view="setup" data-tab="setup-connection">
             <div class="control-heading">
               <i data-lucide="plug-zap" aria-hidden="true"></i>
               <div><span>Setup</span><h2 id="stream-connection-title">Stream Connection</h2></div>
@@ -78,16 +127,20 @@
               <input id="stream-title" maxlength="88" placeholder="Surprise Sets with Confused Duck Collectibles" />
               <button id="save-title" type="button">Apply</button>
             </div>
+            <label class="footer-toggle">
+              <input id="hide-footer" type="checkbox" />
+              Hide the GitHub footer on stream
+            </label>
           </section>
 
-          <section class="actions" aria-labelledby="live-controls-title">
+          <section class="actions is-tab-hidden" aria-labelledby="live-controls-title" data-view="live" data-tab="live-controls">
             <div class="control-heading">
               <i data-lucide="gauge" aria-hidden="true"></i>
               <div><span>Streamer</span><h2 id="live-controls-title">Live Controls</h2></div>
             </div>
             <button id="open-overlay" type="button">Overlay Preview</button>
             <button id="reveal-extension" type="button">Chrome Extension</button>
-            <button class="sound-toggle is-on" data-sound-toggle type="button" aria-pressed="true">Event Sound On</button>
+            <button class="sound-toggle is-on" data-sound-toggle data-live-sound type="button" aria-pressed="true">Event Sound On</button>
             <button id="demo-toggle" type="button" aria-pressed="false">Demo Mode Off</button>
             <button id="send-test" class="primary" type="button">Test Sale</button>
             <button id="send-bid" type="button">Test Bid</button>
@@ -95,9 +148,8 @@
             <button id="send-tip" type="button">Test Tip</button>
             <button id="send-share" type="button">Test Share</button>
           </section>
-        </section>
 
-        <section class="preflight-panel" aria-labelledby="preflight-title">
+        <section class="preflight-panel" aria-labelledby="preflight-title" data-view="setup" data-tab="setup-preflight">
           <div class="section-heading">
             <h2 id="preflight-title"><i data-lucide="radio" aria-hidden="true"></i>Live Preflight</h2>
             <span id="preflight-summary">Checking</span>
@@ -122,7 +174,7 @@
           </div>
         </section>
 
-        <section class="preview-panel">
+        <section class="preview-panel is-tab-hidden" data-view="live" data-tab="live-preview">
           <div class="section-heading">
             <h2><i data-lucide="monitor-play" aria-hidden="true"></i>Stream Preview</h2>
             <span>Phone Canvas</span>
@@ -139,7 +191,7 @@
           </div>
         </section>
 
-        <section class="theme-panel">
+        <section class="theme-panel" data-view="library" data-tab="library-themes">
           <div class="section-heading">
             <h2><i data-lucide="palette" aria-hidden="true"></i>Overlay Theme</h2>
             <span id="active-theme-label">Neon</span>
@@ -300,7 +352,7 @@
           </div>
         </section>
 
-        <section class="library-panel">
+        <section class="library-panel" data-view="library" data-tab="library-addons">
           <div class="section-heading">
             <h2><i data-lucide="library-big" aria-hidden="true"></i>Add-On Library</h2>
             <span id="library-status">15 Available</span>
@@ -429,7 +481,7 @@
           </div>
         </section>
 
-        <section class="active-addons-panel">
+        <section class="active-addons-panel" data-view="library" data-tab="library-studio">
           <div class="section-heading">
             <h2><i data-lucide="sliders-horizontal" aria-hidden="true"></i>Active Add-Ons</h2>
             <span id="active-addons-status">None Loaded</span>
@@ -443,57 +495,7 @@
                 <span>Skin Pack</span>
                 <strong>36 Total Themes</strong>
               </div>
-              <div class="skin-catalog-group">
-                <div class="skin-catalog-heading">
-                  <strong>Standard Collection</strong>
-                  <span>20 themes</span>
-                </div>
-                <div class="skin-options" aria-label="Standard stream skin previews">
-                  <button class="skin-chip cyber" data-skin="cyber_market" type="button">Cyber Market</button>
-                  <button class="skin-chip arcade" data-skin="arcade_drop" type="button">Arcade Drop</button>
-                  <button class="skin-chip sports" data-skin="sports_desk" type="button">Sports Desk</button>
-                  <button class="skin-chip card" data-skin="card_shop" type="button">Card Shop</button>
-                  <button class="skin-chip toy" data-skin="retro_toy" type="button">Retro Toy</button>
-                  <button class="skin-chip gold" data-skin="midnight_gold" type="button">Midnight Gold</button>
-                  <button class="skin-chip pastel" data-skin="pastel_pop" type="button">Pastel Pop</button>
-                  <button class="skin-chip lava" data-skin="lava_lamp" type="button">Lava Lamp</button>
-                  <button class="skin-chip ice" data-skin="icebox" type="button">Icebox</button>
-                  <button class="skin-chip comic" data-skin="comic_burst" type="button">Comic Burst</button>
-                  <button class="skin-chip luxury" data-skin="luxury_black" type="button">Luxury Black</button>
-                  <button class="skin-chip jungle" data-skin="jungle_neon" type="button">Jungle Neon</button>
-                  <button class="skin-chip candy" data-skin="cotton_candy" type="button">Cotton Candy</button>
-                  <button class="skin-chip synth" data-skin="synthwave" type="button">Synthwave</button>
-                  <button class="skin-chip street" data-skin="streetwear" type="button">Streetwear</button>
-                  <button class="skin-chip holiday" data-skin="holiday_spark" type="button">Holiday Spark</button>
-                  <button class="skin-chip ocean" data-skin="ocean_depth" type="button">Ocean Depth</button>
-                  <button class="skin-chip pixel" data-skin="pixel_party" type="button">Pixel Party</button>
-                  <button class="skin-chip emerald" data-skin="emerald_vault" type="button">Emerald Vault</button>
-                </div>
-              </div>
-              <div class="skin-catalog-group premium-skin-catalog">
-                <div class="skin-catalog-heading">
-                  <strong>Premium Animated</strong>
-                  <span>16 themes</span>
-                </div>
-                <div class="skin-options" aria-label="Premium animated stream skin previews">
-                  <button class="skin-chip premium storm" data-skin="storm_front" type="button">Thunderstorm Arena</button>
-                  <button class="skin-chip premium cyber-city" data-skin="cyber_duck_city" type="button">Cyber Duck City</button>
-                  <button class="skin-chip premium treasure" data-skin="treasure_vault" type="button">Treasure Vault</button>
-                  <button class="skin-chip premium boss" data-skin="boss_battle" type="button">Arcade Boss Battle</button>
-                  <button class="skin-chip premium cosmic" data-skin="cosmic_auction" type="button">Cosmic Auction</button>
-                  <button class="skin-chip premium haunted" data-skin="haunted_drop" type="button">Haunted Drop</button>
-                  <button class="skin-chip premium broadcast" data-skin="sports_broadcast" type="button">Sports Broadcast</button>
-                  <button class="skin-chip premium anime" data-skin="anime_powerup" type="button">Anime Power-Up</button>
-                  <button class="skin-chip premium candy-rush" data-skin="candy_rush" type="button">Candy Rush</button>
-                  <button class="skin-chip premium nightclub" data-skin="luxury_nightclub" type="button">Luxury Nightclub</button>
-                  <button class="skin-chip premium inferno" data-skin="inferno_ring" type="button">Inferno Ring</button>
-                  <button class="skin-chip premium reef" data-skin="deep_reef" type="button">Deep Reef</button>
-                  <button class="skin-chip premium zen" data-skin="zen_garden" type="button">Zen Garden</button>
-                  <button class="skin-chip premium vinyl" data-skin="vinyl_lounge" type="button">Vinyl Lounge</button>
-                  <button class="skin-chip premium draft" data-skin="blueprint_draft" type="button">Blueprint Studio</button>
-                  <button class="skin-chip premium aurora" data-skin="aurora_peaks" type="button">Aurora Peaks</button>
-                </div>
-              </div>
+              <p class="module-note">Theme Pack is on. Pick looks from Overlay Theme above — one picker, not two catalogs.</p>
             </article>
 
             <article class="addon-module module-audio" data-addon-panel="noise_machines" aria-labelledby="audio-studio-title" hidden>
@@ -760,14 +762,32 @@ orders|10|Order Goal</textarea>
           </div>
         </section>
 
-        <section class="log-panel">
+        <section class="log-panel is-tab-hidden" data-view="live" data-tab="live-events">
           <div class="section-heading">
             <h2><i data-lucide="activity" aria-hidden="true"></i>Recent Events</h2>
             <span>Realtime</span>
           </div>
-          <ol id="event-log"></ol>
+          <p id="event-log-empty" class="empty-log">Events appear when the Chrome extension sees Whatnot activity.</p>
+          <ol id="event-log" aria-live="polite"></ol>
         </section>
       </section>
     </main>
+    <div id="first-run" class="first-run" hidden>
+      <div class="first-run-card" role="dialog" aria-labelledby="first-run-title">
+        <p class="eyebrow">First run</p>
+        <h2 id="first-run-title">Go live in four checks</h2>
+        <ol class="first-run-steps">
+          <li data-first-step="obs">Connect OBS so Duck Desk can add the overlay source.</li>
+          <li data-first-step="extension">Load the Chrome extension from the folder Duck Desk opens.</li>
+          <li data-first-step="demo">Turn on Demo Mode and send a test sale.</li>
+          <li data-first-step="data">Open your Whatnot seller page until real data arrives.</li>
+        </ol>
+        <div class="first-run-actions">
+          <button id="first-run-obs" type="button">Connect OBS</button>
+          <button id="first-run-extension" type="button">Open extension folder</button>
+          <button id="first-run-dismiss" class="primary" type="button">Skip for now</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

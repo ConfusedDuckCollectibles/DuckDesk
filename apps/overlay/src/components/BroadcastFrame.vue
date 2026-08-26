@@ -310,12 +310,5 @@ const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
 
     <div v-if="!isPremium" class="frame-status frame-status-left"><span /><span /><span /></div>
     <div v-if="!isPremium" class="frame-status frame-status-right"><span /><span /><span /></div>
-
-    <div v-if="false" class="theme-edge-effects">
-      <span class="edge-fx edge-fx-top"><i v-for="index in 18" :key="`top-${index}`" /></span>
-      <span class="edge-fx edge-fx-right"><i v-for="index in 24" :key="`right-${index}`" /></span>
-      <span class="edge-fx edge-fx-bottom"><i v-for="index in 18" :key="`bottom-${index}`" /></span>
-      <span class="edge-fx edge-fx-left"><i v-for="index in 24" :key="`left-${index}`" /></span>
-    </div>
   </div>
 </template>
