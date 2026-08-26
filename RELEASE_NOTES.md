@@ -69,4 +69,4 @@ The Windows installer is not Authenticode-signed, so SmartScreen may warn on fir
 - Automatic app updates are not included yet.
 - Duck Desk is not affiliated with or endorsed by Whatnot.
 
-See the [customer setup guide](https://github.com/ConfusedDuckCollectibles/DuckDesk#simple-setup-guide) for complete OBS, phone-camera, Chrome extension, testing, and troubleshooting instructions.
+See the [customer setup guide](https://github.com/ConfusedDuckCollectibles/DuckDesk#get-on-stream) for complete OBS, phone-camera, Chrome extension, testing, and troubleshooting instructions.
