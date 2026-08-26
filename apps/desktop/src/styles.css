@@ -874,6 +874,12 @@ textarea {
     linear-gradient(135deg, #020204, #5d185f 52%, #d2a64b);
 }
 
+.swatch.inferno-ring {
+  background:
+    radial-gradient(ellipse at 50% 100%, #ffd166 0 10%, #ff5a1f 34%, transparent 36%),
+    repeating-linear-gradient(105deg, #160705 0 8px, #7c1908 9px 13px, #160705 14px 20px);
+}
+
 .premium-theme-card {
   border-color: rgba(255, 207, 97, 0.34);
 }
@@ -1355,6 +1361,11 @@ h3 {
 
 .skin-chip.nightclub {
   background: linear-gradient(135deg, #020204, #6d1a70 55%, #d2a64b);
+}
+
+.skin-chip.inferno {
+  background: linear-gradient(135deg, #170503, #ff3d16 52%, #ffd166);
+  color: #ffffff;
 }
 
 @media (prefers-reduced-motion: reduce) {

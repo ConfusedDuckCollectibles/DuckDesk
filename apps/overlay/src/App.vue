@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import "@fontsource/barlow-condensed/600.css";
+import "@fontsource/barlow-condensed/700.css";
+import "@fontsource/barlow-condensed/800.css";
+import "@fontsource/barlow-condensed/900.css";
+import "@fontsource-variable/manrope/wght.css";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
   isOverlayConfigMessage,
@@ -23,6 +28,7 @@ import {
   type ShowEvent,
   type SoundKind
 } from "@duck-desk/shared";
+import BroadcastFrame from "./components/BroadcastFrame.vue";
 import EventAlert from "./components/EventAlert.vue";
 
 const queue = ref<ShowEvent[]>([]);
@@ -101,7 +107,8 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "sports_broadcast",
   "anime_powerup",
   "candy_rush",
-  "luxury_nightclub"
+  "luxury_nightclub",
+  "inferno_ring"
 ]);
 const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
 const hypeProgress = computed(() => {
@@ -784,6 +791,7 @@ onMounted(() => {
     aria-live="polite"
   >
     <div class="overlay-frame" aria-hidden="true" />
+    <BroadcastFrame :skin="skin" />
     <div
       v-if="hasAddOn('stream_skins') && premiumSkinActive"
       class="premium-atmosphere"
@@ -848,33 +856,45 @@ onMounted(() => {
     </div>
     <div class="top-stack">
       <section class="show-hud">
+        <div class="hud-chrome" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
         <div class="hud-brand">
+          <div class="brand-lockup">
+            <span class="brand-index" aria-hidden="true">D/D</span>
+            <span class="brand-stack">
+              <strong>DUCK DESK</strong>
+              <em v-if="streamTitle">{{ streamTitle }}</em>
+            </span>
+          </div>
           <span class="live-cluster">
             <i class="live-light" :class="{ connected }" />
             <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
-          </span>
-          <span class="brand-stack">
-            <strong>DUCK DESK</strong>
-            <em v-if="streamTitle">{{ streamTitle }}</em>
           </span>
         </div>
         <div v-if="hasAddOn('promo_banners') && activePromo" class="promo-banner">
           {{ activePromo }}
         </div>
         <div class="ticker">
-          <span
-            v-for="event in recentEvents"
-            :key="`${event.type}-${event.timestamp}`"
-            class="ticker-item"
-          >
-            <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
-            <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
-            <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
-            <template v-else-if="event.type === 'share'">
-              SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
-            </template>
-            <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
-          </span>
+          <span class="ticker-label"><i /> Live activity</span>
+          <div class="ticker-track" :class="{ 'is-empty': recentEvents.length === 0 }">
+            <span
+              v-for="event in recentEvents"
+              :key="`${event.type}-${event.timestamp}`"
+              class="ticker-item"
+              :class="`ticker-${event.type}`"
+            >
+              <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
+              <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
+              <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
+              <template v-else-if="event.type === 'share'">
+                SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
+              </template>
+              <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
+            </span>
+          </div>
         </div>
       </section>
 

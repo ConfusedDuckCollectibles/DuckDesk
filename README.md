@@ -42,7 +42,7 @@ Duck Desk does not update itself yet. Check the [Releases page](https://github.c
 
 ## What Duck Desk Includes
 
-- 30 stream themes, including 10 animated premium-style themes.
+- 31 stream themes, including 11 premium themes with distinct border motion and alert choreography.
 - A persistent vertical stream frame, live header, ticker, and open-source footer.
 - Manual GIF reactions with names, sizes, and screen positions.
 - 10 audio themes with 50 individually produced cues for bids, sales, tips, shares, and audience actions, plus a master mute switch.

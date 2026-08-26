@@ -1,0 +1,943 @@
+/* Premium broadcast packages: every skin owns its geometry, panel silhouette, and motion language. */
+.premium-geometry,
+.premium-geometry * {
+  vector-effect: non-scaling-stroke;
+}
+
+.premium-geometry {
+  fill: none;
+  stroke-linecap: square;
+  stroke-linejoin: bevel;
+}
+
+.event-theme-art {
+  display: none;
+}
+
+.overlay-shell.skin-premium .event-theme-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.event-art-inferno,
+.event-art-storm,
+.event-theme-ornament {
+  display: none;
+}
+
+.overlay-shell.skin-premium .event-theme-ornament {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.overlay-shell.skin-premium .show-hud,
+.overlay-shell.skin-premium .event-card,
+.overlay-shell.skin-premium .open-source-banner,
+.overlay-shell.skin-premium .brand-index,
+.overlay-shell.skin-premium .event-symbol {
+  border-radius: 0;
+}
+
+/* Thunderstorm Arena */
+.geometry-storm .storm-metal {
+  stroke: #111a27;
+  stroke-width: 22;
+}
+
+.geometry-storm .storm-conductor {
+  stroke: #a7e8ff;
+  stroke-width: 4;
+  filter: drop-shadow(0 0 7px rgba(119, 219, 255, 0.86));
+}
+
+.geometry-storm .storm-bus {
+  stroke: #7389a5;
+  stroke-width: 8;
+}
+
+.geometry-storm .storm-insulators circle {
+  fill: #111827;
+  stroke: #d8f5ff;
+  stroke-width: 4;
+}
+
+.geometry-storm .storm-lightning {
+  fill: none;
+  stroke: #eefcff;
+  stroke-width: 4;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.geometry-storm .storm-lightning path:not(:first-child) {
+  stroke-width: 2.4;
+}
+
+.geometry-storm .storm-lightning-a {
+  animation: geometry-storm-strike-a 7.8s linear infinite;
+}
+
+.geometry-storm .storm-lightning-b {
+  animation: geometry-storm-strike-b 9.6s 2.1s linear infinite;
+}
+
+.skin-storm_front .premium-sky::after,
+.skin-storm_front .theme-edge-effects {
+  display: none !important;
+}
+
+.skin-storm_front .show-hud {
+  border: 0;
+  background:
+    linear-gradient(112deg, rgba(8, 14, 24, 0.98), rgba(20, 31, 48, 0.96) 68%, rgba(42, 36, 73, 0.95));
+  box-shadow: inset 0 0 0 1px rgba(180, 232, 255, 0.7), inset 8px 0 0 #7ddcff, 0 14px 34px rgba(0, 0, 0, 0.42);
+  clip-path: polygon(0 0, 87% 0, 90% 13%, 97% 13%, 100% 34%, 100% 100%, 8% 100%, 5% 86%, 0 86%);
+}
+
+.skin-storm_front .show-hud::before {
+  width: 118px;
+  height: 7px;
+  inset: auto auto 0 8%;
+  background: #9ee8ff;
+  box-shadow: 132px 0 0 rgba(155, 137, 255, 0.8);
+}
+
+.skin-storm_front .brand-index {
+  clip-path: polygon(22% 0, 100% 0, 78% 46%, 100% 46%, 28% 100%, 45% 58%, 0 58%);
+  background: rgba(115, 216, 255, 0.13);
+}
+
+.skin-storm_front .event-card {
+  border: 0;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--event-tone) 72%, #caefff), 0 14px 34px rgba(0, 0, 0, 0.44);
+  clip-path: polygon(0 0, 94% 0, 97% 18%, 100% 18%, 100% 82%, 97% 82%, 94% 100%, 4% 100%, 0 78%);
+}
+
+.skin-storm_front .event-symbol {
+  clip-path: polygon(50% 0, 100% 20%, 83% 50%, 100% 80%, 50% 100%, 0 80%, 17% 50%, 0 20%);
+}
+
+.skin-storm_front .event-sale .event-art-storm {
+  display: block;
+  fill: none;
+  stroke: #ecfbff;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: event-storm-draw 760ms steps(2, end) both;
+}
+
+.skin-storm_front .open-source-banner {
+  right: 210px;
+  left: 42px;
+  justify-content: flex-start;
+  clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 3% 100%, 0 72%);
+}
+
+/* Cyber Duck City */
+.geometry-cyber .cyber-shell {
+  stroke: #070914;
+  stroke-width: 18;
+}
+
+.geometry-cyber .cyber-trace {
+  stroke: #00f0ff;
+  stroke-width: 3;
+  stroke-dasharray: 0.08 0.035;
+  filter: drop-shadow(0 0 8px #00ddeb);
+  animation: geometry-cyber-flow 5.2s linear infinite;
+}
+
+.geometry-cyber .cyber-trace-alt {
+  stroke: #ff4bd8;
+  stroke-width: 2;
+  animation-duration: 3.8s;
+  animation-direction: reverse;
+}
+
+.geometry-cyber .cyber-nodes {
+  fill: #06151a;
+  stroke: #eafeff;
+  stroke-width: 2;
+  animation: geometry-cyber-nodes 1.7s steps(2, end) infinite;
+}
+
+.skin-cyber_duck_city .show-hud {
+  border: 0;
+  background: linear-gradient(100deg, rgba(3, 5, 14, 0.98), rgba(7, 15, 25, 0.96) 72%, rgba(31, 4, 33, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.74), inset 7px 0 #00f0ff, inset -7px 0 #ff48d7, 0 14px 34px rgba(0, 0, 0, 0.42);
+  clip-path: polygon(0 0, 42% 0, 45% 8%, 84% 8%, 87% 0, 100% 0, 100% 76%, 97% 76%, 97% 100%, 8% 100%, 5% 90%, 0 90%);
+}
+
+.skin-cyber_duck_city .show-hud::after {
+  right: 7%;
+  left: 48%;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, #00f0ff 0 22px, transparent 22px 31px, #ff48d7 31px 36px, transparent 36px 46px);
+}
+
+.skin-cyber_duck_city .brand-index {
+  clip-path: polygon(0 0, 78% 0, 100% 22%, 100% 100%, 22% 100%, 0 78%);
+  box-shadow: none;
+}
+
+.skin-cyber_duck_city .event-card {
+  border: 0;
+  clip-path: polygon(0 0, 22% 0, 24% 7%, 91% 7%, 94% 0, 100% 0, 100% 76%, 97% 76%, 97% 100%, 8% 100%, 5% 92%, 0 92%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--event-tone) 80%, #00f0ff), inset 5px 0 #00f0ff, 0 14px 32px rgba(0, 0, 0, 0.42);
+}
+
+.skin-cyber_duck_city .event-symbol {
+  clip-path: polygon(0 0, 70% 0, 100% 30%, 100% 100%, 30% 100%, 0 70%);
+}
+
+.skin-cyber_duck_city .event-theme-ornament {
+  display: block;
+  top: 11px;
+  width: 22px;
+  height: 4px;
+  background: #00f0ff;
+  box-shadow: 28px 0 #00f0ff, 48px 0 #ff48d7;
+}
+
+.skin-cyber_duck_city .ornament-a { right: 150px; }
+.skin-cyber_duck_city .ornament-b { right: 74px; transform: scaleX(0.7); }
+.skin-cyber_duck_city .ornament-c { display: none; }
+
+.skin-cyber_duck_city .open-source-banner {
+  clip-path: polygon(0 0, 46% 0, 48% 18%, 96% 18%, 100% 50%, 96% 82%, 48% 82%, 46% 100%, 0 100%, 2% 50%);
+}
+
+/* Treasure Vault */
+.geometry-vault .vault-heavy {
+  stroke: #241708;
+  stroke-width: 26;
+}
+
+.geometry-vault .vault-inlay {
+  stroke: #e3b84f;
+  stroke-width: 5;
+  filter: drop-shadow(0 0 7px rgba(232, 193, 89, 0.46));
+}
+
+.geometry-vault .vault-deco {
+  stroke: #65e2c4;
+  stroke-width: 3;
+}
+
+.geometry-vault .vault-locks {
+  fill: #241708;
+  stroke: #f4d47a;
+  stroke-width: 3;
+}
+
+.geometry-vault .vault-locks > g {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: geometry-vault-lock 10s linear infinite;
+}
+
+.geometry-vault .vault-locks > g:nth-child(even) { animation-direction: reverse; }
+
+.skin-treasure_vault .show-hud {
+  border: 0;
+  background: linear-gradient(110deg, rgba(23, 15, 6, 0.98), rgba(48, 29, 8, 0.97) 62%, rgba(8, 42, 37, 0.96));
+  box-shadow: inset 0 0 0 2px #b78a31, inset 0 0 0 8px rgba(30, 18, 5, 0.96), inset 0 0 0 9px rgba(255, 224, 139, 0.48), 0 16px 36px rgba(0, 0, 0, 0.46);
+  clip-path: polygon(0 18%, 3% 18%, 3% 0, 38% 0, 41% 7%, 59% 7%, 62% 0, 97% 0, 97% 18%, 100% 18%, 100% 82%, 97% 82%, 97% 100%, 3% 100%, 3% 82%, 0 82%);
+}
+
+.skin-treasure_vault .show-hud::before {
+  inset: 9px;
+  width: auto;
+  border: 1px solid rgba(101, 226, 196, 0.36);
+  background: none;
+  box-shadow: none;
+}
+
+.skin-treasure_vault .brand-index,
+.skin-treasure_vault .event-symbol {
+  border-radius: 50%;
+  clip-path: none;
+  box-shadow: inset 0 0 0 5px rgba(227, 184, 79, 0.13), 0 0 0 1px #e3b84f;
+}
+
+.skin-treasure_vault .event-card {
+  border: 0;
+  clip-path: polygon(0 16%, 3% 16%, 3% 0, 44% 0, 47% 9%, 53% 9%, 56% 0, 97% 0, 97% 16%, 100% 16%, 100% 84%, 97% 84%, 97% 100%, 3% 100%, 3% 84%, 0 84%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--event-tone) 58%, #e3b84f), inset 0 0 0 7px #1b1106, inset 0 0 0 8px rgba(255, 224, 139, 0.38), 0 16px 36px rgba(0, 0, 0, 0.46);
+}
+
+.skin-treasure_vault .event-theme-ornament {
+  display: block;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e3b84f;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.skin-treasure_vault .ornament-a { left: 10px; }
+.skin-treasure_vault .ornament-b { right: 10px; }
+.skin-treasure_vault .ornament-c { display: none; }
+
+.skin-treasure_vault .open-source-banner {
+  border: 3px double #b78a31;
+  clip-path: polygon(3% 0, 42% 0, 45% 18%, 55% 18%, 58% 0, 97% 0, 100% 50%, 97% 100%, 58% 100%, 55% 82%, 45% 82%, 42% 100%, 3% 100%, 0 50%);
+}
+
+/* Arcade Boss Battle */
+.geometry-boss .boss-blocks {
+  stroke: #17121e;
+  stroke-width: 24;
+}
+
+.geometry-boss .boss-health {
+  stroke: #ff365f;
+  stroke-width: 9;
+  stroke-dasharray: 0.09 0.018;
+  animation: geometry-boss-health 2.3s steps(8, end) infinite;
+}
+
+.geometry-boss .boss-pixel-rail {
+  fill: #3cecff;
+  stroke: #061115;
+  stroke-width: 4;
+  animation: geometry-boss-pulse 1.2s steps(2, end) infinite;
+}
+
+.geometry-boss .boss-corners {
+  fill: #ffcc32;
+  stroke: #ff365f;
+  stroke-width: 5;
+}
+
+.skin-boss_battle .show-hud {
+  border: 0;
+  background: #0b0a12;
+  box-shadow: inset 0 0 0 4px #3cecff, inset 10px 0 #ff365f, 8px 8px 0 rgba(0, 0, 0, 0.72);
+  clip-path: polygon(0 0, 92% 0, 92% 8%, 96% 8%, 96% 16%, 100% 16%, 100% 100%, 8% 100%, 8% 92%, 4% 92%, 4% 84%, 0 84%);
+}
+
+.skin-boss_battle .show-hud::after {
+  right: 18%;
+  left: 48%;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, #ff365f 0 28px, #251527 28px 34px);
+}
+
+.skin-boss_battle .brand-index,
+.skin-boss_battle .event-symbol {
+  clip-path: polygon(0 0, 82% 0, 82% 12%, 100% 12%, 100% 88%, 88% 88%, 88% 100%, 0 100%);
+  box-shadow: 5px 5px 0 #ff365f;
+}
+
+.skin-boss_battle .event-card {
+  border: 0;
+  clip-path: polygon(0 0, 92% 0, 92% 10%, 97% 10%, 97% 22%, 100% 22%, 100% 100%, 8% 100%, 8% 90%, 3% 90%, 3% 76%, 0 76%);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--event-tone) 72%, #3cecff), 8px 8px 0 rgba(0, 0, 0, 0.72);
+}
+
+.skin-boss_battle .event-theme-ornament {
+  display: block;
+  width: 11px;
+  height: 11px;
+  background: #ffcc32;
+  box-shadow: 12px 0 #ff365f, 24px 0 #3cecff;
+}
+
+.skin-boss_battle .ornament-a { top: 10px; right: 92px; }
+.skin-boss_battle .ornament-b { bottom: 10px; right: 60px; }
+.skin-boss_battle .ornament-c { display: none; }
+
+.skin-boss_battle .open-source-banner {
+  border: 0;
+  box-shadow: inset 0 0 0 3px #3cecff, 7px 7px 0 #ff365f;
+  clip-path: polygon(0 0, 94% 0, 94% 18%, 100% 18%, 100% 100%, 6% 100%, 6% 82%, 0 82%);
+}
+
+/* Cosmic Auction */
+.geometry-cosmic .cosmic-arc {
+  stroke: rgba(157, 132, 255, 0.5);
+  stroke-width: 13;
+  filter: drop-shadow(0 0 16px rgba(111, 209, 255, 0.5));
+}
+
+.geometry-cosmic .cosmic-inner-orbit {
+  stroke: #83e6ff;
+  stroke-width: 2.5;
+  stroke-dasharray: 0.08 0.03 0.015 0.03;
+  animation: geometry-cosmic-orbit 9s linear infinite;
+}
+
+.geometry-cosmic .cosmic-ring {
+  stroke: #9a7dff;
+  stroke-width: 3;
+  stroke-dasharray: 18 12;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: geometry-cosmic-ring 11s linear infinite;
+}
+
+.geometry-cosmic .cosmic-ring-bottom { animation-direction: reverse; }
+
+.geometry-cosmic .cosmic-planets circle {
+  fill: url(#cosmic-orbit-glow);
+  stroke: #e6fbff;
+  stroke-width: 1.5;
+  animation: geometry-cosmic-star 2.8s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.skin-cosmic_auction .show-hud {
+  border: 1px solid rgba(139, 222, 255, 0.65);
+  border-radius: 8px;
+  background: radial-gradient(ellipse at 50% -30%, rgba(123, 94, 255, 0.3), transparent 52%), rgba(7, 8, 26, 0.93);
+  box-shadow: inset 0 0 36px rgba(86, 92, 255, 0.12), 0 0 0 5px rgba(36, 24, 83, 0.36), 0 16px 38px rgba(0, 0, 0, 0.42);
+  clip-path: polygon(4% 0, 96% 0, 100% 28%, 100% 72%, 96% 100%, 4% 100%, 0 72%, 0 28%);
+}
+
+.skin-cosmic_auction .show-hud::before {
+  top: -48px;
+  left: 50%;
+  width: 270px;
+  height: 78px;
+  border: 1px solid rgba(131, 230, 255, 0.72);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  transform: translateX(-50%);
+}
+
+.skin-cosmic_auction .brand-index,
+.skin-cosmic_auction .event-symbol {
+  border-radius: 50%;
+  clip-path: none;
+  box-shadow: 0 0 0 6px rgba(143, 103, 255, 0.14), 0 0 20px rgba(117, 232, 255, 0.3);
+}
+
+.skin-cosmic_auction .event-card {
+  border: 1px solid color-mix(in srgb, var(--event-tone) 66%, #96dcff);
+  border-radius: 8px;
+  clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+  background: radial-gradient(ellipse at 50% -40%, color-mix(in srgb, var(--event-tone) 22%, transparent), transparent 54%), rgba(7, 8, 26, 0.95);
+}
+
+.skin-cosmic_auction .event-theme-ornament {
+  display: block;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(126, 225, 255, 0.6);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.skin-cosmic_auction .ornament-a { width: 460px; height: 84px; }
+.skin-cosmic_auction .ornament-b { width: 600px; height: 114px; opacity: 0.35; }
+.skin-cosmic_auction .ornament-c { display: none; }
+
+.skin-cosmic_auction .open-source-banner {
+  border-radius: 8px;
+  clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+  background: rgba(7, 8, 26, 0.9);
+}
+
+/* Haunted Drop */
+.geometry-haunted .haunted-arch {
+  stroke: #080d0d;
+  stroke-width: 24;
+}
+
+.geometry-haunted .haunted-spine {
+  stroke: #7fe4c3;
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 9px rgba(127, 228, 195, 0.58));
+}
+
+.geometry-haunted .haunted-vine {
+  stroke: rgba(176, 135, 255, 0.72);
+  stroke-width: 3;
+  stroke-dasharray: 0.08 0.035;
+  animation: geometry-haunted-vine 8s linear infinite;
+}
+
+.geometry-haunted .haunted-finials {
+  fill: #142220;
+  stroke: #b28aff;
+  stroke-width: 2;
+}
+
+.skin-haunted_drop .show-hud {
+  border: 0;
+  background: linear-gradient(180deg, rgba(12, 19, 20, 0.97), rgba(7, 13, 14, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(118, 222, 190, 0.55), inset 0 -9px rgba(99, 42, 125, 0.14), 0 16px 38px rgba(0, 0, 0, 0.48);
+  clip-path: polygon(0 18%, 3% 18%, 7% 0, 38% 0, 42% 14%, 50% 0, 58% 14%, 62% 0, 93% 0, 97% 18%, 100% 18%, 100% 100%, 0 100%);
+}
+
+.skin-haunted_drop .show-hud::after {
+  top: auto;
+  bottom: 0;
+  height: 7px;
+  background: linear-gradient(90deg, transparent, #7fe4c3, #b28aff, transparent);
+  filter: blur(3px);
+}
+
+.skin-haunted_drop .brand-index,
+.skin-haunted_drop .event-symbol {
+  clip-path: polygon(50% 0, 100% 28%, 84% 100%, 16% 100%, 0 28%);
+}
+
+.skin-haunted_drop .event-card {
+  border: 0;
+  clip-path: polygon(0 20%, 4% 20%, 8% 0, 42% 0, 50% 13%, 58% 0, 92% 0, 96% 20%, 100% 20%, 100% 100%, 0 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--event-tone) 52%, #7fe4c3), 0 18px 38px rgba(0, 0, 0, 0.5);
+}
+
+.skin-haunted_drop .event-theme-ornament {
+  display: block;
+  bottom: -26px;
+  width: 250px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(128, 228, 195, 0.16);
+  filter: blur(13px);
+  animation: geometry-haunted-fog 3.4s ease-in-out infinite alternate;
+}
+
+.skin-haunted_drop .ornament-a { left: 130px; }
+.skin-haunted_drop .ornament-b { left: 430px; animation-delay: -1.4s; }
+.skin-haunted_drop .ornament-c { right: 60px; animation-delay: -2.3s; }
+
+.skin-haunted_drop .open-source-banner {
+  clip-path: polygon(0 25%, 4% 25%, 7% 0, 45% 0, 50% 18%, 55% 0, 93% 0, 96% 25%, 100% 25%, 97% 100%, 3% 100%);
+}
+
+/* Sports Broadcast */
+.geometry-sports .sports-swoop-a {
+  stroke: #f7f9fb;
+  stroke-width: 18;
+}
+
+.geometry-sports .sports-swoop-b {
+  stroke: #ff3f52;
+  stroke-width: 6;
+}
+
+.geometry-sports .sports-speed {
+  stroke: #59e4ff;
+  stroke-width: 4;
+  animation: geometry-sports-sting 1.8s ease-in-out infinite alternate;
+}
+
+.geometry-sports .sports-score-pips {
+  fill: #ff3f52;
+  stroke: #f7f9fb;
+  stroke-width: 1.5;
+}
+
+.skin-sports_broadcast .show-hud {
+  border: 0;
+  background: linear-gradient(104deg, rgba(8, 15, 23, 0.98), rgba(15, 29, 42, 0.97));
+  box-shadow: inset 0 -7px #ff3f52, inset 0 -11px #f7f9fb, 0 15px 36px rgba(0, 0, 0, 0.43);
+  clip-path: polygon(0 0, 94% 0, 100% 32%, 100% 100%, 7% 100%, 0 68%);
+}
+
+.skin-sports_broadcast .show-hud::before {
+  width: 210px;
+  transform: skewX(-24deg);
+  background: #59e4ff;
+  box-shadow: 226px 0 #ff3f52;
+}
+
+.skin-sports_broadcast .brand-index,
+.skin-sports_broadcast .event-symbol {
+  clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+  transform: skewX(-5deg);
+}
+
+.skin-sports_broadcast .event-card {
+  border: 0;
+  clip-path: polygon(0 0, 95% 0, 100% 30%, 100% 100%, 5% 100%, 0 70%);
+  box-shadow: inset 0 -6px color-mix(in srgb, var(--event-tone) 74%, #ff3f52), 0 15px 36px rgba(0, 0, 0, 0.44);
+}
+
+.skin-sports_broadcast .event-theme-ornament {
+  display: block;
+  width: 180px;
+  height: 5px;
+  background: #f7f9fb;
+  transform: skewX(-38deg);
+}
+
+.skin-sports_broadcast .ornament-a { top: 13px; right: 28px; box-shadow: 0 9px #ff3f52; }
+.skin-sports_broadcast .ornament-b { bottom: 14px; left: 240px; width: 110px; background: #59e4ff; }
+.skin-sports_broadcast .ornament-c { display: none; }
+
+.skin-sports_broadcast .open-source-banner {
+  right: 84px;
+  left: 84px;
+  clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+  border-bottom: 4px solid #ff3f52;
+}
+
+/* Anime Powerup */
+.geometry-anime .anime-slash-a {
+  stroke: #171222;
+  stroke-width: 26;
+}
+
+.geometry-anime .anime-slash-b {
+  stroke: #ffe947;
+  stroke-width: 5;
+  filter: drop-shadow(0 0 9px rgba(255, 233, 71, 0.55));
+}
+
+.geometry-anime .anime-speedline {
+  stroke: #65e9ff;
+  stroke-width: 4;
+  stroke-dasharray: 0.12 0.04;
+  animation: geometry-anime-charge 2.2s linear infinite;
+}
+
+.geometry-anime .anime-shards {
+  fill: #ff4e9a;
+  stroke: #fff3a2;
+  stroke-width: 2;
+  animation: geometry-anime-shard 1.6s ease-in-out infinite alternate;
+}
+
+.skin-anime_powerup .show-hud {
+  border: 0;
+  background: linear-gradient(103deg, rgba(12, 9, 25, 0.98), rgba(37, 17, 62, 0.96) 72%, rgba(74, 15, 72, 0.94));
+  box-shadow: inset 0 0 0 2px #ffe947, inset 10px 0 #65e9ff, 14px 14px 0 rgba(255, 78, 154, 0.18), 0 15px 34px rgba(0, 0, 0, 0.42);
+  clip-path: polygon(4% 0, 100% 0, 96% 28%, 100% 38%, 94% 100%, 0 100%, 5% 70%, 0 60%);
+  transform: skewX(-1.2deg);
+}
+
+.skin-anime_powerup .brand-index,
+.skin-anime_powerup .event-symbol {
+  clip-path: polygon(18% 0, 100% 0, 78% 100%, 0 100%);
+}
+
+.skin-anime_powerup .event-card {
+  border: 0;
+  clip-path: polygon(4% 0, 100% 0, 95% 36%, 100% 48%, 94% 100%, 0 100%, 5% 68%, 0 56%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--event-tone) 72%, #ffe947), 12px 12px 0 rgba(255, 78, 154, 0.18), 0 14px 34px rgba(0, 0, 0, 0.42);
+  transform: skewX(-1deg);
+}
+
+.skin-anime_powerup .event-theme-ornament {
+  display: block;
+  width: 190px;
+  height: 3px;
+  background: #ffe947;
+  transform: rotate(-16deg);
+  box-shadow: 0 11px #65e9ff, 0 22px #ff4e9a;
+}
+
+.skin-anime_powerup .ornament-a { top: 8px; right: 18px; }
+.skin-anime_powerup .ornament-b { bottom: 4px; left: 350px; transform: rotate(9deg) scaleX(1.45); }
+.skin-anime_powerup .ornament-c { display: none; }
+
+.skin-anime_powerup .open-source-banner {
+  transform: skewX(-3deg);
+  clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+  border-left: 6px solid #65e9ff;
+  border-right: 6px solid #ff4e9a;
+}
+
+/* Candy Rush */
+.geometry-candy .candy-ribbon {
+  stroke: #ff83ca;
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 9px rgba(255, 131, 202, 0.36));
+}
+
+.geometry-candy .candy-twist {
+  stroke: #72e7f5;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.055 0.035;
+  animation: geometry-candy-twist 3.6s linear infinite;
+}
+
+.geometry-candy .candy-drops circle {
+  fill: #fff2a7;
+  stroke: #ff83ca;
+  stroke-width: 4;
+  animation: geometry-candy-pop 1.8s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.geometry-candy .candy-drops circle:nth-child(3n) { fill: #72e7f5; animation-delay: -0.6s; }
+.geometry-candy .candy-drops circle:nth-child(3n + 2) { fill: #c69aff; animation-delay: -1.2s; }
+
+.skin-candy_rush .show-hud {
+  border: 3px solid #ff8acb;
+  border-radius: 8px;
+  background: linear-gradient(105deg, rgba(38, 19, 50, 0.97), rgba(23, 38, 54, 0.96));
+  box-shadow: inset 0 0 0 6px rgba(114, 231, 245, 0.11), 0 14px 34px rgba(19, 7, 25, 0.42);
+  clip-path: polygon(3% 0, 12% 6%, 22% 0, 32% 6%, 42% 0, 52% 6%, 62% 0, 72% 6%, 82% 0, 92% 6%, 100% 2%, 100% 98%, 92% 94%, 82% 100%, 72% 94%, 62% 100%, 52% 94%, 42% 100%, 32% 94%, 22% 100%, 12% 94%, 3% 100%, 0 90%, 0 10%);
+}
+
+.skin-candy_rush .brand-index,
+.skin-candy_rush .event-symbol {
+  border-radius: 8px;
+  clip-path: none;
+  transform: rotate(-3deg);
+  box-shadow: 5px 5px 0 #72e7f5;
+}
+
+.skin-candy_rush .event-card {
+  border: 3px solid color-mix(in srgb, var(--event-tone) 64%, #ff8acb);
+  border-radius: 8px;
+  clip-path: polygon(3% 0, 13% 7%, 23% 0, 33% 7%, 43% 0, 53% 7%, 63% 0, 73% 7%, 83% 0, 93% 7%, 100% 2%, 100% 98%, 90% 93%, 80% 100%, 70% 93%, 60% 100%, 50% 93%, 40% 100%, 30% 93%, 20% 100%, 10% 93%, 0 100%, 0 8%);
+}
+
+.skin-candy_rush .event-theme-ornament {
+  display: block;
+  width: 10px;
+  height: 22px;
+  border-radius: 5px;
+  background: #fff2a7;
+  transform: rotate(26deg);
+  box-shadow: 28px 14px #72e7f5, 58px -4px #ff83ca, 88px 16px #c69aff, 118px -3px #fff2a7;
+}
+
+.skin-candy_rush .ornament-a { top: 11px; right: 174px; }
+.skin-candy_rush .ornament-b { bottom: 13px; left: 254px; transform: rotate(-24deg); }
+.skin-candy_rush .ornament-c { display: none; }
+
+.skin-candy_rush .open-source-banner {
+  border: 3px dotted #ff8acb;
+  border-radius: 8px;
+  clip-path: none;
+  box-shadow: 0 0 0 4px rgba(114, 231, 245, 0.12), 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+/* Luxury Nightclub */
+.geometry-club .club-deco {
+  stroke: #e9c772;
+  stroke-width: 5;
+  filter: drop-shadow(0 0 8px rgba(233, 199, 114, 0.42));
+}
+
+.geometry-club .club-fan {
+  stroke: #ff4bc7;
+  stroke-width: 3;
+}
+
+.geometry-club .club-columns {
+  stroke: rgba(255, 255, 255, 0.62);
+  stroke-width: 2;
+  stroke-dasharray: 30 16;
+  animation: geometry-club-column 5s linear infinite;
+}
+
+.geometry-club .club-diamonds {
+  fill: #0e0b15;
+  stroke: #e9c772;
+  stroke-width: 3;
+  animation: geometry-club-jewel 2.6s ease-in-out infinite alternate;
+}
+
+.skin-luxury_nightclub .show-hud {
+  border: 0;
+  background: linear-gradient(105deg, rgba(10, 8, 15, 0.98), rgba(23, 12, 29, 0.96) 72%, rgba(38, 10, 30, 0.95));
+  box-shadow: inset 0 0 0 1px #e9c772, inset 0 0 0 7px rgba(233, 199, 114, 0.06), 0 16px 38px rgba(0, 0, 0, 0.46);
+  clip-path: polygon(5% 0, 43% 0, 47% 12%, 50% 0, 53% 12%, 57% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+}
+
+.skin-luxury_nightclub .show-hud::before {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(transparent, rgba(233, 199, 114, 0.72), transparent);
+  box-shadow: none;
+}
+
+.skin-luxury_nightclub .brand-index,
+.skin-luxury_nightclub .event-symbol {
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.skin-luxury_nightclub .event-card {
+  border: 0;
+  clip-path: polygon(5% 0, 46% 0, 50% 12%, 54% 0, 95% 0, 100% 50%, 95% 100%, 54% 100%, 50% 88%, 46% 100%, 5% 100%, 0 50%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--event-tone) 58%, #e9c772), inset 0 0 0 7px rgba(233, 199, 114, 0.04), 0 16px 38px rgba(0, 0, 0, 0.46);
+}
+
+.skin-luxury_nightclub .event-theme-ornament {
+  display: block;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #e9c772;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.skin-luxury_nightclub .ornament-a { left: 15px; }
+.skin-luxury_nightclub .ornament-b { right: 15px; }
+.skin-luxury_nightclub .ornament-c { left: 50%; width: 10px; height: 10px; background: #ff4bc7; }
+
+.skin-luxury_nightclub .open-source-banner {
+  clip-path: polygon(5% 0, 46% 0, 50% 18%, 54% 0, 95% 0, 100% 50%, 95% 100%, 54% 100%, 50% 82%, 46% 100%, 5% 100%, 0 50%);
+  border-color: #e9c772;
+}
+
+/* Inferno Ring */
+.skin-inferno_ring .theme-edge-effects {
+  display: none !important;
+}
+
+.geometry-inferno .inferno-forge {
+  stroke: #160704;
+  stroke-width: 30;
+}
+
+.geometry-inferno .inferno-forge-inner {
+  stroke: #6e1b08;
+  stroke-width: 8;
+}
+
+.geometry-inferno .inferno-molten-rail {
+  stroke: url(#inferno-molten);
+  stroke-width: 5;
+  stroke-dasharray: 0.12 0.035 0.025 0.035;
+  filter: drop-shadow(0 0 9px #ff5714);
+  animation: geometry-inferno-molten 3.2s linear infinite;
+}
+
+.geometry-inferno .inferno-fire-bands {
+  fill: url(#inferno-fire);
+  opacity: 0.94;
+  mix-blend-mode: screen;
+  animation: geometry-inferno-breathe 1.4s ease-in-out infinite alternate;
+}
+
+.geometry-inferno .inferno-embers circle {
+  fill: #ffd66b;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: geometry-inferno-ember 2.4s ease-out infinite;
+}
+
+.geometry-inferno .inferno-embers circle:nth-child(2n) { animation-delay: -0.8s; }
+.geometry-inferno .inferno-embers circle:nth-child(3n) { animation-delay: -1.6s; }
+
+.skin-inferno_ring .show-hud {
+  border: 0;
+  background: linear-gradient(104deg, rgba(19, 6, 3, 0.99), rgba(48, 12, 4, 0.97) 72%, rgba(91, 19, 5, 0.95));
+  box-shadow: inset 0 0 0 2px #a22b0c, inset 9px 0 #ff711d, inset -5px 0 #6f1207, 0 17px 38px rgba(0, 0, 0, 0.48), 0 0 26px rgba(255, 74, 18, 0.15);
+  clip-path: polygon(0 12%, 4% 12%, 7% 0, 42% 0, 46% 10%, 54% 10%, 58% 0, 96% 0, 100% 23%, 97% 48%, 100% 72%, 96% 100%, 9% 100%, 6% 88%, 0 88%);
+}
+
+.skin-inferno_ring .show-hud::before {
+  top: auto;
+  bottom: 0;
+  left: 8%;
+  width: 64%;
+  height: 4px;
+  background: linear-gradient(90deg, #6e1206, #ff6418, #ffe08a, #ff6418, transparent);
+  box-shadow: 0 0 12px #ff5714;
+}
+
+.skin-inferno_ring .brand-index,
+.skin-inferno_ring .event-symbol {
+  clip-path: polygon(22% 0, 78% 0, 100% 22%, 86% 50%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 14% 50%, 0 22%);
+  background: linear-gradient(145deg, rgba(255, 111, 29, 0.18), rgba(28, 6, 3, 0.94));
+}
+
+.skin-inferno_ring .event-card {
+  border: 0;
+  clip-path: polygon(0 14%, 4% 14%, 7% 0, 92% 0, 96% 14%, 100% 14%, 97% 44%, 100% 72%, 96% 100%, 8% 100%, 5% 87%, 0 87%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--event-tone) 58%, #ff6b1d), inset 8px 0 #ff6b1d, 0 17px 38px rgba(0, 0, 0, 0.5), 0 0 24px rgba(255, 71, 17, 0.16);
+}
+
+.skin-inferno_ring .event-card.event-sale::after {
+  display: none;
+}
+
+.skin-inferno_ring .event-sale .event-art-inferno {
+  display: block;
+  fill: url(#event-fire-gradient);
+  filter: drop-shadow(0 0 9px #ff5c18) drop-shadow(0 0 18px rgba(255, 171, 47, 0.64));
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: event-inferno-surge 1.65s cubic-bezier(0.16, 0.74, 0.2, 1) both;
+}
+
+.skin-inferno_ring .open-source-banner {
+  clip-path: polygon(0 22%, 5% 22%, 8% 0, 43% 0, 47% 16%, 55% 16%, 59% 0, 95% 0, 100% 50%, 95% 100%, 8% 100%, 5% 78%, 0 78%);
+  border-color: #a22b0c;
+  background: rgba(25, 7, 3, 0.94);
+  box-shadow: inset 0 -3px #ff6b1d, 0 8px 24px rgba(0, 0, 0, 0.38);
+}
+
+@keyframes geometry-storm-strike-a {
+  0%, 72%, 100% { opacity: 0; stroke-dashoffset: 1; }
+  73% { opacity: 1; stroke-dashoffset: 1; }
+  75% { opacity: 1; stroke-dashoffset: 0; }
+  77% { opacity: 0.12; }
+  79% { opacity: 0.92; stroke-dashoffset: 0; }
+  81% { opacity: 0; }
+}
+
+@keyframes geometry-storm-strike-b {
+  0%, 82%, 100% { opacity: 0; stroke-dashoffset: 1; }
+  83% { opacity: 0.8; stroke-dashoffset: 0.65; }
+  85% { opacity: 1; stroke-dashoffset: 0; }
+  87% { opacity: 0; }
+}
+
+@keyframes event-storm-draw {
+  0% { opacity: 0; stroke-dashoffset: 1; }
+  16%, 44% { opacity: 1; }
+  58% { opacity: 0.22; stroke-dashoffset: 0; }
+  72% { opacity: 0.86; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
+}
+
+@keyframes geometry-cyber-flow { to { stroke-dashoffset: -1; } }
+@keyframes geometry-cyber-nodes { 0%, 46% { opacity: 0.35; } 48%, 100% { opacity: 1; } }
+@keyframes geometry-vault-lock { to { rotate: 360deg; } }
+@keyframes geometry-boss-health { to { stroke-dashoffset: -0.108; } }
+@keyframes geometry-boss-pulse { 0%, 48% { opacity: 0.44; } 50%, 100% { opacity: 1; } }
+@keyframes geometry-cosmic-orbit { to { stroke-dashoffset: -1; } }
+@keyframes geometry-cosmic-ring { to { rotate: 360deg; } }
+@keyframes geometry-cosmic-star { from { opacity: 0.3; scale: 0.72; } to { opacity: 1; scale: 1.25; } }
+@keyframes geometry-haunted-vine { to { stroke-dashoffset: -1; } }
+@keyframes geometry-haunted-fog { from { opacity: 0.24; transform: translateX(-20px) scaleX(0.8); } to { opacity: 0.7; transform: translateX(30px) scaleX(1.18); } }
+@keyframes geometry-sports-sting { from { opacity: 0.42; transform: translateX(-7px); } to { opacity: 1; transform: translateX(7px); } }
+@keyframes geometry-anime-charge { to { stroke-dashoffset: -1; } }
+@keyframes geometry-anime-shard { from { opacity: 0.44; transform: translate(-4px, 5px); } to { opacity: 1; transform: translate(6px, -7px); } }
+@keyframes geometry-candy-twist { to { stroke-dashoffset: -1; } }
+@keyframes geometry-candy-pop { from { opacity: 0.56; transform: scale(0.72); } to { opacity: 1; transform: scale(1.1); } }
+@keyframes geometry-club-column { to { stroke-dashoffset: -92; } }
+@keyframes geometry-club-jewel { from { opacity: 0.42; } to { opacity: 1; filter: drop-shadow(0 0 10px #ff4bc7); } }
+@keyframes geometry-inferno-molten { to { stroke-dashoffset: -1; } }
+@keyframes geometry-inferno-breathe { from { opacity: 0.68; } to { opacity: 1; } }
+@keyframes geometry-inferno-ember { 0% { opacity: 0; transform: translateY(20px) scale(0.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(10px, -74px) scale(1.2); } }
+@keyframes event-inferno-surge { 0% { opacity: 0; transform: translateX(-68%) scaleY(0.6); } 12% { opacity: 1; } 58% { opacity: 1; transform: translateX(2%) scaleY(1.16); } 82% { opacity: 0.7; transform: translateX(38%) scaleY(0.92); } 100% { opacity: 0; transform: translateX(72%) scaleY(0.7); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-geometry *,
+  .event-theme-art *,
+  .event-theme-ornament {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

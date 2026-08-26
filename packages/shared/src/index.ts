@@ -69,7 +69,8 @@ export type OverlaySkin =
   | "sports_broadcast"
   | "anime_powerup"
   | "candy_rush"
-  | "luxury_nightclub";
+  | "luxury_nightclub"
+  | "inferno_ring";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -397,7 +398,8 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "sports_broadcast" ||
     value === "anime_powerup" ||
     value === "candy_rush" ||
-    value === "luxury_nightclub"
+    value === "luxury_nightclub" ||
+    value === "inferno_ring"
   );
 }
 

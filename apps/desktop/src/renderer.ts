@@ -93,7 +93,8 @@ type OverlaySkin =
   | "sports_broadcast"
   | "anime_powerup"
   | "candy_rush"
-  | "luxury_nightclub";
+  | "luxury_nightclub"
+  | "inferno_ring";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
 type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -805,7 +806,8 @@ function skinName(skin: OverlaySkin): string {
     sports_broadcast: "Sports Broadcast",
     anime_powerup: "Anime Power-Up",
     candy_rush: "Candy Rush",
-    luxury_nightclub: "Luxury Nightclub"
+    luxury_nightclub: "Luxury Nightclub",
+    inferno_ring: "Inferno Ring"
   };
   return names[skin];
 }
@@ -911,7 +913,8 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "sports_broadcast" ||
     value === "anime_powerup" ||
     value === "candy_rush" ||
-    value === "luxury_nightclub"
+    value === "luxury_nightclub" ||
+    value === "inferno_ring"
   );
 }
 

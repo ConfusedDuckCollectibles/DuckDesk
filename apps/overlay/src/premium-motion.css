@@ -1,0 +1,851 @@
+/* Premium skins use a dedicated motion system layered onto the shared broadcast chassis. */
+.theme-edge-effects,
+.edge-fx {
+  position: absolute;
+  pointer-events: none;
+}
+
+.theme-edge-effects {
+  display: none;
+  inset: 0;
+  overflow: hidden;
+}
+
+.overlay-shell.skin-premium.addon-stream_skins .theme-edge-effects {
+  display: block;
+}
+
+.edge-fx {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.edge-fx-top,
+.edge-fx-bottom {
+  right: 50px;
+  left: 50px;
+  height: 38px;
+}
+
+.edge-fx-top {
+  top: 2px;
+}
+
+.edge-fx-bottom {
+  bottom: 2px;
+}
+
+.edge-fx-left,
+.edge-fx-right {
+  top: 246px;
+  bottom: 174px;
+  width: 38px;
+  flex-direction: column;
+}
+
+.edge-fx-left {
+  left: 2px;
+}
+
+.edge-fx-right {
+  right: 2px;
+}
+
+.edge-fx i {
+  --edge-delay: 0s;
+  --edge-scale: 1;
+  --edge-angle: 0deg;
+  display: block;
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.edge-fx-left i { --edge-angle: 90deg; }
+.edge-fx-right i { --edge-angle: -90deg; }
+
+.edge-fx i:nth-child(6n + 1) { --edge-delay: -0.14s; --edge-scale: 0.72; }
+.edge-fx i:nth-child(6n + 2) { --edge-delay: -0.49s; --edge-scale: 1.08; }
+.edge-fx i:nth-child(6n + 3) { --edge-delay: -0.83s; --edge-scale: 0.84; }
+.edge-fx i:nth-child(6n + 4) { --edge-delay: -1.17s; --edge-scale: 1.18; }
+.edge-fx i:nth-child(6n + 5) { --edge-delay: -1.51s; --edge-scale: 0.92; }
+.edge-fx i:nth-child(6n) { --edge-delay: -1.86s; --edge-scale: 1.02; }
+
+.overlay-shell.skin-premium .sparkle-field {
+  display: none;
+}
+
+.overlay-shell.skin-premium .premium-sky,
+.overlay-shell.skin-premium .premium-sky::before,
+.overlay-shell.skin-premium .premium-sky::after,
+.overlay-shell.skin-premium .premium-motion span,
+.overlay-shell.skin-premium .premium-foreground::before,
+.overlay-shell.skin-premium .premium-foreground::after,
+.overlay-shell.skin-premium .premium-foreground i {
+  animation: none;
+  opacity: 0;
+}
+
+.overlay-shell.skin-premium .event-signal,
+.overlay-shell.skin-premium .event-copy,
+.overlay-shell.skin-premium .event-amount {
+  position: relative;
+  z-index: 2;
+}
+
+.overlay-shell.skin-premium .event-card::after {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+}
+
+/* Thunderstorm Arena: branching electricity and a lightning-cut alert reveal. */
+.skin-storm_front .frame-keyline {
+  stroke: #bde9ff;
+  stroke-dasharray: 68 14 7 14;
+  animation: premium-storm-rail 2.8s linear infinite;
+}
+
+.skin-storm_front .frame-inner {
+  stroke: #9b89ff;
+  animation: premium-storm-charge 3.6s steps(2, end) infinite;
+}
+
+.skin-storm_front .frame-signal {
+  stroke: #ffffff;
+  stroke-dasharray: 9 112;
+  animation: premium-storm-signal 1.4s linear infinite;
+}
+
+.skin-storm_front .edge-fx i {
+  width: 4px;
+  height: calc(19px * var(--edge-scale));
+  background: linear-gradient(180deg, transparent, #ffffff 34%, #77d9ff 66%, transparent);
+  clip-path: polygon(40% 0, 100% 0, 62% 42%, 100% 42%, 14% 100%, 42% 55%, 0 55%);
+  filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 12px #75d8ff);
+  opacity: 0;
+  animation: premium-storm-spark 2.15s steps(1, end) var(--edge-delay) infinite;
+}
+
+.skin-storm_front .premium-sky {
+  background:
+    radial-gradient(ellipse at 22% 4%, rgba(112, 144, 189, 0.3), transparent 34%),
+    radial-gradient(ellipse at 76% 1%, rgba(104, 82, 161, 0.25), transparent 31%),
+    linear-gradient(180deg, rgba(4, 8, 20, 0.64), transparent 48%);
+}
+
+.skin-storm_front .premium-sky::before {
+  inset: -12% -35% 54%;
+  background: radial-gradient(ellipse, rgba(196, 226, 255, 0.2), transparent 66%);
+  filter: blur(18px);
+  animation: premium-storm-clouds 7.2s ease-in-out infinite alternate;
+}
+
+.skin-storm_front .premium-sky::after {
+  top: -2%;
+  left: 64%;
+  width: 12%;
+  height: 36%;
+  background: linear-gradient(180deg, #ffffff, #8fe3ff 54%, transparent);
+  clip-path: polygon(42% 0, 72% 0, 48% 38%, 74% 36%, 27% 100%, 43% 54%, 20% 56%);
+  filter: drop-shadow(0 0 14px #ffffff) drop-shadow(0 0 28px #75d8ff);
+  animation: premium-storm-bolt 7.4s steps(1, end) infinite;
+}
+
+.skin-storm_front .event-card.event-sale::after {
+  inset: -40% 58% -40% 17%;
+  background: linear-gradient(160deg, transparent 0 42%, #ffffff 44% 48%, #75d8ff 49% 53%, transparent 55%);
+  filter: drop-shadow(0 0 18px #ffffff);
+  animation: premium-storm-alert-flash 640ms steps(1, end) both;
+}
+
+.overlay-shell.skin-storm_front .sale-alert-enter-active {
+  animation: premium-storm-alert 440ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
+}
+
+/* Cyber Duck City: packet traffic, scan gates, and a digital assembly alert. */
+.skin-cyber_duck_city .frame-keyline {
+  stroke: #00efff;
+  stroke-dasharray: 3 10 42 10;
+  animation: premium-cyber-rail 4.2s linear infinite;
+}
+
+.skin-cyber_duck_city .frame-inner {
+  stroke: #ff48d7;
+  stroke-dasharray: 34 16;
+}
+
+.skin-cyber_duck_city .frame-hardware {
+  fill: #05040d;
+  stroke: #efff38;
+}
+
+.skin-cyber_duck_city .edge-fx i {
+  width: calc(23px * var(--edge-scale));
+  height: 3px;
+  background: #00f0ff;
+  box-shadow: 0 0 9px #00f0ff;
+  opacity: 0.22;
+  animation: premium-cyber-packet 1.8s steps(6, end) var(--edge-delay) infinite;
+}
+
+.skin-cyber_duck_city .edge-fx i:nth-child(3n) {
+  background: #ff48d7;
+  box-shadow: 0 0 9px #ff48d7;
+}
+
+.skin-cyber_duck_city .premium-sky {
+  background:
+    linear-gradient(180deg, transparent 0 57%, rgba(0, 240, 255, 0.05)),
+    repeating-linear-gradient(90deg, transparent 0 70px, rgba(0, 240, 255, 0.04) 71px 72px);
+}
+
+.skin-cyber_duck_city .premium-sky::before {
+  right: -34%;
+  bottom: -18%;
+  left: -34%;
+  height: 48%;
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 72, 215, 0.2) 1px, transparent 1px);
+  background-size: 48px 34px;
+  transform: perspective(360px) rotateX(64deg);
+  transform-origin: bottom;
+  animation: premium-cyber-horizon 2.4s linear infinite;
+}
+
+.skin-cyber_duck_city .premium-sky::after {
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  border-right: 1px solid #00f0ff;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.05));
+  animation: premium-cyber-scan 4.8s steps(12, end) infinite;
+}
+
+.skin-cyber_duck_city .event-card.event-sale::after {
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.2) 0 2px, transparent 2px 8px);
+  transform: translateY(-100%);
+  animation: premium-cyber-alert-scan 520ms steps(7, end) both;
+}
+
+.overlay-shell.skin-cyber_duck_city .sale-alert-enter-active {
+  animation: premium-cyber-alert 420ms steps(8, end) both;
+}
+
+/* Treasure Vault: mechanical rails, jeweled locks, and a heavy door reveal. */
+.skin-treasure_vault .frame-keyline {
+  stroke: #f1c55d;
+  stroke-width: 5;
+}
+
+.skin-treasure_vault .frame-inner {
+  stroke: #43e2bd;
+  stroke-dasharray: 2 18;
+  animation: premium-vault-dial 8s linear infinite;
+}
+
+.skin-treasure_vault .frame-hardware {
+  fill: #211104;
+  stroke: #fff0a3;
+}
+
+.skin-treasure_vault .edge-fx i {
+  width: calc(8px * var(--edge-scale));
+  height: calc(8px * var(--edge-scale));
+  border: 1px solid #fff0a3;
+  border-radius: 50%;
+  background: #9a6012;
+  box-shadow: inset 0 0 0 2px #3f2204, 0 0 8px rgba(255, 224, 127, 0.42);
+  animation: premium-vault-rivet 3.4s ease-in-out var(--edge-delay) infinite;
+}
+
+.skin-treasure_vault .edge-fx i:nth-child(4n) {
+  border-color: #a8ffe7;
+  background: #147b65;
+}
+
+.skin-treasure_vault .premium-sky {
+  background:
+    repeating-radial-gradient(circle at 50% 52%, transparent 0 84px, rgba(221, 169, 61, 0.08) 86px 88px, transparent 90px 132px),
+    radial-gradient(circle at 50% 12%, rgba(255, 227, 129, 0.14), transparent 31%);
+  animation: premium-vault-breathe 6.8s ease-in-out infinite alternate;
+}
+
+.skin-treasure_vault .premium-motion span {
+  width: calc(3px * var(--scale));
+  height: calc(34px * var(--scale));
+  background: linear-gradient(180deg, transparent, #fff0a3, transparent);
+  opacity: 0;
+  animation: premium-vault-glint var(--speed) ease-in-out var(--delay) infinite;
+}
+
+.skin-treasure_vault .event-card.event-sale::after {
+  inset: -70% 26%;
+  border: 26px double rgba(255, 240, 163, 0.72);
+  border-radius: 50%;
+  box-shadow: 0 0 36px rgba(221, 169, 61, 0.58);
+  animation: premium-vault-alert-dial 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.overlay-shell.skin-treasure_vault .sale-alert-enter-active {
+  animation: premium-vault-alert 560ms cubic-bezier(0.2, 0.82, 0.24, 1) both;
+}
+
+/* Arcade Boss Battle: stepped pixels, health-strip rails, and an impact alert. */
+.skin-boss_battle .frame-keyline {
+  stroke: #ff355e;
+  stroke-width: 6;
+  stroke-dasharray: 28 6;
+  animation: premium-boss-health 1.8s steps(8, end) infinite;
+}
+
+.skin-boss_battle .frame-inner {
+  stroke: #3eeeff;
+  stroke-dasharray: 6 6;
+}
+
+.skin-boss_battle .edge-fx i {
+  width: calc(8px * var(--edge-scale));
+  height: calc(8px * var(--edge-scale));
+  background: #ffcf32;
+  box-shadow: 8px 0 0 #ff355e;
+  animation: premium-boss-pixel 1.5s steps(4, end) var(--edge-delay) infinite;
+}
+
+.skin-boss_battle .premium-sky {
+  background:
+    linear-gradient(rgba(62, 238, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 53, 94, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+  animation: premium-boss-grid 2.6s steps(6, end) infinite;
+}
+
+.skin-boss_battle .event-card.event-sale::after {
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(255, 207, 50, 0.2) 0 18px, transparent 18px 30px);
+  transform: translateX(-110%);
+  animation: premium-boss-alert-blocks 520ms steps(6, end) both;
+}
+
+.overlay-shell.skin-boss_battle .sale-alert-enter-active {
+  animation: premium-boss-alert 480ms steps(7, end) both;
+}
+
+/* Cosmic Auction: orbital starlight and a compressed warp reveal. */
+.skin-cosmic_auction .frame-keyline {
+  stroke: #a99fff;
+  stroke-dasharray: 1 13 44 13;
+  stroke-linecap: round;
+  animation: premium-cosmic-orbit 8.5s linear infinite;
+}
+
+.skin-cosmic_auction .frame-inner {
+  stroke: #54eeff;
+  opacity: 0.5;
+}
+
+.skin-cosmic_auction .edge-fx i {
+  width: calc(4px * var(--edge-scale));
+  height: calc(4px * var(--edge-scale));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 7px #54eeff, 0 0 16px #ff6bd8;
+  animation: premium-cosmic-star 3.7s ease-in-out var(--edge-delay) infinite;
+}
+
+.skin-cosmic_auction .premium-sky {
+  background:
+    radial-gradient(ellipse at 18% 34%, rgba(138, 124, 255, 0.2), transparent 34%),
+    radial-gradient(ellipse at 82% 66%, rgba(255, 107, 216, 0.16), transparent 38%);
+  animation: premium-cosmic-nebula 11s ease-in-out infinite alternate;
+}
+
+.skin-cosmic_auction .premium-motion span {
+  width: calc(3px * var(--scale));
+  height: calc(3px * var(--scale));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px #54eeff;
+  animation: premium-cosmic-drift var(--speed) ease-in-out var(--delay) infinite;
+}
+
+.skin-cosmic_auction .event-card.event-sale::after {
+  top: 50%;
+  left: 50%;
+  width: 68%;
+  height: 260%;
+  border: 2px solid #54eeff;
+  border-radius: 50%;
+  box-shadow: 0 0 24px #8a7cff, inset 0 0 24px rgba(255, 107, 216, 0.42);
+  animation: premium-cosmic-alert-ring 720ms ease-out both;
+}
+
+.overlay-shell.skin-cosmic_auction .sale-alert-enter-active {
+  animation: premium-cosmic-alert 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Haunted Drop: edge fog, spectral breathing, and a soft apparition alert. */
+.skin-haunted_drop .frame-keyline {
+  stroke: #9af1cd;
+  stroke-dasharray: 90 28;
+  animation: premium-haunted-rail 7.4s ease-in-out infinite alternate;
+}
+
+.skin-haunted_drop .frame-inner {
+  stroke: #a886ff;
+  filter: blur(0.6px);
+  animation: premium-haunted-pulse 4.6s ease-in-out infinite;
+}
+
+.skin-haunted_drop .edge-fx i {
+  width: calc(30px * var(--edge-scale));
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(194, 255, 225, 0.25);
+  filter: blur(4px);
+  opacity: 0;
+  animation: premium-haunted-wisp 5.4s ease-in-out var(--edge-delay) infinite;
+}
+
+.skin-haunted_drop .premium-sky {
+  background:
+    radial-gradient(ellipse at 12% 64%, rgba(118, 239, 189, 0.15), transparent 38%),
+    radial-gradient(ellipse at 88% 38%, rgba(168, 134, 255, 0.13), transparent 36%);
+}
+
+.skin-haunted_drop .premium-sky::before,
+.skin-haunted_drop .premium-sky::after {
+  left: -28%;
+  width: 156%;
+  height: 18%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(207, 255, 230, 0.12), transparent 68%);
+  filter: blur(18px);
+  animation: premium-haunted-fog 10s ease-in-out infinite alternate;
+}
+
+.skin-haunted_drop .premium-sky::before { top: 32%; }
+.skin-haunted_drop .premium-sky::after { bottom: 6%; animation-delay: -5s; }
+
+.skin-haunted_drop .event-card.event-sale::after {
+  inset: -30% -12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(198, 255, 226, 0.32), transparent 64%);
+  filter: blur(8px);
+  animation: premium-haunted-alert-fog 980ms ease-out both;
+}
+
+.overlay-shell.skin-haunted_drop .sale-alert-enter-active {
+  animation: premium-haunted-alert 720ms ease-out both;
+}
+
+/* Sports Broadcast: score-strip runners and a fast network lower-third wipe. */
+.skin-sports_broadcast .frame-keyline {
+  stroke: #f5f8ff;
+  stroke-width: 5;
+  stroke-dasharray: 126 8 34 8;
+  animation: premium-sports-rail 4.4s linear infinite;
+}
+
+.skin-sports_broadcast .frame-inner {
+  stroke: #27c5ff;
+}
+
+.skin-sports_broadcast .frame-hardware {
+  fill: #06111f;
+  stroke: #ff3158;
+}
+
+.skin-sports_broadcast .edge-fx i {
+  width: calc(31px * var(--edge-scale));
+  height: 4px;
+  background: #27c5ff;
+  box-shadow: 0 0 7px rgba(39, 197, 255, 0.68);
+  animation: premium-sports-sting 2s cubic-bezier(0.4, 0, 0.2, 1) var(--edge-delay) infinite;
+}
+
+.skin-sports_broadcast .edge-fx i:nth-child(3n) {
+  background: #ff3158;
+}
+
+.skin-sports_broadcast .premium-sky {
+  background: repeating-linear-gradient(118deg, transparent 0 112px, rgba(39, 197, 255, 0.055) 114px 124px, transparent 126px 210px);
+  animation: premium-sports-field 10s linear infinite;
+}
+
+.skin-sports_broadcast .event-card.event-sale::after {
+  inset: 0;
+  background: linear-gradient(105deg, transparent 0 34%, rgba(255, 255, 255, 0.25) 35% 39%, rgba(255, 49, 88, 0.34) 40% 52%, transparent 53%);
+  transform: translateX(-120%);
+  animation: premium-sports-alert-sting 660ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.overlay-shell.skin-sports_broadcast .sale-alert-enter-active {
+  animation: premium-sports-alert 380ms cubic-bezier(0.12, 0.72, 0.2, 1) both;
+}
+
+/* Anime Power-Up: border aura shards and a directional impact reveal. */
+.skin-anime_powerup .frame-keyline {
+  stroke: #4de9ff;
+  stroke-dasharray: 76 7 12 7;
+  animation: premium-anime-rail 2s linear infinite;
+}
+
+.skin-anime_powerup .frame-inner {
+  stroke: #ffda45;
+  animation: premium-anime-aura 1.1s ease-in-out infinite alternate;
+}
+
+.skin-anime_powerup .edge-fx i {
+  width: calc(7px * var(--edge-scale));
+  height: calc(26px * var(--edge-scale));
+  background: linear-gradient(180deg, transparent, #ffffff 36%, #4de9ff 62%, #ff4279);
+  clip-path: polygon(50% 0, 100% 100%, 0 78%);
+  filter: drop-shadow(0 0 7px #4de9ff);
+  animation: premium-anime-shard 1.4s ease-out var(--edge-delay) infinite;
+}
+
+.skin-anime_powerup .premium-sky::before {
+  inset: -18%;
+  background: repeating-conic-gradient(from 0deg at 50% 48%, transparent 0 7deg, rgba(77, 233, 255, 0.075) 7.3deg 8deg, transparent 8.3deg 15deg, rgba(255, 66, 121, 0.06) 15.3deg 16deg);
+  animation: premium-anime-lines 16s linear infinite;
+}
+
+.skin-anime_powerup .event-card.event-sale::after {
+  inset: 0;
+  background: repeating-linear-gradient(112deg, transparent 0 24px, rgba(255, 255, 255, 0.22) 25px 27px, transparent 28px 52px);
+  transform: translateX(-115%);
+  animation: premium-anime-alert-lines 520ms ease-out both;
+}
+
+.overlay-shell.skin-anime_powerup .sale-alert-enter-active {
+  animation: premium-anime-alert 440ms cubic-bezier(0.12, 0.84, 0.24, 1) both;
+}
+
+/* Candy Rush: animated sprinkle rails and a polished confectionery pop. */
+.skin-candy_rush .frame-keyline {
+  stroke: #ff7bcc;
+  stroke-width: 5;
+  stroke-dasharray: 16 10;
+  animation: premium-candy-rail 3.2s linear infinite;
+}
+
+.skin-candy_rush .frame-inner {
+  stroke: #75e9ff;
+  stroke-dasharray: 4 18;
+}
+
+.skin-candy_rush .edge-fx i {
+  width: calc(5px * var(--edge-scale));
+  height: calc(15px * var(--edge-scale));
+  border-radius: 4px;
+  background: #ff7bcc;
+  box-shadow: 0 0 7px rgba(255, 123, 204, 0.58);
+  animation: premium-candy-sprinkle 2.2s ease-in-out var(--edge-delay) infinite;
+}
+
+.skin-candy_rush .edge-fx i:nth-child(3n + 2) { background: #75e9ff; }
+.skin-candy_rush .edge-fx i:nth-child(3n) { background: #ffe767; }
+
+.skin-candy_rush .premium-sky {
+  background:
+    radial-gradient(circle at 9% 22%, rgba(255, 123, 204, 0.15) 0 22px, transparent 24px),
+    radial-gradient(circle at 91% 44%, rgba(117, 233, 255, 0.13) 0 30px, transparent 32px),
+    radial-gradient(circle at 20% 84%, rgba(255, 231, 103, 0.11) 0 34px, transparent 36px);
+  animation: premium-candy-bubbles 6.4s ease-in-out infinite alternate;
+}
+
+.skin-candy_rush .event-card.event-sale::after {
+  inset: -20%;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.36) 0 3px, transparent 4px),
+    radial-gradient(circle at 44% 70%, rgba(117, 233, 255, 0.42) 0 4px, transparent 5px),
+    radial-gradient(circle at 72% 28%, rgba(255, 231, 103, 0.42) 0 3px, transparent 4px);
+  background-size: 80px 56px;
+  transform: translateX(-100%);
+  animation: premium-candy-alert-sprinkles 760ms ease-out both;
+}
+
+.overlay-shell.skin-candy_rush .sale-alert-enter-active {
+  animation: premium-candy-alert 520ms cubic-bezier(0.16, 0.9, 0.24, 1.08) both;
+}
+
+/* Luxury Nightclub: pin-light chase, champagne rails, and a curtain reveal. */
+.skin-luxury_nightclub .frame-keyline {
+  stroke: #e8c875;
+  stroke-width: 4;
+  stroke-dasharray: 2 11 54 11;
+  animation: premium-club-rail 6.4s linear infinite;
+}
+
+.skin-luxury_nightclub .frame-inner {
+  stroke: #ff38c8;
+  opacity: 0.62;
+}
+
+.skin-luxury_nightclub .edge-fx i {
+  width: calc(5px * var(--edge-scale));
+  height: calc(5px * var(--edge-scale));
+  border-radius: 50%;
+  background: #e8c875;
+  box-shadow: 0 0 9px #e8c875;
+  animation: premium-club-pin 2.8s ease-in-out var(--edge-delay) infinite;
+}
+
+.skin-luxury_nightclub .edge-fx i:nth-child(4n) {
+  background: #ff38c8;
+  box-shadow: 0 0 10px #ff38c8;
+}
+
+.skin-luxury_nightclub .premium-sky {
+  background:
+    conic-gradient(from 203deg at 13% -8%, transparent 0 13deg, rgba(255, 56, 200, 0.1) 14deg 18deg, transparent 19deg 360deg),
+    conic-gradient(from 153deg at 87% -8%, transparent 0 13deg, rgba(232, 200, 117, 0.11) 14deg 18deg, transparent 19deg 360deg);
+  animation: premium-club-lights 8s ease-in-out infinite alternate;
+}
+
+.skin-luxury_nightclub .premium-sky::after {
+  right: -32%;
+  bottom: 12%;
+  left: -32%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ff38c8, #e8c875, #3ce8ff, transparent);
+  box-shadow: 0 0 14px rgba(255, 56, 200, 0.58);
+  animation: premium-club-laser 5.6s ease-in-out infinite alternate;
+}
+
+.skin-luxury_nightclub .event-card.event-sale::after {
+  inset: 0;
+  background: linear-gradient(102deg, transparent 20%, rgba(232, 200, 117, 0.3) 42%, rgba(255, 255, 255, 0.38) 48%, rgba(255, 56, 200, 0.23) 54%, transparent 76%);
+  transform: translateX(-120%);
+  animation: premium-club-alert-light 820ms ease-in-out both;
+}
+
+.overlay-shell.skin-luxury_nightclub .sale-alert-enter-active {
+  animation: premium-club-alert 580ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Inferno Ring: border flames, heat shimmer, embers, and a flame-front sale alert. */
+.skin-inferno_ring .broadcast-frame-svg {
+  filter: drop-shadow(0 0 9px rgba(255, 90, 31, 0.58)) drop-shadow(0 0 22px rgba(255, 36, 56, 0.24));
+  animation: premium-inferno-frame 1.8s ease-in-out infinite alternate;
+}
+
+.skin-inferno_ring .frame-keyline {
+  stroke: #ff6a24;
+  stroke-width: 5;
+  stroke-dasharray: 42 8 8 8;
+  animation: premium-inferno-rail 2.6s linear infinite;
+}
+
+.skin-inferno_ring .frame-inner {
+  stroke: #ffd166;
+  stroke-dasharray: 4 16;
+  animation: premium-inferno-inner 1.4s linear infinite;
+}
+
+.skin-inferno_ring .frame-hardware {
+  fill: #190704;
+  stroke: #ffb23f;
+}
+
+.skin-inferno_ring .frame-signal {
+  stroke: #fff0b0;
+  stroke-dasharray: 22 138;
+  animation: premium-inferno-signal 2.2s linear infinite;
+}
+
+.skin-inferno_ring .edge-fx i {
+  --flame-angle: 0deg;
+  width: calc(18px * var(--edge-scale));
+  height: calc(32px * var(--edge-scale));
+  background: linear-gradient(180deg, rgba(255, 224, 112, 0.06) 0, #ffd166 34%, #ff741c 62%, #e71912 100%);
+  border-radius: 48% 52% 42% 58% / 72% 64% 36% 28%;
+  clip-path: polygon(48% 0, 68% 27%, 92% 43%, 76% 100%, 21% 100%, 8% 58%, 29% 33%);
+  filter: drop-shadow(0 0 7px #ff8b24) drop-shadow(0 0 13px rgba(255, 36, 20, 0.72));
+  transform-origin: center;
+  animation: premium-inferno-flame 780ms ease-in-out var(--edge-delay) infinite alternate;
+}
+
+.skin-inferno_ring .edge-fx-top i { --flame-angle: 180deg; }
+.skin-inferno_ring .edge-fx-left i { --flame-angle: 90deg; }
+.skin-inferno_ring .edge-fx-right i { --flame-angle: -90deg; }
+
+.skin-inferno_ring .premium-sky {
+  background:
+    radial-gradient(ellipse at 50% 104%, rgba(255, 64, 10, 0.18), transparent 43%),
+    linear-gradient(180deg, rgba(26, 7, 3, 0.16), transparent 34% 70%, rgba(89, 16, 3, 0.13));
+}
+
+.skin-inferno_ring .premium-sky::before {
+  inset: -8%;
+  background: repeating-linear-gradient(96deg, transparent 0 26px, rgba(255, 117, 32, 0.045) 28px 30px, transparent 32px 58px);
+  filter: blur(2px);
+  animation: premium-inferno-heat 2.8s ease-in-out infinite alternate;
+}
+
+.skin-inferno_ring .premium-motion span {
+  width: calc(5px * var(--scale));
+  height: calc(9px * var(--scale));
+  border-radius: 50%;
+  background: #ffd166;
+  box-shadow: 0 0 9px #ff5a1f;
+  animation: premium-inferno-ember var(--speed) ease-out var(--delay) infinite;
+}
+
+.skin-inferno_ring .premium-foreground::after {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 12%;
+  background: linear-gradient(180deg, transparent, rgba(255, 54, 12, 0.09));
+  filter: blur(8px);
+  animation: premium-inferno-floor 1.8s ease-in-out infinite alternate;
+}
+
+.skin-inferno_ring .show-hud {
+  border-color: rgba(255, 157, 67, 0.82);
+  background:
+    linear-gradient(102deg, rgba(16, 6, 3, 0.98), rgba(58, 14, 5, 0.95) 66%, rgba(114, 23, 5, 0.92)),
+    var(--panel);
+}
+
+.skin-inferno_ring .event-card {
+  border-color: color-mix(in srgb, var(--event-tone) 76%, #ff9b42);
+  background:
+    linear-gradient(102deg, color-mix(in srgb, var(--event-tone) 8%, #120603), #120603 58%, color-mix(in srgb, var(--event-tone) 14%, #2a0903)),
+    #120603;
+}
+
+.skin-inferno_ring .event-card.event-sale::after {
+  top: -38%;
+  bottom: -34%;
+  left: -34%;
+  width: 68%;
+  background:
+    radial-gradient(ellipse at 12% 100%, #fff1a3 0 6%, #ffad32 12%, #ff3a16 27%, transparent 30%),
+    radial-gradient(ellipse at 38% 100%, #ffe37a 0 7%, #ff7b20 15%, #e71912 31%, transparent 34%),
+    radial-gradient(ellipse at 68% 100%, #fff1a3 0 5%, #ff9a2a 13%, #ff2f18 28%, transparent 31%),
+    radial-gradient(ellipse at 91% 100%, #ffd166 0 7%, #ff5a1f 16%, #c40f0f 34%, transparent 37%);
+  filter: drop-shadow(0 0 14px #ff5a1f) blur(0.3px);
+  transform: translateX(-70%) skewX(-10deg);
+  animation: premium-inferno-sale-flame 1200ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.overlay-shell.skin-inferno_ring .sale-alert-enter-active {
+  animation: premium-inferno-alert 500ms cubic-bezier(0.14, 0.8, 0.2, 1) both;
+}
+
+@keyframes premium-storm-rail { to { stroke-dashoffset: -106; } }
+@keyframes premium-storm-charge { 0%, 88%, 100% { opacity: 0.36; } 90%, 94% { opacity: 1; } }
+@keyframes premium-storm-signal { to { stroke-dashoffset: -242; } }
+@keyframes premium-storm-spark { 0%, 77%, 100% { opacity: 0; transform: rotate(var(--edge-angle)) scaleY(0.5); } 79%, 83% { opacity: 1; transform: rotate(var(--edge-angle)) scaleY(1.25); } 85% { opacity: 0.25; } }
+@keyframes premium-storm-clouds { from { transform: translateX(-4%) scale(1); } to { transform: translateX(5%) scale(1.08); } }
+@keyframes premium-storm-bolt { 0%, 82%, 100% { opacity: 0; } 83%, 84.5% { opacity: 1; } 85.5% { opacity: 0.18; } 87% { opacity: 0.9; } 89% { opacity: 0; } }
+@keyframes premium-storm-alert-flash { 0%, 18% { opacity: 0; } 22%, 38% { opacity: 1; } 42%, 100% { opacity: 0; transform: translateX(42%); } }
+@keyframes premium-storm-alert { from { opacity: 0; clip-path: inset(0 100% 0 0); filter: brightness(2.4); transform: translateX(-50%) translateY(-10px); } to { opacity: 1; clip-path: inset(0); filter: brightness(1); transform: translateX(-50%); } }
+
+@keyframes premium-cyber-rail { to { stroke-dashoffset: -130; } }
+@keyframes premium-cyber-packet { 0%, 100% { opacity: 0.14; transform: rotate(var(--edge-angle)) scaleX(0.45); } 32%, 52% { opacity: 1; transform: rotate(var(--edge-angle)) scaleX(1.25); } }
+@keyframes premium-cyber-horizon { to { background-position: 0 34px, 48px 0; } }
+@keyframes premium-cyber-scan { from { opacity: 0; transform: translateX(-20vw); } 18%, 82% { opacity: 1; } to { opacity: 0; transform: translateX(112vw); } }
+@keyframes premium-cyber-alert-scan { 0% { opacity: 0; transform: translateY(-100%); } 35% { opacity: 1; } 100% { opacity: 0; transform: translateY(100%); } }
+@keyframes premium-cyber-alert { 0% { opacity: 0; clip-path: polygon(0 0, 4% 0, 4% 34%, 18% 34%, 18% 67%, 44% 67%, 44% 100%, 0 100%); transform: translateX(-50%); } 70% { opacity: 1; } 100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: translateX(-50%); } }
+
+@keyframes premium-vault-dial { to { stroke-dashoffset: -120; } }
+@keyframes premium-vault-rivet { 0%, 68%, 100% { filter: brightness(0.72); transform: scale(0.85); } 74% { filter: brightness(1.9); transform: scale(1.18); } }
+@keyframes premium-vault-breathe { from { opacity: 0.54; filter: brightness(0.88); } to { opacity: 0.92; filter: brightness(1.12); } }
+@keyframes premium-vault-glint { 0%, 66%, 100% { opacity: 0; transform: translateY(20px) scaleY(0.4); } 76% { opacity: 0.8; transform: translateY(-18px) scaleY(1.4); } }
+@keyframes premium-vault-alert-dial { from { opacity: 0; transform: scale(0.18) rotate(-80deg); } 44% { opacity: 0.8; } to { opacity: 0; transform: scale(1.6) rotate(24deg); } }
+@keyframes premium-vault-alert { from { opacity: 0; clip-path: inset(0 50%); filter: brightness(1.8); transform: translateX(-50%) scaleX(0.72); } to { opacity: 1; clip-path: inset(0); filter: brightness(1); transform: translateX(-50%) scaleX(1); } }
+
+@keyframes premium-boss-health { to { stroke-dashoffset: -68; } }
+@keyframes premium-boss-pixel { 0%, 100% { opacity: 0.22; transform: translate(0, 0); } 50% { opacity: 1; transform: translate(7px, -4px); } }
+@keyframes premium-boss-grid { to { background-position: 36px 36px; } }
+@keyframes premium-boss-alert-blocks { from { opacity: 1; transform: translateX(-110%); } to { opacity: 0; transform: translateX(110%); } }
+@keyframes premium-boss-alert { 0% { opacity: 0; transform: translateX(-50%) translateY(32px) scale(0.92); } 70% { opacity: 1; transform: translateX(-50%) translateY(-3px) scale(1.01); } 100% { transform: translateX(-50%); } }
+
+@keyframes premium-cosmic-orbit { to { stroke-dashoffset: -142; } }
+@keyframes premium-cosmic-star { 0%, 100% { opacity: 0.18; transform: scale(0.6); } 46% { opacity: 1; transform: scale(1.75); } }
+@keyframes premium-cosmic-nebula { from { filter: hue-rotate(-6deg); transform: scale(1); } to { filter: hue-rotate(8deg); transform: scale(1.07); } }
+@keyframes premium-cosmic-drift { 0%, 100% { opacity: 0.12; transform: translateY(16px) scale(0.6); } 50% { opacity: 0.82; transform: translateY(-22px) scale(1.35); } }
+@keyframes premium-cosmic-alert-ring { from { opacity: 0; transform: translate(-50%, -50%) scaleX(0.04); } 38% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -50%) scaleX(1.4); } }
+@keyframes premium-cosmic-alert { from { opacity: 0; filter: blur(12px) brightness(2); transform: translateX(-50%) scaleX(0.08) scaleY(0.72); } to { opacity: 1; filter: blur(0) brightness(1); transform: translateX(-50%) scale(1); } }
+
+@keyframes premium-haunted-rail { from { opacity: 0.42; stroke-dashoffset: 0; } to { opacity: 0.9; stroke-dashoffset: -118; } }
+@keyframes premium-haunted-pulse { 0%, 100% { opacity: 0.22; } 50% { opacity: 0.78; } }
+@keyframes premium-haunted-wisp { 0%, 100% { opacity: 0; transform: rotate(var(--edge-angle)) translate(-12px, 8px) scale(0.7); } 42%, 62% { opacity: 0.62; transform: rotate(var(--edge-angle)) translate(13px, -8px) scale(1.15); } }
+@keyframes premium-haunted-fog { from { opacity: 0.32; transform: translateX(-7%) scaleX(0.9); } to { opacity: 0.76; transform: translateX(8%) scaleX(1.08); } }
+@keyframes premium-haunted-alert-fog { from { opacity: 0; transform: translateX(-34%) scale(0.68); } 48% { opacity: 0.9; } to { opacity: 0; transform: translateX(34%) scale(1.18); } }
+@keyframes premium-haunted-alert { from { opacity: 0; filter: blur(13px); transform: translateX(-50%) translateY(18px) scaleY(0.78); } to { opacity: 1; filter: blur(0); transform: translateX(-50%); } }
+
+@keyframes premium-sports-rail { to { stroke-dashoffset: -176; } }
+@keyframes premium-sports-sting { 0%, 100% { opacity: 0.14; transform: rotate(var(--edge-angle)) scaleX(0.35); } 38%, 62% { opacity: 1; transform: rotate(var(--edge-angle)) scaleX(1.2); } }
+@keyframes premium-sports-field { to { background-position: 210px 0; } }
+@keyframes premium-sports-alert-sting { from { opacity: 1; transform: translateX(-120%); } to { opacity: 0; transform: translateX(125%); } }
+@keyframes premium-sports-alert { from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(calc(-50% - 42px)); } to { opacity: 1; clip-path: inset(0); transform: translateX(-50%); } }
+
+@keyframes premium-anime-rail { to { stroke-dashoffset: -102; } }
+@keyframes premium-anime-aura { from { opacity: 0.28; } to { opacity: 0.92; } }
+@keyframes premium-anime-shard { 0%, 100% { opacity: 0; filter: brightness(1); transform: rotate(var(--edge-angle)) scaleY(0.55); } 38% { opacity: 1; filter: brightness(1.8); transform: rotate(var(--edge-angle)) scaleY(1.2); } }
+@keyframes premium-anime-lines { to { transform: rotate(360deg); } }
+@keyframes premium-anime-alert-lines { from { opacity: 1; transform: translateX(-115%); } to { opacity: 0; transform: translateX(115%); } }
+@keyframes premium-anime-alert { from { opacity: 0; clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%); filter: brightness(2); transform: translateX(-50%) scale(1.06) skewX(-3deg); } to { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); filter: brightness(1); transform: translateX(-50%); } }
+
+@keyframes premium-candy-rail { to { stroke-dashoffset: -52; } }
+@keyframes premium-candy-sprinkle { 0%, 100% { opacity: 0.24; transform: rotate(calc(var(--edge-angle) - 18deg)) translateY(2px); } 48% { opacity: 1; transform: rotate(calc(var(--edge-angle) + 28deg)) translateY(-4px); } }
+@keyframes premium-candy-bubbles { from { transform: translateY(0); } to { transform: translateY(-18px); } }
+@keyframes premium-candy-alert-sprinkles { from { opacity: 0; transform: translateX(-100%) rotate(-4deg); } 30% { opacity: 1; } to { opacity: 0; transform: translateX(100%) rotate(4deg); } }
+@keyframes premium-candy-alert { from { opacity: 0; transform: translateX(-50%) scaleY(0.58); } 74% { opacity: 1; transform: translateX(-50%) scaleY(1.04); } to { transform: translateX(-50%); } }
+
+@keyframes premium-club-rail { to { stroke-dashoffset: -156; } }
+@keyframes premium-club-pin { 0%, 100% { opacity: 0.12; transform: scale(0.6); } 42%, 58% { opacity: 1; transform: scale(1.5); } }
+@keyframes premium-club-lights { from { opacity: 0.54; transform: rotate(-1.5deg) scale(1.02); } to { opacity: 0.9; transform: rotate(1.5deg) scale(1.06); } }
+@keyframes premium-club-laser { from { opacity: 0.24; transform: translateY(-12vh) rotate(-4deg); } to { opacity: 0.78; transform: translateY(16vh) rotate(4deg); } }
+@keyframes premium-club-alert-light { from { opacity: 0; transform: translateX(-120%); } 36% { opacity: 1; } to { opacity: 0; transform: translateX(120%); } }
+@keyframes premium-club-alert { from { opacity: 0; clip-path: inset(0 50%); filter: brightness(1.8); transform: translateX(-50%); } to { opacity: 1; clip-path: inset(0); filter: brightness(1); transform: translateX(-50%); } }
+
+@keyframes premium-inferno-frame { from { filter: drop-shadow(0 0 8px rgba(255, 90, 31, 0.42)); } to { filter: drop-shadow(0 0 14px rgba(255, 90, 31, 0.74)) drop-shadow(0 0 26px rgba(255, 36, 56, 0.24)); } }
+@keyframes premium-inferno-rail { to { stroke-dashoffset: -116; } }
+@keyframes premium-inferno-inner { to { stroke-dashoffset: -60; } }
+@keyframes premium-inferno-signal { to { stroke-dashoffset: -320; } }
+@keyframes premium-inferno-flame { from { opacity: 0.66; transform: rotate(var(--flame-angle)) scaleX(calc(var(--edge-scale) * 0.76)) scaleY(0.72) translateY(3px); } to { opacity: 1; transform: rotate(var(--flame-angle)) scaleX(calc(var(--edge-scale) * 1.08)) scaleY(1.16) translateY(-2px); } }
+@keyframes premium-inferno-heat { from { opacity: 0.3; transform: skewX(-0.5deg) translateX(-8px); } to { opacity: 0.7; transform: skewX(0.7deg) translateX(9px); } }
+@keyframes premium-inferno-ember { 0% { opacity: 0; transform: translateY(28px) translateX(0) scale(0.45); } 28% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-180px) translateX(18px) scale(1.2); } }
+@keyframes premium-inferno-floor { from { opacity: 0.38; transform: scaleY(0.82); } to { opacity: 0.78; transform: scaleY(1.16); } }
+@keyframes premium-inferno-sale-flame { 0% { opacity: 0; transform: translateX(-70%) skewX(-10deg) scaleY(0.6); } 18% { opacity: 1; } 76% { opacity: 0.92; transform: translateX(132%) skewX(-4deg) scaleY(1.08); } 100% { opacity: 0; transform: translateX(190%) skewX(0) scaleY(0.7); } }
+@keyframes premium-inferno-alert { from { opacity: 0; filter: blur(8px) brightness(2.1); transform: translateX(-50%) translateY(14px) scaleX(0.82); } to { opacity: 1; filter: blur(0) brightness(1); transform: translateX(-50%); } }
+
+@media (max-width: 720px) {
+  .edge-fx-top,
+  .edge-fx-bottom {
+    right: 24px;
+    left: 24px;
+    height: 24px;
+  }
+
+  .edge-fx-left,
+  .edge-fx-right {
+    top: 172px;
+    bottom: 104px;
+    width: 24px;
+  }
+
+  .skin-inferno_ring .edge-fx i {
+    width: calc(11px * var(--edge-scale));
+    height: calc(20px * var(--edge-scale));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay-shell.skin-premium .broadcast-frame *,
+  .overlay-shell.skin-premium .premium-atmosphere *,
+  .overlay-shell.skin-premium .event-card::after,
+  .overlay-shell.skin-premium .sale-alert-enter-active {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
