@@ -154,30 +154,23 @@ jobs:
           for asset in "${ASSETS[@]}"; do
             test -f "$asset"
           done
+          if [ "$PRERELEASE" = "true" ]; then
+            CHANNEL_ARGS=(--prerelease --latest=false)
+          else
+            CHANNEL_ARGS=(--prerelease=false --latest)
+          fi
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "${ASSETS[@]}" --clobber
-            EDIT_ARGS=(
-              "$TAG"
-              --target "$GITHUB_SHA"
-              --title "Duck Desk ${TAG}"
-              --notes-file RELEASE_NOTES.md
-            )
-            if [ "$PRERELEASE" = "true" ]; then
-              EDIT_ARGS+=(--prerelease)
-            else
-              EDIT_ARGS+=(--latest)
-            fi
-            gh release edit "${EDIT_ARGS[@]}"
+            gh release edit "$TAG" \
+              --target "$GITHUB_SHA" \
+              --title "Duck Desk ${TAG}" \
+              --notes-file RELEASE_NOTES.md \
+              "${CHANNEL_ARGS[@]}"
           else
-            RELEASE_ARGS=(
-              "$TAG"
-              "${ASSETS[@]}"
-              --target "$GITHUB_SHA"
-              --title "Duck Desk ${TAG}"
-              --notes-file RELEASE_NOTES.md
-            )
-            if [ "$PRERELEASE" = "true" ]; then
-              RELEASE_ARGS+=(--prerelease)
-            fi
-            gh release create "${RELEASE_ARGS[@]}"
+            gh release create "$TAG" \
+              "${ASSETS[@]}" \
+              --target "$GITHUB_SHA" \
+              --title "Duck Desk ${TAG}" \
+              --notes-file RELEASE_NOTES.md \
+              "${CHANNEL_ARGS[@]}"
           fi
