@@ -1,0 +1,2297 @@
+/* ==========================================================================
+   Duck Desk overlay - craft layer
+
+   Sits in the `craft` cascade layer, so everything here wins over the
+   original stylesheets by layer order instead of specificity tricks.
+
+   Three ideas hold the package together:
+
+   1. Sizes are canvas units (var(--u)), not pixels. The overlay is therefore
+      pixel-identical whether OBS renders it at 1080 wide or a browser
+      previews it at 540, which removes the old breakpoint jumps that clipped
+      ticker names and pushed the footer into the frame.
+
+   2. Panels never paint a real border. The keyline is a background layer on
+      the border box, so a clip-path silhouette trims the outline together
+      with the panel. That is what lets every skin keep its own shape without
+      a rectangular ring cutting through the corners.
+
+   3. Each skin gets a palette, a silhouette and one signature detail. Detail
+      that repeats down an edge as loose dots and dashes reads as noise, so
+      that kind of ornament is removed rather than restyled.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Canvas + shared tokens
+   -------------------------------------------------------------------------- */
+
+.overlay-shell {
+  /* One unit = one pixel of the 1080x1920 design canvas. */
+  --u: calc(100vw / 1080);
+
+  /* Panels in this layer are always dark broadcast material, so type is built
+     from white rather than the per-skin --ink. Several palettes pair a near
+     black ink with a near black panel (cyber_market is --ink #101417 on
+     --panel #090b11), which left the show title unreadable. A trace of the
+     skin primary keeps each theme's cast without giving up contrast. */
+  --ink-base: color-mix(in srgb, white 92%, var(--primary));
+  --ink-1: var(--ink-base);
+  --ink-2: color-mix(in srgb, var(--ink-base) 74%, transparent);
+  --ink-3: color-mix(in srgb, var(--ink-base) 48%, transparent);
+
+  /* Per-skin overrides live further down. */
+  --mat-radius: calc(12 * var(--u));
+  --mat-shape: none;
+  --mat-tint: color-mix(in srgb, var(--primary) 12%, transparent);
+  --mat-rail: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--secondary) 88%, white) 0%,
+    var(--primary) 55%,
+    color-mix(in srgb, var(--primary) 55%, black) 100%
+  );
+  --mat-hairline: max(1px, calc(1.6 * var(--u)));
+  --mat-rail-w: calc(8 * var(--u));
+
+  --face-display: "Barlow Condensed", "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  --face-text: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Panel material
+
+   Layer order, front to back: leading rail, top bevel, theme wash, sheen,
+   body, then the keyline on the border box.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .show-hud {
+  position: relative;
+  min-height: 0;
+  gap: calc(14 * var(--u));
+  padding: calc(21 * var(--u)) calc(28 * var(--u)) calc(17 * var(--u)) calc(30 * var(--u));
+  overflow: visible;
+  border: var(--mat-hairline) solid transparent;
+  border-radius: var(--mat-radius);
+  outline: 0;
+  color: var(--ink-1);
+  background:
+    linear-gradient(90deg, transparent 0 calc(-1 * var(--mat-hairline)), transparent 0) padding-box,
+    var(--mat-rail) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0 var(--mat-hairline), transparent var(--mat-hairline))
+      padding-box,
+    linear-gradient(101deg, transparent 34%, var(--mat-tint) 100%) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015) 30%, transparent 60%)
+      padding-box,
+    linear-gradient(
+        177deg,
+        color-mix(in srgb, var(--panel) 84%, white 7%) 0%,
+        var(--panel) 44%,
+        color-mix(in srgb, var(--panel) 84%, black) 100%
+      )
+      padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--primary) 62%, white 30%) 0%,
+        color-mix(in srgb, var(--primary) 34%, transparent) 46%,
+        color-mix(in srgb, var(--primary) 16%, black 40%) 100%
+      )
+      border-box;
+  background-repeat: no-repeat;
+  background-size: 100% 100%, var(--mat-rail-w) 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  box-shadow: none;
+  clip-path: var(--mat-shape);
+  filter: drop-shadow(0 calc(10 * var(--u)) calc(24 * var(--u)) rgba(0, 0, 0, 0.5))
+    drop-shadow(0 calc(2 * var(--u)) calc(4 * var(--u)) rgba(0, 0, 0, 0.42));
+  font-family: var(--face-text);
+  backdrop-filter: blur(calc(15 * var(--u))) saturate(1.16);
+}
+
+/* The old per-skin bars, notches and dot rows hung off the panel edges and
+   read as rendering faults rather than ornament. */
+.overlay-shell .show-hud::before,
+.overlay-shell .show-hud::after {
+  content: none;
+}
+
+.overlay-shell .hud-chrome,
+.overlay-shell .frame-status {
+  display: none;
+}
+
+/* Secondary surfaces share the material at a smaller scale. */
+.overlay-shell .bid-ladder,
+.overlay-shell .leaderboard-deck,
+.overlay-shell .goal-widget,
+.overlay-shell .activity-feed,
+.overlay-shell .show-recap,
+.overlay-shell .auction-timer,
+.overlay-shell .hype-meter,
+.overlay-shell .milestone-card,
+.overlay-shell .scene-state {
+  border: var(--mat-hairline) solid transparent;
+  border-radius: calc(var(--mat-radius) * 0.7);
+  outline: 0;
+  color: var(--ink-1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0 var(--mat-hairline), transparent var(--mat-hairline))
+      padding-box,
+    linear-gradient(101deg, transparent 40%, var(--mat-tint) 100%) padding-box,
+    linear-gradient(
+        177deg,
+        color-mix(in srgb, var(--panel) 84%, white 6%) 0%,
+        var(--panel) 46%,
+        color-mix(in srgb, var(--panel) 86%, black) 100%
+      )
+      padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--primary) 54%, white 26%) 0%,
+        color-mix(in srgb, var(--primary) 26%, transparent) 50%,
+        color-mix(in srgb, var(--primary) 14%, black 40%) 100%
+      )
+      border-box;
+  box-shadow: none;
+  clip-path: none;
+  filter: drop-shadow(0 calc(6 * var(--u)) calc(16 * var(--u)) rgba(0, 0, 0, 0.44));
+  backdrop-filter: blur(calc(12 * var(--u))) saturate(1.1);
+}
+
+/* --------------------------------------------------------------------------
+   Upper third layout
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .top-stack {
+  top: calc(48 * var(--u));
+  right: calc(64 * var(--u));
+  left: calc(64 * var(--u));
+  gap: calc(16 * var(--u));
+}
+
+.overlay-shell .hud-brand {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: calc(24 * var(--u));
+  color: var(--ink-1);
+}
+
+.overlay-shell .brand-lockup {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: calc(21 * var(--u));
+}
+
+/* --------------------------------------------------------------------------
+   Monogram
+
+   Locked against clipping and masking at this level. A clip-path here is
+   what used to slice the glyphs in half on several skins.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .brand-index {
+  width: calc(76 * var(--u));
+  min-width: calc(76 * var(--u));
+  max-width: calc(76 * var(--u));
+  height: calc(76 * var(--u));
+  padding: 0;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  clip-path: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+  border: var(--mat-hairline) solid transparent;
+  border-radius: calc(16 * var(--u));
+  color: var(--ink-1);
+  background:
+    /* small accent tab in the lower-right corner */
+    linear-gradient(
+        315deg,
+        color-mix(in srgb, var(--primary) 92%, white) 0 calc(15 * var(--u)),
+        transparent calc(15 * var(--u))
+      )
+      padding-box,
+    radial-gradient(
+        130% 100% at 24% 8%,
+        color-mix(in srgb, var(--primary) 30%, transparent) 0%,
+        transparent 66%
+      )
+      padding-box,
+    linear-gradient(
+        168deg,
+        color-mix(in srgb, var(--panel) 66%, white 12%),
+        color-mix(in srgb, var(--panel) 98%, black) 78%
+      )
+      padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ink-base) 46%, transparent),
+        color-mix(in srgb, var(--primary) 40%, transparent) 60%,
+        color-mix(in srgb, var(--ink-base) 10%, transparent)
+      )
+      border-box;
+  box-shadow: none;
+  font-family: var(--face-display);
+  font-size: calc(29 * var(--u));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-shadow: 0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.65);
+}
+
+.overlay-shell .brand-index::before,
+.overlay-shell .brand-index::after {
+  content: none;
+}
+
+.overlay-shell .brand-stack {
+  min-width: 0;
+  display: grid;
+  gap: calc(3 * var(--u));
+}
+
+.overlay-shell .hud-brand strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-1);
+  font-family: var(--theme-font, var(--face-display)), var(--face-display);
+  font-size: calc(62 * var(--u));
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.005em;
+  /* Condensed display faces carry a wide space relative to their narrow
+     letters, which opened a visible hole in the middle of the show title. */
+  word-spacing: -0.07em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.6),
+    0 0 calc(20 * var(--u)) rgba(0, 0, 0, 0.4);
+  -webkit-text-stroke: 0;
+}
+
+.overlay-shell .brand-stack em {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--ink-2);
+  font-family: var(--face-text);
+  font-size: calc(23 * var(--u));
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.65);
+  text-transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Tally light: a camera cue, not a button
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .live-cluster {
+  height: calc(48 * var(--u));
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: calc(11 * var(--u));
+  padding: 0 calc(17 * var(--u)) 0 calc(14 * var(--u));
+  border: var(--mat-hairline) solid transparent;
+  border-radius: calc(24 * var(--u));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(0, 0, 0, 0.3)) padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ink-base) 32%, transparent),
+        color-mix(in srgb, var(--ink-base) 8%, transparent)
+      )
+      border-box;
+}
+
+.overlay-shell .live-light {
+  width: calc(15 * var(--u));
+  height: calc(15 * var(--u));
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ff8d9e 0%, #ff2440 52%, #a00c1e 100%);
+  box-shadow: 0 0 calc(5 * var(--u)) rgba(255, 42, 68, 0.9),
+    0 0 calc(18 * var(--u)) rgba(255, 42, 68, 0.5);
+  animation: tally-breathe 2.8s ease-in-out infinite;
+}
+
+.overlay-shell .live-light:not(.connected) {
+  background: radial-gradient(circle at 34% 30%, #8d97a6 0%, #566070 60%, #2b313b 100%);
+  box-shadow: none;
+  opacity: 0.65;
+  animation: none;
+}
+
+@keyframes tally-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 calc(5 * var(--u)) rgba(255, 42, 68, 0.88),
+      0 0 calc(17 * var(--u)) rgba(255, 42, 68, 0.46);
+  }
+
+  50% {
+    box-shadow: 0 0 calc(6 * var(--u)) rgba(255, 42, 68, 1),
+      0 0 calc(27 * var(--u)) rgba(255, 42, 68, 0.74);
+  }
+}
+
+.overlay-shell .hud-live {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--ink-1);
+  background: none;
+  box-shadow: none;
+  font-family: var(--face-display);
+  font-size: calc(25 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.overlay-shell .hud-live:not(.connected) {
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   Ticker
+
+   The track fades at its trailing edge rather than hard-cutting a
+   half-drawn name, which was the most obviously unfinished detail.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .ticker {
+  height: auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: calc(18 * var(--u));
+  padding-top: calc(13 * var(--u));
+  border-top: var(--mat-hairline) solid color-mix(in srgb, var(--ink-base) 15%, transparent);
+  color: var(--ink-1);
+  font-family: var(--face-text);
+}
+
+.overlay-shell .ticker-label {
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: calc(9 * var(--u));
+  padding: 0 calc(17 * var(--u)) 0 0;
+  border-right: var(--mat-hairline) solid color-mix(in srgb, var(--ink-base) 17%, transparent);
+  color: var(--ink-3);
+  font-family: var(--face-text);
+  font-size: calc(16 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.overlay-shell .ticker-label i {
+  width: calc(7 * var(--u));
+  height: calc(7 * var(--u));
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 calc(10 * var(--u)) color-mix(in srgb, var(--primary) 70%, transparent);
+}
+
+.overlay-shell .ticker-track {
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: calc(23 * var(--u));
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, #000 0 72%, transparent 98%);
+  mask-image: linear-gradient(90deg, #000 0 72%, transparent 98%);
+}
+
+.overlay-shell .ticker-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(9 * var(--u));
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  clip-path: none;
+  color: var(--ink-2);
+  font-family: var(--face-text);
+  font-size: calc(20 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.overlay-shell .ticker-item::before {
+  content: "";
+  position: static;
+  width: calc(8 * var(--u));
+  height: calc(8 * var(--u));
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: none;
+  transform: none;
+}
+
+.overlay-shell .ticker-item::after {
+  content: none;
+}
+
+.overlay-shell .ticker-sale {
+  color: color-mix(in srgb, var(--secondary) 86%, white);
+}
+
+.overlay-shell .ticker-bid {
+  color: color-mix(in srgb, var(--primary) 86%, white);
+}
+
+.overlay-shell .ticker-tip {
+  color: color-mix(in srgb, var(--accent) 82%, white);
+}
+
+.overlay-shell .ticker-share,
+.overlay-shell .ticker-audience_action {
+  color: var(--ink-3);
+}
+
+/* The base rule renders this as a 1px dashed rule, which reads as a broken
+   element rather than an empty state. Reset the box so the copy shows. */
+.overlay-shell .ticker-track.is-empty::after {
+  width: auto;
+  height: auto;
+  background: none;
+  content: "Waiting for the first bid";
+  color: var(--ink-3);
+  font-family: var(--face-text);
+  font-size: calc(19 * var(--u));
+  font-weight: 600;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Promo banner
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .promo-banner {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(12 * var(--u));
+  padding: calc(10 * var(--u)) calc(17 * var(--u));
+  border: 0;
+  border-radius: calc(7 * var(--u));
+  color: var(--ink-1);
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--primary) 24%, transparent),
+    transparent 74%
+  );
+  box-shadow: inset calc(3 * var(--u)) 0 0 var(--primary);
+  clip-path: none;
+  font-family: var(--face-text);
+  font-size: calc(21 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Footer credit: quiet, centred, clear of the frame
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .open-source-banner {
+  right: calc(64 * var(--u));
+  bottom: calc(42 * var(--u));
+  left: calc(64 * var(--u));
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: calc(10 * var(--u));
+  padding: calc(11 * var(--u)) calc(22 * var(--u));
+  border: var(--mat-hairline) solid transparent;
+  border-radius: calc(8 * var(--u));
+  color: var(--ink-3);
+  background:
+    linear-gradient(180deg, rgba(6, 8, 12, 0.62), rgba(6, 8, 12, 0.78)) padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ink-base) 15%, transparent),
+        color-mix(in srgb, var(--ink-base) 5%, transparent)
+      )
+      border-box;
+  box-shadow: none;
+  clip-path: none;
+  filter: drop-shadow(0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0, 0, 0, 0.45));
+  font-family: var(--face-text);
+  font-size: calc(16 * var(--u));
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+  backdrop-filter: blur(calc(8 * var(--u)));
+}
+
+.overlay-shell .open-source-banner::before,
+.overlay-shell .open-source-banner::after {
+  content: none;
+}
+
+.overlay-shell .open-source-banner strong {
+  color: var(--ink-2);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   Event alert
+
+   Reads left to right: what happened, who did it, how much. The amount is
+   the largest thing on the card because it is the only number a seller
+   glances at mid-show.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .event-card {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+  border: var(--mat-hairline) solid transparent;
+  border-radius: var(--mat-radius);
+  outline: 0;
+  color: var(--ink-1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0 var(--mat-hairline), transparent var(--mat-hairline))
+      padding-box,
+    linear-gradient(
+        101deg,
+        color-mix(in srgb, var(--event-tone, var(--primary)) 22%, transparent) 0%,
+        transparent 46%
+      )
+      padding-box,
+    linear-gradient(
+        177deg,
+        color-mix(in srgb, var(--panel) 82%, white 8%) 0%,
+        var(--panel) 46%,
+        color-mix(in srgb, var(--panel) 84%, black) 100%
+      )
+      padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--event-tone, var(--primary)) 70%, white 20%) 0%,
+        color-mix(in srgb, var(--event-tone, var(--primary)) 34%, transparent) 54%,
+        color-mix(in srgb, var(--event-tone, var(--primary)) 14%, black 40%) 100%
+      )
+      border-box;
+  box-shadow: none;
+  clip-path: var(--mat-shape);
+  filter: drop-shadow(0 calc(10 * var(--u)) calc(24 * var(--u)) rgba(0, 0, 0, 0.52));
+  font-family: var(--face-text);
+  backdrop-filter: blur(calc(15 * var(--u))) saturate(1.16);
+}
+
+.overlay-shell .event-sale {
+  --event-tone: var(--secondary);
+}
+
+.overlay-shell .event-bid {
+  --event-tone: var(--primary);
+}
+
+.overlay-shell .event-tip {
+  --event-tone: var(--accent);
+}
+
+/* The stamped flame and bolt artwork on the card was the most obviously
+   generated element in the package. */
+.overlay-shell .event-theme-art,
+.overlay-shell .event-theme-ornament,
+.overlay-shell .event-sweep {
+  display: none;
+}
+
+.overlay-shell .event-signal {
+  display: grid;
+  place-items: center;
+  gap: calc(7 * var(--u));
+  padding: calc(20 * var(--u)) calc(24 * var(--u));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--event-tone, var(--primary)) 18%, transparent),
+    transparent
+  );
+}
+
+.overlay-shell .event-symbol {
+  width: calc(74 * var(--u));
+  height: calc(74 * var(--u));
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  clip-path: none;
+  border: var(--mat-hairline) solid transparent;
+  border-radius: calc(15 * var(--u));
+  color: color-mix(in srgb, var(--event-tone, var(--primary)) 30%, white);
+  background:
+    linear-gradient(168deg, rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.42)) padding-box,
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--event-tone, var(--primary)) 80%, white),
+        color-mix(in srgb, var(--event-tone, var(--primary)) 30%, black 30%)
+      )
+      border-box;
+  box-shadow: none;
+  font-family: var(--face-display);
+  font-size: calc(36 * var(--u));
+  font-weight: 800;
+  line-height: 1;
+}
+
+.overlay-shell .event-signal small {
+  color: var(--ink-3);
+  font-family: var(--face-text);
+  font-size: calc(12 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.overlay-shell .event-copy {
+  display: grid;
+  align-content: center;
+  gap: calc(3 * var(--u));
+  padding: calc(20 * var(--u)) calc(6 * var(--u)) calc(20 * var(--u)) calc(4 * var(--u));
+}
+
+.overlay-shell .event-kicker {
+  color: color-mix(in srgb, var(--event-tone, var(--primary)) 40%, white);
+  font-family: var(--face-text);
+  font-size: calc(17 * var(--u));
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.overlay-shell .event-primary {
+  overflow: hidden;
+  color: var(--ink-1);
+  font-family: var(--face-display);
+  font-size: calc(54 * var(--u));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.overlay-shell .event-detail {
+  overflow: hidden;
+  color: var(--ink-3);
+  font-family: var(--face-text);
+  font-size: calc(19 * var(--u));
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.overlay-shell .event-amount {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  justify-items: end;
+  gap: calc(1 * var(--u));
+  padding: calc(18 * var(--u)) calc(26 * var(--u));
+  border-left: var(--mat-hairline) solid color-mix(in srgb, var(--ink-base) 14%, transparent);
+  background: linear-gradient(
+    260deg,
+    color-mix(in srgb, var(--event-tone, var(--primary)) 20%, transparent),
+    transparent 78%
+  );
+  clip-path: none;
+}
+
+.overlay-shell .event-amount small {
+  color: var(--ink-3);
+  font-family: var(--face-text);
+  font-size: calc(13 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.overlay-shell .event-amount strong {
+  color: var(--ink-1);
+  font-family: var(--face-display);
+  font-size: calc(66 * var(--u));
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Frame
+
+   A continuous hairline at a generous inset, with weight concentrated in the
+   corners. Loose pips and dashes along the edges are removed.
+   -------------------------------------------------------------------------- */
+
+/* Standard skins keep their outline, because the outline shape is the only
+   thing that distinguishes them. Two coats: a dark one for separation from
+   the video, and a single tinted hairline on top. The old third stroke just
+   ran a second line a few pixels inside the first. */
+.overlay-shell .frame-geometry-standard .frame-shadow {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.34);
+  stroke-width: 7;
+}
+
+.overlay-shell .frame-geometry-standard .frame-keyline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary) 62%, white 8%);
+  stroke-width: 2.4;
+  opacity: 0.85;
+}
+
+.overlay-shell .frame-geometry-standard .frame-inner {
+  display: none;
+}
+
+/* Premium skins carry their identity in the corner assemblies, so the
+   continuous rectangle behind them is dropped. Stacked parallel hairlines
+   were the main reason the frames looked machine-drawn. */
+.overlay-shell .premium-frame-loop {
+  display: none;
+}
+
+/* Ornament that repeated as loose marks down the long edges. */
+.overlay-shell .storm-bus,
+.overlay-shell .storm-insulators,
+.overlay-shell .boss-pixel-rail,
+.overlay-shell .sports-score-pips,
+.overlay-shell .sports-speed,
+.overlay-shell .anime-shards,
+.overlay-shell .anime-speedline,
+.overlay-shell .candy-drops,
+.overlay-shell .club-columns,
+.overlay-shell .haunted-vine,
+.overlay-shell .cyber-trace-alt,
+.overlay-shell .vault-deco,
+.overlay-shell .cosmic-planets,
+.overlay-shell .inferno-embers,
+.overlay-shell .cyber-nodes,
+.overlay-shell .club-diamonds {
+  display: none;
+}
+
+/* Vault dials sit mid-edge, so they only work as a faint impression. */
+.overlay-shell .vault-locks {
+  opacity: 0.3;
+}
+
+/* Corner assemblies: dark plate underneath, one tinted line on top. Weights
+   are set here for every skin so the whole set reads at the same confidence
+   instead of each skin picking its own stroke width. */
+.overlay-shell .storm-metal,
+.overlay-shell .cyber-shell,
+.overlay-shell .vault-heavy,
+.overlay-shell .boss-blocks,
+.overlay-shell .haunted-arch,
+.overlay-shell .sports-swoop-a,
+.overlay-shell .anime-slash-a,
+.overlay-shell .candy-ribbon,
+.overlay-shell .club-deco,
+.overlay-shell .reef-plate,
+.overlay-shell .zen-plate,
+.overlay-shell .vinyl-plate,
+.overlay-shell .draft-plate,
+.overlay-shell .aurora-plate {
+  /* The plate is deliberately near-black rather than per-skin coloured. It is
+     what separates the assembly from the video, and several skins were
+     inheriting a stroke so dark it disappeared against a dark shot. */
+  stroke: rgba(7, 9, 15, 0.74);
+  stroke-width: 13;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 1;
+}
+
+.overlay-shell .storm-conductor,
+.overlay-shell .cyber-trace,
+.overlay-shell .vault-inlay,
+.overlay-shell .boss-health,
+.overlay-shell .haunted-spine,
+.overlay-shell .sports-swoop-b,
+.overlay-shell .anime-slash-b,
+.overlay-shell .candy-twist,
+.overlay-shell .cosmic-arc,
+.overlay-shell .cosmic-inner-orbit,
+.overlay-shell .reef-inlay,
+.overlay-shell .zen-inlay,
+.overlay-shell .vinyl-groove,
+.overlay-shell .draft-ticks,
+.overlay-shell .aurora-inlay {
+  /* The one lit line on top of the plate. Tinted from the skin palette so the
+     corner carries the theme colour, at a single weight across all skins. */
+  stroke: color-mix(in srgb, var(--primary) 74%, white 16%);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+  filter: none;
+}
+
+.overlay-shell .club-fan,
+.overlay-shell .cosmic-ring {
+  opacity: 0.4;
+}
+
+/* Ambient sparkle was strong enough to read as dust on the lens. */
+.overlay-shell .sparkle-field span {
+  opacity: 0.22;
+}
+
+.overlay-shell .arena-bars {
+  opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------------
+   Vignette
+
+   A falloff top and bottom rather than a flat scrim, so panel type stays
+   legible over a bright product without dimming the middle of the shot.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .frame-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.overlay-shell .frame-vignette i {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: block;
+}
+
+.overlay-shell .frame-vignette-top {
+  top: 0;
+  height: calc(420 * var(--u));
+  background: linear-gradient(
+    180deg,
+    rgba(3, 5, 9, 0.62) 0%,
+    rgba(3, 5, 9, 0.34) 40%,
+    rgba(3, 5, 9, 0.1) 74%,
+    transparent 100%
+  );
+}
+
+.overlay-shell .frame-vignette-bottom {
+  bottom: 0;
+  height: calc(280 * var(--u));
+  background: linear-gradient(
+    0deg,
+    rgba(3, 5, 9, 0.56) 0%,
+    rgba(3, 5, 9, 0.22) 52%,
+    transparent 100%
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Signature art shared shell
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .theme-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Inferno Ring
+
+   Four drawn flame bands welded to the edges. Layers are tinted rather than
+   blurred, and each layer drifts on its own timing so the fire never pulses
+   as one block.
+   -------------------------------------------------------------------------- */
+
+/* Heat stays near the floor. Spreading it across the middle only fogged the
+   seller's product. */
+.overlay-shell .theme-art-inferno {
+  /* Depth of the two wall bands. Shared so the rotation offsets stay in step
+     with the band thickness. Wide enough that the tongues read as fire and
+     not as a pinstripe down the edge. */
+  --inferno-wall: calc(220 * var(--u));
+}
+
+.overlay-shell .inferno-heat {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      128% 26% at 50% 103%,
+      rgba(255, 118, 30, 0.42) 0%,
+      rgba(255, 62, 10, 0.1) 52%,
+      transparent 78%
+    ),
+    /* Heat off the two walls, weighted low so it meets the floor glow at the
+       bottom corners where the three fires join. */
+      radial-gradient(
+        16% 74% at -3% 82%,
+        rgba(255, 110, 26, 0.34) 0%,
+        rgba(214, 48, 6, 0.08) 56%,
+        transparent 78%
+      ),
+    radial-gradient(
+      16% 74% at 103% 82%,
+      rgba(255, 110, 26, 0.34) 0%,
+      rgba(214, 48, 6, 0.08) 56%,
+      transparent 78%
+    ),
+    radial-gradient(120% 14% at 50% -2%, rgba(255, 104, 30, 0.18) 0%, transparent 74%);
+}
+
+.overlay-shell .inferno-band {
+  position: absolute;
+  display: block;
+  mix-blend-mode: screen;
+  /* Heat spilling off the silhouette. Without it the band has a crisp cut
+     edge against the video and the fire looks pasted on. */
+  filter: drop-shadow(0 calc(-6 * var(--u)) calc(30 * var(--u)) rgba(255, 92, 14, 0.5));
+}
+
+/* The body of the fire the tongues root into. */
+.overlay-shell .inferno-bed {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(150 * var(--u));
+  background:
+    linear-gradient(
+      0deg,
+      rgba(255, 176, 62, 0.62) 0%,
+      rgba(255, 108, 20, 0.42) 26%,
+      rgba(190, 40, 4, 0.2) 58%,
+      transparent 100%
+    ),
+    /* Uneven hot spots along the bed, so the root line is not a flat wash. */
+      radial-gradient(52% 100% at 14% 100%, rgba(255, 196, 96, 0.4) 0%, transparent 70%),
+    radial-gradient(46% 100% at 43% 100%, rgba(255, 150, 40, 0.34) 0%, transparent 72%),
+    radial-gradient(54% 100% at 72% 100%, rgba(255, 206, 110, 0.36) 0%, transparent 68%),
+    radial-gradient(44% 100% at 93% 100%, rgba(255, 142, 34, 0.32) 0%, transparent 74%);
+  mix-blend-mode: screen;
+  animation: inferno-bed-breathe 4.3s ease-in-out infinite;
+}
+
+@keyframes inferno-bed-breathe {
+  0%,
+  100% {
+    opacity: 0.88;
+    transform: scaleY(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleY(1.06);
+  }
+}
+
+/* Tall band, narrow tongues: the vertical stretch is what stops the shapes
+   reading as leaves. */
+.overlay-shell .inferno-band-bottom {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(390 * var(--u));
+}
+
+/* Side walls.
+   The band is authored horizontally, so both side copies are the same artwork
+   rotated a quarter turn: the baseline lands on the vertical edge and the
+   tongues point inward. Laid out from the top-left with a 0 0 origin, the
+   rotation maths is exact rather than eyeballed.
+
+   Left:  rotate(90deg) sends the baseline to x=0, so it only needs pushing
+          back in by the band depth.
+   Right: rotate(-90deg) sends it to x=depth and flips the run bottom-to-top,
+          so it is pushed out to the right edge and down a full canvas. The
+          flip is deliberate - it stops the two walls being mirror twins. */
+.overlay-shell .inferno-band-left,
+.overlay-shell .inferno-band-right {
+  top: 0;
+  left: 0;
+  width: calc(1920 * var(--u));
+  height: var(--inferno-wall);
+  transform-origin: 0 0;
+  opacity: 0.94;
+  filter: drop-shadow(0 0 calc(28 * var(--u)) rgba(255, 92, 14, 0.55));
+}
+
+/* Both walls climb most of the canvas and only fade under the HUD. Local x
+   after the quarter-turn is screen y, so the mask is authored along the
+   band, not along the screen. */
+.overlay-shell .inferno-band-left {
+  transform: translateX(var(--inferno-wall)) rotate(90deg);
+  /* Runs top to bottom. Transparent at the HUD, full from about a quarter
+     of the way down. */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, transparent 10%, #000 22%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, transparent 10%, #000 22%, #000 100%);
+}
+
+.overlay-shell .inferno-band-right {
+  transform: translate(calc(1080 * var(--u) - var(--inferno-wall)), calc(1920 * var(--u)))
+    rotate(-90deg);
+  /* Runs bottom to top, so the fade sits at the end of the band. */
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 78%, transparent 90%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 78%, transparent 90%, transparent 100%);
+}
+
+/* Heat welding each wall to the floor fire at the bottom corners. */
+.overlay-shell .inferno-side-bed {
+  position: absolute;
+  top: 18%;
+  bottom: 0;
+  width: calc(90 * var(--u));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.overlay-shell .inferno-side-bed-left {
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 176, 62, 0.48) 0%,
+    rgba(255, 108, 20, 0.28) 38%,
+    transparent 100%
+  );
+}
+
+.overlay-shell .inferno-side-bed-right {
+  right: 0;
+  background: linear-gradient(
+    270deg,
+    rgba(255, 176, 62, 0.48) 0%,
+    rgba(255, 108, 20, 0.28) 38%,
+    transparent 100%
+  );
+}
+
+.overlay-shell .inferno-ember-line {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(58 * var(--u));
+  background: linear-gradient(
+    0deg,
+    rgba(255, 226, 148, 0.68) 0%,
+    rgba(255, 132, 32, 0.4) 34%,
+    rgba(214, 48, 6, 0.16) 66%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  animation: inferno-ember-breathe 3.7s ease-in-out infinite;
+}
+
+@keyframes inferno-ember-breathe {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.overlay-shell .flame-layer {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.overlay-shell .flame-outer path {
+  fill: url(#dd-flame-outer);
+}
+
+.overlay-shell .flame-mid path {
+  fill: url(#dd-flame-mid);
+}
+
+.overlay-shell .flame-inner path {
+  fill: url(#dd-flame-inner);
+}
+
+.overlay-shell .flame-core path {
+  fill: url(#dd-flame-core);
+}
+
+.overlay-shell .flame-outer {
+  animation: flame-lick-a 2.9s ease-in-out infinite;
+}
+
+.overlay-shell .flame-mid {
+  transform: translateY(6%) scaleY(0.78) scaleX(1.02);
+  animation: flame-lick-b 2.3s ease-in-out infinite;
+}
+
+.overlay-shell .flame-inner {
+  transform: translateY(10%) scaleY(0.52) scaleX(0.94);
+  animation: flame-lick-c 1.7s ease-in-out infinite;
+}
+
+.overlay-shell .flame-core {
+  transform: translateY(14%) scaleY(0.29) scaleX(0.86);
+  animation: flame-lick-d 1.3s ease-in-out infinite;
+}
+
+@keyframes flame-lick-a {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1) skewX(0deg);
+  }
+
+  34% {
+    transform: scaleY(1.07) scaleX(0.985) skewX(-1.1deg);
+  }
+
+  67% {
+    transform: scaleY(0.95) scaleX(1.015) skewX(1.3deg);
+  }
+}
+
+@keyframes flame-lick-b {
+  0%,
+  100% {
+    transform: translateY(6%) scaleY(0.78) scaleX(1.02) skewX(0.6deg);
+  }
+
+  42% {
+    transform: translateY(6%) scaleY(0.87) scaleX(1) skewX(-1.6deg);
+  }
+
+  71% {
+    transform: translateY(6%) scaleY(0.74) scaleX(1.04) skewX(1.8deg);
+  }
+}
+
+@keyframes flame-lick-c {
+  0%,
+  100% {
+    transform: translateY(10%) scaleY(0.52) scaleX(0.94) skewX(-0.8deg);
+  }
+
+  38% {
+    transform: translateY(10%) scaleY(0.61) scaleX(0.91) skewX(2.2deg);
+  }
+
+  73% {
+    transform: translateY(10%) scaleY(0.48) scaleX(0.97) skewX(-2.4deg);
+  }
+}
+
+@keyframes flame-lick-d {
+  0%,
+  100% {
+    transform: translateY(14%) scaleY(0.29) scaleX(0.86) skewX(1.4deg);
+  }
+
+  45% {
+    transform: translateY(14%) scaleY(0.37) scaleX(0.82) skewX(-2.8deg);
+  }
+
+  76% {
+    transform: translateY(14%) scaleY(0.25) scaleX(0.9) skewX(2.6deg);
+  }
+}
+
+/* The procedural ring, photo edges and stamped tongue strips are superseded
+   by the drawn band. */
+.overlay-shell .inferno-flame-ring,
+.overlay-shell .inferno-photo-edge,
+.overlay-shell .inferno-drawn-border,
+.overlay-shell .inferno-tongue-strip,
+.overlay-shell .inferno-molten-rail {
+  display: none;
+}
+
+/* Inferno needs no drawn border. The fire is the edge treatment, and a
+   rectangle behind it only competed with the flame line. */
+.overlay-shell .inferno-forge {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Thunderstorm Arena
+
+   Weather rather than decoration: a cloud bank above the panel, rain that
+   falls at mixed speeds, and strikes on an irregular cycle so the flash
+   never lands on a countable beat.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .storm-cloudbank {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: calc(560 * var(--u));
+  overflow: hidden;
+}
+
+.overlay-shell .storm-cloudbank i {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(calc(34 * var(--u)));
+}
+
+/* Two lit masses over one dark one. The lit pair has to sit clearly above the
+   video in value or the whole bank disappears into the shot, which is what
+   happened when every layer was the same navy. */
+.overlay-shell .storm-cloudbank i:nth-child(1) {
+  top: calc(-190 * var(--u));
+  left: calc(-140 * var(--u));
+  width: calc(880 * var(--u));
+  height: calc(520 * var(--u));
+  background: radial-gradient(circle, rgba(96, 116, 158, 0.6), rgba(38, 50, 76, 0) 70%);
+  animation: storm-drift 41s ease-in-out infinite;
+}
+
+.overlay-shell .storm-cloudbank i:nth-child(2) {
+  top: calc(-240 * var(--u));
+  left: calc(330 * var(--u));
+  width: calc(940 * var(--u));
+  height: calc(560 * var(--u));
+  background: radial-gradient(circle, rgba(120, 140, 182, 0.5), rgba(44, 56, 84, 0) 68%);
+  animation: storm-drift 53s ease-in-out infinite reverse;
+}
+
+/* The dark underside the lit masses build against. */
+.overlay-shell .storm-cloudbank i:nth-child(3) {
+  top: calc(-80 * var(--u));
+  left: calc(120 * var(--u));
+  width: calc(760 * var(--u));
+  height: calc(400 * var(--u));
+  background: radial-gradient(circle, rgba(10, 15, 27, 0.72), rgba(10, 15, 27, 0) 72%);
+  animation: storm-drift 67s ease-in-out infinite;
+}
+
+@keyframes storm-drift {
+  0%,
+  100% {
+    transform: translateX(0) scale(1);
+  }
+
+  50% {
+    transform: translateX(calc(58 * var(--u))) scale(1.06);
+  }
+}
+
+/* Rain falls out of the cloud bank and fades before it reaches the product,
+   so it never reads as scratches across the middle of the shot. */
+.overlay-shell .storm-rain {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: calc(1180 * var(--u));
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 0 40%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0 40%, transparent 100%);
+}
+
+.overlay-shell .storm-rain i {
+  position: absolute;
+  top: calc(-140 * var(--u));
+  display: block;
+  width: max(1px, calc(2 * var(--u)));
+  border-radius: max(1px, calc(1 * var(--u)));
+  background: linear-gradient(180deg, rgba(206, 236, 255, 0), rgba(216, 240, 255, 0.95));
+  animation-name: storm-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes storm-fall {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(calc(-34 * var(--u)), calc(1360 * var(--u)), 0);
+  }
+}
+
+.overlay-shell .storm-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    90% 46% at 72% 4%,
+    rgba(214, 240, 255, 0.62) 0%,
+    rgba(150, 205, 255, 0.16) 42%,
+    transparent 72%
+  );
+  opacity: 0;
+  animation: storm-flash 11s linear infinite;
+}
+
+@keyframes storm-flash {
+  0%,
+  30.4%,
+  100% {
+    opacity: 0;
+  }
+
+  30.6% {
+    opacity: 0.9;
+  }
+
+  31.2% {
+    opacity: 0.12;
+  }
+
+  31.6% {
+    opacity: 0.72;
+  }
+
+  33.4% {
+    opacity: 0;
+  }
+
+  78.2% {
+    opacity: 0;
+  }
+
+  78.5% {
+    opacity: 0.5;
+  }
+
+  79.6% {
+    opacity: 0;
+  }
+}
+
+.overlay-shell .storm-strike {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  opacity: 0;
+}
+
+.overlay-shell .storm-strike .bolt path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.overlay-shell .storm-strike .bolt-halo {
+  stroke: #7cc9ff;
+  stroke-width: 30;
+  opacity: 0.34;
+  filter: blur(calc(13 * var(--u)));
+}
+
+/* Each stroke is trimmed shorter than the one below it, so the channel is
+   thick at the root and a hairline at the tip. */
+.overlay-shell .storm-strike .bolt-wide {
+  stroke: #bfe8ff;
+  stroke-width: 11;
+  stroke-dasharray: 0.34 1;
+  opacity: 0.55;
+  filter: blur(calc(3 * var(--u)));
+}
+
+.overlay-shell .storm-strike .bolt-mid {
+  stroke: #e4f7ff;
+  stroke-width: 6;
+  stroke-dasharray: 0.68 1;
+  opacity: 0.8;
+}
+
+.overlay-shell .storm-strike .bolt-core {
+  stroke: #ffffff;
+  stroke-width: 2.6;
+}
+
+.overlay-shell .storm-strike .bolt-fork {
+  stroke: #eaf9ff;
+  stroke-width: 2;
+  opacity: 0.78;
+}
+
+.overlay-shell .storm-strike-main {
+  animation: storm-strike 11s linear infinite;
+}
+
+.overlay-shell .storm-strike-alt {
+  animation: storm-strike-alt 11s linear infinite;
+}
+
+@keyframes storm-strike {
+  0%,
+  30.4%,
+  100% {
+    opacity: 0;
+  }
+
+  30.5% {
+    opacity: 1;
+  }
+
+  30.9% {
+    opacity: 0.1;
+  }
+
+  31.4% {
+    opacity: 0.95;
+  }
+
+  32.6% {
+    opacity: 0;
+  }
+}
+
+@keyframes storm-strike-alt {
+  0%,
+  78.1%,
+  100% {
+    opacity: 0;
+  }
+
+  78.3% {
+    opacity: 0.9;
+  }
+
+  78.8% {
+    opacity: 0.08;
+  }
+
+  79.1% {
+    opacity: 0.7;
+  }
+
+  80% {
+    opacity: 0;
+  }
+}
+
+/* The old bolt lived in the frame SVG and cut across the panel type. */
+.overlay-shell .storm-lightning {
+  display: none;
+}
+
+.overlay-shell .storm-conductor {
+  stroke: color-mix(in srgb, #a7e8ff 70%, transparent);
+  stroke-width: 2.6;
+  filter: none;
+}
+
+.overlay-shell .storm-metal {
+  display: block;
+  stroke: rgba(10, 16, 27, 0.72);
+  stroke-width: 17;
+}
+
+/* --------------------------------------------------------------------------
+   Deep Reef
+
+   Water has no hard corners. Kelp occupies the outer margins the way Inferno
+   uses fire, caustics fall from above, and a coral shelf sits on the floor.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .reef-caustic {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.overlay-shell .reef-caustic i {
+  position: absolute;
+  top: 0;
+  display: block;
+  width: 28%;
+  height: 62%;
+  background: linear-gradient(
+    180deg,
+    rgba(124, 227, 255, 0.22) 0%,
+    rgba(47, 212, 210, 0.08) 46%,
+    transparent 100%
+  );
+  filter: blur(calc(18 * var(--u)));
+  animation: reef-caustic-drift 9.4s ease-in-out infinite;
+}
+
+.overlay-shell .reef-caustic i:nth-child(1) {
+  left: 8%;
+  transform: skewX(-8deg);
+}
+
+.overlay-shell .reef-caustic i:nth-child(2) {
+  left: 36%;
+  width: 22%;
+  animation-duration: 12.2s;
+  animation-delay: -3s;
+  transform: skewX(6deg);
+}
+
+.overlay-shell .reef-caustic i:nth-child(3) {
+  left: 64%;
+  animation-duration: 10.6s;
+  animation-delay: -6s;
+  transform: skewX(-4deg);
+}
+
+@keyframes reef-caustic-drift {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateX(0) skewX(-6deg);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translateX(calc(18 * var(--u))) skewX(4deg);
+  }
+}
+
+.overlay-shell .reef-kelp {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(210 * var(--u));
+  display: block;
+  opacity: 0.88;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, transparent 12%, #000 26%, #000 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, transparent 12%, #000 26%, #000 100%);
+}
+
+.overlay-shell .reef-kelp-left {
+  left: 0;
+}
+
+.overlay-shell .reef-kelp-right {
+  right: 0;
+}
+
+.overlay-shell .reef-kelp path {
+  fill: #0e6d72;
+  animation: reef-sway 7.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.overlay-shell .reef-kelp-left path:nth-child(2),
+.overlay-shell .reef-kelp-right path:nth-child(2) {
+  fill: #1a9a96;
+  animation-duration: 9.1s;
+  animation-delay: -2.4s;
+}
+
+.overlay-shell .reef-kelp-left path:nth-child(3),
+.overlay-shell .reef-kelp-right path:nth-child(3) {
+  fill: #2fd4d2;
+  opacity: 0.72;
+  animation-duration: 6.4s;
+  animation-delay: -4.1s;
+}
+
+@keyframes reef-sway {
+  0%,
+  100% {
+    transform: skewX(0deg);
+  }
+
+  50% {
+    transform: skewX(3.4deg);
+  }
+}
+
+.overlay-shell .reef-coral {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(120 * var(--u));
+  background:
+    radial-gradient(42% 120% at 12% 100%, rgba(255, 138, 92, 0.38) 0%, transparent 70%),
+    radial-gradient(36% 110% at 38% 100%, rgba(47, 212, 210, 0.28) 0%, transparent 68%),
+    radial-gradient(44% 120% at 72% 100%, rgba(255, 138, 92, 0.32) 0%, transparent 72%),
+    radial-gradient(30% 100% at 92% 100%, rgba(124, 227, 255, 0.26) 0%, transparent 70%);
+  mix-blend-mode: screen;
+}
+
+.overlay-shell .reef-bubble {
+  position: absolute;
+  bottom: calc(-20 * var(--u));
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.7), rgba(124, 227, 255, 0.15) 62%, transparent 72%);
+  animation-name: reef-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes reef-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(calc(18 * var(--u)), calc(-1600 * var(--u)), 0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Zen Garden
+
+   Paper, ink, and a few falling petals. Quiet on purpose: the skin's identity
+   is the restraint, not another particle field.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .zen-wash {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(220 * var(--u));
+  background: linear-gradient(
+    0deg,
+    rgba(125, 95, 82, 0.34) 0%,
+    rgba(240, 168, 184, 0.08) 48%,
+    transparent 100%
+  );
+}
+
+.overlay-shell .zen-moon {
+  position: absolute;
+  top: calc(86 * var(--u));
+  right: calc(54 * var(--u));
+  width: calc(92 * var(--u));
+  height: calc(92 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, rgba(253, 246, 238, 0.55), rgba(240, 168, 184, 0.08) 62%, transparent 74%);
+  mix-blend-mode: screen;
+}
+
+.overlay-shell .zen-petal {
+  position: absolute;
+  top: calc(-24 * var(--u));
+  display: block;
+  border-radius: 70% 0 70% 0;
+  background: linear-gradient(135deg, #f6c9d4, #f0a8b8 54%, #c97888);
+  opacity: 0.72;
+  animation-name: zen-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes zen-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--petal-rot, 0deg));
+  }
+
+  100% {
+    transform: translate3d(calc(-48 * var(--u)), calc(1980 * var(--u)), 0)
+      rotate(calc(var(--petal-rot, 0deg) + 120deg));
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Vinyl Lounge
+
+   Concentric grooves in the four corners, the way a record label is printed
+   into the sleeve. Warm dust in the air, never a grid of particles.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .vinyl-haze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(80% 28% at 50% 108%, rgba(232, 151, 58, 0.22) 0%, transparent 70%),
+    radial-gradient(40% 18% at 8% 6%, rgba(216, 195, 154, 0.12) 0%, transparent 72%);
+  mix-blend-mode: screen;
+}
+
+.overlay-shell .vinyl-grooves {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.overlay-shell .vinyl-grooves path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary) 70%, white 10%);
+  stroke-width: 2.2;
+  opacity: 0.72;
+}
+
+.overlay-shell .vinyl-corner path:nth-child(2) {
+  opacity: 0.5;
+  stroke-width: 1.6;
+}
+
+.overlay-shell .vinyl-corner path:nth-child(3),
+.overlay-shell .vinyl-corner path:nth-child(4) {
+  opacity: 0.34;
+  stroke-width: 1.2;
+}
+
+.overlay-shell .vinyl-dust i {
+  position: absolute;
+  display: block;
+  width: calc(3 * var(--u));
+  height: calc(3 * var(--u));
+  border-radius: 50%;
+  background: rgba(216, 195, 154, 0.55);
+  animation: vinyl-mote 11s ease-in-out infinite;
+}
+
+.overlay-shell .vinyl-dust i:nth-child(1) { top: 18%; left: 12%; animation-delay: 0s; }
+.overlay-shell .vinyl-dust i:nth-child(2) { top: 28%; left: 82%; animation-delay: -2s; }
+.overlay-shell .vinyl-dust i:nth-child(3) { top: 62%; left: 8%; animation-delay: -4s; }
+.overlay-shell .vinyl-dust i:nth-child(4) { top: 74%; left: 88%; animation-delay: -6s; }
+.overlay-shell .vinyl-dust i:nth-child(5) { top: 44%; left: 16%; animation-delay: -8s; }
+.overlay-shell .vinyl-dust i:nth-child(6) { top: 52%; left: 78%; animation-delay: -3s; }
+
+@keyframes vinyl-mote {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.35;
+  }
+
+  50% {
+    transform: translate(calc(10 * var(--u)), calc(-16 * var(--u)));
+    opacity: 0.7;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Blueprint Studio
+
+   Drafting film: a faint grid and four registration marks. Anything glossy
+   on this skin immediately reads as a different theme.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .draft-grid {
+  position: absolute;
+  inset: calc(36 * var(--u));
+  background-image:
+    linear-gradient(rgba(88, 184, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 184, 255, 0.12) 1px, transparent 1px);
+  background-size: calc(48 * var(--u)) calc(48 * var(--u));
+  mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  opacity: 0.7;
+}
+
+.overlay-shell .draft-marks {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.overlay-shell .draft-reg {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary) 80%, white);
+  stroke-width: 1.8;
+  opacity: 0.72;
+}
+
+.overlay-shell .draft-dim {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary) 50%, white);
+  stroke-width: 1.1;
+  stroke-dasharray: 8 10;
+  opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------------
+   Aurora Peaks
+
+   Three colour veils over a ridge line. The veils are the aurora; the ridge
+   is the ground they sit on, so they never float as disconnected ribbons.
+   -------------------------------------------------------------------------- */
+
+.overlay-shell .aurora-sky {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 58%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.overlay-shell .aurora-sky i {
+  position: absolute;
+  top: 4%;
+  display: block;
+  width: 46%;
+  height: 86%;
+  filter: blur(calc(22 * var(--u)));
+  animation: aurora-drift 14s ease-in-out infinite;
+}
+
+.overlay-shell .aurora-sky i:nth-child(1) {
+  left: 4%;
+  background: linear-gradient(180deg, rgba(76, 224, 168, 0.62) 0%, rgba(76, 224, 168, 0.16) 70%, transparent 100%);
+  transform: skewX(-12deg);
+}
+
+.overlay-shell .aurora-sky i:nth-child(2) {
+  left: 28%;
+  width: 38%;
+  background: linear-gradient(180deg, rgba(155, 124, 240, 0.55) 0%, rgba(155, 124, 240, 0.14) 68%, transparent 100%);
+  animation-duration: 18s;
+  animation-delay: -5s;
+  transform: skewX(8deg);
+}
+
+.overlay-shell .aurora-sky i:nth-child(3) {
+  left: 54%;
+  background: linear-gradient(180deg, rgba(124, 232, 255, 0.5) 0%, rgba(76, 224, 168, 0.16) 64%, transparent 100%);
+  animation-duration: 16s;
+  animation-delay: -9s;
+  transform: skewX(-6deg);
+}
+
+@keyframes aurora-drift {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: translateX(0) skewX(-8deg) scaleX(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(calc(22 * var(--u))) skewX(6deg) scaleX(1.06);
+  }
+}
+
+.overlay-shell .aurora-stars {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: calc(280 * var(--u));
+  display: block;
+  fill: #eef4ff;
+}
+
+.overlay-shell .aurora-ridge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(220 * var(--u));
+  display: block;
+  fill: rgba(7, 13, 32, 0.72);
+  filter: drop-shadow(0 calc(-8 * var(--u)) calc(18 * var(--u)) rgba(76, 224, 168, 0.22));
+}
+
+/* ==========================================================================
+   Per-skin identity
+
+   Each skin sets three things: a corner language (--mat-shape / --mat-radius),
+   a wash that tints the panel body (--mat-tint), and the colour of the
+   leading rail (--mat-rail). Anything beyond that is a signature detail
+   authored for that skin alone.
+
+   The chamfer helper below is repeated inline rather than abstracted, because
+   clip-path cannot take a custom property for only part of a polygon.
+   ========================================================================== */
+
+/* -------- Premium ------------------------------------------------------- */
+
+/* Storm Front: cold rolled steel, one corner cut like a bus-bar plate. */
+.overlay-shell.skin-storm_front {
+  --mat-radius: calc(4 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 30 * var(--u)),
+    calc(100% - 30 * var(--u)) 100%,
+    0 100%
+  );
+  --mat-tint: rgba(94, 132, 190, 0.22);
+  --mat-rail: linear-gradient(180deg, #d8f2ff 0%, #6fc9f5 48%, #2b6f9c 100%);
+}
+
+/* Cyber Duck City: signage bezel, both trailing corners clipped. */
+.overlay-shell.skin-cyber_duck_city {
+  --mat-radius: 0;
+  --mat-shape: polygon(
+    0 0,
+    calc(100% - 24 * var(--u)) 0,
+    100% calc(24 * var(--u)),
+    100% calc(100% - 24 * var(--u)),
+    calc(100% - 24 * var(--u)) 100%,
+    0 100%
+  );
+  --mat-tint: rgba(0, 214, 255, 0.16);
+  --mat-rail: linear-gradient(180deg, #7dfcff 0%, #00e5ff 46%, #ff48d7 100%);
+}
+
+/* Treasure Vault: brass plate, small bevels on all four corners. */
+.overlay-shell.skin-treasure_vault {
+  --mat-radius: calc(3 * var(--u));
+  --mat-shape: polygon(
+    calc(18 * var(--u)) 0,
+    calc(100% - 18 * var(--u)) 0,
+    100% calc(18 * var(--u)),
+    100% calc(100% - 18 * var(--u)),
+    calc(100% - 18 * var(--u)) 100%,
+    calc(18 * var(--u)) 100%,
+    0 calc(100% - 18 * var(--u)),
+    0 calc(18 * var(--u))
+  );
+  --mat-tint: rgba(190, 138, 42, 0.24);
+  --mat-rail: linear-gradient(180deg, #fff0b0 0%, #d9a83c 50%, #7d5a12 100%);
+}
+
+/* Boss Battle: cartridge label, hard square corners. */
+.overlay-shell.skin-boss_battle {
+  --mat-radius: 0;
+  --mat-shape: none;
+  --mat-tint: rgba(255, 53, 94, 0.18);
+  --mat-rail: linear-gradient(180deg, #ffcf32 0%, #ff355e 55%, #7a0f26 100%);
+}
+
+/* Cosmic Auction: soft glass, generous radius, no cuts. */
+.overlay-shell.skin-cosmic_auction {
+  --mat-radius: calc(26 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(122, 96, 255, 0.24);
+  --mat-rail: linear-gradient(180deg, #c9beff 0%, #8a7cff 50%, #54eeff 100%);
+}
+
+/* Haunted Drop: gothic arch, leading corners pointed. */
+.overlay-shell.skin-haunted_drop {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    calc(26 * var(--u)) 0,
+    calc(100% - 26 * var(--u)) 0,
+    100% calc(26 * var(--u)),
+    100% 100%,
+    0 100%,
+    0 calc(26 * var(--u))
+  );
+  --mat-tint: rgba(80, 190, 148, 0.18);
+  --mat-rail: linear-gradient(180deg, #d0ff78 0%, #76efbd 52%, #2c6b57 100%);
+}
+
+/* Sports Broadcast: score bug, deep cut on the trailing bottom corner. */
+.overlay-shell.skin-sports_broadcast {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 44 * var(--u)),
+    calc(100% - 44 * var(--u)) 100%,
+    0 100%
+  );
+  --mat-tint: rgba(255, 49, 88, 0.2);
+  --mat-rail: linear-gradient(180deg, #ffffff 0%, #27c5ff 42%, #ff3158 100%);
+}
+
+/* Anime Power-Up: slash geometry, opposing corners cut. */
+.overlay-shell.skin-anime_powerup {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    calc(100% - 36 * var(--u)) 0,
+    100% calc(36 * var(--u)),
+    100% 100%,
+    calc(36 * var(--u)) 100%,
+    0 calc(100% - 36 * var(--u))
+  );
+  --mat-tint: rgba(77, 233, 255, 0.2);
+  --mat-rail: linear-gradient(180deg, #ffda45 0%, #4de9ff 52%, #ff4279 100%);
+}
+
+/* Candy Rush: moulded plastic, wide radius and a glossy top. */
+.overlay-shell.skin-candy_rush {
+  --mat-radius: calc(30 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 123, 204, 0.24);
+  --mat-rail: linear-gradient(180deg, #ffffff 0%, #ff7bcc 46%, #75e9ff 100%);
+}
+
+/* Luxury Nightclub: editorial, almost square, very fine gold line. */
+.overlay-shell.skin-luxury_nightclub {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(232, 200, 117, 0.14);
+  --mat-rail: linear-gradient(180deg, #f6e3ad 0%, #e8c875 52%, #6b5320 100%);
+}
+
+/* Inferno Ring: scorched plate, one corner burned away. */
+.overlay-shell.skin-inferno_ring {
+  --mat-radius: calc(3 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 26 * var(--u)),
+    calc(100% - 26 * var(--u)) 100%,
+    0 100%
+  );
+  --mat-tint: rgba(255, 96, 24, 0.24);
+  --mat-rail: linear-gradient(180deg, #ffe08a 0%, #ff6a18 48%, #8f1401 100%);
+}
+
+/* Deep Reef: the only skin with a genuinely soft shell. Water has no corners,
+   so this one drops the polygon entirely and leans on a wide radius. */
+.overlay-shell.skin-deep_reef {
+  --mat-radius: calc(26 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(47, 212, 210, 0.18);
+  --mat-rail: linear-gradient(180deg, #9df6ff 0%, #2fd4d2 46%, #0a4f63 100%);
+}
+
+/* Zen Garden: a paper edge. Square, quiet, with the corner cut like a folded
+   sheet rather than a bevelled machine part. */
+.overlay-shell.skin-zen_garden {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    calc(100% - 30 * var(--u)) 0,
+    100% calc(30 * var(--u)),
+    100% 100%,
+    0 100%
+  );
+  --mat-tint: rgba(240, 168, 184, 0.12);
+  --mat-rail: linear-gradient(180deg, #f6c9d4 0%, #f0a8b8 44%, #7d5f52 100%);
+}
+
+/* Vinyl Lounge: a sleeve. Softly rounded on the outer corners only, the way a
+   record jacket wears at the edges. */
+.overlay-shell.skin-vinyl_lounge {
+  --mat-radius: calc(12 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(232, 151, 58, 0.17);
+  --mat-rail: linear-gradient(180deg, #f4cf94 0%, #e8973a 48%, #6d2f14 100%);
+}
+
+/* Blueprint Studio: dead square with no tint at all. Drafting film is flat,
+   and any gloss on it immediately reads as a different theme. */
+.overlay-shell.skin-blueprint_draft {
+  --mat-radius: 0;
+  --mat-shape: none;
+  --mat-tint: rgba(88, 184, 255, 0.1);
+  --mat-rail: linear-gradient(180deg, #a8dcff 0%, #58b8ff 50%, #12457a 100%);
+}
+
+/* Aurora Peaks: the bottom corner is cut to a summit line, echoing the ridge
+   the aurora sits over. */
+.overlay-shell.skin-aurora_peaks {
+  --mat-radius: calc(3 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    calc(34 * var(--u)) 100%,
+    0 calc(100% - 34 * var(--u))
+  );
+  --mat-tint: rgba(76, 224, 168, 0.15);
+  --mat-rail: linear-gradient(180deg, #9bf0cd 0%, #4ce0a8 40%, #6a4fc0 100%);
+}
+
+/* -------- Standard ------------------------------------------------------ */
+
+.overlay-shell.skin-cyber_market {
+  --mat-radius: 0;
+  --mat-shape: polygon(
+    0 0,
+    calc(100% - 20 * var(--u)) 0,
+    100% calc(20 * var(--u)),
+    100% 100%,
+    0 100%
+  );
+  --mat-tint: rgba(52, 231, 255, 0.16);
+}
+
+.overlay-shell.skin-arcade_drop {
+  --mat-radius: calc(6 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 207, 97, 0.18);
+}
+
+.overlay-shell.skin-sports_desk {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 34 * var(--u)),
+    calc(100% - 34 * var(--u)) 100%,
+    0 100%
+  );
+  --mat-tint: rgba(52, 231, 255, 0.14);
+}
+
+.overlay-shell.skin-card_shop {
+  --mat-radius: calc(10 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(239, 35, 60, 0.18);
+}
+
+.overlay-shell.skin-retro_toy {
+  --mat-radius: calc(24 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 79, 100, 0.18);
+}
+
+.overlay-shell.skin-midnight_gold {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    calc(14 * var(--u)) 0,
+    calc(100% - 14 * var(--u)) 0,
+    100% calc(14 * var(--u)),
+    100% calc(100% - 14 * var(--u)),
+    calc(100% - 14 * var(--u)) 100%,
+    calc(14 * var(--u)) 100%,
+    0 calc(100% - 14 * var(--u)),
+    0 calc(14 * var(--u))
+  );
+  --mat-tint: rgba(216, 179, 90, 0.2);
+}
+
+.overlay-shell.skin-pastel_pop {
+  --mat-radius: calc(28 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 159, 216, 0.2);
+}
+
+.overlay-shell.skin-lava_lamp {
+  --mat-radius: calc(34 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 61, 110, 0.22);
+}
+
+.overlay-shell.skin-icebox {
+  --mat-radius: calc(4 * var(--u));
+  --mat-shape: polygon(
+    calc(22 * var(--u)) 0,
+    100% 0,
+    100% calc(100% - 22 * var(--u)),
+    calc(100% - 22 * var(--u)) 100%,
+    0 100%,
+    0 calc(22 * var(--u))
+  );
+  --mat-tint: rgba(120, 210, 255, 0.2);
+}
+
+.overlay-shell.skin-comic_burst {
+  --mat-radius: calc(8 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 207, 97, 0.2);
+}
+
+.overlay-shell.skin-luxury_black {
+  --mat-radius: 0;
+  --mat-shape: none;
+  --mat-tint: rgba(216, 179, 90, 0.14);
+}
+
+.overlay-shell.skin-jungle_neon {
+  --mat-radius: calc(20 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(56, 255, 122, 0.18);
+}
+
+.overlay-shell.skin-cotton_candy {
+  --mat-radius: calc(32 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(255, 159, 216, 0.2);
+}
+
+.overlay-shell.skin-synthwave {
+  --mat-radius: calc(3 * var(--u));
+  --mat-shape: polygon(
+    calc(24 * var(--u)) 0,
+    calc(100% - 24 * var(--u)) 0,
+    100% 100%,
+    0 100%
+  );
+  --mat-tint: rgba(255, 79, 216, 0.22);
+}
+
+.overlay-shell.skin-streetwear {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(244, 242, 234, 0.1);
+}
+
+.overlay-shell.skin-holiday_spark {
+  --mat-radius: calc(14 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(15, 155, 99, 0.2);
+}
+
+.overlay-shell.skin-ocean_depth {
+  --mat-radius: calc(22 * var(--u));
+  --mat-shape: none;
+  --mat-tint: rgba(0, 109, 119, 0.24);
+}
+
+.overlay-shell.skin-pixel_party {
+  --mat-radius: 0;
+  --mat-shape: polygon(
+    0 calc(14 * var(--u)),
+    calc(14 * var(--u)) calc(14 * var(--u)),
+    calc(14 * var(--u)) 0,
+    calc(100% - 14 * var(--u)) 0,
+    calc(100% - 14 * var(--u)) calc(14 * var(--u)),
+    100% calc(14 * var(--u)),
+    100% calc(100% - 14 * var(--u)),
+    calc(100% - 14 * var(--u)) calc(100% - 14 * var(--u)),
+    calc(100% - 14 * var(--u)) 100%,
+    calc(14 * var(--u)) 100%,
+    calc(14 * var(--u)) calc(100% - 14 * var(--u)),
+    0 calc(100% - 14 * var(--u))
+  );
+  --mat-tint: rgba(52, 231, 255, 0.18);
+}
+
+.overlay-shell.skin-emerald_vault {
+  --mat-radius: calc(2 * var(--u));
+  --mat-shape: polygon(
+    calc(28 * var(--u)) 0,
+    calc(100% - 28 * var(--u)) 0,
+    100% calc(28 * var(--u)),
+    100% calc(100% - 28 * var(--u)),
+    calc(100% - 28 * var(--u)) 100%,
+    calc(28 * var(--u)) 100%,
+    0 calc(100% - 28 * var(--u)),
+    0 calc(28 * var(--u))
+  );
+  --mat-tint: rgba(16, 185, 129, 0.22);
+}

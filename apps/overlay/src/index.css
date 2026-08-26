@@ -1,0 +1,9 @@
+/* Cascade order for the overlay.
+   `base` holds the original palettes, layout and per-skin frame geometry.
+   `craft` holds the shared broadcast materials and per-skin detailing, and
+   wins over `base` by layer order rather than by specificity games. */
+@import "./styles.css" layer(base);
+@import "./premium-motion.css" layer(base);
+@import "./premium-geometry.css" layer(base);
+@import "./standard-geometry.css" layer(base);
+@import "./craft.css" layer(craft);

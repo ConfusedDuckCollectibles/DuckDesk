@@ -26,9 +26,11 @@ import {
   type SceneMode,
   type OverlayTheme,
   type ShowEvent,
-  type SoundKind
+  type SoundKind,
+  isOverlaySkin
 } from "@duck-desk/shared";
 import BroadcastFrame from "./components/BroadcastFrame.vue";
+import ThemeArt from "./components/ThemeArt.vue";
 import EventAlert from "./components/EventAlert.vue";
 
 const queue = ref<ShowEvent[]>([]);
@@ -38,7 +40,10 @@ const activityEvents = ref<ShowEvent[]>([]);
 const connected = ref(false);
 const reconnecting = ref(false);
 const theme = ref<OverlayTheme>("neon");
-const skin = ref<OverlaySkin>("none");
+const skin = ref<OverlaySkin>((() => {
+  const value = new URLSearchParams(window.location.search).get("skin");
+  return isOverlaySkin(value) ? value : "none";
+})());
 const activeAddOns = ref<AddOnId[]>([]);
 const soundsEnabled = ref(true);
 const soundVolume = ref(0.75);
@@ -108,7 +113,12 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "anime_powerup",
   "candy_rush",
   "luxury_nightclub",
-  "inferno_ring"
+  "inferno_ring",
+  "deep_reef",
+  "zen_garden",
+  "vinyl_lounge",
+  "blueprint_draft",
+  "aurora_peaks"
 ]);
 const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
 const hypeProgress = computed(() => {
@@ -183,6 +193,10 @@ let audioContext: AudioContext | undefined;
 let activeAudioPlayer: HTMLAudioElement | null = null;
 let cameraStream: MediaStream | null = null;
 const audioOutputEnabled = new URLSearchParams(window.location.search).get("audio") !== "off";
+const previewSkin = (() => {
+  const value = new URLSearchParams(window.location.search).get("skin");
+  return isOverlaySkin(value) ? value : null;
+})();
 
 const eventDisplayDurations: Record<ShowEvent["type"], number> = {
   bid: 1600,
@@ -233,7 +247,7 @@ function connect(): void {
 
     if (isOverlayConfigMessage(parsed)) {
       theme.value = parsed.theme;
-      skin.value = parsed.skin;
+      skin.value = previewSkin ?? parsed.skin;
       activeAddOns.value = parsed.addOns;
       soundsEnabled.value = parsed.soundsEnabled;
       soundVolume.value = parsed.soundVolume;
@@ -791,6 +805,7 @@ onMounted(() => {
     aria-live="polite"
   >
     <div class="overlay-frame" aria-hidden="true" />
+    <ThemeArt :skin="skin" />
     <BroadcastFrame :skin="skin" />
     <div
       v-if="hasAddOn('stream_skins') && premiumSkinActive"

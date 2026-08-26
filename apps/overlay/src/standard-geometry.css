@@ -1,0 +1,572 @@
+/* Unique chassis for non-premium skins. Top HUD edges stay full so LIVE and D/D stay readable. */
+
+.overlay-shell:not(.skin-premium) .show-hud,
+.overlay-shell:not(.skin-premium) .event-card,
+.overlay-shell:not(.skin-premium) .open-source-banner {
+  overflow: visible;
+}
+
+.overlay-shell:not(.skin-premium) .brand-index {
+  min-width: 76px;
+  padding: 0 7px;
+  overflow: visible;
+}
+
+/* Neon / Arena / Duck with no pack skin */
+.overlay-shell.theme-neon.skin-none .show-hud {
+  clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
+}
+
+.overlay-shell.theme-arena.skin-none .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10% 100%, 0 70%);
+}
+
+.overlay-shell.theme-duck.skin-none .show-hud {
+  clip-path: polygon(6% 0, 94% 0, 100% 18%, 100% 82%, 94% 100%, 6% 100%, 0 82%, 0 18%);
+}
+
+.overlay-shell.theme-arena.skin-none .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 6% 100%, 0 68%);
+}
+
+.overlay-shell.theme-duck.skin-none .event-card {
+  clip-path: polygon(4% 0, 96% 0, 100% 22%, 100% 78%, 96% 100%, 4% 100%, 0 78%, 0 22%);
+}
+
+.overlay-shell.theme-arena.skin-none .open-source-banner {
+  clip-path: polygon(0 0, 94% 0, 100% 50%, 94% 100%, 0 100%);
+}
+
+.overlay-shell.theme-duck.skin-none .open-source-banner {
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
+}
+
+/* Cyber Market — circuit notch, not the generic chamfer */
+.overlay-shell:not(.skin-premium).skin-cyber_market .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 96% 82%, 96% 100%, 8% 100%, 8% 88%, 0 88%);
+  box-shadow: inset 0 0 0 1px rgba(52, 231, 255, 0.55), inset 6px 0 #34e7ff, inset -6px 0 #ff5bd6;
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .show-hud::before {
+  width: 6px;
+  background: linear-gradient(#34e7ff, #ff5bd6);
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .show-hud::after {
+  right: 10%;
+  left: 42%;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, #34e7ff 0 16px, transparent 16px 24px);
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 7% 100%, 7% 86%, 0 86%);
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .open-source-banner {
+  clip-path: polygon(0 0, 92% 0, 96% 0, 100% 50%, 96% 100%, 0 100%, 4% 50%);
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .frame-keyline { stroke-dasharray: 18 8 4 8; }
+
+/* Arcade Drop — pixel stairs, bottom-left only */
+.overlay-shell:not(.skin-premium).skin-arcade_drop .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 18px 100%, 18px calc(100% - 18px), 0 calc(100% - 18px));
+  box-shadow: inset 0 0 0 3px rgba(255, 207, 97, 0.55);
+}
+
+.overlay-shell:not(.skin-premium).skin-arcade_drop .show-hud::before {
+  width: 10px;
+  background: repeating-linear-gradient(#ffcf61 0 8px, #ff5bd6 8px 16px);
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-arcade_drop .brand-index {
+  clip-path: none;
+  box-shadow: 4px 4px 0 #ff5bd6;
+}
+
+.overlay-shell:not(.skin-premium).skin-arcade_drop .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 16px 100%, 16px calc(100% - 16px), 0 calc(100% - 16px));
+}
+
+.overlay-shell:not(.skin-premium).skin-arcade_drop .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 12px 70%, 0 70%);
+}
+
+.overlay-shell:not(.skin-premium).skin-arcade_drop .frame-keyline { stroke-dasharray: 10 7; }
+
+/* Sports Desk — lower-left swoosh */
+.overlay-shell:not(.skin-premium).skin-sports_desk .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 12% 100%, 0 62%);
+  box-shadow: inset 0 -8px #ffffff, inset 0 -12px var(--primary);
+}
+
+.overlay-shell:not(.skin-premium).skin-sports_desk .show-hud::before {
+  width: 180px;
+  height: 8px;
+  inset: auto auto 0 0;
+  transform: skewX(-28deg);
+  background: var(--secondary);
+  box-shadow: 196px 0 var(--primary);
+}
+
+.overlay-shell:not(.skin-premium).skin-sports_desk .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-sports_desk .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%, 0 64%);
+}
+
+.overlay-shell:not(.skin-premium).skin-sports_desk .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%, 0 50%);
+}
+
+/* Card Shop — inverted playing-card corners */
+.overlay-shell:not(.skin-premium).skin-card_shop .show-hud {
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 70%, white);
+}
+
+.overlay-shell:not(.skin-premium).skin-card_shop .show-hud::before { display: none; }
+
+.overlay-shell:not(.skin-premium).skin-card_shop .brand-index {
+  clip-path: none;
+  border-radius: 4px 12px 4px 12px;
+}
+
+.overlay-shell:not(.skin-premium).skin-card_shop .event-card {
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+}
+
+.overlay-shell:not(.skin-premium).skin-card_shop .open-source-banner {
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+}
+
+/* Retro Toy — chunky capsule */
+.overlay-shell:not(.skin-premium).skin-retro_toy .show-hud {
+  clip-path: polygon(8% 0, 92% 0, 100% 22%, 100% 78%, 92% 100%, 8% 100%, 0 78%, 0 22%);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--primary) 55%, white);
+}
+
+.overlay-shell:not(.skin-premium).skin-retro_toy .show-hud::before {
+  border-radius: 4px;
+  width: 10px;
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-retro_toy .brand-index {
+  clip-path: none;
+  border-radius: 14px;
+}
+
+.overlay-shell:not(.skin-premium).skin-retro_toy .event-card {
+  clip-path: polygon(5% 0, 95% 0, 100% 24%, 100% 76%, 95% 100%, 5% 100%, 0 76%, 0 24%);
+}
+
+.overlay-shell:not(.skin-premium).skin-retro_toy .open-source-banner {
+  clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+}
+
+/* Midnight Gold — thin plaque, inner corners */
+.overlay-shell:not(.skin-premium).skin-midnight_gold .show-hud {
+  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  box-shadow: inset 0 0 0 1px rgba(216, 179, 90, 0.72), inset 0 0 0 6px rgba(216, 179, 90, 0.08);
+}
+
+.overlay-shell:not(.skin-premium).skin-midnight_gold .show-hud::before {
+  width: 1px;
+  background: rgba(216, 179, 90, 0.7);
+  box-shadow: 8px 0 0 rgba(216, 179, 90, 0.18);
+}
+
+.overlay-shell:not(.skin-premium).skin-midnight_gold .brand-index {
+  clip-path: none;
+  border-color: rgba(216, 179, 90, 0.8);
+}
+
+.overlay-shell:not(.skin-premium).skin-midnight_gold .event-card {
+  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.overlay-shell:not(.skin-premium).skin-midnight_gold .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Pastel Pop — bottom scallop only */
+.overlay-shell:not(.skin-premium).skin-pastel_pop .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 88% 100%, 76% 90%, 64% 100%, 52% 90%, 40% 100%, 28% 90%, 16% 100%, 0 90%);
+}
+
+.overlay-shell:not(.skin-premium).skin-pastel_pop .show-hud::before { display: none; }
+
+.overlay-shell:not(.skin-premium).skin-pastel_pop .brand-index {
+  clip-path: none;
+  border-radius: 18px;
+}
+
+.overlay-shell:not(.skin-premium).skin-pastel_pop .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 85% 100%, 70% 88%, 55% 100%, 40% 88%, 25% 100%, 0 88%);
+}
+
+.overlay-shell:not(.skin-premium).skin-pastel_pop .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 92% 100%, 8% 100%, 0 70%);
+}
+
+/* Lava Lamp — left organic bulge */
+.overlay-shell:not(.skin-premium).skin-lava_lamp .show-hud {
+  clip-path: polygon(0 12%, 6% 0, 100% 0, 100% 100%, 6% 100%, 0 88%, 8% 70%, 0 52%, 8% 34%);
+}
+
+.overlay-shell:not(.skin-premium).skin-lava_lamp .show-hud::before {
+  width: 14px;
+  border-radius: 40px;
+  background: radial-gradient(circle at 40% 30%, var(--accent), var(--primary));
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-lava_lamp .brand-index {
+  clip-path: none;
+  border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%;
+}
+
+.overlay-shell:not(.skin-premium).skin-lava_lamp .event-card {
+  clip-path: polygon(0 16%, 5% 0, 100% 0, 100% 100%, 5% 100%, 0 84%, 7% 50%);
+}
+
+.overlay-shell:not(.skin-premium).skin-lava_lamp .open-source-banner {
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
+}
+
+/* Icebox — crystal cut, bottom-right */
+.overlay-shell:not(.skin-premium).skin-icebox .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 92% 100%, 0 100%);
+  box-shadow: inset 0 0 0 1px rgba(180, 230, 255, 0.7);
+}
+
+.overlay-shell:not(.skin-premium).skin-icebox .show-hud::after {
+  background: linear-gradient(90deg, transparent, rgba(180, 230, 255, 0.85));
+}
+
+.overlay-shell:not(.skin-premium).skin-icebox .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-icebox .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 74%, 90% 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-icebox .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+}
+
+/* Comic Burst — small corner spikes, not a star on the letters */
+.overlay-shell:not(.skin-premium).skin-comic_burst .show-hud {
+  clip-path: polygon(0 10px, 10px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+  box-shadow: 5px 5px 0 color-mix(in srgb, var(--primary) 70%, black);
+}
+
+.overlay-shell:not(.skin-premium).skin-comic_burst .show-hud::before {
+  width: 8px;
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-comic_burst .brand-index {
+  clip-path: none;
+  transform: rotate(-2deg);
+  box-shadow: 3px 3px 0 var(--accent);
+}
+
+.overlay-shell:not(.skin-premium).skin-comic_burst .event-card {
+  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-comic_burst .open-source-banner {
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);
+}
+
+/* Luxury Black — almost rectangular, hairline gold */
+.overlay-shell:not(.skin-premium).skin-luxury_black .show-hud {
+  clip-path: none;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(216, 179, 90, 0.55), inset 0 0 0 7px rgba(216, 179, 90, 0.06);
+}
+
+.overlay-shell:not(.skin-premium).skin-luxury_black .show-hud::before {
+  width: 1px;
+  background: rgba(216, 179, 90, 0.65);
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-luxury_black .brand-index {
+  clip-path: none;
+  border-color: rgba(216, 179, 90, 0.75);
+}
+
+.overlay-shell:not(.skin-premium).skin-luxury_black .event-card {
+  clip-path: none;
+  box-shadow: inset 0 0 0 1px rgba(216, 179, 90, 0.45);
+}
+
+.overlay-shell:not(.skin-premium).skin-luxury_black .open-source-banner {
+  clip-path: none;
+}
+
+/* Jungle Neon — leaf point, bottom-left */
+.overlay-shell:not(.skin-premium).skin-jungle_neon .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 14% 100%, 0 78%, 9% 52%, 0 28%);
+}
+
+.overlay-shell:not(.skin-premium).skin-jungle_neon .show-hud::before {
+  width: 8px;
+  background: linear-gradient(var(--accent), var(--primary));
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-jungle_neon .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-jungle_neon .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10% 100%, 0 74%, 8% 40%);
+}
+
+.overlay-shell:not(.skin-premium).skin-jungle_neon .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10% 100%, 0 50%);
+}
+
+/* Cotton Candy — puffy bottom */
+.overlay-shell:not(.skin-premium).skin-cotton_candy .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 86%, 90% 100%, 78% 86%, 66% 100%, 54% 86%, 42% 100%, 30% 86%, 18% 100%, 0 86%);
+}
+
+.overlay-shell:not(.skin-premium).skin-cotton_candy .show-hud::before { display: none; }
+
+.overlay-shell:not(.skin-premium).skin-cotton_candy .brand-index {
+  clip-path: none;
+  border-radius: 18px;
+}
+
+.overlay-shell:not(.skin-premium).skin-cotton_candy .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 86% 100%, 72% 84%, 58% 100%, 44% 84%, 30% 100%, 16% 84%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-cotton_candy .open-source-banner {
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
+}
+
+/* Synthwave — perspective sunset slab */
+.overlay-shell:not(.skin-premium).skin-synthwave .show-hud {
+  clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+  box-shadow: inset 0 -3px var(--secondary), inset 0 0 0 1px var(--primary);
+}
+
+.overlay-shell:not(.skin-premium).skin-synthwave .show-hud::after {
+  background: repeating-linear-gradient(90deg, var(--primary) 0 12px, transparent 12px 22px);
+}
+
+.overlay-shell:not(.skin-premium).skin-synthwave .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-synthwave .event-card {
+  clip-path: polygon(0 0, 100% 0, 97% 100%, 3% 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-synthwave .open-source-banner {
+  clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%);
+}
+
+/* Streetwear — ticket stubs on the left */
+.overlay-shell:not(.skin-premium).skin-streetwear .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 88%, 0 76%, 8px 64%, 0 52%, 8px 40%, 0 28%, 8px 16%);
+}
+
+.overlay-shell:not(.skin-premium).skin-streetwear .show-hud::before {
+  width: 12px;
+  background: repeating-linear-gradient(#111 0 6px, var(--primary) 6px 12px);
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-streetwear .brand-index {
+  clip-path: none;
+  transform: rotate(-3deg);
+  box-shadow: 4px 4px 0 #111;
+}
+
+.overlay-shell:not(.skin-premium).skin-streetwear .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 80%, 0 60%, 8px 40%, 0 20%);
+}
+
+.overlay-shell:not(.skin-premium).skin-streetwear .open-source-banner {
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 75%, 8px 50%, 0 25%);
+}
+
+/* Holiday Spark — ribbon ends */
+.overlay-shell:not(.skin-premium).skin-holiday_spark .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 38%, 92% 50%, 100% 62%, 100% 100%, 0 100%, 0 62%, 8% 50%, 0 38%);
+}
+
+.overlay-shell:not(.skin-premium).skin-holiday_spark .show-hud::before { display: none; }
+
+.overlay-shell:not(.skin-premium).skin-holiday_spark .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-holiday_spark .event-card {
+  clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%);
+}
+
+.overlay-shell:not(.skin-premium).skin-holiday_spark .open-source-banner {
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+}
+
+/* Ocean Depth — wave bottom */
+.overlay-shell:not(.skin-premium).skin-ocean_depth .show-hud {
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 88% 100%, 74% 82%, 60% 96%, 46% 80%, 32% 98%, 18% 82%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-ocean_depth .show-hud::after {
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--secondary) 80%, white));
+}
+
+.overlay-shell:not(.skin-premium).skin-ocean_depth .brand-index {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-ocean_depth .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 85% 100%, 70% 84%, 55% 100%, 40% 84%, 25% 100%, 0 84%);
+}
+
+.overlay-shell:not(.skin-premium).skin-ocean_depth .open-source-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 85% 100%, 15% 100%, 0 70%);
+}
+
+/* Pixel Party — 8px stair, opposite of arcade */
+.overlay-shell:not(.skin-premium).skin-pixel_party .show-hud {
+  clip-path: polygon(0 0, calc(100% - 24px) 0, calc(100% - 24px) 12px, calc(100% - 12px) 12px, calc(100% - 12px) 24px, 100% 24px, 100% 100%, 0 100%);
+  image-rendering: pixelated;
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--primary) 70%, black);
+}
+
+.overlay-shell:not(.skin-premium).skin-pixel_party .show-hud::before {
+  width: 8px;
+  background: repeating-linear-gradient(var(--primary) 0 8px, var(--secondary) 8px 16px);
+  box-shadow: none;
+}
+
+.overlay-shell:not(.skin-premium).skin-pixel_party .brand-index {
+  clip-path: none;
+  box-shadow: 4px 4px 0 var(--secondary);
+}
+
+.overlay-shell:not(.skin-premium).skin-pixel_party .event-card {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-pixel_party .open-source-banner {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+}
+
+/* Emerald Vault — gem bevels */
+.overlay-shell:not(.skin-premium).skin-emerald_vault .show-hud {
+  clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 16px 100%, 0 calc(100% - 16px));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 70%, white);
+}
+
+.overlay-shell:not(.skin-premium).skin-emerald_vault .show-hud::before {
+  width: 3px;
+  background: var(--primary);
+  box-shadow: 6px 0 0 color-mix(in srgb, var(--secondary) 50%, transparent);
+}
+
+.overlay-shell:not(.skin-premium).skin-emerald_vault .brand-index {
+  clip-path: polygon(8% 0, 92% 0, 100% 28%, 92% 100%, 8% 100%, 0 28%);
+  min-width: 80px;
+}
+
+.overlay-shell:not(.skin-premium).skin-emerald_vault .event-card {
+  clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-emerald_vault .open-source-banner {
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+}
+
+/* Matching widgets so the HUD is not the only unique surface */
+.overlay-shell:not(.skin-premium).skin-arcade_drop .goal-widget,
+.overlay-shell:not(.skin-premium).skin-arcade_drop .activity-feed,
+.overlay-shell:not(.skin-premium).skin-pixel_party .goal-widget,
+.overlay-shell:not(.skin-premium).skin-pixel_party .activity-feed {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-sports_desk .goal-widget,
+.overlay-shell:not(.skin-premium).skin-sports_desk .activity-feed {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%, 0 70%);
+}
+
+.overlay-shell:not(.skin-premium).skin-retro_toy .goal-widget,
+.overlay-shell:not(.skin-premium).skin-cotton_candy .goal-widget,
+.overlay-shell:not(.skin-premium).skin-pastel_pop .goal-widget {
+  clip-path: polygon(6% 0, 94% 0, 100% 22%, 100% 78%, 94% 100%, 6% 100%, 0 78%, 0 22%);
+}
+
+.overlay-shell:not(.skin-premium).skin-holiday_spark .goal-widget,
+.overlay-shell:not(.skin-premium).skin-holiday_spark .activity-feed {
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+}
+
+.overlay-shell:not(.skin-premium).skin-synthwave .goal-widget {
+  clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-streetwear .goal-widget {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 75%, 0 50%, 8px 25%);
+}
+
+.overlay-shell:not(.skin-premium).skin-icebox .goal-widget {
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 88% 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-ocean_depth .goal-widget {
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 80% 100%, 60% 82%, 40% 100%, 20% 82%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-emerald_vault .goal-widget,
+.overlay-shell:not(.skin-premium).skin-card_shop .goal-widget {
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+}
+
+.overlay-shell:not(.skin-premium).skin-luxury_black .goal-widget,
+.overlay-shell:not(.skin-premium).skin-midnight_gold .goal-widget {
+  clip-path: none;
+  box-shadow: inset 0 0 0 1px rgba(216, 179, 90, 0.45);
+}
+
+.overlay-shell:not(.skin-premium).skin-lava_lamp .goal-widget {
+  clip-path: polygon(0 14%, 6% 0, 100% 0, 100% 100%, 6% 100%, 0 86%, 8% 50%);
+}
+
+.overlay-shell:not(.skin-premium).skin-jungle_neon .goal-widget {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 12% 100%, 0 72%);
+}
+
+.overlay-shell:not(.skin-premium).skin-comic_burst .goal-widget {
+  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.overlay-shell:not(.skin-premium).skin-cyber_market .goal-widget {
+  clip-path: none;
+}
+
+.overlay-shell:not(.skin-premium) .brand-index {
+  clip-path: none;
+}

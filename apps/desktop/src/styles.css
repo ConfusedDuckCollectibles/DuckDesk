@@ -880,6 +880,38 @@ textarea {
     repeating-linear-gradient(105deg, #160705 0 8px, #7c1908 9px 13px, #160705 14px 20px);
 }
 
+.swatch.deep-reef {
+  background:
+    radial-gradient(ellipse at 20% 80%, #ff8a5c 0 12%, transparent 13%),
+    linear-gradient(180deg, #08343c 0%, #2fd4d2 58%, #04161d);
+}
+
+.swatch.zen-garden {
+  background:
+    radial-gradient(circle at 78% 22%, #fdf6ee 0 10%, transparent 11%),
+    linear-gradient(135deg, #1b1613, #f0a8b8 52%, #8fa88c);
+}
+
+.swatch.vinyl-lounge {
+  background:
+    repeating-radial-gradient(circle at 80% 20%, #e8973a 0 3px, #140d09 4px 8px);
+}
+
+.swatch.blueprint-draft {
+  background:
+    linear-gradient(rgba(88, 184, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 184, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(135deg, #071a33, #58b8ff);
+  background-size: 8px 8px, 8px 8px, auto;
+}
+
+.swatch.aurora-peaks {
+  background:
+    linear-gradient(105deg, #4ce0a8 0%, transparent 42%),
+    linear-gradient(250deg, #9b7cf0 0%, transparent 48%),
+    linear-gradient(180deg, #070d20, #1a2a58);
+}
+
 .premium-theme-card {
   border-color: rgba(255, 207, 97, 0.34);
 }
@@ -1366,6 +1398,31 @@ h3 {
 .skin-chip.inferno {
   background: linear-gradient(135deg, #170503, #ff3d16 52%, #ffd166);
   color: #ffffff;
+}
+
+.skin-chip.reef {
+  background: linear-gradient(135deg, #04161d, #2fd4d2 52%, #ff8a5c);
+  color: #04161d;
+}
+
+.skin-chip.zen {
+  background: linear-gradient(135deg, #1b1613, #f0a8b8 52%, #8fa88c);
+  color: #1b1613;
+}
+
+.skin-chip.vinyl {
+  background: linear-gradient(135deg, #140d09, #e8973a 52%, #d8c39a);
+  color: #140d09;
+}
+
+.skin-chip.draft {
+  background: linear-gradient(135deg, #071a33, #58b8ff 52%, #ffffff);
+  color: #071a33;
+}
+
+.skin-chip.aurora {
+  background: linear-gradient(135deg, #070d20, #4ce0a8 48%, #9b7cf0);
+  color: #070d20;
 }
 
 @media (prefers-reduced-motion: reduce) {

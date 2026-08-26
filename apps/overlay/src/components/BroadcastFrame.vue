@@ -17,14 +17,130 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "anime_powerup",
   "candy_rush",
   "luxury_nightclub",
-  "inferno_ring"
+  "inferno_ring",
+  "deep_reef",
+  "zen_garden",
+  "vinyl_lounge",
+  "blueprint_draft",
+  "aurora_peaks"
 ]);
 
 const isPremium = computed(() => premiumSkins.has(props.skin));
+
+const standardLoop: Record<string, { shadow: string; keyline: string; inner: string }> = {
+  none: {
+    shadow: "M24 24H1056V1896H24Z",
+    keyline: "M40 40H1040V1880H40Z",
+    inner: "M56 56H1024V1864H56Z"
+  },
+  cyber_market: {
+    shadow: "M24 48H56V24H1056V48H1024V1896H1056V1872H24V1896H56V48Z",
+    keyline: "M40 64H72V40H1040V64H1008V1856H1040V1880H40V1856H72V64Z",
+    inner: "M88 80H1000V1840H88Z"
+  },
+  arcade_drop: {
+    shadow: "M24 24H1032V48H1056V1872H1032V1896H48V1872H24Z",
+    keyline: "M40 40H1016V64H1040V1856H1016V1880H64V1856H40Z",
+    inner: "M64 64H1000V80H1016V1840H1000V1856H80V1840H64Z"
+  },
+  sports_desk: {
+    shadow: "M8 48L72 24H1056L1008 1896H24Z",
+    keyline: "M24 64L80 40H1040L992 1880H40Z",
+    inner: "M56 88L104 64H1008L968 1856H72Z"
+  },
+  card_shop: {
+    shadow: "M48 24H1032V1896H48Z",
+    keyline: "M64 40H1016V1880H64Z",
+    inner: "M88 64H992V1856H88Z"
+  },
+  retro_toy: {
+    shadow: "M72 24H1008Q1056 24 1056 72V1848Q1056 1896 1008 1896H72Q24 1896 24 1848V72Q24 24 72 24Z",
+    keyline: "M80 40H1000Q1040 40 1040 80V1840Q1040 1880 1000 1880H80Q40 1880 40 1840V80Q40 40 80 40Z",
+    inner: "M96 64H984Q1024 64 1024 104V1816Q1024 1856 984 1856H96Q56 1856 56 1816V104Q56 64 96 64Z"
+  },
+  midnight_gold: {
+    shadow: "M32 32H1048V1888H32Z",
+    keyline: "M44 44H1036V1876H44Z",
+    inner: "M60 60H1020V1860H60Z"
+  },
+  pastel_pop: {
+    shadow: "M48 24H1032Q1056 48 1056 72V1848Q1056 1896 1008 1896H72Q24 1896 24 1848V72Q24 48 48 24Z",
+    keyline: "M64 40H1016Q1040 64 1040 88V1840Q1040 1880 992 1880H88Q40 1880 40 1840V88Q40 64 64 40Z",
+    inner: "M88 72H992V1840H88Z"
+  },
+  lava_lamp: {
+    shadow: "M56 40C16 120 16 400 40 960C16 1520 16 1800 56 1880C160 1910 920 1910 1024 1880C1064 1800 1064 1520 1040 960C1064 400 1064 120 1024 40C920 10 160 10 56 40Z",
+    keyline: "M72 56C36 128 36 400 56 960C36 1520 36 1792 72 1864C168 1892 912 1892 1008 1864C1044 1792 1044 1520 1024 960C1044 400 1044 128 1008 56C912 28 168 28 72 56Z",
+    inner: "M96 96C64 160 64 400 80 960C64 1520 64 1760 96 1824C176 1848 904 1848 984 1824C1016 1760 1016 1520 1000 960C1016 400 1016 160 984 96C904 72 176 72 96 96Z"
+  },
+  icebox: {
+    shadow: "M24 96L96 24H984L1056 96V1824L984 1896H96L24 1824Z",
+    keyline: "M40 104L104 40H976L1040 104V1816L976 1880H104L40 1816Z",
+    inner: "M64 120L120 64H960L1016 120V1800L960 1856H120L64 1800Z"
+  },
+  comic_burst: {
+    shadow: "M40 40L80 8H200L240 40H840L880 8H1000L1040 40L1072 160V1760L1040 1880L1000 1912H880L840 1880H240L200 1912H80L40 1880L8 1760V160Z",
+    keyline: "M48 48L88 20H208L244 48H836L872 20H992L1032 48L1060 168V1752L1032 1872L992 1900H872L836 1872H244L208 1900H88L48 1872L20 1752V168Z",
+    inner: "M72 80H1008V1840H72Z"
+  },
+  luxury_black: {
+    shadow: "M36 36H1044V1884H36Z",
+    keyline: "M48 48H1032V1872H48Z",
+    inner: "M64 64H1016V1856H64Z"
+  },
+  jungle_neon: {
+    shadow: "M24 80C80 16 200 24 320 48H760C880 24 1000 16 1056 80V1840C1000 1904 880 1896 760 1872H320C200 1896 80 1904 24 1840Z",
+    keyline: "M40 96C92 40 208 48 328 68H752C872 48 988 40 1040 96V1824C988 1880 872 1872 752 1852H328C208 1872 92 1880 40 1824Z",
+    inner: "M64 128C104 80 216 88 336 104H744C864 88 976 80 1016 128V1792C976 1840 864 1832 744 1816H336C216 1832 104 1840 64 1792Z"
+  },
+  cotton_candy: {
+    shadow: "M80 40C40 40 24 88 24 128V1792C24 1832 40 1880 80 1880H1000C1040 1880 1056 1832 1056 1792V128C1056 88 1040 40 1000 40Z",
+    keyline: "M96 56C56 56 40 96 40 136V1784C40 1824 56 1864 96 1864H984C1024 1864 1040 1824 1040 1784V136C1040 96 1024 56 984 56Z",
+    inner: "M120 88C88 88 72 120 72 152V1768C72 1800 88 1832 120 1832H960C992 1832 1008 1800 1008 1768V152C1008 120 992 88 960 88Z"
+  },
+  synthwave: {
+    shadow: "M8 24H1072L1040 1896H40Z",
+    keyline: "M24 40H1056L1024 1880H56Z",
+    inner: "M56 72H1024L996 1848H84Z"
+  },
+  streetwear: {
+    shadow: "M24 24H1056V1896H24V1680L48 1640L24 1600V1280L48 1240L24 1200V880L48 840L24 800V480L48 440L24 400Z",
+    keyline: "M40 40H1040V1880H40V1664L64 1624L40 1584V1264L64 1224L40 1184V864L64 824L40 784V464L64 424L40 384Z",
+    inner: "M64 64H1016V1856H64Z"
+  },
+  holiday_spark: {
+    shadow: "M24 80L80 24H1000L1056 80V1840L1000 1896H80L24 1840Z",
+    keyline: "M40 88L88 40H992L1040 88V1832L992 1880H88L40 1832Z",
+    inner: "M64 112L104 64H976L1016 112V1808L976 1856H104L64 1808Z"
+  },
+  ocean_depth: {
+    shadow: "M24 80C120 8 240 96 360 40C480 -8 600 96 720 40C840 -8 960 72 1056 80V1840C960 1912 840 1824 720 1880C600 1928 480 1824 360 1880C240 1928 120 1848 24 1840Z",
+    keyline: "M40 96C128 32 248 104 360 56C480 8 600 104 720 56C840 8 952 88 1040 96V1824C952 1888 840 1816 720 1864C600 1912 480 1816 360 1864C248 1912 128 1840 40 1824Z",
+    inner: "M64 128C144 72 256 128 368 88C488 48 600 128 720 88C840 48 936 112 1016 128V1792C936 1848 840 1784 720 1824C600 1864 488 1784 368 1824C256 1864 144 1800 64 1792Z"
+  },
+  pixel_party: {
+    shadow: "M24 24H1008V48H1032V72H1056V1848H1032V1872H1008V1896H72V1872H48V1848H24Z",
+    keyline: "M40 40H992V64H1016V88H1040V1832H1016V1856H992V1880H88V1856H64V1832H40Z",
+    inner: "M64 64H968V88H992V1840H64Z"
+  },
+  emerald_vault: {
+    shadow: "M120 24H960L1056 160V1760L960 1896H120L24 1760V160Z",
+    keyline: "M128 40H952L1040 168V1752L952 1880H128L40 1752V168Z",
+    inner: "M160 72H920L1000 184V1736L920 1848H160L80 1736V184Z"
+  }
+};
+
+const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
 </script>
 
 <template>
   <div class="broadcast-frame" aria-hidden="true">
+    <!-- Soft top and bottom falloff. Keeps the panel type legible over any
+         video without laying a flat scrim across the seller's product. -->
+    <div class="frame-vignette">
+      <i class="frame-vignette-top" />
+      <i class="frame-vignette-bottom" />
+    </div>
     <svg class="broadcast-frame-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none">
       <defs>
         <linearGradient id="inferno-fire" x1="0" y1="0" x2="0" y2="1">
@@ -41,14 +157,19 @@ const isPremium = computed(() => premiumSkins.has(props.skin));
           <stop offset="0.72" stop-color="#ff8b22" />
           <stop offset="1" stop-color="#5c1005" />
         </linearGradient>
-        <filter id="inferno-fluid" x="-20%" y="-70%" width="140%" height="240%" color-interpolation-filters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.008 0.034" numOctaves="2" seed="17" result="noise">
-            <animate attributeName="baseFrequency" dur="2.8s" values="0.008 0.034;0.012 0.052;0.007 0.038" repeatCount="indefinite" />
+        <filter id="inferno-fluid" x="-30%" y="-80%" width="160%" height="260%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.018 0.046" numOctaves="3" seed="17" result="noise">
+            <animate attributeName="baseFrequency" dur="5.6s" values="0.018 0.046;0.022 0.04;0.016 0.05;0.018 0.046" repeatCount="indefinite" />
           </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="34" xChannelSelector="R" yChannelSelector="G" result="distorted" />
-          <feGaussianBlur in="distorted" stdDeviation="1.1" result="soft" />
-          <feMerge><feMergeNode in="soft" /><feMergeNode in="distorted" /></feMerge>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G" result="distorted" />
+          <feGaussianBlur in="distorted" stdDeviation="0.6" result="soft" />
+          <feMerge><feMergeNode in="soft" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
+        <linearGradient id="inferno-core" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#fffce8" />
+          <stop offset="0.45" stop-color="#ffe57a" />
+          <stop offset="1" stop-color="#ff9a2a" stop-opacity="0.15" />
+        </linearGradient>
         <filter id="inferno-glow" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
           <feGaussianBlur stdDeviation="8" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
@@ -62,27 +183,17 @@ const isPremium = computed(() => premiumSkins.has(props.skin));
           <stop offset="0.28" stop-color="#75e8ff" />
           <stop offset="1" stop-color="#8f67ff" stop-opacity="0" />
         </radialGradient>
-        <path
-          id="inferno-flame-ribbon"
-          d="M0 0H1000V16 C976 6 960 58 930 22 C913 2 894 86 863 30 C845 0 825 72 796 25 C777 0 750 101 716 34 C695 2 676 70 646 24 C625 0 603 93 570 30 C548 2 525 80 494 25 C472 0 451 103 416 32 C392 3 369 79 338 24 C312 0 293 91 258 28 C235 2 211 73 181 22 C153 1 136 94 100 28 C77 3 53 72 24 20 C14 7 8 5 0 0Z"
-        />
       </defs>
 
-      <g v-if="!isPremium" class="frame-geometry-standard">
-        <g class="frame-structure">
-          <path class="frame-shadow" d="M24 232V24h210 M846 24h210v208 M24 1680v216h256 M800 1896h256v-216" />
-          <path class="frame-keyline" d="M26 218V26h198 M856 26h198v192 M26 1694v200h242 M812 1894h242v-200" />
-          <path class="frame-inner" d="M40 276V92l52-52h166 M822 40h166l52 52v184 M40 1642v186l52 52h202 M786 1880h202l52-52v-186" />
-        </g>
-        <g class="frame-hardware">
-          <path d="M18 92h22l52-52V18H18z" /><path d="M1062 92h-22l-52-52V18h74z" />
-          <path d="M18 1828h22l52 52v22H18z" /><path d="M1062 1828h-22l-52 52v22h74z" />
-        </g>
-        <g class="frame-ticks">
-          <path d="M24 370h34 M24 402h18 M24 742h34 M24 774h18 M24 1146h34 M24 1178h18 M24 1518h34 M24 1550h18" />
-          <path d="M1056 370h-34 M1056 402h-18 M1056 742h-34 M1056 774h-18 M1056 1146h-34 M1056 1178h-18 M1056 1518h-34 M1056 1550h-18" />
-        </g>
-        <path class="frame-signal frame-signal-left" d="M40 1620V300" /><path class="frame-signal frame-signal-right" d="M1040 300v1320" /><path class="frame-signal frame-signal-bottom" d="M314 1880h452" />
+      <g v-if="!isPremium" class="frame-geometry-standard" :class="'frame-skin-' + skin">
+        <path class="frame-shadow" :d="loop.shadow" />
+        <path class="frame-keyline" :d="loop.keyline" />
+        <path class="frame-inner" :d="loop.inner" />
+      </g>
+
+      <g v-if="isPremium" class="premium-frame-loop">
+        <path class="frame-loop-outer" d="M36 36H1044V1884H36Z" />
+        <path class="frame-loop-inner" d="M54 54H1026V1866H54Z" />
       </g>
 
       <g v-if="skin === 'storm_front'" class="premium-geometry geometry-storm">
@@ -90,7 +201,7 @@ const isPremium = computed(() => premiumSkins.has(props.skin));
         <path class="storm-conductor" d="M43 344V148l82-82h178 M777 66h178l82 82v196 M43 1574v198l80 82h222 M735 1854h220l82-82v-198" />
         <path class="storm-bus" d="M28 524h54 M28 812h82 M28 1100h54 M28 1388h82 M1052 524h-54 M1052 812h-82 M1052 1100h-54 M1052 1388h-82" />
         <g class="storm-insulators"><circle cx="43" cy="434" r="9" /><circle cx="43" cy="1486" r="9" /><circle cx="1037" cy="434" r="9" /><circle cx="1037" cy="1486" r="9" /></g>
-        <g class="storm-lightning storm-lightning-a" filter="url(#storm-glow)">
+        <g class="storm-lightning storm-lightning-a" filter="url(#storm-glow)" transform="translate(0 320)">
           <path pathLength="1" d="M1004 -20 L966 68 L979 103 L926 164 L937 202 L860 292 L873 336 L804 414" />
           <path pathLength="1" d="M968 70 L910 90 L871 137 L826 151" /><path pathLength="1" d="M928 163 L884 181 L851 230 L801 249" /><path pathLength="1" d="M861 292 L811 306 L775 352" />
         </g>
@@ -165,21 +276,42 @@ const isPremium = computed(() => premiumSkins.has(props.skin));
       </g>
 
       <g v-if="skin === 'inferno_ring'" class="premium-geometry geometry-inferno">
-        <path class="inferno-forge" d="M24 350V116l92-92h270 M694 24h270l92 92v234 M24 1570v234l92 92h270 M694 1896h270l92-92v-234" />
-        <path class="inferno-forge-inner" d="M48 388V164L164 48h178 M738 48h178l116 116v224 M48 1532v224l116 116h178 M738 1872h178l116-116v-224" />
-        <path class="inferno-molten-rail" pathLength="1" d="M116 34h300 M664 34h300 M116 1886h300 M664 1886h300 M34 416v1088 M1046 416v1088" />
-        <g class="inferno-fire-bands" filter="url(#inferno-fluid)">
-          <use href="#inferno-flame-ribbon" transform="translate(40 14)" /><use href="#inferno-flame-ribbon" transform="translate(1040 1906) rotate(180)" />
-          <use href="#inferno-flame-ribbon" transform="matrix(0 1.48 1 0 14 220)" /><use href="#inferno-flame-ribbon" transform="matrix(0 1.48 -1 0 1066 220)" />
-        </g>
+        <path class="inferno-flame-ring" fill-rule="evenodd" filter="url(#inferno-fluid)" d="M 34 34 C 44.1 23.9 64.0 -2.0 80.0 34.0 C 90.1 16.1 96.0 -30.0 126.0 34.0 C 136.1 22.8 156.0 -6.0 172.0 34.0 C 182.1 13.8 188.0 -38.0 218.0 34.0 C 228.1 20.0 248.0 -16.0 264.0 34.0 C 274.1 24.5 280.0 0.0 310.0 34.0 C 320.1 16.1 340.0 -30.0 356.0 34.0 C 366.1 21.1 372.0 -12.0 402.0 34.0 C 412.1 8.2 432.0 -58.0 448.0 34.0 C 458.1 25.6 464.0 4.0 494.0 34.0 C 504.1 17.8 524.0 -24.0 540.0 34.0 C 550.1 23.9 556.0 -2.0 586.0 34.0 C 596.1 15.0 616.0 -34.0 632.0 34.0 C 642.1 21.7 648.0 -10.0 678.0 34.0 C 688.1 17.2 708.0 -26.0 724.0 34.0 C 734.1 23.9 740.0 -2.0 770.0 34.0 C 780.1 16.1 800.0 -30.0 816.0 34.0 C 826.1 22.8 832.0 -6.0 862.0 34.0 C 872.1 13.8 892.0 -38.0 908.0 34.0 C 918.1 20.0 924.0 -16.0 954.0 34.0 C 964.1 24.5 984.0 0.0 1000.0 34.0 C 1010.1 16.1 1016.0 -30.0 1046.0 34.0 C 1056.1 45.3 1082.0 66.7 1046.0 85.4 C 1063.9 96.8 1110.0 104.2 1046.0 136.9 C 1057.2 148.2 1086.0 169.6 1046.0 188.3 C 1066.2 199.7 1118.0 207.1 1046.0 239.8 C 1060.0 251.1 1096.0 272.5 1046.0 291.2 C 1055.5 302.5 1080.0 309.9 1046.0 342.7 C 1063.9 354.0 1110.0 375.4 1046.0 394.1 C 1058.9 405.4 1092.0 412.8 1046.0 445.6 C 1071.8 456.9 1138.0 478.3 1046.0 497.0 C 1054.4 508.3 1076.0 515.7 1046.0 548.4 C 1062.2 559.8 1104.0 581.2 1046.0 599.9 C 1056.1 611.2 1082.0 618.6 1046.0 651.3 C 1065.0 662.7 1114.0 684.1 1046.0 702.8 C 1058.3 714.1 1090.0 721.5 1046.0 754.2 C 1062.8 765.5 1106.0 786.9 1046.0 805.7 C 1056.1 817.0 1082.0 824.4 1046.0 857.1 C 1063.9 868.4 1110.0 889.8 1046.0 908.6 C 1057.2 919.9 1086.0 927.3 1046.0 960.0 C 1066.2 971.3 1118.0 992.7 1046.0 1011.4 C 1060.0 1022.8 1096.0 1030.2 1046.0 1062.9 C 1055.5 1074.2 1080.0 1095.6 1046.0 1114.3 C 1063.9 1125.7 1110.0 1133.1 1046.0 1165.8 C 1058.9 1177.1 1092.0 1198.5 1046.0 1217.2 C 1071.8 1228.5 1138.0 1235.9 1046.0 1268.7 C 1054.4 1280.0 1076.0 1301.4 1046.0 1320.1 C 1062.2 1331.4 1104.0 1338.8 1046.0 1371.6 C 1056.1 1382.9 1082.0 1404.3 1046.0 1423.0 C 1065.0 1434.3 1114.0 1441.7 1046.0 1474.4 C 1058.3 1485.8 1090.0 1507.2 1046.0 1525.9 C 1062.8 1537.2 1106.0 1544.6 1046.0 1577.3 C 1056.1 1588.7 1082.0 1610.1 1046.0 1628.8 C 1063.9 1640.1 1110.0 1647.5 1046.0 1680.2 C 1057.2 1691.5 1086.0 1712.9 1046.0 1731.7 C 1066.2 1743.0 1118.0 1750.4 1046.0 1783.1 C 1060.0 1794.4 1096.0 1815.8 1046.0 1834.6 C 1055.5 1845.9 1080.0 1853.3 1046.0 1886.0 C 1035.9 1896.1 1016.0 1922.0 1000.0 1886.0 C 989.9 1903.9 984.0 1950.0 954.0 1886.0 C 943.9 1897.2 924.0 1926.0 908.0 1886.0 C 897.9 1906.2 892.0 1958.0 862.0 1886.0 C 851.9 1900.0 832.0 1936.0 816.0 1886.0 C 805.9 1895.5 800.0 1920.0 770.0 1886.0 C 759.9 1903.9 740.0 1950.0 724.0 1886.0 C 713.9 1898.9 708.0 1932.0 678.0 1886.0 C 667.9 1911.8 648.0 1978.0 632.0 1886.0 C 621.9 1894.4 616.0 1916.0 586.0 1886.0 C 575.9 1902.2 556.0 1944.0 540.0 1886.0 C 529.9 1896.1 524.0 1922.0 494.0 1886.0 C 483.9 1905.0 464.0 1954.0 448.0 1886.0 C 437.9 1898.3 432.0 1930.0 402.0 1886.0 C 391.9 1902.8 372.0 1946.0 356.0 1886.0 C 345.9 1896.1 340.0 1922.0 310.0 1886.0 C 299.9 1903.9 280.0 1950.0 264.0 1886.0 C 253.9 1897.2 248.0 1926.0 218.0 1886.0 C 207.9 1906.2 188.0 1958.0 172.0 1886.0 C 161.9 1900.0 156.0 1936.0 126.0 1886.0 C 115.9 1895.5 96.0 1920.0 80.0 1886.0 C 69.9 1903.9 64.0 1950.0 34.0 1886.0 C 23.9 1874.7 -2.0 1853.3 34.0 1834.6 C 16.1 1823.2 -30.0 1815.8 34.0 1783.1 C 22.8 1771.8 -6.0 1750.4 34.0 1731.7 C 13.8 1720.3 -38.0 1712.9 34.0 1680.2 C 20.0 1668.9 -16.0 1647.5 34.0 1628.8 C 24.5 1617.5 0.0 1610.1 34.0 1577.3 C 16.1 1566.0 -30.0 1544.6 34.0 1525.9 C 21.1 1514.6 -12.0 1507.2 34.0 1474.4 C 8.2 1463.1 -58.0 1441.7 34.0 1423.0 C 25.6 1411.7 4.0 1404.3 34.0 1371.6 C 17.8 1360.2 -24.0 1338.8 34.0 1320.1 C 23.9 1308.8 -2.0 1301.4 34.0 1268.7 C 15.0 1257.3 -34.0 1235.9 34.0 1217.2 C 21.7 1205.9 -10.0 1198.5 34.0 1165.8 C 17.2 1154.5 -26.0 1133.1 34.0 1114.3 C 23.9 1103.0 -2.0 1095.6 34.0 1062.9 C 16.1 1051.6 -30.0 1030.2 34.0 1011.4 C 22.8 1000.1 -6.0 992.7 34.0 960.0 C 13.8 948.7 -38.0 927.3 34.0 908.6 C 20.0 897.2 -16.0 889.8 34.0 857.1 C 24.5 845.8 0.0 824.4 34.0 805.7 C 16.1 794.3 -30.0 786.9 34.0 754.2 C 21.1 742.9 -12.0 721.5 34.0 702.8 C 8.2 691.5 -58.0 684.1 34.0 651.3 C 25.6 640.0 4.0 618.6 34.0 599.9 C 17.8 588.6 -24.0 581.2 34.0 548.4 C 23.9 537.1 -2.0 515.7 34.0 497.0 C 15.0 485.7 -34.0 478.3 34.0 445.6 C 21.7 434.2 -10.0 412.8 34.0 394.1 C 17.2 382.8 -26.0 375.4 34.0 342.7 C 23.9 331.3 -2.0 309.9 34.0 291.2 C 16.1 279.9 -30.0 272.5 34.0 239.8 C 22.8 228.5 -6.0 207.1 34.0 188.3 C 13.8 177.0 -38.0 169.6 34.0 136.9 C 20.0 125.6 -16.0 104.2 34.0 85.4 C 24.5 74.1 0.0 66.7 34.0 34.0 Z M 78 78 H 1002 V 1842 H 78 Z" />
+        <path class="inferno-forge" d="M78 78H1002V1842H78Z" />
+        <path class="inferno-molten-rail" pathLength="1" d="M96 96H984V1824H96Z" />
         <g class="inferno-embers" filter="url(#inferno-glow)"><circle cx="92" cy="498" r="5" /><circle cx="58" cy="724" r="3" /><circle cx="96" cy="1038" r="4" /><circle cx="61" cy="1342" r="5" /><circle cx="988" cy="578" r="4" /><circle cx="1022" cy="862" r="5" /><circle cx="986" cy="1174" r="3" /><circle cx="1020" cy="1442" r="4" /></g>
+      </g>
+
+      <g v-if="skin === 'deep_reef'" class="premium-geometry geometry-reef">
+        <path class="reef-plate" d="M28 338C28 176 92 42 248 28H392 M688 28H840C996 42 1052 176 1052 338 M28 1582C28 1744 92 1878 248 1892H392 M688 1892H840C996 1878 1052 1744 1052 1582" />
+        <path class="reef-inlay" d="M48 352C48 198 108 62 252 50H368 M712 50H828C972 62 1032 198 1032 352 M48 1568C48 1722 108 1858 252 1870H368 M712 1870H828C972 1858 1032 1722 1032 1568" />
+      </g>
+
+      <g v-if="skin === 'zen_garden'" class="premium-geometry geometry-zen">
+        <path class="zen-plate" d="M36 318Q44 78 214 36H368 M712 36H866Q1036 78 1044 318 M36 1602Q44 1842 214 1884H368 M712 1884H866Q1036 1842 1044 1602" />
+        <path class="zen-inlay" d="M54 334Q62 104 228 54H352 M728 54H852Q1018 104 1026 334 M54 1586Q62 1816 228 1866H352 M728 1866H852Q1018 1816 1026 1586" />
+      </g>
+
+      <g v-if="skin === 'vinyl_lounge'" class="premium-geometry geometry-vinyl">
+        <path class="vinyl-plate" d="M34 312A278 278 0 0 1 312 34 M768 34A278 278 0 0 1 1046 312 M34 1608A278 278 0 0 0 312 1886 M768 1886A278 278 0 0 0 1046 1608" />
+        <path class="vinyl-groove" d="M34 248A214 214 0 0 1 248 34 M832 34A214 214 0 0 1 1046 248 M34 1672A214 214 0 0 0 248 1886 M832 1886A214 214 0 0 0 1046 1672" />
+      </g>
+
+      <g v-if="skin === 'blueprint_draft'" class="premium-geometry geometry-draft">
+        <path class="draft-plate" d="M28 28H360 M720 28H1052V360 M1052 1560V1892H720 M360 1892H28V1560 M28 360V28" />
+        <path class="draft-ticks" d="M28 88h18 M28 148h12 M28 208h18 M1052 88h-18 M1052 148h-12 M1052 208h-18 M28 1712h18 M28 1772h12 M28 1832h18 M1052 1712h-18 M1052 1772h-12 M1052 1832h-18" />
+      </g>
+
+      <g v-if="skin === 'aurora_peaks'" class="premium-geometry geometry-aurora">
+        <path class="aurora-plate" d="M28 340L28 92L186 28L344 92 M736 92L894 28L1052 92L1052 340 M28 1580L28 1828L186 1892L344 1828 M736 1828L894 1892L1052 1828L1052 1580" />
+        <path class="aurora-inlay" d="M48 348L48 118L186 58L324 118 M756 118L894 58L1032 118L1032 348 M48 1572L48 1802L186 1862L324 1802 M756 1802L894 1862L1032 1802L1032 1572" />
       </g>
     </svg>
 
     <div v-if="!isPremium" class="frame-status frame-status-left"><span /><span /><span /></div>
     <div v-if="!isPremium" class="frame-status frame-status-right"><span /><span /><span /></div>
 
-    <div v-if="isPremium && skin !== 'storm_front' && skin !== 'inferno_ring'" class="theme-edge-effects">
+    <div v-if="false" class="theme-edge-effects">
       <span class="edge-fx edge-fx-top"><i v-for="index in 18" :key="`top-${index}`" /></span>
       <span class="edge-fx edge-fx-right"><i v-for="index in 24" :key="`right-${index}`" /></span>
       <span class="edge-fx edge-fx-bottom"><i v-for="index in 18" :key="`bottom-${index}`" /></span>

@@ -70,7 +70,12 @@ export type OverlaySkin =
   | "anime_powerup"
   | "candy_rush"
   | "luxury_nightclub"
-  | "inferno_ring";
+  | "inferno_ring"
+  | "deep_reef"
+  | "zen_garden"
+  | "vinyl_lounge"
+  | "blueprint_draft"
+  | "aurora_peaks";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -399,7 +404,12 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "anime_powerup" ||
     value === "candy_rush" ||
     value === "luxury_nightclub" ||
-    value === "inferno_ring"
+    value === "inferno_ring" ||
+    value === "deep_reef" ||
+    value === "zen_garden" ||
+    value === "vinyl_lounge" ||
+    value === "blueprint_draft" ||
+    value === "aurora_peaks"
   );
 }
 

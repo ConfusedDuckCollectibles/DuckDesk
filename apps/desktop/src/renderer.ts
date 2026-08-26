@@ -94,7 +94,12 @@ type OverlaySkin =
   | "anime_powerup"
   | "candy_rush"
   | "luxury_nightclub"
-  | "inferno_ring";
+  | "inferno_ring"
+  | "deep_reef"
+  | "zen_garden"
+  | "vinyl_lounge"
+  | "blueprint_draft"
+  | "aurora_peaks";
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
 type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -807,7 +812,12 @@ function skinName(skin: OverlaySkin): string {
     anime_powerup: "Anime Power-Up",
     candy_rush: "Candy Rush",
     luxury_nightclub: "Luxury Nightclub",
-    inferno_ring: "Inferno Ring"
+    inferno_ring: "Inferno Ring",
+    deep_reef: "Deep Reef",
+    zen_garden: "Zen Garden",
+    vinyl_lounge: "Vinyl Lounge",
+    blueprint_draft: "Blueprint Studio",
+    aurora_peaks: "Aurora Peaks"
   };
   return names[skin];
 }
@@ -914,7 +924,12 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "anime_powerup" ||
     value === "candy_rush" ||
     value === "luxury_nightclub" ||
-    value === "inferno_ring"
+    value === "inferno_ring" ||
+    value === "deep_reef" ||
+    value === "zen_garden" ||
+    value === "vinyl_lounge" ||
+    value === "blueprint_draft" ||
+    value === "aurora_peaks"
   );
 }
 
