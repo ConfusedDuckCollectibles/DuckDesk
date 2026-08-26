@@ -1,6 +1,7 @@
+import { createHash, randomUUID } from "node:crypto";
 import { createServer, type Server } from "node:http";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
+import { pathToFileURL } from "node:url";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -1068,10 +1069,12 @@ function playSoundKind(kind: SoundKind): void {
 
   try {
     stopNativeSound();
-    const player = spawn("/usr/bin/afplay", ["-v", String(soundVolume), soundPath], {
-      detached: true,
-      stdio: "ignore"
-    });
+    const player = process.platform === "win32"
+      ? spawnWindowsSoundPlayer(soundPath, soundVolume)
+      : spawn("/usr/bin/afplay", ["-v", String(soundVolume), soundPath], {
+          detached: true,
+          stdio: "ignore"
+        });
     nativeSoundPlayer = player;
     player.once("exit", () => {
       if (nativeSoundPlayer === player) {
@@ -1267,26 +1270,81 @@ function isAllowedAudioFileName(fileName: string): boolean {
   return path.basename(fileName) === fileName && allowedAudioExtensions.includes(extension as typeof allowedAudioExtensions[number]);
 }
 
-function inspectAudioFile(filePath: string): { ok: true } | { ok: false; message: string } {
-  const inspection = spawnSync("/usr/bin/afinfo", [filePath], {
-    encoding: "utf8",
-    timeout: 5_000,
-    maxBuffer: 512 * 1024
+function spawnWindowsSoundPlayer(soundPath: string, volume: number): ChildProcess {
+  const uri = pathToFileURL(soundPath).href.replace(/'/g, "''");
+  const script = [
+    "Add-Type -AssemblyName PresentationCore",
+    "$player = New-Object System.Windows.Media.MediaPlayer",
+    `$player.Open([Uri]'${uri}')`,
+    `$player.Volume = ${Math.max(0, Math.min(1, volume))}`,
+    "$player.Play()",
+    "while (-not $player.NaturalDuration.HasTimeSpan) { Start-Sleep -Milliseconds 40 }",
+    "Start-Sleep -Milliseconds ([int]$player.NaturalDuration.TimeSpan.TotalMilliseconds)"
+  ].join("; ");
+  return spawn("powershell.exe", ["-NoProfile", "-STA", "-WindowStyle", "Hidden", "-Command", script], {
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true
   });
-  if (inspection.status !== 0 || inspection.error) {
-    return { ok: false, message: "That file is not playable audio" };
+}
+
+function inspectAudioFile(filePath: string): { ok: true } | { ok: false; message: string } {
+  if (process.platform === "darwin") {
+    const inspection = spawnSync("/usr/bin/afinfo", [filePath], {
+      encoding: "utf8",
+      timeout: 5_000,
+      maxBuffer: 512 * 1024
+    });
+    if (inspection.status !== 0 || inspection.error) {
+      return { ok: false, message: "That file is not playable audio" };
+    }
+
+    const details = `${inspection.stdout}\n${inspection.stderr}`;
+    const durationMatch = details.match(/estimated duration:\s*([\d.]+)\s*sec/i);
+    const duration = durationMatch ? Number(durationMatch[1]) : Number.NaN;
+    if (!Number.isFinite(duration) || duration <= 0) {
+      return { ok: false, message: "Duck Desk could not read that audio file" };
+    }
+    if (duration > 12) {
+      return { ok: false, message: "Choose a sound that is 12 seconds or shorter" };
+    }
+    return { ok: true };
   }
 
-  const details = `${inspection.stdout}\n${inspection.stderr}`;
-  const durationMatch = details.match(/estimated duration:\s*([\d.]+)\s*sec/i);
-  const duration = durationMatch ? Number(durationMatch[1]) : Number.NaN;
-  if (!Number.isFinite(duration) || duration <= 0) {
-    return { ok: false, message: "Duck Desk could not read that audio file" };
-  }
-  if (duration > 12) {
-    return { ok: false, message: "Choose a sound that is 12 seconds or shorter" };
+  const wavDuration = readWavDurationSeconds(filePath);
+  if (wavDuration !== null) {
+    if (wavDuration <= 0) {
+      return { ok: false, message: "Duck Desk could not read that audio file" };
+    }
+    if (wavDuration > 12) {
+      return { ok: false, message: "Choose a sound that is 12 seconds or shorter" };
+    }
   }
   return { ok: true };
+}
+
+function readWavDurationSeconds(filePath: string): number | null {
+  try {
+    const header = Buffer.alloc(44);
+    const fd = fs.openSync(filePath, "r");
+    try {
+      if (fs.readSync(fd, header, 0, 44, 0) < 44) {
+        return null;
+      }
+    } finally {
+      fs.closeSync(fd);
+    }
+    if (header.toString("ascii", 0, 4) !== "RIFF" || header.toString("ascii", 8, 12) !== "WAVE") {
+      return null;
+    }
+    const byteRate = header.readUInt32LE(28);
+    if (!byteRate) {
+      return null;
+    }
+    return Math.max(0, (fs.statSync(filePath).size - 44) / byteRate);
+  } catch {
+    return null;
+  }
 }
 
 function convertCustomSoundToWav(
@@ -1294,6 +1352,18 @@ function convertCustomSoundToWav(
   destinationPath: string
 ): { ok: true } | { ok: false; message: string } {
   const temporaryPath = `${destinationPath}.${randomUUID()}.tmp.wav`;
+  if (process.platform !== "darwin") {
+    try {
+      fs.copyFileSync(sourcePath, temporaryPath);
+      fs.renameSync(temporaryPath, destinationPath);
+      return { ok: true };
+    } catch (error) {
+      fs.rmSync(temporaryPath, { force: true });
+      log(`unable to store custom sound: ${error instanceof Error ? error.message : String(error)}`);
+      return { ok: false, message: "Duck Desk could not store that sound" };
+    }
+  }
+
   const conversion = spawnSync(
     "/usr/bin/afconvert",
     [sourcePath, temporaryPath, "-f", "WAVE", "-d", "LEI16@32000", "-c", "1"],
@@ -1682,10 +1752,12 @@ function resolveExtensionPath(): string {
 
 function log(message: string): void {
   const line = `[${new Date().toISOString()}] ${message}\n`;
-  const logPath = path.join(os.homedir(), "Library", "Logs", "Duck Desk.log");
   try {
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
-    fs.appendFileSync(logPath, line);
+    const logDir = electronApp.isReady()
+      ? electronApp.getPath("logs")
+      : path.join(os.homedir(), process.platform === "win32" ? path.join("AppData", "Roaming", "Duck Desk", "logs") : path.join("Library", "Logs"));
+    fs.mkdirSync(logDir, { recursive: true });
+    fs.appendFileSync(path.join(logDir, "Duck Desk.log"), line);
   } catch {
     // Logging should never stop the desktop app from launching.
   }
@@ -1934,15 +2006,9 @@ function createObsAuthentication(password: string, salt: string, challenge: stri
 }
 
 function readLocalObsPassword(): string {
-  const configPath = path.join(
-    os.homedir(),
-    "Library",
-    "Application Support",
-    "obs-studio",
-    "plugin_config",
-    "obs-websocket",
-    "config.json"
-  );
+  const configPath = process.platform === "win32"
+    ? path.join(process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming"), "obs-studio", "plugin_config", "obs-websocket", "config.json")
+    : path.join(os.homedir(), "Library", "Application Support", "obs-studio", "plugin_config", "obs-websocket", "config.json");
   try {
     const config = JSON.parse(fs.readFileSync(configPath, "utf8")) as unknown;
     if (isRecord(config) && config.auth_required === true && typeof config.server_password === "string") {

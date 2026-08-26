@@ -18,7 +18,8 @@ better-balanced cues designed for long live shows.
 
 ## Highlights
 
-- Native Mac desktop app with no Terminal required after installation.
+- Native Mac and Windows desktop apps with no Terminal or PowerShell required after installation.
+- Windows 64-bit installer published alongside the Apple-silicon Mac DMG from the same Electron app.
 - One-click authenticated OBS source setup, repair, canvas fitting, and refresh.
 - 30 included themes: 20 standard themes and 10 animated premium-style themes.
 - Persistent themed frame, live header, ticker, and open-source footer.
@@ -31,11 +32,16 @@ better-balanced cues designed for long live shows.
 
 ## Download
 
-Download `DuckDesk-0.1.0-alpha.3-arm64.dmg` from the Assets section below.
+Download these files from the Assets section below:
 
-This build requires an Apple-silicon Mac. Intel Mac and Windows builds are not included in this alpha.
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.3-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.3-windows-x64.exe`
+
+Intel Mac builds are not included in this alpha. Both installers are unsigned.
 
 ## Install
+
+### Mac
 
 1. Open the downloaded DMG.
 2. Drag Duck Desk into Applications.
@@ -44,6 +50,15 @@ This build requires an Apple-silicon Mac. Intel Mac and Windows builds are not i
 5. Choose Open again if macOS displays the unsigned-app warning.
 
 The alpha is not yet signed or notarized with an Apple Developer certificate. Download it only from this official repository and compare its SHA-256 checksum with the included `.sha256` file when possible.
+
+### Windows
+
+1. Open the downloaded `.exe` installer.
+2. If SmartScreen appears, choose More info, then Run anyway.
+3. Finish the one-click install.
+4. Open Duck Desk from the Start menu or desktop shortcut.
+
+The Windows installer is not Authenticode-signed, so SmartScreen may warn on first launch. Download it only from this official repository and compare its SHA-256 checksum with the included `.sha256` file when possible.
 
 ## Important Alpha Notes
 

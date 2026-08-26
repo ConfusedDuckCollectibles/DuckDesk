@@ -12,7 +12,7 @@ assignees: ""
 
 ## Where should it live?
 
-- [ ] Mac app
+- [ ] Desktop app
 - [ ] OBS overlay
 - [ ] Chrome extension
 - [ ] Documentation

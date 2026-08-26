@@ -1,4 +1,4 @@
-name: Publish Mac release
+name: Publish desktop release
 
 on:
   workflow_dispatch:
@@ -18,7 +18,8 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build-mac:
+    name: Build Mac DMG
     runs-on: macos-14
     steps:
       - name: Check out source
@@ -43,9 +44,6 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build Chrome extension
-        run: npm run build -w @duck-desk/extension
-
       - name: Build Apple-silicon DMG
         run: npm run mac:dmg
 
@@ -54,11 +52,91 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           cd apps/desktop/release
-          SOURCE_DMG="Duck Desk-${RELEASE_VERSION}-arm64.dmg"
           DMG="DuckDesk-${RELEASE_VERSION}-arm64.dmg"
-          test -f "$SOURCE_DMG"
-          mv "$SOURCE_DMG" "$DMG"
+          if [ ! -f "$DMG" ]; then
+            SOURCE_DMG="Duck Desk-${RELEASE_VERSION}-arm64.dmg"
+            test -f "$SOURCE_DMG"
+            mv "$SOURCE_DMG" "$DMG"
+          fi
           LC_ALL=C LANG=C shasum -a 256 "$DMG" > "${DMG}.sha256"
+
+      - name: Upload Mac installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-dmg
+          path: |
+            apps/desktop/release/DuckDesk-${{ inputs.version }}-arm64.dmg
+            apps/desktop/release/DuckDesk-${{ inputs.version }}-arm64.dmg.sha256
+          if-no-files-found: error
+
+  build-windows:
+    name: Build Windows installer
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Verify release version
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          test "$PACKAGE_VERSION" = "$RELEASE_VERSION"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build Windows NSIS installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run win:nsis
+
+      - name: Create checksum
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          cd apps/desktop/release
+          EXE="DuckDesk-${RELEASE_VERSION}-windows-x64.exe"
+          if [ ! -f "$EXE" ]; then
+            echo "Expected $EXE. Files in release:"
+            ls -la
+            exit 1
+          fi
+          sha256sum "$EXE" > "${EXE}.sha256"
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-nsis
+          path: |
+            apps/desktop/release/DuckDesk-${{ inputs.version }}-windows-x64.exe
+            apps/desktop/release/DuckDesk-${{ inputs.version }}-windows-x64.exe.sha256
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-installers
+          merge-multiple: true
 
       - name: Publish GitHub release
         env:
@@ -67,16 +145,39 @@ jobs:
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
           TAG="v${RELEASE_VERSION}"
-          DMG="apps/desktop/release/DuckDesk-${RELEASE_VERSION}-arm64.dmg"
-          RELEASE_ARGS=(
-            "$TAG"
-            "$DMG"
-            "${DMG}.sha256"
-            --target "$GITHUB_SHA"
-            --title "Duck Desk ${TAG}"
-            --notes-file RELEASE_NOTES.md
+          ASSETS=(
+            dist-installers/DuckDesk-${RELEASE_VERSION}-arm64.dmg
+            dist-installers/DuckDesk-${RELEASE_VERSION}-arm64.dmg.sha256
+            dist-installers/DuckDesk-${RELEASE_VERSION}-windows-x64.exe
+            dist-installers/DuckDesk-${RELEASE_VERSION}-windows-x64.exe.sha256
           )
-          if [ "$PRERELEASE" = "true" ]; then
-            RELEASE_ARGS+=(--prerelease)
+          for asset in "${ASSETS[@]}"; do
+            test -f "$asset"
+          done
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${ASSETS[@]}" --clobber
+            EDIT_ARGS=(
+              "$TAG"
+              --target "$GITHUB_SHA"
+              --title "Duck Desk ${TAG}"
+              --notes-file RELEASE_NOTES.md
+            )
+            if [ "$PRERELEASE" = "true" ]; then
+              EDIT_ARGS+=(--prerelease)
+            else
+              EDIT_ARGS+=(--latest)
+            fi
+            gh release edit "${EDIT_ARGS[@]}"
+          else
+            RELEASE_ARGS=(
+              "$TAG"
+              "${ASSETS[@]}"
+              --target "$GITHUB_SHA"
+              --title "Duck Desk ${TAG}"
+              --notes-file RELEASE_NOTES.md
+            )
+            if [ "$PRERELEASE" = "true" ]; then
+              RELEASE_ARGS+=(--prerelease)
+            fi
+            gh release create "${RELEASE_ARGS[@]}"
           fi
-          gh release create "${RELEASE_ARGS[@]}"

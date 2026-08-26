@@ -12,7 +12,7 @@ assignees: ""
 
 ## Where did it happen?
 
-- [ ] Mac app
+- [ ] Desktop app
 - [ ] OBS overlay
 - [ ] Chrome extension
 - [ ] Documentation
@@ -25,7 +25,7 @@ assignees: ""
 
 ## Environment
 
-- macOS version:
+- Operating system (macOS or Windows):
 - OBS version:
 - Chrome version:
 - Duck Desk commit or release:

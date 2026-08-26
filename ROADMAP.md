@@ -4,7 +4,7 @@ Duck Desk is building toward a free, open-source live seller production toolkit.
 
 ## Now
 
-- Mac-native app that starts a local overlay bridge.
+- Desktop app for Mac and Windows that starts a local overlay bridge.
 - OBS browser overlay for vertical phone-first streams.
 - Chrome extension for visible seller-page event detection.
 - Manual GIF reactions, sound pads, hype bursts, milestones, Hype Meter, promo banners, and jumbotron mode.
@@ -22,13 +22,12 @@ Duck Desk is building toward a free, open-source live seller production toolkit.
 - A vertical overlay composer with safe zones, drag/resize controls, scene layouts, and live OBS preview.
 - Persistent show history, buyer leaderboards, and clearly labeled local analytics.
 - Theme and effect pack import/export.
-- Signed Mac releases.
+- Signed Mac and Windows releases.
 - First-run setup that verifies the full live path without Terminal.
 
 ## Later
 
 - Community theme marketplace using plain local files.
-- Cross-platform desktop builds.
 - Accessibility and low-motion overlay modes.
 - Plugin API for custom seller workflows.
 - Policy-safe live-selling games, including bid battles, streaks, goals, polls, and giveaway visualization.

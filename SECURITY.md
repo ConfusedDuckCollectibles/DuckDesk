@@ -1,6 +1,6 @@
 # Security Policy
 
-Duck Desk is local-first. The Mac app, overlay, and Chrome extension are designed to run on the seller's machine and communicate over localhost.
+Duck Desk is local-first. The desktop app, overlay, and Chrome extension are designed to run on the seller's machine and communicate over localhost.
 
 ## Supported Versions
 

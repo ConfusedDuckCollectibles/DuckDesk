@@ -6,7 +6,7 @@
 
 ## Area
 
-- [ ] Mac app
+- [ ] Desktop app
 - [ ] OBS overlay
 - [ ] Chrome extension
 - [ ] Shared types

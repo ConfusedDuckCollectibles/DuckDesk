@@ -18,15 +18,18 @@ npm run typecheck
 npm run dev:desktop
 ```
 
-For the packaged Mac app:
+For packaged installers:
 
 ```bash
 npm run mac:dmg
+npm run win:nsis
 ```
+
+`mac:dmg` runs on macOS. `win:nsis` runs on Windows. GitHub Actions builds both for official releases, so day-to-day overlay and desktop work stays in this one Electron codebase.
 
 ## Useful Work Areas
 
-- `apps/desktop`: Electron Mac app and local event bridge.
+- `apps/desktop`: Electron desktop app and local event bridge.
 - `apps/overlay`: transparent OBS overlay.
 - `apps/extension`: Chrome extension that observes visible seller-page events.
 - `packages/shared`: shared event and overlay message types.
@@ -34,9 +37,9 @@ npm run mac:dmg
 ## Pull Request Checklist
 
 - Run `npm run typecheck`.
-- Do not commit `.env`, build artifacts, DMGs, app bundles, logs, tokens, or local machine paths.
+- Do not commit `.env`, build artifacts, DMGs, Windows installers, app bundles, logs, tokens, or local machine paths.
 - Keep user-facing docs free of competitor names.
-- Explain whether the change affects OBS, the Chrome extension, or the Mac app.
+- Explain whether the change affects OBS, the Chrome extension, or the desktop app.
 - Add screenshots or short clips for visible overlay/UI changes when possible.
 
 ## Event Detection Policy

@@ -1,7 +1,7 @@
 {
   "name": "@duck-desk/desktop",
   "version": "0.1.0-alpha.3",
-  "description": "Mac desktop companion for Duck Desk live overlays.",
+  "description": "Desktop companion for Duck Desk live overlays.",
   "author": "Duck Desk",
   "private": true,
   "type": "module",
@@ -14,7 +14,8 @@
     "build:renderer": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "dist": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac --dir --arm64",
-    "dist:dmg": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac dmg --arm64"
+    "dist:dmg": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac dmg --arm64",
+    "dist:win": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --win nsis --x64"
   },
   "dependencies": {
     "@duck-desk/shared": "file:../../packages/shared",
@@ -42,7 +43,31 @@
       "target": [
         "dir",
         "dmg"
-      ]
+      ],
+      "artifactName": "DuckDesk-${version}-${arch}.${ext}"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "requestedExecutionLevel": "asInvoker",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "DuckDesk-${version}-windows-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "Duck Desk",
+      "uninstallDisplayName": "Duck Desk",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
     },
     "files": [
       "dist/**/*",
@@ -60,6 +85,7 @@
     ],
     "directories": {
       "output": "release"
-    }
+    },
+    "publish": null
   }
 }

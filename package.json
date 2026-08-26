@@ -27,6 +27,7 @@
     "overlay:sync": "bash scripts/sync-overlay-to-app.sh",
     "mac:app": "npm run dist -w @duck-desk/desktop",
     "mac:dmg": "npm run dist:dmg -w @duck-desk/desktop",
+    "win:nsis": "npm run dist:win -w @duck-desk/desktop",
     "mock:sale": "curl -X POST http://localhost:8741/events -H 'Content-Type: application/json' -d '{\"type\":\"sale\",\"buyer\":\"TestBuyer\",\"amount\":28,\"item\":\"Test Wheel Spin\",\"timestamp\":123456789}'"
   },
   "devDependencies": {

@@ -5,44 +5,48 @@
 <h1 align="center">Duck Desk</h1>
 
 <p align="center">
-  A free, open-source Mac companion for interactive Whatnot streams.
+  A free, open-source Mac and Windows companion for interactive Whatnot streams.
 </p>
 
 <p align="center">
   <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk">Project Home</a> ·
-  <a href="#download-the-mac-app">Download</a> ·
+  <a href="#download">Download</a> ·
   <a href="#simple-setup-guide">Simple Setup</a> ·
   <a href="#troubleshooting">Troubleshooting</a> ·
   <a href="https://www.whatnot.com/user/confusedduckcollectibles">Follow on Whatnot</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
-> **Public alpha:** Duck Desk `v0.1.0-alpha.3` is available from the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.3). Download the Apple-silicon `.dmg` file to install it without Terminal.
+> **Public alpha:** Duck Desk `v0.1.0-alpha.3` is available from the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.3). Download the Mac `.dmg` or Windows `.exe` installer. You do not need Terminal or PowerShell for normal use.
 
-Duck Desk adds a professional, game-like layer to a vertical live-selling stream. It runs locally on your Mac, sends its transparent overlay to OBS, and gives you one place to control themes, GIFs, sounds, goals, timers, leaderboards, and stream effects.
+Duck Desk adds a professional, game-like layer to a vertical live-selling stream. It runs locally on your computer, sends its transparent overlay to OBS, and gives you one place to control themes, GIFs, sounds, goals, timers, leaderboards, and stream effects.
 
 No subscription is required. There are no Duck Desk accounts, cloud services, hidden analytics, or AI assistant features.
 
 ![Duck Desk dashboard showing OBS setup and live preflight](docs/images/duck-desk-dashboard.png)
 
-## Download The Mac App
+## Download
 
-Most people should download the finished Mac app. You do not need the source code, Node.js, or Terminal.
+Most people should download a finished installer. You do not need the source code, Node.js, or Terminal. Overlay themes and seller tools are the same on both platforms; only the installer differs.
 
 1. Open [Duck Desk v0.1.0-alpha.3](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.3).
 2. Find the `Assets` area near the bottom of the release.
-3. Download the file ending in `arm64.dmg`. This is the Mac installer.
+3. Download one installer:
+   - **Mac (Apple silicon):** the file ending in `arm64.dmg`
+   - **Windows (64-bit):** the file ending in `windows-x64.exe`
 4. Do not download the `Source code` files unless you plan to work on Duck Desk as a developer.
 
-This first build supports Apple-silicon Macs. To check your Mac, open the Apple menu and choose `About This Mac`. It is supported when the `Chip` line says Apple M1, M2, M3, M4, or a newer Apple chip. Intel Macs are not supported by this alpha.
+**Mac:** This alpha supports Apple-silicon Macs. To check your Mac, open the Apple menu and choose `About This Mac`. It is supported when the `Chip` line says Apple M1, M2, M3, M4, or a newer Apple chip. Intel Macs are not included in this alpha. The app is not yet signed or notarized through Apple's developer program, so macOS may ask you to right-click Duck Desk and choose `Open` the first time.
 
-The alpha is not yet signed or notarized through Apple's developer program. macOS may therefore ask you to right-click Duck Desk and choose `Open` the first time. The app is built directly from the public source in this repository, and every release includes a matching `.sha256` checksum file for integrity checking.
+**Windows:** This alpha supports 64-bit Windows 10 and 11. The installer is unsigned, so SmartScreen may say Windows protected your PC. Choose `More info`, then `Run anyway`. Install for your user account; administrator permission is not required.
 
-Duck Desk does not update itself yet. Check the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases) for newer builds and install them over the existing copy in Applications. Your creator settings are stored separately and remain available after an update.
+The app is built directly from the public source in this repository, and every release includes a matching `.sha256` checksum file for each installer.
+
+Duck Desk does not update itself yet. Check the [Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases) for newer builds and install them over the existing copy. Your creator settings are stored separately and remain available after an update.
 
 ## What Duck Desk Includes
 
-- 31 stream themes, including 11 premium themes with distinct border motion and alert choreography.
+- 36 stream themes, including 16 premium themes with distinct border motion and alert choreography.
 - A persistent vertical stream frame, live header, ticker, and open-source footer.
 - Manual GIF reactions with names, sizes, and screen positions.
 - 10 audio themes with 50 individually produced cues for bids, sales, tips, shares, and audience actions, plus a master mute switch.
@@ -50,19 +54,19 @@ Duck Desk does not update itself yet. Check the [Releases page](https://github.c
 - Hype bursts, milestones, auction timers, goals, promo banners, and show recaps.
 - Bid ladder, activity feed, buyer leaderboard, jumbotron, and show scenes.
 - One-click OBS source setup with repair and refresh.
-- A Live Preflight strip that checks the Mac app, OBS, Chrome extension, seller page, and real event path.
+- A Live Preflight strip that checks the desktop app, OBS, Chrome extension, seller page, and real event path.
 - Automatic saving for your themes, add-ons, title, GIF library, sounds, goals, banners, and timers.
 
 ## What You Need
 
-- A Mac with Apple silicon.
-- [OBS Studio](https://obsproject.com/download).
+- A Mac with Apple silicon, or a 64-bit Windows 10/11 PC.
+- [OBS Studio](https://obsproject.com/download) for your operating system.
 - Google Chrome.
 - A Whatnot seller account.
 - A phone, webcam, or capture card for your product camera.
-- Duck Desk open on the Mac while you stream.
+- Duck Desk open on the same computer as OBS while you stream.
 
-You do **not** need Terminal for normal use.
+You do **not** need Terminal or PowerShell for normal use.
 
 ## How The Pieces Fit Together
 
@@ -88,22 +92,21 @@ Your camera stays underneath. Duck Desk stays above it as one transparent OBS Br
 
 ### 1. Install OBS
 
-1. Download [OBS Studio for macOS](https://obsproject.com/download).
+1. Download [OBS Studio](https://obsproject.com/download) for Mac or Windows.
 2. Open the downloaded installer.
-3. Move OBS into your Applications folder when asked.
+3. On Mac, move OBS into your Applications folder when asked. On Windows, finish the OBS installer.
 4. Open OBS.
 
 If OBS shows an automatic setup wizard, it is okay to close the wizard. The next step sets the correct vertical size.
 
 ### 2. Make OBS Vertical
 
-1. In OBS, click `OBS` in the Mac menu bar.
-2. Click `Settings`.
-3. Click `Video` on the left.
-4. Set `Base (Canvas) Resolution` to `1080x1920`.
-5. Set `Output (Scaled) Resolution` to `1080x1920`.
-6. Set `Common FPS Values` to `30`.
-7. Click `OK`.
+1. Open OBS Settings: on Mac, click `OBS` in the menu bar, then `Settings`. On Windows, click `File`, then `Settings`.
+2. Click `Video` on the left.
+3. Set `Base (Canvas) Resolution` to `1080x1920`.
+4. Set `Output (Scaled) Resolution` to `1080x1920`.
+5. Set `Common FPS Values` to `30`.
+6. Click `OK`.
 
 The OBS canvas should now be tall like a phone screen, not wide like a television.
 
@@ -111,12 +114,23 @@ The OBS canvas should now be tall like a phone screen, not wide like a televisio
 
 1. Open the [Duck Desk Releases page](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases).
 2. Open the newest release marked `Pre-release` or `Latest`.
-3. Under `Assets`, download the file ending in `arm64.dmg`.
-4. Double-click the downloaded DMG.
-5. Drag `Duck Desk` into `Applications`.
-6. Open `Applications`, then open Duck Desk.
+3. Under `Assets`, download the installer for your computer.
+
+**Mac**
+
+1. Download the file ending in `arm64.dmg`.
+2. Double-click the downloaded DMG.
+3. Drag `Duck Desk` into `Applications`.
+4. Open `Applications`, then open Duck Desk.
 
 The current alpha is not Apple-notarized. If macOS refuses the first launch, right-click Duck Desk, choose `Open`, then choose `Open` again. You only need to do that once.
+
+**Windows**
+
+1. Download the file ending in `windows-x64.exe`.
+2. Double-click the installer.
+3. If SmartScreen appears, choose `More info`, then `Run anyway`.
+4. Finish the one-click install, then open Duck Desk from the Start menu or desktop shortcut.
 
 ### 4. Add Duck Desk To OBS
 
@@ -150,11 +164,11 @@ After the first setup, the button becomes `Repair + Refresh`. Use it whenever OB
 6. Choose the iPhone camera.
 7. Resize the camera until it fills the vertical canvas.
 
-Apple provides additional Continuity Camera help in the [macOS User Guide](https://support.apple.com/guide/mac-help/use-iphone-as-a-webcam-mchl77879b8a/mac).
+Apple provides additional Continuity Camera help in the [macOS User Guide](https://support.apple.com/guide/mac-help/use-iphone-as-a-webcam-mchl77879b8a/mac). Continuity Camera is a Mac feature. On Windows, use a USB webcam, a capture card, or a phone-camera app such as DroidCam.
 
 #### Android, older iPhone, webcam, or capture card
 
-You can use any camera source that appears in OBS, including Camo, DroidCam, NDI camera apps, a USB webcam, or a capture card. Install the camera maker's Mac software if it requires one, then add it through `Sources` → `Video Capture Device`.
+You can use any camera source that appears in OBS, including Camo, DroidCam, NDI camera apps, a USB webcam, or a capture card. Install the camera maker's software for your operating system if it requires one, then add it through `Sources` → `Video Capture Device`.
 
 In the OBS Sources list, keep this order:
 
@@ -166,14 +180,14 @@ Background              bottom
 
 ### 6. Install The Duck Desk Chrome Extension
 
-The extension watches only the visible Whatnot seller page and sends recognized events to Duck Desk on your Mac. Keep that seller page open while you stream.
+The extension watches only the visible Whatnot seller page and sends recognized events to Duck Desk on your computer. Keep that seller page open while you stream.
 
 1. In Duck Desk, click `Chrome Extension`.
-2. Finder opens the correct extension folder for you.
+2. Finder (Mac) or File Explorer (Windows) opens the correct extension folder for you.
 3. In Chrome, enter `chrome://extensions` in the address bar.
 4. Turn on `Developer mode` in the upper-right corner.
 5. Click `Load unpacked`.
-6. Select the folder Duck Desk opened in Finder.
+6. Select the folder Duck Desk opened.
 7. Pin Duck Desk from Chrome's Extensions menu so its status is easy to check.
 
 After installing a newer Duck Desk build, return to `chrome://extensions`, click the reload icon on Duck Desk, and refresh the Whatnot seller page once.
@@ -202,7 +216,7 @@ Whatnot Rehearsal Mode, when available for your seller account, is the best plac
 
 This is the easiest free test of the complete Whatnot-to-Duck-Desk connection.
 
-1. Start your private show and keep its seller page visible in Chrome on the Mac.
+1. Start your private show and keep its seller page visible in Chrome on the same computer as Duck Desk.
 2. Confirm Duck Desk's Live Preflight says `Seller page connected`.
 3. Send the private-show link to a second Whatnot account.
 4. From that account, open the show and use Whatnot's Share button.
@@ -242,7 +256,7 @@ See Whatnot's official [Using OBS with your Livestream](https://help.whatnot.com
 - Add `Audio Studio` from the library, then choose any of the 10 sound themes. Each theme uses its own instrument and texture set, not a stock sound with a different pitch.
 - Press the play icon beside Bid, Sale, Audience, Tip, or Share to preview that exact cue.
 - Use `Effects Volume` to set every sound from subtle to full volume. The percentage is saved automatically.
-- Press `Choose` beside an event to use your own MP3, WAV, M4A, AAC, AIFF, or CAF file. Files must be under 20 MB and 12 seconds or shorter. Duck Desk converts the file to a stream-safe WAV automatically so the Mac preview and OBS use the same cue.
+- Press `Choose` beside an event to use your own MP3, WAV, M4A, AAC, AIFF, or CAF file. Files must be under 20 MB and 12 seconds or shorter. On Mac, Duck Desk converts the file to a stream-safe WAV so the preview and OBS use the same cue. On Windows, WAV and MP3 files are the most reliable choices.
 - Press the reset icon to return one event to the selected theme without changing the other event sounds.
 - Keep `Event Sound On` enabled for automatic live cues, or mute every event sound at any time.
 - Use scenes for Starting, Auction, Break, Winner, and Ending screens.
@@ -289,7 +303,7 @@ The overlay and OBS connection are working if Demo Mode tests appear. Real event
 ### Sounds are silent
 
 1. Confirm `Event Sound On` is enabled.
-2. Turn up the Mac output volume.
+2. Turn up the computer's output volume.
 3. Add `Audio Studio` and press the play icon beside an event sound.
 4. Check that OBS and the Whatnot stream are using the intended audio source.
 
@@ -297,7 +311,7 @@ The overlay and OBS connection are working if Demo Mode tests appear. Real event
 
 Duck Desk is local-first:
 
-- The overlay service listens only on your Mac at `127.0.0.1`.
+- The overlay service listens only on this computer at `127.0.0.1`.
 - Duck Desk does not require an account.
 - Duck Desk does not send analytics or telemetry to a Duck Desk server.
 - OBS passwords are used only for the local connection and are not added to saved creator settings.
@@ -327,7 +341,8 @@ Duck Desk is created by Confused Duck Collectibles. [Follow Confused Duck Collec
 
 - Node.js 20 or newer
 - npm
-- macOS for the packaged desktop build
+- macOS to build the Apple-silicon DMG locally
+- Windows to build the NSIS installer locally (or use GitHub Actions)
 
 ### Install dependencies
 
@@ -347,19 +362,24 @@ npm run typecheck
 npm run build
 ```
 
-### Build the Mac app and DMG
+### Build installers
+
+One Electron app is packaged for both platforms. Overlay, themes, and seller tools are not rewritten per OS.
 
 ```bash
 npm run mac:dmg
+npm run win:nsis
 ```
+
+`mac:dmg` must run on a Mac. `win:nsis` must run on Windows. Official GitHub releases build both in parallel so you do not have to produce installers on your own machines.
 
 The local artifacts are created under `apps/desktop/release/` and are intentionally excluded from Git.
 
 ### Publish an official GitHub build
 
-Official downloads are created by the [Publish Mac release workflow](https://github.com/ConfusedDuckCollectibles/DuckDesk/actions/workflows/release.yml). GitHub starts with a clean Mac runner, installs the locked dependencies, typechecks every workspace, builds the Chrome extension and Apple-silicon app, creates the DMG and SHA-256 checksum, and publishes both files to a tagged release.
+Official downloads are created by the [Publish desktop release workflow](https://github.com/ConfusedDuckCollectibles/DuckDesk/actions/workflows/release.yml). GitHub starts a Mac runner and a Windows runner, installs the locked dependencies, typechecks every workspace, builds the Apple-silicon DMG and the Windows installer, creates SHA-256 checksums, and publishes all four files to a tagged release.
 
-Before running the workflow, commit the new version in the package files and update `RELEASE_NOTES.md`. Then open `Actions` → `Publish Mac release` → `Run workflow`, enter that exact version without a leading `v`, choose whether it is a prerelease, and run it. A successful workflow creates the tag and Releases page automatically; no manual DMG upload is needed.
+Before running the workflow, commit the new version in the package files and update `RELEASE_NOTES.md`. Then open `Actions` → `Publish desktop release` → `Run workflow`, enter that exact version without a leading `v`, choose whether it is a prerelease, and run it. A successful workflow creates the tag and Releases page automatically; no manual installer upload is needed.
 
 ### Run development services
 
@@ -382,7 +402,7 @@ Load `apps/extension/dist` as an unpacked Chrome extension.
 
 ```text
 apps/
-  desktop/    Electron Mac app, local bridge, and OBS integration
+  desktop/    Electron desktop app, local bridge, and OBS integration
   extension/  Chrome extension and visible-page event adapter
   overlay/    Vue transparent OBS overlay
   server/     Standalone local development server

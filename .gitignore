@@ -3,6 +3,8 @@ dist
 release
 *.app
 *.dmg
+*.exe
+*.nupkg
 *.blockmap
 *.tsbuildinfo
 .DS_Store
