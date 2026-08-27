@@ -21,6 +21,9 @@ jobs:
   build-mac:
     name: Build Mac DMG
     runs-on: macos-14
+    env:
+      electron_config_cache: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -28,8 +31,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+
+      - name: Cache Electron downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/electron
+            .cache/electron-builder
+          key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Verify release version
         env:
@@ -41,7 +52,21 @@ jobs:
           test "$PACKAGE_VERSION" = "$RELEASE_VERSION"
 
       - name: Install dependencies
-        run: npm ci
+        shell: bash
+        run: |
+          set +e
+          for attempt in 1 2 3; do
+            echo "npm ci attempt ${attempt}"
+            npm ci
+            status=$?
+            if [ "$status" -eq 0 ]; then
+              exit 0
+            fi
+            echo "npm ci failed with ${status}; retrying after a GitHub/Electron CDN 5xx is common"
+            rm -rf node_modules apps/*/node_modules packages/*/node_modules || true
+            sleep $((attempt * 20))
+          done
+          exit 1
 
       - name: Typecheck
         run: npm run typecheck
@@ -74,6 +99,9 @@ jobs:
   build-windows:
     name: Build Windows installer
     runs-on: windows-latest
+    env:
+      electron_config_cache: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -81,8 +109,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+
+      - name: Cache Electron downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/electron
+            .cache/electron-builder
+          key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Verify release version
         shell: bash
@@ -95,15 +131,43 @@ jobs:
           test "$PACKAGE_VERSION" = "$RELEASE_VERSION"
 
       - name: Install dependencies
-        run: npm ci
+        shell: bash
+        run: |
+          set +e
+          for attempt in 1 2 3; do
+            echo "npm ci attempt ${attempt}"
+            npm ci
+            status=$?
+            if [ "$status" -eq 0 ]; then
+              exit 0
+            fi
+            echo "npm ci failed with ${status}; Electron zip downloads often 500/502 on Windows runners"
+            rm -rf node_modules apps/*/node_modules packages/*/node_modules || true
+            sleep $((attempt * 20))
+          done
+          exit 1
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build Windows NSIS installer
+        shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
-        run: npm run win:nsis
+        run: |
+          set +e
+          for attempt in 1 2 3; do
+            echo "win:nsis attempt ${attempt}"
+            npm run win:nsis
+            status=$?
+            if [ "$status" -eq 0 ]; then
+              exit 0
+            fi
+            echo "Windows installer build failed with ${status}; retrying"
+            rm -rf apps/desktop/release || true
+            sleep $((attempt * 20))
+          done
+          exit 1
 
       - name: Create checksum
         shell: bash
