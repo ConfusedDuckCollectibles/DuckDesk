@@ -1,3 +1,5 @@
+import { isAlertVisualMap, type AlertVisualMap } from "./alerts.js";
+
 export interface SaleEvent {
   type: "sale";
   buyer: string;
@@ -109,6 +111,30 @@ export {
   type AudioPlaybackDecision,
   type AudioPlaybackKind
 } from "./audio.js";
+export {
+  ALERT_DURATION_LIMITS,
+  ALERT_KINDS,
+  DEFAULT_ALERT_VISUALS,
+  alertKindFromEventType,
+  defaultAlertVisual,
+  isAlertEntrance,
+  isAlertKind,
+  isAlertPlacement,
+  isAlertSize,
+  isAlertTypography,
+  normalizeAlertVisual,
+  normalizeAlertVisualMap,
+  patchAlertVisual,
+  sanitizeAlertMediaUrl,
+  usesThemeAlertArt,
+  type AlertEntrance,
+  type AlertKind,
+  type AlertPlacement,
+  type AlertSize,
+  type AlertTypography,
+  type AlertVisualConfig
+} from "./alerts.js";
+export { isAlertVisualMap, type AlertVisualMap };
 export type AudioTheme =
   | "neon_pulse"
   | "arcade_8bit"
@@ -166,6 +192,9 @@ export interface OverlayConfigMessage {
   auctionTimerSeconds: number;
   hideTopBanner?: boolean;
   themeEffectsEnabled?: boolean;
+  alertVisuals?: AlertVisualMap;
+  framePreset?: "theme" | "broadcast" | "none";
+  reducedMotion?: boolean;
   timestamp: number;
 }
 
@@ -328,7 +357,10 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     typeof value.auctionTimerSeconds === "number" &&
     Number.isFinite(value.auctionTimerSeconds) &&
     (!("hideTopBanner" in value) || typeof value.hideTopBanner === "boolean") &&
-    (!("themeEffectsEnabled" in value) || typeof value.themeEffectsEnabled === "boolean")
+    (!("themeEffectsEnabled" in value) || typeof value.themeEffectsEnabled === "boolean") &&
+    (!("alertVisuals" in value) || isAlertVisualMap(value.alertVisuals)) &&
+    (!("framePreset" in value) || value.framePreset === "theme" || value.framePreset === "broadcast" || value.framePreset === "none") &&
+    (!("reducedMotion" in value) || typeof value.reducedMotion === "boolean")
   );
 }
 

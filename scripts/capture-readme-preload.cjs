@@ -3,11 +3,11 @@ const { contextBridge } = require("electron");
 const status = {
   ok: true,
   overlayUrl: "http://localhost:8741/overlay",
-  clientCount: 1,
+  clients: 1,
   salesCount: 12,
   grossSales: 486,
   bidCount: 31,
-  audienceCount: 18,
+  audienceActions: 18,
   tipTotal: 40,
   shareCount: 9,
   theme: "neon",
@@ -17,6 +17,7 @@ const status = {
   soundVolume: 0.75,
   audioTheme: "neon_pulse",
   customSounds: {},
+  audioNotice: "Ready",
   demoMode: false,
   streamTitle: "Surprise Sets Live",
   customGifUrls: [],
@@ -36,27 +37,113 @@ const status = {
   obsStatus: "Ready",
   extensionConnected: true,
   whatnotPageActive: true,
-  lastRealEventAt: Date.now() - 4000
+  lastRealEventAt: Date.now() - 4000,
+  hideTopBanner: false,
+  themeEffectsEnabled: true,
+  remoteAvailable: false,
+  remotePairingCode: "------",
+  remoteClients: 0,
+  rehearsal: {
+    state: "idle",
+    elapsedMs: 0,
+    durationMs: 0,
+    recordingActions: 0
+  },
+  rehearsals: [
+    { id: "quiet-show", name: "Quiet Show", durationMs: 14000, actionCount: 5, builtIn: true },
+    { id: "rapid-auction", name: "Rapid Auction", durationMs: 11000, actionCount: 14, builtIn: true },
+    { id: "sale-moment", name: "Full Sale Moment", durationMs: 12000, actionCount: 7, builtIn: true },
+    { id: "stress-test", name: "Stress Test", durationMs: 16000, actionCount: 34, builtIn: true }
+  ],
+  packs: [],
+  packUndoAvailable: false,
+  healthChecks: [],
+  update: { currentVersion: "0.1.0-alpha.6", status: "unknown", detail: "Not checked yet." },
+  rejectedEventCount: 0,
+  duplicateEventCount: 0,
+  alertVisuals: {
+    sale: { enabled: true, placement: "below_banner", size: "standard", durationMs: 3400, entrance: "broadcast", accent: "theme", typography: "theme" },
+    bid: { enabled: true, placement: "below_banner", size: "standard", durationMs: 1600, entrance: "broadcast", accent: "theme", typography: "theme" },
+    action: { enabled: true, placement: "below_banner", size: "standard", durationMs: 2200, entrance: "broadcast", accent: "theme", typography: "theme" },
+    tip: { enabled: true, placement: "below_banner", size: "standard", durationMs: 3200, entrance: "broadcast", accent: "theme", typography: "theme" },
+    share: { enabled: true, placement: "below_banner", size: "standard", durationMs: 2400, entrance: "broadcast", accent: "theme", typography: "theme" }
+  }
 };
 
-const api = new Proxy(
-  {},
-  {
-    get(_target, prop) {
-      if (prop === "getStatus") {
-        return async () => status;
-      }
-      if (prop === "onStatus") {
-        return (callback) => {
-          callback(status);
-        };
-      }
-      if (prop === "onEvent") {
-        return () => {};
-      }
-      return async () => status;
-    }
-  }
-);
+const invoke = async () => status;
 
-contextBridge.exposeInMainWorld("duckDesk", api);
+contextBridge.exposeInMainWorld("duckDesk", {
+  getStatus: invoke,
+  copyOverlayUrl: invoke,
+  openOverlay: invoke,
+  copyRemoteUrl: invoke,
+  openRemoteDeck: invoke,
+  rotateRemoteAccess: invoke,
+  revealExtension: invoke,
+  completeFirstRun: invoke,
+  setHideTopBanner: invoke,
+  setThemeEffectsEnabled: invoke,
+  autoAddObsOverlay: invoke,
+  sendTestSale: invoke,
+  sendTestBid: invoke,
+  sendTestAction: invoke,
+  sendTestTip: invoke,
+  sendTestShare: invoke,
+  setTheme: invoke,
+  setSkin: invoke,
+  setAddOn: invoke,
+  setSoundsEnabled: invoke,
+  setSoundVolume: invoke,
+  setAudioTheme: invoke,
+  selectCustomSound: invoke,
+  removeCustomSound: invoke,
+  setDemoMode: invoke,
+  setStreamTitle: invoke,
+  addCustomGif: invoke,
+  removeCustomGif: invoke,
+  setCustomGifLabel: invoke,
+  triggerGif: invoke,
+  setGifSettings: invoke,
+  triggerSound: invoke,
+  triggerBurst: invoke,
+  setMilestones: invoke,
+  triggerHypeMeter: invoke,
+  setHypeMeterSeconds: invoke,
+  setJumbotronCamera: invoke,
+  setPromoBanners: invoke,
+  setSceneMode: invoke,
+  setGoals: invoke,
+  setAuctionTimerSeconds: invoke,
+  triggerAuctionTimer: invoke,
+  triggerRecap: invoke,
+  setAlertVisual: invoke,
+  resetAlertVisual: invoke,
+  previewAlert: invoke,
+  startRehearsal: invoke,
+  pauseRehearsal: invoke,
+  resumeRehearsal: invoke,
+  stopRehearsal: invoke,
+  startRehearsalRecording: invoke,
+  saveRehearsalRecording: invoke,
+  renameRehearsal: invoke,
+  deleteRehearsal: invoke,
+  importPack: invoke,
+  confirmImportPack: invoke,
+  cancelImportPack: invoke,
+  applyPack: invoke,
+  exportPack: invoke,
+  exportCurrentSetup: invoke,
+  removePack: invoke,
+  undoPack: invoke,
+  restartBridge: invoke,
+  clearOverlayQueue: invoke,
+  resetAudioOutput: invoke,
+  openLogFolder: invoke,
+  checkForUpdates: invoke,
+  exportDiagnostics: invoke,
+  dismissRecoveryNotice: invoke,
+  onStatus: (callback) => {
+    callback(status);
+  },
+  onEvent: () => {}
+});

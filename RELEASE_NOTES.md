@@ -1,16 +1,17 @@
-# Duck Desk v0.1.0-alpha.5
+# Duck Desk v0.1.0-alpha.6
 
-Duck Desk alpha 5 gives sellers more control over how much of the overlay viewers see. Keep the full themed broadcast package, simplify it during quieter moments, or run notifications by themselves.
+Duck Desk alpha 6 adds the show-day tools that sit around a live overlay: a phone remote, rehearsal playback, Alert Studio, community look packs, and a production health check. Overlay alerts stay on the phone canvas, and the product camera stays clear.
 
-## New In Alpha 5
+## New In Alpha 6
 
-- Reduced the Duck Desk viewer branding so the seller's custom stream title carries more visual weight.
-- Added a **Top Banner** switch in Live Controls. It updates the preview and OBS overlay immediately and persists after restart.
-- Added a **Theme Effects** switch that removes frame borders, theme artwork, vignettes, ambient particles, sparkles, and background motion without disabling alerts, GIFs, or sounds.
-- Added a practical notification-only setup: turn off Top Banner and Theme Effects while bid, sale, tip, share, and audience alerts continue to appear.
-- Kept notification entrance motion intact when Theme Effects are off so alerts remain clear and readable.
-- Made the open-source GitHub footer permanent and removed its former hide control.
-- Refined the Live Controls grid so the new viewer controls remain wide, clear, and usable during a show.
+- Added a **Remote Show Deck** for one-handed phone control of scenes, safety buttons, sounds, GIFs, show triggers, and live totals. Pair it from the desktop Remote tab with a QR code. The OBS overlay stays on this computer; the phone deck uses your private network and a new access code each launch.
+- Added **Rehearsal** on Live → Preview and Live → Events. Play Quiet Show, Rapid Auction, Full Sale Moment, or Stress Test, record a session, then replay it. Rehearsal never pretends the Chrome extension or seller page is connected.
+- Added **Alert Studio** in Library so you can place, size, and time bid, sale, tip, share, and audience alerts without leaving Duck Desk.
+- Added community **`.duckpack`** looks. Import, apply, export, and undo from Library → Packs. Packs cannot run scripts or load files from outside the pack.
+- Added a **Production Health** check and a redacted diagnostics export. Duck Desk can also check GitHub for a newer release. It does not download or install updates by itself, and it will not interrupt a live show.
+- Kept the product camera clear: scene status and milestones sit under the LIVE header, the lot timer sits in the lower-right, and the hype meter is a thin bar under the header.
+- Made **Show Recap** opt-in from Library → Add-Ons. Recap numbers come from what actually played on the overlay, including rehearsal.
+- Kept alerts, GIFs, and recap cards inside the phone canvas instead of sliding off-screen.
 
 ## Highlights
 
@@ -20,16 +21,17 @@ Duck Desk alpha 5 gives sellers more control over how much of the overlay viewer
 - Independent controls for the top banner and theme frame effects.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
 - 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.
-- Hype bursts, goals, milestones, timers, promo banners, leaderboards, scenes, jumbotron, activity feed, and show recap.
-- Live Preflight checks for the local bridge, OBS source, Chrome extension, seller page, and real event path.
+- Alert Studio, rehearsal playback, community packs, and a phone Remote Show Deck.
+- Hype bursts, goals, milestones, timers, promo banners, leaderboards, scenes, jumbotron, activity feed, and an opt-in show recap.
+- Live Preflight and Production Health checks for the local bridge, OBS source, Chrome extension, seller page, and real event path.
 - Local automatic saving for creator preferences without saving demo data or OBS passwords.
 
 ## Download
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.5-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.5-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.6-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.6-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. Both installers are unsigned.
 
@@ -60,7 +62,7 @@ The Windows installer is not Authenticode-signed, so SmartScreen may warn on fir
 - Real bid, sale, tip, and share detection must continue to be validated during rehearsal and live shows.
 - Duck Desk should not be treated as the authoritative record for orders, payments, inventory, or buyer information.
 - The Chrome extension is loaded manually as an unpacked extension in this alpha.
-- Automatic app updates are not included yet.
+- Duck Desk can check GitHub for a newer release. It does not download or install updates by itself.
 - Duck Desk is not affiliated with or endorsed by Whatnot.
 
 See the [customer setup guide](https://github.com/ConfusedDuckCollectibles/DuckDesk#get-on-stream) for complete OBS, phone-camera, Chrome extension, testing, and troubleshooting instructions.

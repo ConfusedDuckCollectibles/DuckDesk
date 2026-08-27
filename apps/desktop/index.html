@@ -43,6 +43,7 @@
             <span id="titlebar-obs">OBS</span>
             <span id="titlebar-clients">0 clients</span>
           </div>
+          <span id="rehearsal-titlebar-badge" class="rehearsal-badge" hidden>REHEARSAL</span>
           <span id="status-pill" class="status-pill">Starting</span>
         </header>
 
@@ -51,6 +52,7 @@
             <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="live-show">Show</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-controls">Controls</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-preview">Preview</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-remote">Remote</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-events">Events</button>
           </div>
           <div class="section-tab-set" data-tabs-for="setup" role="tablist" aria-label="Setup" hidden>
@@ -61,6 +63,7 @@
             <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="library-themes">Themes</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="library-addons">Add-ons</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="library-studio">Studio</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="library-packs">Packs</button>
           </div>
         </nav>
 
@@ -159,10 +162,12 @@
 
         <section class="preflight-panel" aria-labelledby="preflight-title" data-view="setup" data-tab="setup-preflight">
           <div class="section-heading">
-            <h2 id="preflight-title"><i data-lucide="radio" aria-hidden="true"></i>Live Preflight</h2>
+            <h2 id="preflight-title"><i data-lucide="radio" aria-hidden="true"></i>Production Health</h2>
             <span id="preflight-summary">Checking</span>
           </div>
-          <div class="preflight-grid">
+          <p id="recovery-notice" class="status-error" hidden></p>
+          <p id="update-status" class="module-note">Version check has not run yet.</p>
+          <div id="health-checks" class="preflight-grid">
             <div id="preflight-bridge" class="preflight-check">
               <span>Local Bridge</span>
               <strong>Checking</strong>
@@ -180,6 +185,15 @@
               <strong>No events yet</strong>
             </div>
           </div>
+          <div class="health-actions">
+            <button id="restart-bridge" type="button">Restart Local Bridge</button>
+            <button id="clear-overlay-queue" type="button">Clear Overlay Queue</button>
+            <button id="reset-audio-output" type="button">Reset Audio Output</button>
+            <button id="open-log-folder" type="button">Open Log Folder</button>
+            <button id="check-for-updates" type="button">Check for Updates</button>
+            <button id="export-diagnostics" type="button" class="module-command">Export Diagnostics</button>
+          </div>
+          <p class="module-note">Diagnostics never include buyer names, event text, pairing tokens, OBS passwords, or custom audio files. This build is not claimed as signed or notarized.</p>
         </section>
 
         <section class="preview-panel is-tab-hidden" data-view="live" data-tab="live-preview">
@@ -195,12 +209,40 @@
           </div>
           <div class="preview-stage">
             <div class="phone-frame" aria-label="Overlay preview">
-              <iframe src="http://localhost:8741/overlay?audio=off" title="Duck Desk overlay preview"></iframe>
+              <iframe src="http://localhost:8741/overlay?audio=off&guides=1" title="Duck Desk overlay preview"></iframe>
             </div>
             <div class="preview-notes">
               <strong>1080 x 1920</strong>
               <span>OBS Browser Source</span>
               <p>Use this preview to check theme, banner, jumbotron, GIF, and alert placement before you go live.</p>
+              <section class="preview-rehearsal" aria-label="Rehearsal controls">
+                <div class="preview-demo-title">
+                  <div>
+                    <small>Rehearsal</small>
+                    <strong>Play a scenario on this canvas</strong>
+                  </div>
+                  <span class="rehearsal-state-badge" data-mirror="rehearsal-state-badge">Idle</span>
+                </div>
+                <p class="module-note">Same scenarios as Events. Rehearsal never marks the extension as live.</p>
+                <p class="status-error" data-mirror="rehearsal-notice" hidden></p>
+                <div class="rehearsal-progress" aria-live="polite">
+                  <div class="rehearsal-progress-track">
+                    <div class="rehearsal-progress-fill" data-mirror="rehearsal-progress-fill"></div>
+                  </div>
+                  <p class="rehearsal-progress-copy" data-mirror="rehearsal-progress-copy">Choose a scenario to start.</p>
+                </div>
+                <div class="rehearsal-transport">
+                  <button type="button" data-rehearsal-command="pause">Pause</button>
+                  <button type="button" data-rehearsal-command="resume">Resume</button>
+                  <button type="button" data-rehearsal-command="stop">Stop</button>
+                  <button type="button" data-rehearsal-command="record">Record Session</button>
+                </div>
+                <div class="rehearsal-record-row">
+                  <input type="text" maxlength="60" placeholder="Recorded rehearsal name" data-mirror="rehearsal-recording-name" />
+                  <button type="button" data-rehearsal-command="save">Save Recording</button>
+                </div>
+                <div class="rehearsal-timelines" data-mirror="rehearsal-timelines"></div>
+              </section>
               <section id="preview-demo-panel" class="preview-demo-panel" aria-label="Demo event controls" hidden>
                 <div class="preview-demo-title">
                   <div>
@@ -559,7 +601,7 @@
               <div>
                 <span class="addon-type">Scene</span>
                 <h3>Scene Switcher</h3>
-                <p>Run starting, auction, break, winner, and ending screen states from the Duck Desk app.</p>
+                <p>Compact status under the LIVE header: starting, auction, break, winner, and ending. It stays off the product.</p>
               </div>
               <button class="addon-action" type="button">Add</button>
             </article>
@@ -591,7 +633,7 @@
               <div>
                 <span class="addon-type">Credits</span>
                 <h3>Show Recap</h3>
-                <p>Flash a credits-style session summary with orders, gross, bids, audience, and top buyer.</p>
+                <p>Optional credits card with sold, orders, bids, tips, and top buyer. Off until you add it.</p>
               </div>
               <button class="addon-action" type="button">Add</button>
             </article>
@@ -611,6 +653,84 @@
             <h2><i data-lucide="sliders-horizontal" aria-hidden="true"></i>Active Add-Ons</h2>
             <span id="active-addons-status">None Loaded</span>
           </div>
+          <article class="alert-studio" aria-labelledby="alert-studio-title">
+            <div class="module-header">
+              <span>Visual</span>
+              <h3 id="alert-studio-title">Alert Studio</h3>
+            </div>
+            <p class="module-note">Each event has its own look. Sound still lives in Audio Studio. Defaults match the current overlay until you edit them.</p>
+            <div class="alert-kind-tabs" role="tablist" aria-label="Alert event">
+              <button type="button" class="is-active" data-alert-kind="sale" role="tab" aria-selected="true">Sale</button>
+              <button type="button" data-alert-kind="bid" role="tab" aria-selected="false">Bid</button>
+              <button type="button" data-alert-kind="action" role="tab" aria-selected="false">Audience</button>
+              <button type="button" data-alert-kind="tip" role="tab" aria-selected="false">Tip</button>
+              <button type="button" data-alert-kind="share" role="tab" aria-selected="false">Share</button>
+            </div>
+            <div class="alert-studio-grid">
+              <label class="alert-toggle">
+                <input id="alert-enabled" type="checkbox" checked />
+                <span>Enabled</span>
+              </label>
+              <label>
+                Position
+                <select id="alert-placement">
+                  <option value="below_banner">Below banner</option>
+                  <option value="upper">Upper</option>
+                  <option value="center">Center</option>
+                  <option value="lower">Lower</option>
+                </select>
+              </label>
+              <label>
+                Size
+                <select id="alert-size">
+                  <option value="compact">Compact</option>
+                  <option value="standard">Standard</option>
+                  <option value="large">Large</option>
+                </select>
+              </label>
+              <label>
+                Duration (ms)
+                <input id="alert-duration" type="number" min="800" max="8000" step="100" value="3400" />
+              </label>
+              <label>
+                Entrance
+                <select id="alert-entrance">
+                  <option value="rise">Rise</option>
+                  <option value="slide">Slide</option>
+                  <option value="pop">Pop</option>
+                  <option value="broadcast">Broadcast</option>
+                  <option value="none">None</option>
+                </select>
+              </label>
+              <label>
+                Typography
+                <select id="alert-typography">
+                  <option value="theme">Theme</option>
+                  <option value="modern">Modern</option>
+                  <option value="condensed">Condensed</option>
+                  <option value="editorial">Editorial</option>
+                </select>
+              </label>
+              <label>
+                Accent
+                <input id="alert-accent" type="color" value="#70d8d2" />
+              </label>
+              <label class="alert-toggle">
+                <input id="alert-accent-theme" type="checkbox" checked />
+                <span>Use theme color</span>
+              </label>
+              <label>
+                Media
+                <select id="alert-media">
+                  <option value="">No extra media</option>
+                </select>
+              </label>
+            </div>
+            <div class="alert-studio-actions">
+              <button id="preview-alert" type="button" class="module-command">Preview This Alert</button>
+              <button id="reset-alert" type="button">Reset Event</button>
+            </div>
+          </article>
           <div id="active-addons-empty" class="empty-addons">
             Add something from the Library to load controls here and onto the OBS overlay.
           </div>
@@ -868,7 +988,7 @@ orders|10|Order Goal</textarea>
                 <span>Timer</span>
                 <strong>Auction Timer</strong>
               </div>
-              <p class="module-note">Use for final calls, sudden-death bids, or pacing lots.</p>
+              <p class="module-note">A corner countdown for lots or sudden-death bids. It never sits on the product.</p>
               <div class="title-row">
                 <input id="auction-timer-seconds" type="number" min="5" max="900" value="45" />
                 <button id="save-auction-timer" type="button">Set</button>
@@ -881,19 +1001,115 @@ orders|10|Order Goal</textarea>
                 <span>Credits</span>
                 <strong>Show Recap</strong>
               </div>
-              <p class="module-note">Trigger a viewer-facing recap of the current Duck Desk session stats.</p>
+              <p class="module-note">Off until you add it from Library. Then trigger a viewer-facing recap of sold, orders, bids, tips, and top buyer.</p>
               <button id="trigger-recap" type="button" class="module-command">Show Recap</button>
             </article>
           </div>
         </section>
 
+        <section class="library-panel packs-panel is-tab-hidden" data-view="library" data-tab="library-packs">
+          <div class="section-heading">
+            <h2><i data-lucide="package" aria-hidden="true"></i>Community Packs</h2>
+            <span id="packs-status">0 Installed</span>
+          </div>
+          <p class="module-note">Import a data-only `.duckpack` look. Packs cannot run JavaScript, load CSS, or ship HTML.</p>
+          <p id="pack-notice" class="status-error" hidden></p>
+          <div class="pack-toolbar">
+            <button id="import-pack" type="button" class="module-command">Import Pack</button>
+            <button id="export-current-setup" type="button">Export Current Setup</button>
+            <button id="undo-pack" type="button" hidden>Undo Apply</button>
+          </div>
+          <article id="pack-review" class="pack-review" hidden>
+            <div class="module-header">
+              <span>Review</span>
+              <h3 id="pack-review-title">Install this pack?</h3>
+            </div>
+            <p id="pack-review-meta" class="module-note"></p>
+            <img id="pack-review-preview" alt="" hidden />
+            <ul id="pack-review-changes"></ul>
+            <div class="pack-review-actions">
+              <button id="confirm-import-pack" type="button" class="module-command">Install Pack</button>
+              <button id="cancel-import-pack" type="button">Cancel</button>
+            </div>
+          </article>
+          <div id="pack-empty" class="empty-addons">No packs installed yet. Import a `.duckpack` file or folder to get started.</div>
+          <div id="pack-grid" class="library-grid pack-grid"></div>
+        </section>
+
         <section class="log-panel is-tab-hidden" data-view="live" data-tab="live-events">
+          <div class="section-heading">
+            <h2><i data-lucide="play" aria-hidden="true"></i>Rehearsal</h2>
+            <span id="rehearsal-state-badge" class="rehearsal-state-badge">Idle</span>
+          </div>
+          <p class="module-note">Play a built-in scenario or record a session. Rehearsal never marks the extension as live and never updates real-event health.</p>
+          <p id="rehearsal-notice" class="status-error" hidden></p>
+          <div class="rehearsal-progress" aria-live="polite">
+            <div class="rehearsal-progress-track">
+              <div id="rehearsal-progress-fill" class="rehearsal-progress-fill"></div>
+            </div>
+            <p id="rehearsal-progress-copy" class="rehearsal-progress-copy">Choose a scenario to start.</p>
+          </div>
+          <div class="rehearsal-transport">
+            <button id="pause-rehearsal" type="button" data-rehearsal-command="pause">Pause</button>
+            <button id="resume-rehearsal" type="button" data-rehearsal-command="resume">Resume</button>
+            <button id="stop-rehearsal" type="button" data-rehearsal-command="stop">Stop</button>
+            <button id="start-rehearsal-recording" type="button" data-rehearsal-command="record">Record Session</button>
+          </div>
+          <div class="rehearsal-record-row">
+            <input id="rehearsal-recording-name" type="text" maxlength="60" placeholder="Recorded rehearsal name" />
+            <button id="save-rehearsal-recording" type="button" data-rehearsal-command="save">Save Recording</button>
+          </div>
+          <div id="rehearsal-timelines" class="rehearsal-timelines"></div>
           <div class="section-heading">
             <h2><i data-lucide="activity" aria-hidden="true"></i>Recent Events</h2>
             <span>Realtime</span>
           </div>
           <p id="event-log-empty" class="empty-log">Events appear when the Chrome extension sees Whatnot activity.</p>
           <ol id="event-log" aria-live="polite"></ol>
+        </section>
+
+        <section class="remote-panel is-tab-hidden" data-view="live" data-tab="live-remote" aria-labelledby="remote-title">
+          <div class="section-heading">
+            <h2 id="remote-title"><i data-lucide="smartphone" aria-hidden="true"></i>Remote Show Deck</h2>
+            <span id="remote-connection-badge">Waiting</span>
+          </div>
+          <div class="remote-layout">
+            <div class="remote-qr-card">
+              <div class="remote-qr-frame">
+                <img id="remote-qr" alt="QR code for the local Duck Desk Remote Show Deck" hidden />
+                <div id="remote-qr-unavailable" class="remote-qr-unavailable">Connect this Mac to Wi-Fi or Ethernet to create a local remote link.</div>
+              </div>
+              <div class="remote-code">
+                <span>Session code</span>
+                <strong id="remote-pairing-code">------</strong>
+              </div>
+            </div>
+            <div class="remote-setup">
+              <p class="eyebrow">One-handed show control</p>
+              <h3>Run Duck Desk from your phone</h3>
+              <p>Keep the phone and Mac on the same private Wi-Fi network, then scan the code. The link changes whenever Duck Desk restarts.</p>
+              <label for="remote-url">Private local link</label>
+              <div class="url-row">
+                <input id="remote-url" readonly placeholder="Waiting for a local network" />
+                <button id="copy-remote-url" type="button">Copy</button>
+              </div>
+              <div class="remote-actions">
+                <button id="open-remote-deck" class="primary" type="button">
+                  <i data-lucide="external-link" aria-hidden="true"></i>
+                  Open Deck
+                </button>
+                <button id="rotate-remote-access" type="button">
+                  <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                  Rotate Code
+                </button>
+              </div>
+              <div class="remote-health" aria-live="polite">
+                <div><span>Remote devices</span><strong id="remote-client-count">0 connected</strong></div>
+                <div><span>Last activity</span><strong id="remote-last-seen">None yet</strong></div>
+              </div>
+              <p class="remote-security-note">Access is local to your network and protected by the full QR link. Rotate the code immediately if it is shared by mistake.</p>
+            </div>
+          </div>
         </section>
       </section>
     </main>

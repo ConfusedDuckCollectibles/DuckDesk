@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import type { ShowEvent } from "@duck-desk/shared";
+import type { AlertVisualConfig, ShowEvent } from "@duck-desk/shared";
+import { usesThemeAlertArt } from "@duck-desk/shared";
 
 const props = defineProps<{
   event: ShowEvent;
+  visual: AlertVisualConfig;
 }>();
 
 const dollars = new Intl.NumberFormat("en-US", {
@@ -118,10 +120,29 @@ function eventCode(): string {
 
   return codes[props.event.type];
 }
+
+function cardClass(): string[] {
+  const visual = props.visual;
+  return [
+    `event-${props.event.type}`,
+    `alert-place-${visual.placement}`,
+    `alert-size-${visual.size}`,
+    `alert-type-${visual.typography}`,
+    usesThemeAlertArt(visual) ? "" : "alert-custom-art",
+    visual.accent && visual.accent !== "theme" ? "alert-custom-accent" : ""
+  ].filter(Boolean);
+}
+
+function accentStyle(): Record<string, string> | undefined {
+  if (!props.visual.accent || props.visual.accent === "theme") {
+    return undefined;
+  }
+  return { "--alert-accent": props.visual.accent };
+}
 </script>
 
 <template>
-  <section class="event-card" :class="`event-${event.type}`">
+  <section class="event-card" :class="cardClass()" :style="accentStyle()">
     <svg class="event-theme-art" viewBox="0 0 1016 140" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id="event-fire-gradient" x1="0" y1="1" x2="0" y2="0">
@@ -185,5 +206,6 @@ function eventCode(): string {
       <strong>{{ amount() }}</strong>
     </div>
     <span class="event-sweep" aria-hidden="true" />
+    <img v-if="visual.mediaUrl" class="event-alert-media" :src="visual.mediaUrl" alt="" />
   </section>
 </template>
