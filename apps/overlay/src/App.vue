@@ -62,7 +62,7 @@ const promoBanners = ref<string[]>([]);
 const sceneMode = ref<SceneMode>("none");
 const goals = ref<GoalConfig[]>([]);
 const auctionTimerSeconds = ref(45);
-const hideFooter = ref(false);
+const hideTopBanner = ref(false);
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
 const hypeMeter = ref<{ startedAt: number; durationSeconds: number; participants: Set<string> } | null>(null);
@@ -289,7 +289,7 @@ function connect(): void {
       sceneMode.value = parsed.sceneMode;
       goals.value = parsed.goals;
       auctionTimerSeconds.value = parsed.auctionTimerSeconds;
-      hideFooter.value = parsed.hideFooter === true;
+      hideTopBanner.value = parsed.hideTopBanner === true;
       if (!soundsEnabled.value || soundVolume.value === 0) {
         stopAudioPlayback();
       } else if (activeAudioPlayer) {
@@ -766,8 +766,7 @@ onMounted(() => {
       `skin-${skin}`,
       {
         'skin-premium': premiumSkinActive,
-        'is-alert-active': Boolean(activeEvent),
-        'is-production': hideFooter
+        'is-alert-active': Boolean(activeEvent)
       },
       activeAddOns.map((addOn) => `addon-${addOn}`)
     ]"
@@ -839,7 +838,7 @@ onMounted(() => {
       <span />
     </div>
     <div class="top-stack">
-      <section class="show-hud">
+      <section v-if="!hideTopBanner" class="show-hud">
         <div class="hud-chrome" aria-hidden="true">
           <span />
           <span />
@@ -1007,7 +1006,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <footer v-if="!hideFooter" class="open-source-banner">
+    <footer class="open-source-banner">
       <span>Get the free open source Duck Desk at</span>
       <strong>https://github.com/ConfusedDuckCollectibles/DuckDesk</strong>
     </footer>

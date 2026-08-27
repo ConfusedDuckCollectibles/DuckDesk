@@ -617,22 +617,6 @@ label {
   text-transform: none;
 }
 
-.footer-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  text-transform: none;
-  cursor: pointer;
-}
-
-.footer-toggle input {
-  width: 16px;
-  height: 16px;
-}
-
 .actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -737,6 +721,18 @@ textarea {
 
 .actions .primary {
   grid-column: span 2;
+}
+
+.top-banner-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.top-banner-toggle svg {
+  width: 17px;
+  height: 17px;
 }
 
 #send-tip,

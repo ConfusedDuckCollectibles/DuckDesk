@@ -127,10 +127,6 @@
               <input id="stream-title" maxlength="88" placeholder="Surprise Sets with Confused Duck Collectibles" />
               <button id="save-title" type="button">Apply</button>
             </div>
-            <label class="footer-toggle">
-              <input id="hide-footer" type="checkbox" />
-              Hide the GitHub footer on stream
-            </label>
           </section>
 
           <section class="actions is-tab-hidden" aria-labelledby="live-controls-title" data-view="live" data-tab="live-controls">
@@ -140,6 +136,10 @@
             </div>
             <button id="open-overlay" type="button">Overlay Preview</button>
             <button id="reveal-extension" type="button">Chrome Extension</button>
+            <button id="top-banner-toggle" class="top-banner-toggle is-on" type="button" aria-pressed="true">
+              <i data-lucide="panel-top" aria-hidden="true"></i>
+              <span id="top-banner-toggle-label">Top Banner On</span>
+            </button>
             <button class="sound-toggle is-on" data-sound-toggle data-live-sound type="button" aria-pressed="true">Event Sound On</button>
             <button id="demo-toggle" type="button" aria-pressed="false">Demo Mode Off</button>
             <button id="send-test" class="primary" type="button">Test Sale</button>

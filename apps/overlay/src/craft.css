@@ -179,7 +179,7 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  column-gap: calc(21 * var(--u));
+  column-gap: calc(14 * var(--u));
 }
 
 /* --------------------------------------------------------------------------
@@ -190,10 +190,10 @@
    -------------------------------------------------------------------------- */
 
 .overlay-shell .brand-index {
-  width: calc(76 * var(--u));
-  min-width: calc(76 * var(--u));
-  max-width: calc(76 * var(--u));
-  height: calc(76 * var(--u));
+  width: calc(54 * var(--u));
+  min-width: calc(54 * var(--u));
+  max-width: calc(54 * var(--u));
+  height: calc(54 * var(--u));
   padding: 0;
   box-sizing: border-box;
   display: grid;
@@ -242,8 +242,8 @@
 }
 
 .overlay-shell .brand-index svg {
-  width: calc(42 * var(--u));
-  height: calc(42 * var(--u));
+  width: calc(31 * var(--u));
+  height: calc(31 * var(--u));
 }
 
 .overlay-shell .brand-index::before,
@@ -254,7 +254,7 @@
 .overlay-shell .brand-stack {
   min-width: 0;
   display: grid;
-  gap: calc(3 * var(--u));
+  gap: calc(5 * var(--u));
 }
 
 .overlay-shell .hud-brand strong {
@@ -262,13 +262,11 @@
   overflow: hidden;
   color: var(--ink-1);
   font-family: var(--theme-font, var(--face-display)), var(--face-display);
-  font-size: calc(62 * var(--u));
-  font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: -0.005em;
-  /* Condensed display faces carry a wide space relative to their narrow
-     letters, which opened a visible hole in the middle of the show title. */
-  word-spacing: -0.07em;
+  font-size: calc(20 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  word-spacing: 0;
   white-space: nowrap;
   text-overflow: ellipsis;
   text-shadow: 0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.6),
@@ -281,7 +279,7 @@
   overflow: hidden;
   color: var(--ink-2);
   font-family: var(--face-text);
-  font-size: calc(23 * var(--u));
+  font-size: calc(28 * var(--u));
   font-style: normal;
   font-weight: 600;
   line-height: 1.2;
@@ -2337,10 +2335,6 @@
   backdrop-filter: none;
 }
 
-.overlay-shell.is-production .open-source-banner {
-  display: none;
-}
-
 .overlay-shell .jumbotron-stage {
   top: calc(430 * var(--u));
   left: calc(48 * var(--u));
@@ -2480,5 +2474,3 @@
   from { opacity: 0.35; transform: rotate(-8deg); }
   to { opacity: 0.7; transform: rotate(8deg); }
 }
-
-

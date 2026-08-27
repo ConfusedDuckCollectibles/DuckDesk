@@ -92,7 +92,7 @@ let goals: GoalConfig[] = [
   { kind: "orders", target: 10, label: "Order Goal" }
 ];
 let auctionTimerSeconds = 45;
-let hideFooter = false;
+let hideTopBanner = false;
 let firstRunComplete = false;
 const showReadyAddOns: AddOnId[] = ["stream_skins", "noise_machines", "bid_ladder", "activity_feed"];
 let obsStatus = "Not connected";
@@ -136,7 +136,7 @@ type PersistedSettings = {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
-  hideFooter: boolean;
+  hideTopBanner: boolean;
   firstRunComplete: boolean;
 };
 
@@ -376,11 +376,11 @@ function registerIpc(): void {
     return getStatus();
   });
 
-  ipcMain.handle("duck-desk:set-hide-footer", (_event, hidden: unknown) => {
+  ipcMain.handle("duck-desk:set-hide-top-banner", (_event, hidden: unknown) => {
     if (typeof hidden !== "boolean") {
       return getStatus();
     }
-    hideFooter = hidden;
+    hideTopBanner = hidden;
     broadcast(createOverlayConfig());
     broadcastStatus();
     return getStatus();
@@ -1074,12 +1074,13 @@ function applyConfigPatch(input: unknown): void {
     auctionTimerSeconds = Math.max(5, Math.min(900, Math.round(input.auctionTimerSeconds)));
   }
 
-  if ("hideFooter" in input) {
-    if (typeof input.hideFooter !== "boolean") {
-      throw new Error("Invalid footer setting.");
+  if ("hideTopBanner" in input) {
+    if (typeof input.hideTopBanner !== "boolean") {
+      throw new Error("Invalid top banner setting.");
     }
-    hideFooter = input.hideFooter;
+    hideTopBanner = input.hideTopBanner;
   }
+
 }
 
 function checkMilestones(): void {
@@ -1283,8 +1284,8 @@ function loadSettings(): void {
     } else {
       firstRunComplete = true;
     }
-    if (typeof parsed.hideFooter === "boolean") {
-      hideFooter = parsed.hideFooter;
+    if (typeof parsed.hideTopBanner === "boolean") {
+      hideTopBanner = parsed.hideTopBanner;
     }
     log(`loaded creator settings version ${readNumber(parsed, "version") ?? 1}`);
   } catch (error) {
@@ -1336,7 +1337,7 @@ function saveSettings(): void {
     sceneMode,
     goals,
     auctionTimerSeconds,
-    hideFooter,
+    hideTopBanner,
     firstRunComplete
   };
 
@@ -1597,7 +1598,7 @@ function getStatus(): {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
-  hideFooter: boolean;
+  hideTopBanner: boolean;
   firstRunComplete: boolean;
   platform: NodeJS.Platform;
   obsStatus: string;
@@ -1643,7 +1644,7 @@ function getStatus(): {
     sceneMode,
     goals,
     auctionTimerSeconds,
-    hideFooter,
+    hideTopBanner,
     firstRunComplete,
     platform: process.platform,
     obsStatus,
@@ -1674,7 +1675,7 @@ function createOverlayConfig(): {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
-  hideFooter: boolean;
+  hideTopBanner: boolean;
   timestamp: number;
 } {
   return {
@@ -1697,7 +1698,7 @@ function createOverlayConfig(): {
     sceneMode,
     goals,
     auctionTimerSeconds,
-    hideFooter,
+    hideTopBanner,
     timestamp: Date.now()
   };
 }

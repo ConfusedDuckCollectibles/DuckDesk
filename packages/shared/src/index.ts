@@ -164,7 +164,7 @@ export interface OverlayConfigMessage {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
-  hideFooter?: boolean;
+  hideTopBanner?: boolean;
   timestamp: number;
 }
 
@@ -326,7 +326,7 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     value.goals.every(isGoalConfig) &&
     typeof value.auctionTimerSeconds === "number" &&
     Number.isFinite(value.auctionTimerSeconds) &&
-    (!("hideFooter" in value) || typeof value.hideFooter === "boolean")
+    (!("hideTopBanner" in value) || typeof value.hideTopBanner === "boolean")
   );
 }
 

@@ -11,6 +11,7 @@ import {
   LibraryBig,
   MonitorPlay,
   Palette,
+  PanelTop,
   Play,
   PlugZap,
   Radio,
@@ -55,7 +56,7 @@ type DesktopStatus = {
   sceneMode: SceneMode;
   goals: GoalConfig[];
   auctionTimerSeconds: number;
-  hideFooter: boolean;
+  hideTopBanner: boolean;
   firstRunComplete: boolean;
   platform: string;
   obsStatus: string;
@@ -172,7 +173,7 @@ type DesktopApi = {
   openOverlay: () => Promise<void>;
   revealExtension: () => Promise<void>;
   completeFirstRun: () => Promise<DesktopStatus>;
-  setHideFooter: (hidden: boolean) => Promise<DesktopStatus>;
+  setHideTopBanner: (hidden: boolean) => Promise<DesktopStatus>;
   autoAddObsOverlay: (password?: string) => Promise<DesktopStatus>;
   sendTestSale: () => Promise<void>;
   sendTestBid: () => Promise<void>;
@@ -261,7 +262,8 @@ const titlebarBridge = readElement<HTMLElement>("titlebar-bridge");
 const titlebarObs = readElement<HTMLElement>("titlebar-obs");
 const titlebarClients = readElement<HTMLElement>("titlebar-clients");
 const eventLogEmpty = readElement<HTMLElement>("event-log-empty");
-const hideFooter = readElement<HTMLInputElement>("hide-footer");
+const topBannerToggle = readElement<HTMLButtonElement>("top-banner-toggle");
+const topBannerToggleLabel = readElement<HTMLElement>("top-banner-toggle-label");
 const firstRun = readElement<HTMLElement>("first-run");
 const firstRunObs = readElement<HTMLButtonElement>("first-run-obs");
 const firstRunExtension = readElement<HTMLButtonElement>("first-run-extension");
@@ -370,6 +372,7 @@ createIcons({
     LibraryBig,
     MonitorPlay,
     Palette,
+    PanelTop,
     Play,
     PlugZap,
     Radio,
@@ -443,8 +446,8 @@ for (const button of tabButtons) {
   });
 }
 
-hideFooter.addEventListener("change", async () => {
-  renderStatus(await window.duckDesk.setHideFooter(hideFooter.checked));
+topBannerToggle.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setHideTopBanner(!(currentStatus?.hideTopBanner ?? false)));
 });
 
 firstRunObs.addEventListener("click", async () => {
@@ -738,7 +741,13 @@ function renderStatus(status: DesktopStatus): void {
   statusError.hidden = !status.lastError;
   statusError.textContent = status.lastError ?? "";
   firstRun.hidden = status.firstRunComplete;
-  hideFooter.checked = status.hideFooter;
+  const topBannerVisible = !status.hideTopBanner;
+  topBannerToggleLabel.textContent = `Top Banner ${topBannerVisible ? "On" : "Off"}`;
+  topBannerToggle.classList.toggle("is-on", topBannerVisible);
+  topBannerToggle.setAttribute("aria-pressed", String(topBannerVisible));
+  topBannerToggle.title = topBannerVisible
+    ? "Hide the top banner from viewers"
+    : "Show the top banner to viewers";
   if (liveSoundToggle) {
     liveSoundToggle.hidden = status.addOns.includes("noise_machines");
   }
