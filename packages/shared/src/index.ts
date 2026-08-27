@@ -99,6 +99,16 @@ export type OverlaySkin =
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
+export {
+  AUDIO_PLAYBACK_POLICY,
+  AudioPlaybackScheduler,
+  bundledAudioFileName,
+  isAudioPlaybackEnabled,
+  normalizeAudioVolume,
+  selectAudioCueSource,
+  type AudioPlaybackDecision,
+  type AudioPlaybackKind
+} from "./audio.js";
 export type AudioTheme =
   | "neon_pulse"
   | "arcade_8bit"

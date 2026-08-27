@@ -19,6 +19,9 @@ import {
 } from "electron";
 import { WebSocket, WebSocketServer } from "ws";
 import {
+  AudioPlaybackScheduler,
+  normalizeAudioVolume,
+  selectAudioCueSource,
   isAddOnId,
   isAudioTheme,
   isGifPlacement,
@@ -71,6 +74,8 @@ let customSounds: Partial<Record<SoundKind, CustomSoundSelection>> = {};
 let audioNotice = "Ready";
 let audioRevision = 0;
 let nativeSoundPlayer: ChildProcess | null = null;
+const nativeAudioScheduler = new AudioPlaybackScheduler();
+const nativeSoundTimers = new Set<ReturnType<typeof setTimeout>>();
 let demoMode = false;
 let streamTitle = "";
 let customGifs: CustomGif[] = [];
@@ -522,7 +527,7 @@ function registerIpc(): void {
       return getStatus();
     }
 
-    soundVolume = Math.max(0, Math.min(1, volume));
+    soundVolume = normalizeAudioVolume(volume);
     stopNativeSound();
     audioNotice = `Effects volume ${Math.round(soundVolume * 100)}%`;
     broadcast(createOverlayConfig());
@@ -744,8 +749,9 @@ function registerIpc(): void {
 
     activeAddOns.add("noise_machines");
     if (soundsEnabled) {
-      playSoundKind(kind);
-      broadcast(createOverlaySoundTrigger(kind));
+      const trigger = createOverlaySoundTrigger(kind);
+      playSoundKind(kind, trigger.timestamp);
+      broadcast(trigger);
     }
     broadcast(createOverlayConfig());
     broadcastStatus();
@@ -1095,17 +1101,47 @@ function playEventSound(event: ShowEvent): void {
     return;
   }
 
-  playSoundKind(event.type === "audience_action" ? "action" : event.type);
+  playSoundKind(event.type === "audience_action" ? "action" : event.type, event.timestamp);
 }
 
-function playSoundKind(kind: SoundKind): void {
+function playSoundKind(kind: SoundKind, eventKey: string | number = Date.now()): void {
+  const now = Date.now();
+  const decision = nativeAudioScheduler.request(kind, now, eventKey);
+  if (decision.action === "drop") {
+    return;
+  }
+
+  if (decision.action === "queue") {
+    const timer = setTimeout(() => {
+      nativeSoundTimers.delete(timer);
+      if (soundsEnabled && soundVolume > 0) {
+        startNativeSound(kind, decision.variant, true);
+      }
+    }, decision.delayMs);
+    nativeSoundTimers.add(timer);
+    return;
+  }
+
+  startNativeSound(kind, decision.variant, decision.interrupt);
+}
+
+function startNativeSound(kind: SoundKind, variant: number, interrupt: boolean): void {
   const selection = customSounds[kind];
-  const soundPath = selection
-    ? resolveCustomSoundPath(selection)
-    : path.join(resolveOverlayPath(), "audio", audioTheme, `${kind}.wav`);
+  const customPath = selection ? resolveCustomSoundPath(selection) : undefined;
+  const selectedSource = selectAudioCueSource(kind, variant, customPath);
+  const soundPath = customPath
+    ? selectedSource
+    : path.join(resolveOverlayPath(), "audio", audioTheme, selectedSource);
+
+  if (!fs.existsSync(soundPath) || !fs.statSync(soundPath).isFile()) {
+    reportAudioPlaybackError(`Missing ${soundKindName(kind)} sound for ${audioThemeName(audioTheme)}`);
+    return;
+  }
 
   try {
-    stopNativeSound();
+    if (interrupt) {
+      stopNativePlayer();
+    }
     const player = process.platform === "win32"
       ? spawnWindowsSoundPlayer(soundPath, soundVolume)
       : spawn("/usr/bin/afplay", ["-v", String(soundVolume), soundPath], {
@@ -1113,6 +1149,7 @@ function playSoundKind(kind: SoundKind): void {
           stdio: "ignore"
         });
     nativeSoundPlayer = player;
+    player.once("error", (error) => reportAudioPlaybackError(`Could not play ${soundKindName(kind)}: ${error.message}`));
     player.once("exit", () => {
       if (nativeSoundPlayer === player) {
         nativeSoundPlayer = null;
@@ -1120,15 +1157,31 @@ function playSoundKind(kind: SoundKind): void {
     });
     player.unref();
   } catch (error) {
-    log(`unable to play sound: ${error instanceof Error ? error.message : String(error)}`);
+    reportAudioPlaybackError(`Could not play ${soundKindName(kind)}: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 function stopNativeSound(): void {
+  for (const timer of nativeSoundTimers) {
+    clearTimeout(timer);
+  }
+  nativeSoundTimers.clear();
+  nativeAudioScheduler.reset();
+  stopNativePlayer();
+}
+
+function stopNativePlayer(): void {
   if (nativeSoundPlayer && !nativeSoundPlayer.killed) {
     nativeSoundPlayer.kill();
   }
   nativeSoundPlayer = null;
+}
+
+function reportAudioPlaybackError(message: string): void {
+  log(`audio playback error: ${message}`);
+  audioNotice = message;
+  audioRevision += 1;
+  broadcastStatus();
 }
 
 function broadcast(

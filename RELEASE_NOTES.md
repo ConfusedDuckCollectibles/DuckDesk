@@ -5,14 +5,16 @@ better-balanced cues designed for long live shows.
 
 ## New In Alpha 3
 
-- Rebuilt all 50 bid, sale, tip, share, and audience-action cues across the 10 sound themes.
+- Rebuilt all 90 bid, sale, tip, share, and audience-action cues across the 10 sound themes.
+- Added three deterministic bid variants and three audience-action variants per theme.
 - Replaced pitch-shifted synthesizer variations with individually layered digital, broadcast, glass, tabletop, mechanical, crowd, weather, and organic recordings.
 - Redesigned Thunder Strike with distant thunder, filtered wind, and restrained accents instead of the previous harsh synthetic crack.
 - Gave every sound theme a distinct identity while keeping each event recognizable during a busy show.
 - Shortened bid cues and allowed sales and tips slightly more room without drowning out the seller.
 - Trimmed dead air from source-pack effects so alerts react promptly.
 - Applied consistent loudness targets, gentle peak control, and quieter mastering for Storm and Soft Focus.
-- Added a deterministic audio build pipeline so all 50 mastered WAV files can be reproduced from a clean checkout.
+- Added a deterministic 48 kHz stereo audio pipeline so all 90 mastered WAV files can be reproduced from a clean checkout.
+- Added cooldowns and protected playback so rapid bids stay restrained while tips and sales are never discarded.
 - Added curated CC0 source recordings, original pack licenses, and detailed third-party audio credits.
 - Kept custom per-event sound files, the master effects-volume control, and immediate mute behavior unchanged.
 

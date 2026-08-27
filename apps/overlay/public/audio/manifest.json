@@ -1,0 +1,980 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-26",
+  "format": {
+    "sampleRate": 48000,
+    "bitDepth": 16,
+    "channels": 2,
+    "codec": "PCM"
+  },
+  "playback": {
+    "cooldownMs": {
+      "bid": 250,
+      "action": 600,
+      "share": 1000,
+      "tip": 0,
+      "sale": 0
+    },
+    "priority": [
+      "sale",
+      "tip",
+      "share",
+      "bid",
+      "action"
+    ],
+    "protectedKinds": [
+      "sale",
+      "tip"
+    ],
+    "variants": {
+      "bid": 3,
+      "action": 3,
+      "share": 1,
+      "tip": 1,
+      "sale": 1
+    }
+  },
+  "targets": {
+    "bid": {
+      "targetLufs": -25,
+      "durations": [
+        0.13,
+        0.15,
+        0.17
+      ],
+      "width": 0.12
+    },
+    "action": {
+      "targetLufs": -27,
+      "durations": [
+        0.18,
+        0.21,
+        0.24
+      ],
+      "width": 0.16
+    },
+    "share": {
+      "targetLufs": -24,
+      "durations": [
+        0.36
+      ],
+      "width": 0.34
+    },
+    "tip": {
+      "targetLufs": -22,
+      "durations": [
+        0.58
+      ],
+      "width": 0.52
+    },
+    "sale": {
+      "targetLufs": -20,
+      "durations": [
+        0.84
+      ],
+      "width": 0.72
+    }
+  },
+  "cues": [
+    {
+      "theme": "neon_pulse",
+      "kind": "bid",
+      "variant": 1,
+      "file": "neon_pulse/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.03,
+      "truePeakDbtp": -16.91,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "bid",
+      "variant": 2,
+      "file": "neon_pulse/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.04,
+      "truePeakDbtp": -16.63,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "bid",
+      "variant": 3,
+      "file": "neon_pulse/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.04,
+      "truePeakDbtp": -15.32,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "action",
+      "variant": 1,
+      "file": "neon_pulse/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -19.44,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "action",
+      "variant": 2,
+      "file": "neon_pulse/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -18.82,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "action",
+      "variant": 3,
+      "file": "neon_pulse/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -19.55,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "share",
+      "variant": 1,
+      "file": "neon_pulse/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.05,
+      "truePeakDbtp": -14.63,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "tip",
+      "variant": 1,
+      "file": "neon_pulse/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.08,
+      "truePeakDbtp": -12.69,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "neon_pulse",
+      "kind": "sale",
+      "variant": 1,
+      "file": "neon_pulse/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.13,
+      "truePeakDbtp": -9.55,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "bid",
+      "variant": 1,
+      "file": "arcade_8bit/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -19.1,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "bid",
+      "variant": 2,
+      "file": "arcade_8bit/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -19.96,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "bid",
+      "variant": 3,
+      "file": "arcade_8bit/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -18.93,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "action",
+      "variant": 1,
+      "file": "arcade_8bit/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -21.91,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "action",
+      "variant": 2,
+      "file": "arcade_8bit/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -22.86,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "action",
+      "variant": 3,
+      "file": "arcade_8bit/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -22.78,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "share",
+      "variant": 1,
+      "file": "arcade_8bit/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.03,
+      "truePeakDbtp": -18.09,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "tip",
+      "variant": 1,
+      "file": "arcade_8bit/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.03,
+      "truePeakDbtp": -17.61,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "arcade_8bit",
+      "kind": "sale",
+      "variant": 1,
+      "file": "arcade_8bit/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.05,
+      "truePeakDbtp": -14.62,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "broadcast",
+      "kind": "bid",
+      "variant": 1,
+      "file": "broadcast/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.06,
+      "truePeakDbtp": -12.96,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "broadcast",
+      "kind": "bid",
+      "variant": 2,
+      "file": "broadcast/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.05,
+      "truePeakDbtp": -13.11,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "broadcast",
+      "kind": "bid",
+      "variant": 3,
+      "file": "broadcast/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.07,
+      "truePeakDbtp": -10.77,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "broadcast",
+      "kind": "action",
+      "variant": 1,
+      "file": "broadcast/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.03,
+      "truePeakDbtp": -17.11,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "broadcast",
+      "kind": "action",
+      "variant": 2,
+      "file": "broadcast/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.03,
+      "truePeakDbtp": -16.46,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "broadcast",
+      "kind": "action",
+      "variant": 3,
+      "file": "broadcast/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -17.27,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "broadcast",
+      "kind": "share",
+      "variant": 1,
+      "file": "broadcast/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.06,
+      "truePeakDbtp": -12.24,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "broadcast",
+      "kind": "tip",
+      "variant": 1,
+      "file": "broadcast/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.1,
+      "truePeakDbtp": -10.17,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "broadcast",
+      "kind": "sale",
+      "variant": 1,
+      "file": "broadcast/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.17,
+      "truePeakDbtp": -8.12,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "crystal",
+      "kind": "bid",
+      "variant": 1,
+      "file": "crystal/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -17.79,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "crystal",
+      "kind": "bid",
+      "variant": 2,
+      "file": "crystal/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -17.67,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "crystal",
+      "kind": "bid",
+      "variant": 3,
+      "file": "crystal/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.03,
+      "truePeakDbtp": -16.95,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "crystal",
+      "kind": "action",
+      "variant": 1,
+      "file": "crystal/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -19.31,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "crystal",
+      "kind": "action",
+      "variant": 2,
+      "file": "crystal/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -20.72,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "crystal",
+      "kind": "action",
+      "variant": 3,
+      "file": "crystal/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -20.08,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "crystal",
+      "kind": "share",
+      "variant": 1,
+      "file": "crystal/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.03,
+      "truePeakDbtp": -16.14,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "crystal",
+      "kind": "tip",
+      "variant": 1,
+      "file": "crystal/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.04,
+      "truePeakDbtp": -15.06,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "crystal",
+      "kind": "sale",
+      "variant": 1,
+      "file": "crystal/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.06,
+      "truePeakDbtp": -12.65,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "duck_party",
+      "kind": "bid",
+      "variant": 1,
+      "file": "duck_party/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.05,
+      "truePeakDbtp": -14.75,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "duck_party",
+      "kind": "bid",
+      "variant": 2,
+      "file": "duck_party/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.05,
+      "truePeakDbtp": -14.56,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "duck_party",
+      "kind": "bid",
+      "variant": 3,
+      "file": "duck_party/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.06,
+      "truePeakDbtp": -12.64,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "duck_party",
+      "kind": "action",
+      "variant": 1,
+      "file": "duck_party/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.03,
+      "truePeakDbtp": -15.65,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "duck_party",
+      "kind": "action",
+      "variant": 2,
+      "file": "duck_party/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -17.43,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "duck_party",
+      "kind": "action",
+      "variant": 3,
+      "file": "duck_party/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -18.27,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "duck_party",
+      "kind": "share",
+      "variant": 1,
+      "file": "duck_party/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.06,
+      "truePeakDbtp": -12.96,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "duck_party",
+      "kind": "tip",
+      "variant": 1,
+      "file": "duck_party/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.06,
+      "truePeakDbtp": -13.05,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "duck_party",
+      "kind": "sale",
+      "variant": 1,
+      "file": "duck_party/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.12,
+      "truePeakDbtp": -10.52,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "luxury",
+      "kind": "bid",
+      "variant": 1,
+      "file": "luxury/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.03,
+      "truePeakDbtp": -17.27,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "luxury",
+      "kind": "bid",
+      "variant": 2,
+      "file": "luxury/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.03,
+      "truePeakDbtp": -17.12,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "luxury",
+      "kind": "bid",
+      "variant": 3,
+      "file": "luxury/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.03,
+      "truePeakDbtp": -15.91,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "luxury",
+      "kind": "action",
+      "variant": 1,
+      "file": "luxury/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -18.59,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "luxury",
+      "kind": "action",
+      "variant": 2,
+      "file": "luxury/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -18.9,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "luxury",
+      "kind": "action",
+      "variant": 3,
+      "file": "luxury/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -19.73,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "luxury",
+      "kind": "share",
+      "variant": 1,
+      "file": "luxury/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.03,
+      "truePeakDbtp": -15.73,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "luxury",
+      "kind": "tip",
+      "variant": 1,
+      "file": "luxury/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.04,
+      "truePeakDbtp": -14.87,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "luxury",
+      "kind": "sale",
+      "variant": 1,
+      "file": "luxury/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.08,
+      "truePeakDbtp": -11.91,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "retro",
+      "kind": "bid",
+      "variant": 1,
+      "file": "retro/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.1,
+      "truePeakDbtp": -11.69,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "retro",
+      "kind": "bid",
+      "variant": 2,
+      "file": "retro/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.1,
+      "truePeakDbtp": -10.8,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "retro",
+      "kind": "bid",
+      "variant": 3,
+      "file": "retro/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.12,
+      "truePeakDbtp": -9.49,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "retro",
+      "kind": "action",
+      "variant": 1,
+      "file": "retro/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.04,
+      "truePeakDbtp": -15.15,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "retro",
+      "kind": "action",
+      "variant": 2,
+      "file": "retro/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.05,
+      "truePeakDbtp": -14.21,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "retro",
+      "kind": "action",
+      "variant": 3,
+      "file": "retro/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.04,
+      "truePeakDbtp": -15.69,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "retro",
+      "kind": "share",
+      "variant": 1,
+      "file": "retro/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.11,
+      "truePeakDbtp": -10.25,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "retro",
+      "kind": "tip",
+      "variant": 1,
+      "file": "retro/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.15,
+      "truePeakDbtp": -8.14,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "retro",
+      "kind": "sale",
+      "variant": 1,
+      "file": "retro/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.34,
+      "truePeakDbtp": -6.29,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "stadium",
+      "kind": "bid",
+      "variant": 1,
+      "file": "stadium/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -17.99,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "stadium",
+      "kind": "bid",
+      "variant": 2,
+      "file": "stadium/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -18.26,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "stadium",
+      "kind": "bid",
+      "variant": 3,
+      "file": "stadium/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.03,
+      "truePeakDbtp": -16.71,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "stadium",
+      "kind": "action",
+      "variant": 1,
+      "file": "stadium/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -18.92,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "stadium",
+      "kind": "action",
+      "variant": 2,
+      "file": "stadium/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -20.8,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "stadium",
+      "kind": "action",
+      "variant": 3,
+      "file": "stadium/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.02,
+      "truePeakDbtp": -18.65,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "stadium",
+      "kind": "share",
+      "variant": 1,
+      "file": "stadium/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.03,
+      "truePeakDbtp": -16.52,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "stadium",
+      "kind": "tip",
+      "variant": 1,
+      "file": "stadium/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.04,
+      "truePeakDbtp": -14.99,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "stadium",
+      "kind": "sale",
+      "variant": 1,
+      "file": "stadium/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.06,
+      "truePeakDbtp": -12.66,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "storm",
+      "kind": "bid",
+      "variant": 1,
+      "file": "storm/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -20.42,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "storm",
+      "kind": "bid",
+      "variant": 2,
+      "file": "storm/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -20.26,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "storm",
+      "kind": "bid",
+      "variant": 3,
+      "file": "storm/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.02,
+      "truePeakDbtp": -19.39,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "storm",
+      "kind": "action",
+      "variant": 1,
+      "file": "storm/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -20.99,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "storm",
+      "kind": "action",
+      "variant": 2,
+      "file": "storm/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -21.65,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "storm",
+      "kind": "action",
+      "variant": 3,
+      "file": "storm/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.01,
+      "truePeakDbtp": -22.25,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "storm",
+      "kind": "share",
+      "variant": 1,
+      "file": "storm/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.02,
+      "truePeakDbtp": -17.95,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "storm",
+      "kind": "tip",
+      "variant": 1,
+      "file": "storm/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.03,
+      "truePeakDbtp": -15.81,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "storm",
+      "kind": "sale",
+      "variant": 1,
+      "file": "storm/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.05,
+      "truePeakDbtp": -14.58,
+      "stereoWidth": 0.72
+    },
+    {
+      "theme": "zen",
+      "kind": "bid",
+      "variant": 1,
+      "file": "zen/bid.wav",
+      "duration": 0.13,
+      "estimatedLufs": -25.11,
+      "truePeakDbtp": -12.26,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "zen",
+      "kind": "bid",
+      "variant": 2,
+      "file": "zen/bid-02.wav",
+      "duration": 0.15,
+      "estimatedLufs": -25.1,
+      "truePeakDbtp": -11.7,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "zen",
+      "kind": "bid",
+      "variant": 3,
+      "file": "zen/bid-03.wav",
+      "duration": 0.17,
+      "estimatedLufs": -25.14,
+      "truePeakDbtp": -10.75,
+      "stereoWidth": 0.12
+    },
+    {
+      "theme": "zen",
+      "kind": "action",
+      "variant": 1,
+      "file": "zen/action.wav",
+      "duration": 0.18,
+      "estimatedLufs": -27.03,
+      "truePeakDbtp": -17.03,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "zen",
+      "kind": "action",
+      "variant": 2,
+      "file": "zen/action-02.wav",
+      "duration": 0.21,
+      "estimatedLufs": -27.05,
+      "truePeakDbtp": -13.91,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "zen",
+      "kind": "action",
+      "variant": 3,
+      "file": "zen/action-03.wav",
+      "duration": 0.24,
+      "estimatedLufs": -27.03,
+      "truePeakDbtp": -15.62,
+      "stereoWidth": 0.16
+    },
+    {
+      "theme": "zen",
+      "kind": "share",
+      "variant": 1,
+      "file": "zen/share.wav",
+      "duration": 0.36,
+      "estimatedLufs": -24.08,
+      "truePeakDbtp": -12.33,
+      "stereoWidth": 0.34
+    },
+    {
+      "theme": "zen",
+      "kind": "tip",
+      "variant": 1,
+      "file": "zen/tip.wav",
+      "duration": 0.58,
+      "estimatedLufs": -22.12,
+      "truePeakDbtp": -9.96,
+      "stereoWidth": 0.52
+    },
+    {
+      "theme": "zen",
+      "kind": "sale",
+      "variant": 1,
+      "file": "zen/sale.wav",
+      "duration": 0.84,
+      "estimatedLufs": -20.2,
+      "truePeakDbtp": -8.76,
+      "stereoWidth": 0.72
+    }
+  ]
+}

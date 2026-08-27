@@ -147,6 +147,10 @@
             <button id="send-action" type="button">Audience Action</button>
             <button id="send-tip" type="button">Test Tip</button>
             <button id="send-share" type="button">Test Share</button>
+            <button id="demo-preview-notice" class="demo-preview-notice" type="button" hidden>
+              <i data-lucide="monitor-play" aria-hidden="true"></i>
+              <span><strong>Demo controls are ready in Stream Preview</strong><small>Open Preview</small></span>
+            </button>
           </section>
 
         <section class="preflight-panel" aria-labelledby="preflight-title" data-view="setup" data-tab="setup-preflight">
@@ -177,7 +181,13 @@
         <section class="preview-panel is-tab-hidden" data-view="live" data-tab="live-preview">
           <div class="section-heading">
             <h2><i data-lucide="monitor-play" aria-hidden="true"></i>Stream Preview</h2>
-            <span>Phone Canvas</span>
+            <div class="preview-heading-actions">
+              <span>Phone Canvas</span>
+              <button id="preview-demo-toggle" class="preview-demo-toggle" type="button" aria-pressed="false" aria-controls="preview-demo-panel">
+                <i data-lucide="play" aria-hidden="true"></i>
+                <span id="preview-demo-toggle-label">Demo Mode Off</span>
+              </button>
+            </div>
           </div>
           <div class="preview-stage">
             <div class="phone-frame" aria-label="Overlay preview">
@@ -187,6 +197,37 @@
               <strong>1080 x 1920</strong>
               <span>OBS Browser Source</span>
               <p>Use this preview to check theme, banner, jumbotron, GIF, and alert placement before you go live.</p>
+              <section id="preview-demo-panel" class="preview-demo-panel" aria-label="Demo event controls" hidden>
+                <div class="preview-demo-title">
+                  <div>
+                    <small>Demo Console</small>
+                    <strong>Trigger preview events</strong>
+                  </div>
+                  <span>Active</span>
+                </div>
+                <div class="preview-demo-grid">
+                  <button class="primary" type="button" data-preview-demo-action="sale">
+                    <i data-lucide="circle-dollar-sign" aria-hidden="true"></i>
+                    Test Sale
+                  </button>
+                  <button type="button" data-preview-demo-action="bid">
+                    <i data-lucide="gavel" aria-hidden="true"></i>
+                    Test Bid
+                  </button>
+                  <button type="button" data-preview-demo-action="action">
+                    <i data-lucide="heart" aria-hidden="true"></i>
+                    Audience Action
+                  </button>
+                  <button type="button" data-preview-demo-action="tip">
+                    <i data-lucide="hand-coins" aria-hidden="true"></i>
+                    Test Tip
+                  </button>
+                  <button type="button" data-preview-demo-action="share">
+                    <i data-lucide="share-2" aria-hidden="true"></i>
+                    Test Share
+                  </button>
+                </div>
+              </section>
             </div>
           </div>
         </section>

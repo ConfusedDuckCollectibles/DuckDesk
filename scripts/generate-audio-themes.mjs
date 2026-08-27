@@ -1,362 +1,476 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import decodeMp3 from "@audio/decode-mp3";
 import decodeVorbis from "@audio/decode-vorbis";
 
-const sampleRate = 32_000;
+const sampleRate = 48_000;
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourceRoot = path.join(projectRoot, "scripts", "audio-sources");
 const outputRoot = path.join(projectRoot, "apps", "overlay", "public", "audio");
 const sourceCache = new Map();
+const usedSources = new Set();
+const renderedDate = new Date().toISOString().slice(0, 10);
 
+const U = (theme, cue) => path.join("uisfx", theme, `${cue}.wav`);
 const K = (pack, file) => path.join("kenney", pack, file);
-const F = (file) => path.join("freesound", file);
-const L = (file, options = {}) => ({ file, ...options });
-const C = (duration, layers, master = {}) => ({ duration, layers, master });
+const P = (file) => path.join("public-domain-recordings", file);
+const L = (file, gain = 1, options = {}) => ({ file, gain, ...options });
 
-const cueDesigns = {
+const policy = {
+  bid: { targetLufs: -25, durations: [0.13, 0.15, 0.17], width: 0.12 },
+  action: { targetLufs: -27, durations: [0.18, 0.21, 0.24], width: 0.16 },
+  share: { targetLufs: -24, durations: [0.36], width: 0.34 },
+  tip: { targetLufs: -22, durations: [0.58], width: 0.52 },
+  sale: { targetLufs: -20, durations: [0.84], width: 0.72 }
+};
+
+const commonCues = {
+  bid: ["press", "release", "snap"],
+  action: ["reaction", "select", "badge"],
+  share: ["send"]
+};
+
+const themes = {
   neon_pulse: {
-    bid: C(0.62, [
-      L(K("digital-audio", "powerUp1.ogg"), { gain: 0.72, duration: 0.58 })
-    ]),
-    sale: C(1.26, [
-      L(K("digital-audio", "powerUp3.ogg"), { gain: 0.62, duration: 0.92 }),
-      L(K("digital-audio", "phaseJump2.ogg"), { at: 0.34, gain: 0.42, duration: 0.8 })
-    ]),
-    action: C(0.82, [
-      L(K("digital-audio", "zapThreeToneUp.ogg"), { gain: 0.68, duration: 0.74 })
-    ]),
-    tip: C(1.08, [
-      L(K("digital-audio", "phaserUp4.ogg"), { gain: 0.52, duration: 0.88 }),
-      L(K("digital-audio", "threeTone1.ogg"), { at: 0.32, gain: 0.38, duration: 0.62 })
-    ]),
-    share: C(1.02, [
-      L(K("digital-audio", "twoTone1.ogg"), { gain: 0.58, duration: 0.66 }),
-      L(K("digital-audio", "tone1.ogg"), { at: 0.38, gain: 0.36, rate: 1.12, duration: 0.52 })
-    ])
+    cues: { ...commonCues, tip: ["purchase"], sale: ["success"] },
+    layers: {
+      bid: [L(K("digital-audio", "tone1.ogg"), 0.15)],
+      action: [L(K("digital-audio", "zapThreeToneUp.ogg"), 0.13)],
+      share: [L(K("digital-audio", "phaserUp4.ogg"), 0.16)],
+      tip: [L(K("digital-audio", "powerUp1.ogg"), 0.18)],
+      sale: [L(K("digital-audio", "powerUp3.ogg"), 0.17), L(K("digital-audio", "phaseJump2.ogg"), 0.12, { at: 0.22 })]
+    },
+    character: "electric"
   },
   arcade_8bit: {
-    bid: C(0.58, [
-      L(K("digital-audio", "pepSound1.ogg"), { gain: 0.72, duration: 0.54 })
-    ]),
-    sale: C(1.18, [
-      L(K("digital-audio", "pepSound5.ogg"), { gain: 0.62, duration: 0.7 }),
-      L(K("digital-audio", "pepSound3.ogg"), { at: 0.38, gain: 0.52, rate: 0.92, duration: 0.68 })
-    ]),
-    action: C(0.74, [
-      L(K("digital-audio", "pepSound2.ogg"), { gain: 0.7, duration: 0.68 })
-    ]),
-    tip: C(1.04, [
-      L(K("digital-audio", "pepSound4.ogg"), { gain: 0.62, duration: 0.7 }),
-      L(K("digital-audio", "lowThreeTone.ogg"), { at: 0.34, gain: 0.34, rate: 1.18, duration: 0.62 })
-    ]),
-    share: C(0.98, [
-      L(K("digital-audio", "pepSound3.ogg"), { gain: 0.6, duration: 0.64 }),
-      L(K("digital-audio", "pepSound1.ogg"), { at: 0.32, gain: 0.4, rate: 1.16, duration: 0.58 })
-    ])
+    cues: { ...commonCues, tip: ["bonus"], sale: ["level-up"] },
+    layers: {
+      bid: [L(K("digital-audio", "pepSound1.ogg"), 0.15)],
+      action: [L(K("digital-audio", "pepSound2.ogg"), 0.13)],
+      share: [L(K("digital-audio", "pepSound3.ogg"), 0.16)],
+      tip: [L(K("digital-audio", "pepSound4.ogg"), 0.17)],
+      sale: [L(K("digital-audio", "pepSound5.ogg"), 0.16), L(K("digital-audio", "lowThreeTone.ogg"), 0.11, { at: 0.24 })]
+    },
+    character: "arcade"
   },
   broadcast: {
-    bid: C(0.58, [
-      L(K("interface-sounds", "confirmation_001.ogg"), { gain: 0.72, duration: 0.52 })
-    ]),
-    sale: C(1.22, [
-      L(K("interface-sounds", "open_002.ogg"), { gain: 0.5, lowpass: 7200, duration: 0.82 }),
-      L(K("interface-sounds", "confirmation_004.ogg"), { at: 0.3, gain: 0.62, duration: 0.8 })
-    ]),
-    action: C(0.76, [
-      L(K("interface-sounds", "select_004.ogg"), { gain: 0.66, duration: 0.68 })
-    ]),
-    tip: C(1.06, [
-      L(K("interface-sounds", "maximize_004.ogg"), { gain: 0.54, duration: 0.76 }),
-      L(K("interface-sounds", "confirmation_003.ogg"), { at: 0.28, gain: 0.48, duration: 0.68 })
-    ]),
-    share: C(0.96, [
-      L(K("interface-sounds", "confirmation_002.ogg"), { gain: 0.64, duration: 0.7 }),
-      L(K("interface-sounds", "drop_001.ogg"), { at: 0.3, gain: 0.28, highpass: 180, duration: 0.5 })
-    ])
+    cues: { ...commonCues, tip: ["purchase"], sale: ["success"] },
+    layers: {
+      bid: [L(K("interface-sounds", "confirmation_001.ogg"), 0.12)],
+      action: [L(K("interface-sounds", "select_004.ogg"), 0.1)],
+      share: [L(K("interface-sounds", "open_002.ogg"), 0.13)],
+      tip: [L(K("interface-sounds", "confirmation_003.ogg"), 0.15)],
+      sale: [L(K("interface-sounds", "confirmation_004.ogg"), 0.14), L(K("impact-sounds", "impactSoft_medium_000.ogg"), 0.1)]
+    },
+    character: "broadcast"
   },
   crystal: {
-    bid: C(0.7, [
-      L(F("crystal-button-1.mp3"), { sourceStart: 0.03, gain: 0.7, duration: 0.64, highpass: 180 })
-    ]),
-    sale: C(1.46, [
-      L(F("crystal-button-3.mp3"), { sourceStart: 0.03, gain: 0.62, duration: 1.24, highpass: 160 }),
-      L(K("interface-sounds", "glass_006.ogg"), { at: 0.46, gain: 0.36, rate: 0.92, duration: 0.82 })
-    ]),
-    action: C(0.9, [
-      L(K("interface-sounds", "glass_003.ogg"), { gain: 0.62, duration: 0.82, highpass: 180 })
-    ]),
-    tip: C(1.28, [
-      L(K("interface-sounds", "glass_005.ogg"), { gain: 0.58, duration: 0.96 }),
-      L(F("crystal-button-1.mp3"), { at: 0.32, sourceStart: 0.08, gain: 0.4, rate: 1.08, duration: 0.82 })
-    ]),
-    share: C(1.18, [
-      L(K("interface-sounds", "glass_002.ogg"), { gain: 0.58, duration: 0.84 }),
-      L(K("interface-sounds", "glass_004.ogg"), { at: 0.3, gain: 0.36, rate: 1.12, duration: 0.72 })
-    ])
+    cues: { ...commonCues, tip: ["purchase"], sale: ["success"] },
+    layers: {
+      bid: [L(K("interface-sounds", "glass_001.ogg"), 0.17)],
+      action: [L(K("interface-sounds", "drop_003.ogg"), 0.14)],
+      share: [L(K("interface-sounds", "glass_002.ogg"), 0.17)],
+      tip: [L(K("interface-sounds", "glass_005.ogg"), 0.18)],
+      sale: [L(K("impact-sounds", "impactGlass_light_000.ogg"), 0.16), L(K("interface-sounds", "glass_006.ogg"), 0.14, { at: 0.23 })]
+    },
+    character: "crystal"
   },
   duck_party: {
-    bid: C(0.62, [
-      L(K("casino-audio", "chip-lay-1.ogg"), { gain: 0.68, duration: 0.56 })
-    ]),
-    sale: C(1.28, [
-      L(K("casino-audio", "dice-throw-2.ogg"), { gain: 0.5, duration: 0.86 }),
-      L(K("casino-audio", "chips-stack-5.ogg"), { at: 0.34, gain: 0.56, duration: 0.82 }),
-      L(K("interface-sounds", "bong_001.ogg"), { at: 0.54, gain: 0.24, rate: 1.12, duration: 0.62 })
-    ]),
-    action: C(0.8, [
-      L(K("casino-audio", "die-throw-4.ogg"), { gain: 0.62, duration: 0.72 })
-    ]),
-    tip: C(1.08, [
-      L(K("casino-audio", "chips-collide-2.ogg"), { gain: 0.58, duration: 0.82 }),
-      L(K("interface-sounds", "bong_001.ogg"), { at: 0.34, gain: 0.25, rate: 1.26, duration: 0.58 })
-    ]),
-    share: C(1.04, [
-      L(K("casino-audio", "card-fan-1.ogg"), { gain: 0.56, duration: 0.8 }),
-      L(K("casino-audio", "chip-lay-1.ogg"), { at: 0.4, gain: 0.42, rate: 1.1, duration: 0.5 })
-    ])
+    cues: { ...commonCues, tip: ["bonus"], sale: ["level-up"] },
+    layers: {
+      bid: [L(K("casino-audio", "chip-lay-1.ogg"), 0.19)],
+      action: [L(K("casino-audio", "die-throw-4.ogg"), 0.17)],
+      share: [L(K("casino-audio", "card-fan-1.ogg"), 0.19)],
+      tip: [L(K("casino-audio", "chips-collide-2.ogg"), 0.2)],
+      sale: [L(K("casino-audio", "dice-throw-2.ogg"), 0.19), L(K("casino-audio", "chips-stack-5.ogg"), 0.16, { at: 0.2 })]
+    },
+    character: "party"
   },
   luxury: {
-    bid: C(0.68, [
-      L(K("casino-audio", "card-place-3.ogg"), { gain: 0.6, lowpass: 6800, duration: 0.6 }),
-      L(K("interface-sounds", "glass_001.ogg"), { at: 0.12, gain: 0.22, duration: 0.5 })
-    ], { targetDb: -20 }),
-    sale: C(1.54, [
-      L(F("cash-register.mp3"), { sourceStart: 0.02, gain: 0.48, lowpass: 7600, duration: 1.34 }),
-      L(K("interface-sounds", "glass_006.ogg"), { at: 0.52, gain: 0.3, lowpass: 7000, duration: 0.76 })
-    ], { targetDb: -19 }),
-    action: C(0.86, [
-      L(K("casino-audio", "card-shove-2.ogg"), { gain: 0.56, lowpass: 6200, duration: 0.78 })
-    ], { targetDb: -21 }),
-    tip: C(1.24, [
-      L(K("casino-audio", "chips-handle-4.ogg"), { gain: 0.46, lowpass: 6500, duration: 0.94 }),
-      L(K("interface-sounds", "glass_005.ogg"), { at: 0.38, gain: 0.28, duration: 0.72 })
-    ], { targetDb: -20 }),
-    share: C(1.1, [
-      L(K("casino-audio", "card-fan-1.ogg"), { gain: 0.48, lowpass: 6200, duration: 0.84 }),
-      L(K("interface-sounds", "glass_002.ogg"), { at: 0.36, gain: 0.24, duration: 0.64 })
-    ], { targetDb: -21 })
+    cues: { ...commonCues, tip: ["purchase"], sale: ["success"] },
+    layers: {
+      bid: [L(K("rpg-audio", "handleSmallLeather.ogg"), 0.2)],
+      action: [L(K("rpg-audio", "cloth1.ogg"), 0.17)],
+      share: [L(K("casino-audio", "card-fan-1.ogg"), 0.17), L(K("rpg-audio", "cloth2.ogg"), 0.11)],
+      tip: [L(K("rpg-audio", "handleCoins.ogg"), 0.17), L(K("interface-sounds", "glass_005.ogg"), 0.11, { at: 0.21 })],
+      sale: [L(K("rpg-audio", "dropLeather.ogg"), 0.2), L(K("interface-sounds", "glass_006.ogg"), 0.13, { at: 0.28 })]
+    },
+    character: "luxury"
   },
   retro: {
-    bid: C(0.56, [
-      L(K("ui-audio", "switch1.ogg"), { gain: 0.72, lowpass: 6200, duration: 0.5 })
-    ]),
-    sale: C(1.18, [
-      L(K("ui-audio", "switch31.ogg"), { gain: 0.62, lowpass: 5800, duration: 0.7 }),
-      L(K("ui-audio", "switch36.ogg"), { at: 0.3, gain: 0.54, lowpass: 5600, duration: 0.68 }),
-      L(K("digital-audio", "lowThreeTone.ogg"), { at: 0.46, gain: 0.22, lowpass: 5000, duration: 0.58 })
-    ]),
-    action: C(0.74, [
-      L(K("ui-audio", "switch8.ogg"), { gain: 0.66, lowpass: 6000, duration: 0.66 })
-    ]),
-    tip: C(1.04, [
-      L(K("ui-audio", "switch23.ogg"), { gain: 0.6, lowpass: 5600, duration: 0.7 }),
-      L(K("ui-audio", "click1.ogg"), { at: 0.36, gain: 0.4, rate: 0.88, duration: 0.5 })
-    ]),
-    share: C(0.96, [
-      L(K("ui-audio", "switch15.ogg"), { gain: 0.58, lowpass: 6000, duration: 0.66 }),
-      L(K("interface-sounds", "switch_007.ogg"), { at: 0.3, gain: 0.38, duration: 0.56 })
-    ])
+    cues: { ...commonCues, tip: ["purchase"], sale: ["complete"] },
+    layers: {
+      bid: [L(P("switch1.wav"), 0.2)],
+      action: [L(K("ui-audio", "switch8.ogg"), 0.16)],
+      share: [L(K("ui-audio", "switch15.ogg"), 0.17)],
+      tip: [L(K("rpg-audio", "metalClick.ogg"), 0.18), L(P("bell1.wav"), 0.09, { at: 0.2 })],
+      sale: [L(P("steel1.wav"), 0.15), L(K("ui-audio", "switch36.ogg"), 0.15, { at: 0.24 })]
+    },
+    character: "retro"
   },
   stadium: {
-    bid: C(0.68, [
-      L(F("crowd-cheer.mp3"), { sourceStart: 2.7, gain: 0.44, highpass: 120, lowpass: 7600, duration: 0.62 })
-    ], { targetDb: -20 }),
-    sale: C(1.58, [
-      L(F("crowd-cheer.mp3"), { sourceStart: 2.42, gain: 0.52, highpass: 110, lowpass: 8000, duration: 1.46 }),
-      L(K("digital-audio", "threeTone1.ogg"), { at: 0.12, gain: 0.26, duration: 0.8 })
-    ], { targetDb: -18.5 }),
-    action: C(0.92, [
-      L(F("crowd-cheer.mp3"), { sourceStart: 3.22, gain: 0.46, highpass: 130, lowpass: 7200, duration: 0.84 }),
-      L(K("interface-sounds", "confirmation_001.ogg"), { at: 0.08, gain: 0.28, duration: 0.54 })
-    ], { targetDb: -20 }),
-    tip: C(1.34, [
-      L(F("crowd-cheer.mp3"), { sourceStart: 2.52, gain: 0.5, highpass: 110, lowpass: 7600, duration: 1.22 }),
-      L(K("digital-audio", "powerUp1.ogg"), { at: 0.2, gain: 0.24, duration: 0.72 })
-    ], { targetDb: -19 }),
-    share: C(1.22, [
-      L(F("crowd-cheer.mp3"), { sourceStart: 3.6, gain: 0.46, highpass: 130, lowpass: 7200, duration: 1.08 }),
-      L(K("interface-sounds", "confirmation_002.ogg"), { at: 0.12, gain: 0.24, duration: 0.64 })
-    ], { targetDb: -20 })
+    cues: { ...commonCues, tip: ["bonus"], sale: ["level-up"] },
+    layers: {
+      bid: [L(K("impact-sounds", "impactSoft_medium_001.ogg"), 0.16)],
+      action: [L(K("impact-sounds", "impactSoft_medium_000.ogg"), 0.14)],
+      share: [L(K("impact-sounds", "impactBell_heavy_000.ogg"), 0.13)],
+      tip: [L(K("impact-sounds", "impactBell_heavy_000.ogg"), 0.15)],
+      sale: [L(K("impact-sounds", "impactSoft_medium_001.ogg"), 0.16), L(K("impact-sounds", "impactBell_heavy_000.ogg"), 0.12, { at: 0.18 })]
+    },
+    character: "stadium"
   },
   storm: {
-    bid: C(0.74, [
-      L(F("distant-thunder.mp3"), { sourceStart: 0.28, gain: 0.48, highpass: 58, lowpass: 4200, duration: 0.68 })
-    ], { targetDb: -23, highpass: 58 }),
-    sale: C(1.56, [
-      L(F("distant-thunder.mp3"), { sourceStart: 4, gain: 0.5, highpass: 32, lowpass: 4600, duration: 1.46 }),
-      L(F("wind-gust.mp3"), { sourceStart: 0.04, gain: 0.17, highpass: 90, lowpass: 2800, duration: 1.38 }),
-      L(K("interface-sounds", "glass_001.ogg"), { at: 0.56, gain: 0.12, lowpass: 5200, duration: 0.6 })
-    ], { targetDb: -21, highpass: 32 }),
-    action: C(1.04, [
-      L(F("wind-gust.mp3"), { sourceStart: 0.02, gain: 0.34, highpass: 120, lowpass: 3400, duration: 0.96 }),
-      L(F("distant-thunder.mp3"), { sourceStart: 5.5, gain: 0.22, highpass: 65, lowpass: 3600, duration: 0.82 })
-    ], { targetDb: -23, highpass: 58 }),
-    tip: C(1.42, [
-      L(F("distant-thunder.mp3"), { sourceStart: 5.36, gain: 0.4, highpass: 42, lowpass: 4200, duration: 1.32 }),
-      L(K("interface-sounds", "glass_003.ogg"), { at: 0.42, gain: 0.12, lowpass: 5000, duration: 0.72 })
-    ], { targetDb: -22, highpass: 42 }),
-    share: C(1.3, [
-      L(F("wind-gust.mp3"), { sourceStart: 0.24, gain: 0.32, highpass: 120, lowpass: 3200, duration: 1.18 }),
-      L(K("interface-sounds", "glass_004.ogg"), { at: 0.34, gain: 0.1, lowpass: 4800, duration: 0.66 })
-    ], { targetDb: -23, highpass: 58 })
+    cues: { ...commonCues, tip: ["purchase"], sale: ["success"] },
+    layers: {
+      bid: [L(K("interface-sounds", "switch_001.ogg"), 0.09)],
+      action: [L(K("rpg-audio", "cloth2.ogg"), 0.1)],
+      share: [L(K("rpg-audio", "cloth1.ogg"), 0.1)],
+      tip: [L(K("interface-sounds", "drop_004.ogg"), 0.1)],
+      sale: [L(K("impact-sounds", "impactSoft_medium_000.ogg"), 0.11)]
+    },
+    character: "storm"
   },
   zen: {
-    bid: C(0.72, [
-      L(K("interface-sounds", "pluck_001.ogg"), { gain: 0.54, lowpass: 5200, duration: 0.66 })
-    ], { targetDb: -23 }),
-    sale: C(1.52, [
-      L(K("interface-sounds", "pluck_002.ogg"), { gain: 0.48, lowpass: 5000, duration: 1.02 }),
-      L(F("wind-gust.mp3"), { sourceStart: 1.5, gain: 0.1, highpass: 180, lowpass: 2200, duration: 1.38 }),
-      L(F("crystal-button-3.mp3"), { at: 0.46, sourceStart: 0.08, gain: 0.16, lowpass: 5200, duration: 0.82 })
-    ], { targetDb: -22 }),
-    action: C(0.96, [
-      L(K("interface-sounds", "drop_003.ogg"), { gain: 0.42, lowpass: 4800, duration: 0.86 })
-    ], { targetDb: -24 }),
-    tip: C(1.32, [
-      L(K("interface-sounds", "pluck_001.ogg"), { gain: 0.44, rate: 0.92, lowpass: 5000, duration: 0.94 }),
-      L(K("interface-sounds", "pluck_002.ogg"), { at: 0.38, gain: 0.3, rate: 1.08, lowpass: 5200, duration: 0.82 })
-    ], { targetDb: -23 }),
-    share: C(1.2, [
-      L(K("interface-sounds", "drop_004.ogg"), { gain: 0.4, lowpass: 4600, duration: 0.94 }),
-      L(F("crystal-button-1.mp3"), { at: 0.38, sourceStart: 0.12, gain: 0.14, lowpass: 5000, duration: 0.68 })
-    ], { targetDb: -24 })
+    cues: { ...commonCues, tip: ["purchase"], sale: ["success"] },
+    layers: {
+      bid: [L(K("impact-sounds", "impactWood_light_000.ogg"), 0.16)],
+      action: [L(K("interface-sounds", "drop_003.ogg"), 0.12)],
+      share: [L(K("rpg-audio", "bookFlip1.ogg"), 0.14)],
+      tip: [L(K("interface-sounds", "pluck_001.ogg"), 0.15)],
+      sale: [L(K("impact-sounds", "impactWood_medium_000.ogg"), 0.15), L(K("interface-sounds", "pluck_002.ogg"), 0.12, { at: 0.22 })]
+    },
+    character: "zen"
   }
 };
 
-let renderedCount = 0;
-for (const [theme, designs] of Object.entries(cueDesigns)) {
-  const themeDirectory = path.join(outputRoot, theme);
-  fs.mkdirSync(themeDirectory, { recursive: true });
-  for (const [kind, design] of Object.entries(designs)) {
-    const samples = await renderCue(design);
-    fs.writeFileSync(path.join(themeDirectory, kind + ".wav"), encodeWav(samples));
-    renderedCount += 1;
+const rendered = [];
+for (const [themeName, theme] of Object.entries(themes)) {
+  const directory = path.join(outputRoot, themeName);
+  fs.mkdirSync(directory, { recursive: true });
+  for (const kind of Object.keys(policy)) {
+    for (let variant = 0; variant < theme.cues[kind].length; variant += 1) {
+      const duration = policy[kind].durations[variant] ?? policy[kind].durations[0];
+      const audio = await renderCue(themeName, theme, kind, theme.cues[kind][variant], duration, variant);
+      const fileName = variant === 0 ? `${kind}.wav` : `${kind}-${String(variant + 1).padStart(2, "0")}.wav`;
+      fs.writeFileSync(path.join(directory, fileName), encodeWav(audio));
+      rendered.push({
+        theme: themeName,
+        kind,
+        variant: variant + 1,
+        file: `${themeName}/${fileName}`,
+        duration: round(audio.left.length / sampleRate),
+        estimatedLufs: round(measureLoudness(audio), 2),
+        truePeakDbtp: round(toDb(measureTruePeak(audio)), 2),
+        stereoWidth: policy[kind].width
+      });
+    }
   }
 }
 
-console.log("Rendered " + renderedCount + " curated Duck Desk audio cues.");
+if (rendered.length !== 90) throw new Error(`Expected 90 cues, rendered ${rendered.length}`);
 
-async function renderCue(design) {
-  const samples = new Float64Array(Math.round(design.duration * sampleRate));
-  for (const sourceLayer of design.layers) {
-    await mixSource(samples, sourceLayer);
+fs.writeFileSync(path.join(outputRoot, "manifest.json"), `${JSON.stringify({
+  schemaVersion: 2,
+  generatedAt: renderedDate,
+  format: { sampleRate, bitDepth: 16, channels: 2, codec: "PCM" },
+  playback: {
+    cooldownMs: { bid: 250, action: 600, share: 1000, tip: 0, sale: 0 },
+    priority: ["sale", "tip", "share", "bid", "action"],
+    protectedKinds: ["sale", "tip"],
+    variants: { bid: 3, action: 3, share: 1, tip: 1, sale: 1 }
+  },
+  targets: policy,
+  cues: rendered
+}, null, 2)}\n`);
+
+fs.writeFileSync(path.join(sourceRoot, "provenance.json"), `${JSON.stringify({
+  schemaVersion: 1,
+  generatedAt: renderedDate,
+  policy: "Only CC0 or public-domain sources are accepted.",
+  sources: [...usedSources].sort().map(sourceProvenance)
+}, null, 2)}\n`);
+
+console.log(`Rendered ${rendered.length} broadcast-safe Duck Desk audio cues at 48 kHz stereo.`);
+
+async function renderCue(themeName, theme, kind, cueName, duration, variant) {
+  const audio = stereo(Math.round(duration * sampleRate));
+  await mixSource(audio, { file: U(themeName, cueName), gain: kind === "action" ? 0.9 : 1, duration, fadeOut: Math.min(0.08, duration * 0.2) });
+  for (const layer of theme.layers[kind]) {
+    await mixSource(audio, {
+      ...layer,
+      rate: (layer.rate ?? 1) * (1 + variant * 0.018),
+      duration: Math.max(0.04, duration - (layer.at ?? 0)),
+      highpass: layer.highpass ?? (theme.character === "storm" ? 80 : 48),
+      lowpass: layer.lowpass ?? (kind === "bid" || kind === "action" ? 7200 : 11_000),
+      fadeOut: Math.min(0.09, duration * 0.2)
+    });
   }
-  masterCue(samples, design.master);
-  return samples;
+  addCharacter(audio, theme.character, kind, variant);
+  master(audio, policy[kind].targetLufs, policy[kind].width);
+  return audio;
+}
+
+function addCharacter(audio, character, kind, variant) {
+  const duration = audio.left.length / sampleRate;
+  if (character === "electric") {
+    addSweep(audio, 0.01, Math.min(duration - 0.02, kind === "sale" ? 0.56 : 0.12), 540 + variant * 45, kind === "sale" ? 1480 : 920, kind === "sale" ? 0.09 : 0.035, "sine", 0.18);
+  } else if (character === "arcade") {
+    addTones(audio, kind === "sale" ? [523, 659, 784, 1047] : [440 + variant * 35], 0.095, kind === "sale" ? 0.085 : 0.055, kind === "sale" ? 0.055 : 0.025, "square", 0);
+  } else if (character === "broadcast") {
+    addNoise(audio, "tap", 0, Math.min(0.07, duration), 0.025, `broadcast:${kind}:${variant}`, 1500, 0.06);
+  } else if (character === "crystal") {
+    addTones(audio, kind === "sale" ? [988, 1319, 1568] : [880 + variant * 90], 0.13, kind === "sale" ? 0.24 : 0.1, kind === "sale" ? 0.055 : 0.025, "sine", 0.35);
+  } else if (character === "party") {
+    addSweep(audio, 0.01, Math.min(0.18, duration - 0.02), 260 + variant * 18, 390 + variant * 24, 0.035, "triangle", -0.12);
+    if (kind === "sale") addNoise(audio, "confetti", 0.05, 0.38, 0.05, "party-sale", 4600, 0.68);
+  } else if (character === "luxury" && (kind === "sale" || kind === "tip")) {
+    addTones(audio, kind === "sale" ? [392, 494, 659] : [494, 659], 0.18, 0.3, 0.04, "sine", 0.28);
+  } else if (character === "retro") {
+    addNoise(audio, "tap", 0, Math.min(0.055, duration), 0.03, `retro:${kind}:${variant}`, 900, 0.04);
+  } else if (character === "stadium" && ["share", "tip", "sale"].includes(kind)) {
+    addNoise(audio, "crowd", kind === "sale" ? 0.14 : 0.05, kind === "sale" ? 0.6 : Math.min(0.38, duration - 0.08), kind === "sale" ? 0.12 : 0.06, `stadium:${kind}`, 1800, 0.72);
+  } else if (character === "storm") {
+    if (kind === "bid") addNoise(audio, "crackle", 0.01, 0.1, 0.035, `storm-bid:${variant}`, 2400, 0.16);
+    if (kind === "action" || kind === "share") addNoise(audio, "wind", 0.01, duration - 0.03, kind === "share" ? 0.07 : 0.035, `storm:${kind}:${variant}`, 900, 0.5);
+    if (kind === "tip") addNoise(audio, "thunder", 0.17, 0.34, 0.06, "storm-tip", 170, 0.25);
+    if (kind === "sale") addNoise(audio, "thunder", 0.06, 0.72, 0.18, "storm-sale", 135, 0.62);
+  } else if (character === "zen") {
+    if (kind === "share") addNoise(audio, "brush", 0.02, 0.32, 0.045, "zen-share", 2100, 0.38);
+    if (kind === "sale") addTones(audio, [392, 523, 659], 0.2, 0.32, 0.045, "sine", 0.24);
+  }
+}
+
+function stereo(length) {
+  return { left: new Float64Array(length), right: new Float64Array(length) };
 }
 
 async function loadSource(relativePath) {
-  if (sourceCache.has(relativePath)) {
-    return sourceCache.get(relativePath);
+  if (sourceCache.has(relativePath)) return sourceCache.get(relativePath);
+  const absolutePath = path.join(sourceRoot, relativePath);
+  if (!fs.existsSync(absolutePath)) throw new Error(`Missing audio source: ${relativePath}`);
+  const bytes = fs.readFileSync(absolutePath);
+  let decoded;
+  if (path.extname(relativePath).toLowerCase() === ".wav") {
+    decoded = decodeWav(bytes);
+  } else if (path.extname(relativePath).toLowerCase() === ".ogg") {
+    const audioBuffer = await decodeVorbis(bytes);
+    decoded = {
+      left: Float64Array.from(audioBuffer.channelData[0] ?? []),
+      right: Float64Array.from(audioBuffer.channelData[1] ?? audioBuffer.channelData[0] ?? []),
+      sampleRate: audioBuffer.sampleRate
+    };
+  } else {
+    throw new Error(`Unsupported source format: ${relativePath}`);
   }
+  trimSilence(decoded);
+  removeDc(decoded.left);
+  removeDc(decoded.right);
+  if (!decoded.left.length || !decoded.right.length) throw new Error(`Malformed audio source: ${relativePath}`);
+  usedSources.add(relativePath);
+  sourceCache.set(relativePath, decoded);
+  return decoded;
+}
 
-  const sourceBytes = fs.readFileSync(path.join(sourceRoot, relativePath));
-  const decoder = path.extname(relativePath) === ".mp3" ? decodeMp3 : decodeVorbis;
-  const audioBuffer = await decoder(sourceBytes);
-  const channels = audioBuffer.channelData;
-  let mono = new Float64Array(channels[0]?.length ?? 0);
-  for (const channel of channels) {
-    for (let index = 0; index < channel.length; index += 1) {
-      mono[index] += channel[index] / channels.length;
+function decodeWav(bytes) {
+  if (bytes.toString("ascii", 0, 4) !== "RIFF" || bytes.toString("ascii", 8, 12) !== "WAVE") throw new Error("Invalid WAV header");
+  let offset = 12;
+  let format;
+  let dataOffset;
+  let dataSize;
+  while (offset + 8 <= bytes.length) {
+    const id = bytes.toString("ascii", offset, offset + 4);
+    const size = bytes.readUInt32LE(offset + 4);
+    if (id === "fmt ") format = { codec: bytes.readUInt16LE(offset + 8), channels: bytes.readUInt16LE(offset + 10), sampleRate: bytes.readUInt32LE(offset + 12), bits: bytes.readUInt16LE(offset + 22) };
+    if (id === "data") {
+      dataOffset = offset + 8;
+      dataSize = size;
+      break;
+    }
+    offset += 8 + size + (size % 2);
+  }
+  if (!format || dataOffset === undefined || dataSize === undefined || format.codec !== 1 || format.bits !== 16 || ![1, 2].includes(format.channels)) throw new Error("Only 16-bit PCM mono/stereo WAV sources are supported");
+  const length = Math.floor(dataSize / (format.channels * 2));
+  const left = new Float64Array(length);
+  const right = new Float64Array(length);
+  for (let frame = 0; frame < length; frame += 1) {
+    const position = dataOffset + frame * format.channels * 2;
+    left[frame] = bytes.readInt16LE(position) / 32768;
+    right[frame] = format.channels === 2 ? bytes.readInt16LE(position + 2) / 32768 : left[frame];
+  }
+  return { left, right, sampleRate: format.sampleRate };
+}
+
+function trimSilence(source) {
+  let first = -1;
+  for (let index = 0; index < source.left.length; index += 1) {
+    if (Math.max(Math.abs(source.left[index]), Math.abs(source.right[index])) >= 0.0007) {
+      first = index;
+      break;
     }
   }
-  removeDc(mono);
-  if (relativePath.startsWith("kenney")) {
-    const firstAudibleSample = mono.findIndex((sample) => Math.abs(sample) >= 0.001);
-    if (firstAudibleSample > 0) {
-      const preRoll = Math.round(audioBuffer.sampleRate * 0.005);
-      mono = mono.subarray(Math.max(0, firstAudibleSample - preRoll));
-    }
+  if (first > 0) {
+    const start = Math.max(0, first - Math.round(source.sampleRate * 0.004));
+    source.left = source.left.subarray(start);
+    source.right = source.right.subarray(start);
   }
-
-  const source = { samples: mono, sampleRate: audioBuffer.sampleRate };
-  sourceCache.set(relativePath, source);
-  return source;
 }
 
 async function mixSource(output, options) {
   const source = await loadSource(options.file);
   const outputStart = Math.max(0, Math.round((options.at ?? 0) * sampleRate));
-  const sourceStart = Math.max(0, (options.sourceStart ?? 0) * source.sampleRate);
+  const sourceStart = Math.max(0, Math.round((options.sourceStart ?? 0) * source.sampleRate));
   const rate = options.rate ?? 1;
-  const availableSeconds = (source.samples.length - sourceStart) / source.sampleRate / rate;
-  const requestedSeconds = options.duration ?? availableSeconds;
-  const outputLength = Math.min(
-    output.length - outputStart,
-    Math.max(0, Math.round(Math.min(availableSeconds, requestedSeconds) * sampleRate))
-  );
-  const fadeIn = options.fadeIn ?? Math.min(0.012, requestedSeconds * 0.08);
-  const fadeOut = options.fadeOut ?? Math.min(0.08, requestedSeconds * 0.18);
-  const lowpassAlpha = options.lowpass
-    ? 1 - Math.exp(-2 * Math.PI * options.lowpass / sampleRate)
-    : null;
-  const highpassAlpha = options.highpass
-    ? 1 / (1 + 2 * Math.PI * options.highpass / sampleRate)
-    : null;
-  let lowpassState = 0;
-  let highpassState = 0;
-  let previousInput = 0;
-
+  const outputLength = Math.min(output.left.length - outputStart, Math.round((options.duration ?? output.left.length / sampleRate) * sampleRate));
+  const fadeIn = Math.round((options.fadeIn ?? 0.003) * sampleRate);
+  const fadeOut = Math.round((options.fadeOut ?? 0.04) * sampleRate);
+  const filters = [{ lp: 0, hp: 0, previous: 0 }, { lp: 0, hp: 0, previous: 0 }];
   for (let index = 0; index < outputLength; index += 1) {
     const sourcePosition = sourceStart + index * source.sampleRate * rate / sampleRate;
-    const leftIndex = Math.floor(sourcePosition);
-    const fraction = sourcePosition - leftIndex;
-    const left = source.samples[leftIndex] ?? 0;
-    const right = source.samples[leftIndex + 1] ?? left;
-    let value = left + (right - left) * fraction;
-
-    if (highpassAlpha !== null) {
-      highpassState = highpassAlpha * (highpassState + value - previousInput);
-      previousInput = value;
-      value = highpassState;
-    }
-    if (lowpassAlpha !== null) {
-      lowpassState += lowpassAlpha * (value - lowpassState);
-      value = lowpassState;
-    }
-
-    const elapsed = index / sampleRate;
-    const remaining = (outputLength - 1 - index) / sampleRate;
-    const envelope = Math.min(
-      fadeIn > 0 ? elapsed / fadeIn : 1,
-      fadeOut > 0 ? remaining / fadeOut : 1,
-      1
-    );
-    output[outputStart + index] += value * (options.gain ?? 1) * Math.max(0, envelope);
+    if (sourcePosition >= source.left.length - 1) break;
+    const envelope = Math.max(0, Math.min(1, fadeIn ? index / fadeIn : 1, fadeOut ? (outputLength - 1 - index) / fadeOut : 1));
+    output.left[outputStart + index] += filter(interpolate(source.left, sourcePosition), filters[0], options) * (options.gain ?? 1) * envelope;
+    output.right[outputStart + index] += filter(interpolate(source.right, sourcePosition), filters[1], options) * (options.gain ?? 1) * envelope;
   }
 }
 
-function masterCue(samples, options = {}) {
-  removeDc(samples);
-  highpassInPlace(samples, options.highpass ?? 42);
-  applyEdgeFades(samples, 0.004, 0.045);
+function interpolate(samples, position) {
+  const index = Math.floor(position);
+  const fraction = position - index;
+  return (samples[index] ?? 0) + ((samples[index + 1] ?? samples[index] ?? 0) - (samples[index] ?? 0)) * fraction;
+}
 
-  const targetAmplitude = Math.pow(10, (options.targetDb ?? -18.5) / 20);
-  const measuredRms = rms(samples);
-  const gain = measuredRms > 0 ? Math.min(7, targetAmplitude / measuredRms) : 1;
-  for (let index = 0; index < samples.length; index += 1) {
-    const value = samples[index] * gain;
-    samples[index] = Math.abs(value) <= 0.68
-      ? value
-      : Math.sign(value) * (0.68 + 0.25 * Math.tanh((Math.abs(value) - 0.68) / 0.25));
+function filter(value, state, options) {
+  if (options.highpass) {
+    const alpha = 1 / (1 + 2 * Math.PI * options.highpass / sampleRate);
+    state.hp = alpha * (state.hp + value - state.previous);
+    state.previous = value;
+    value = state.hp;
   }
+  if (options.lowpass) {
+    const alpha = 1 - Math.exp(-2 * Math.PI * options.lowpass / sampleRate);
+    state.lp += alpha * (value - state.lp);
+    value = state.lp;
+  }
+  return value;
+}
 
-  let peak = 0;
-  for (const value of samples) {
-    peak = Math.max(peak, Math.abs(value));
-  }
-  const ceiling = Math.pow(10, -3 / 20);
-  if (peak > ceiling) {
-    const ceilingGain = ceiling / peak;
-    for (let index = 0; index < samples.length; index += 1) {
-      samples[index] *= ceilingGain;
-    }
+function addSweep(audio, at, duration, from, to, gain, waveform, pan) {
+  const start = Math.round(at * sampleRate);
+  const length = Math.max(1, Math.round(duration * sampleRate));
+  let phase = 0;
+  for (let index = 0; index < length && start + index < audio.left.length; index += 1) {
+    const progress = index / Math.max(1, length - 1);
+    phase += 2 * Math.PI * (from * (to / from) ** progress) / sampleRate;
+    panMix(audio, start + index, wave(phase, waveform) * Math.sin(Math.PI * progress) ** 1.4 * gain, pan);
   }
 }
 
-function highpassInPlace(samples, cutoff) {
+function addTones(audio, notes, step, lengthSeconds, gain, waveform, pan) {
+  notes.forEach((frequency, noteIndex) => {
+    const start = Math.round(noteIndex * step * sampleRate);
+    const length = Math.round(lengthSeconds * sampleRate);
+    let phase = 0;
+    for (let index = 0; index < length && start + index < audio.left.length; index += 1) {
+      const progress = index / Math.max(1, length - 1);
+      phase += 2 * Math.PI * frequency / sampleRate;
+      const envelope = Math.sin(Math.PI * progress) * Math.exp(-progress * 1.4);
+      panMix(audio, start + index, wave(phase, waveform) * envelope * gain, pan * (noteIndex % 2 ? 1 : -1));
+    }
+  });
+}
+
+function addNoise(audio, type, at, duration, gain, seed, center, spread) {
+  const randomLeft = mulberry32(hashString(`${seed}:left`));
+  const randomRight = mulberry32(hashString(`${seed}:right`));
+  const start = Math.round(at * sampleRate);
+  const length = Math.min(audio.left.length - start, Math.round(duration * sampleRate));
+  const filters = [{ low: 0, slow: 0 }, { low: 0, slow: 0 }];
+  for (let index = 0; index < length; index += 1) {
+    const progress = index / Math.max(1, length - 1);
+    const frequency = center * (type === "wind" ? 0.75 + 0.5 * Math.sin(progress * Math.PI) : 1);
+    const left = shapedNoise(randomLeft() * 2 - 1, filters[0], frequency, type);
+    const right = shapedNoise(randomRight() * 2 - 1, filters[1], frequency * 1.04, type);
+    const mid = (left + right) * 0.5;
+    const side = (left - right) * spread * 0.5;
+    const envelope = noiseEnvelope(type, progress) * gain;
+    audio.left[start + index] += (mid + side) * envelope;
+    audio.right[start + index] += (mid - side) * envelope;
+  }
+}
+
+function shapedNoise(value, state, center, type) {
+  const alpha = 1 - Math.exp(-2 * Math.PI * Math.max(70, center) / sampleRate);
+  state.low += alpha * (value - state.low);
+  const slowAlpha = 1 - Math.exp(-2 * Math.PI * Math.max(30, center * 0.16) / sampleRate);
+  state.slow += slowAlpha * (state.low - state.slow);
+  const band = state.low - state.slow;
+  if (type === "thunder") return state.slow * 1.8 + band * 0.35;
+  if (type === "crowd") return state.low * 0.55 + band * 0.7;
+  if (type === "tap") return band * 1.6;
+  return band;
+}
+
+function noiseEnvelope(type, progress) {
+  if (type === "tap" || type === "crackle") return Math.exp(-progress * 13) * Math.sin(Math.PI * Math.min(1, progress * 5));
+  if (type === "thunder") return Math.sin(Math.PI * progress) ** 0.45 * Math.exp(-progress * 0.7);
+  if (type === "confetti") return Math.sin(Math.PI * progress) ** 0.7 * (0.55 + 0.45 * Math.sin(progress * 39) ** 2);
+  if (type === "crowd") return Math.sin(Math.PI * progress) ** 0.7;
+  return Math.sin(Math.PI * progress) ** 1.1;
+}
+
+function panMix(audio, index, sample, pan) {
+  audio.left[index] += sample * Math.sqrt((1 - pan) * 0.5);
+  audio.right[index] += sample * Math.sqrt((1 + pan) * 0.5);
+}
+
+function wave(phase, waveform) {
+  if (waveform === "square") return Math.sin(phase) >= 0 ? 1 : -1;
+  if (waveform === "triangle") return 2 * Math.asin(Math.sin(phase)) / Math.PI;
+  return Math.sin(phase);
+}
+
+function master(audio, targetLufs, width) {
+  removeDc(audio.left);
+  removeDc(audio.right);
+  highpass(audio.left, 42);
+  highpass(audio.right, 42);
+  setWidth(audio, width);
+  edgeFades(audio, 0.003, Math.min(0.055, audio.left.length / sampleRate * 0.16));
+  const measured = measureLoudness(audio);
+  applyGain(audio, Math.min(8, Number.isFinite(measured) ? Math.pow(10, (targetLufs - measured) / 20) : 1));
+  softLimit(audio);
+  const ceiling = Math.pow(10, -3.2 / 20);
+  const peak = measureTruePeak(audio);
+  if (peak > ceiling) applyGain(audio, ceiling / peak);
+}
+
+function setWidth(audio, width) {
+  for (let index = 0; index < audio.left.length; index += 1) {
+    const mid = (audio.left[index] + audio.right[index]) * 0.5;
+    const side = (audio.left[index] - audio.right[index]) * 0.5 * width;
+    audio.left[index] = mid + side;
+    audio.right[index] = mid - side;
+  }
+}
+
+function edgeFades(audio, fadeInSeconds, fadeOutSeconds) {
+  const fadeIn = Math.round(fadeInSeconds * sampleRate);
+  const fadeOut = Math.round(fadeOutSeconds * sampleRate);
+  for (let index = 0; index < fadeIn; index += 1) {
+    const gain = Math.sin(index / Math.max(1, fadeIn - 1) * Math.PI * 0.5) ** 2;
+    audio.left[index] *= gain;
+    audio.right[index] *= gain;
+  }
+  for (let index = 0; index < fadeOut; index += 1) {
+    const gain = Math.sin(index / Math.max(1, fadeOut - 1) * Math.PI * 0.5) ** 2;
+    const target = audio.left.length - 1 - index;
+    audio.left[target] *= gain;
+    audio.right[target] *= gain;
+  }
+}
+
+function highpass(samples, cutoff) {
   const alpha = 1 / (1 + 2 * Math.PI * cutoff / sampleRate);
   let previousInput = 0;
   let previousOutput = 0;
@@ -368,42 +482,50 @@ function highpassInPlace(samples, cutoff) {
   }
 }
 
-function applyEdgeFades(samples, fadeInSeconds, fadeOutSeconds) {
-  const fadeInLength = Math.min(samples.length, Math.round(fadeInSeconds * sampleRate));
-  const fadeOutLength = Math.min(samples.length, Math.round(fadeOutSeconds * sampleRate));
-  for (let index = 0; index < fadeInLength; index += 1) {
-    samples[index] *= index / Math.max(1, fadeInLength - 1);
-  }
-  for (let index = 0; index < fadeOutLength; index += 1) {
-    samples[samples.length - 1 - index] *= index / Math.max(1, fadeOutLength - 1);
-  }
-}
-
 function removeDc(samples) {
-  if (samples.length === 0) {
-    return;
-  }
+  if (!samples.length) return;
   let sum = 0;
-  for (const value of samples) {
-    sum += value;
-  }
+  for (const sample of samples) sum += sample;
   const mean = sum / samples.length;
-  for (let index = 0; index < samples.length; index += 1) {
-    samples[index] -= mean;
+  for (let index = 0; index < samples.length; index += 1) samples[index] -= mean;
+}
+
+function applyGain(audio, gain) {
+  for (let index = 0; index < audio.left.length; index += 1) {
+    audio.left[index] *= gain;
+    audio.right[index] *= gain;
   }
 }
 
-function rms(samples) {
-  let sum = 0;
-  for (const value of samples) {
-    sum += value * value;
+function softLimit(audio) {
+  const drive = 1.18;
+  for (let index = 0; index < audio.left.length; index += 1) {
+    audio.left[index] = Math.tanh(audio.left[index] * drive) / drive;
+    audio.right[index] = Math.tanh(audio.right[index] * drive) / drive;
   }
-  return Math.sqrt(sum / Math.max(1, samples.length));
 }
 
-function encodeWav(samples) {
-  const bytesPerSample = 2;
-  const dataSize = samples.length * bytesPerSample;
+function measureLoudness(audio) {
+  let energy = 0;
+  for (let index = 0; index < audio.left.length; index += 1) energy += audio.left[index] ** 2 + audio.right[index] ** 2;
+  const meanSquare = energy / Math.max(1, audio.left.length);
+  return meanSquare > 0 ? -0.691 + 10 * Math.log10(meanSquare) : -Infinity;
+}
+
+function measureTruePeak(audio) {
+  let peak = 0;
+  for (const channel of [audio.left, audio.right]) {
+    for (let index = 0; index < channel.length - 1; index += 1) {
+      const from = channel[index];
+      const to = channel[index + 1];
+      for (let step = 0; step < 4; step += 1) peak = Math.max(peak, Math.abs(from + (to - from) * step / 4));
+    }
+  }
+  return peak;
+}
+
+function encodeWav(audio) {
+  const dataSize = audio.left.length * 4;
   const buffer = Buffer.alloc(44 + dataSize);
   buffer.write("RIFF", 0);
   buffer.writeUInt32LE(36 + dataSize, 4);
@@ -411,20 +533,66 @@ function encodeWav(samples) {
   buffer.write("fmt ", 12);
   buffer.writeUInt32LE(16, 16);
   buffer.writeUInt16LE(1, 20);
-  buffer.writeUInt16LE(1, 22);
+  buffer.writeUInt16LE(2, 22);
   buffer.writeUInt32LE(sampleRate, 24);
-  buffer.writeUInt32LE(sampleRate * bytesPerSample, 28);
-  buffer.writeUInt16LE(bytesPerSample, 32);
+  buffer.writeUInt32LE(sampleRate * 4, 28);
+  buffer.writeUInt16LE(4, 32);
   buffer.writeUInt16LE(16, 34);
   buffer.write("data", 36);
   buffer.writeUInt32LE(dataSize, 40);
-
-  for (let index = 0; index < samples.length; index += 1) {
-    const sample = Math.max(-1, Math.min(1, samples[index]));
-    buffer.writeInt16LE(
-      Math.round(sample * (sample < 0 ? 32768 : 32767)),
-      44 + index * bytesPerSample
-    );
+  for (let index = 0; index < audio.left.length; index += 1) {
+    buffer.writeInt16LE(floatToInt16(audio.left[index]), 44 + index * 4);
+    buffer.writeInt16LE(floatToInt16(audio.right[index]), 46 + index * 4);
   }
   return buffer;
+}
+
+function floatToInt16(value) {
+  const clamped = Math.max(-1, Math.min(1, value));
+  return Math.round(clamped * (clamped < 0 ? 32768 : 32767));
+}
+
+function sourceProvenance(relativePath) {
+  const sha256 = crypto.createHash("sha256").update(fs.readFileSync(path.join(sourceRoot, relativePath))).digest("hex");
+  const base = { file: relativePath.split(path.sep).join("/"), sha256, downloadedOrRenderedAt: renderedDate };
+  if (relativePath.startsWith("uisfx/")) return { ...base, creator: "UISFX contributors", license: "CC0-1.0", sourceUrl: "https://github.com/romainsimon/uisfx", upstreamCommit: "99d287a1d27ef49c02a5262184a7fda91612321e", note: "Lossless 48 kHz render of a deterministic CC0 audio recipe." };
+  if (relativePath.startsWith("public-domain-recordings/")) return { ...base, creator: "sound-cc0 contributors", license: "CC0 / Unlicense", sourceUrl: "https://github.com/code4fukui/sound-cc0", upstreamCommit: "0bdbbe370c42897e12b7c5b0b26d96228e0d2931" };
+  const pack = relativePath.split(path.sep)[1];
+  const urls = {
+    "casino-audio": "https://kenney.nl/assets/casino-audio",
+    "digital-audio": "https://kenney.nl/assets/digital-audio",
+    "impact-sounds": "https://kenney.nl/assets/impact-sounds",
+    "interface-sounds": "https://kenney.nl/assets/interface-sounds",
+    "rpg-audio": "https://kenney.nl/assets/rpg-audio",
+    "ui-audio": "https://kenney.nl/assets/ui-audio"
+  };
+  return { ...base, creator: "Kenney Vleugels", license: "CC0-1.0", sourceUrl: urls[pack] };
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function mulberry32(seed) {
+  let state = seed;
+  return () => {
+    state += 0x6d2b79f5;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function toDb(value) {
+  return value > 0 ? 20 * Math.log10(value) : -Infinity;
+}
+
+function round(value, digits = 3) {
+  return Number(value.toFixed(digits));
 }

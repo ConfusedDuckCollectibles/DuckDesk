@@ -6,6 +6,8 @@ import "@fontsource/barlow-condensed/900.css";
 import "@fontsource-variable/manrope/wght.css";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
+  AudioPlaybackScheduler,
+  selectAudioCueSource,
   isOverlayConfigMessage,
   isOverlayClearMessage,
   isOverlayAuctionTimerTriggerMessage,
@@ -211,8 +213,9 @@ let milestoneTimer: number | undefined;
 let hypeTimer: number | undefined;
 let auctionTimerInterval: number | undefined;
 let recapTimer: number | undefined;
-let audioContext: AudioContext | undefined;
 let activeAudioPlayer: HTMLAudioElement | null = null;
+const overlayAudioScheduler = new AudioPlaybackScheduler();
+const audioPlaybackTimers = new Set<number>();
 let cameraStream: MediaStream | null = null;
 const audioOutputEnabled = new URLSearchParams(window.location.search).get("audio") !== "off";
 const previewSkin = (() => {
@@ -302,7 +305,7 @@ function connect(): void {
 
     if (isOverlaySoundTriggerMessage(parsed)) {
       if (audioOutputEnabled && soundsEnabled.value && soundVolume.value > 0) {
-        playSoundKind(parsed.kind);
+        playSoundKind(parsed.kind, parsed.timestamp);
       }
       return;
     }
@@ -550,12 +553,36 @@ function formatActivityMeta(event: ShowEvent): string {
 }
 
 function playEventTone(event: ShowEvent): void {
-  playSoundKind(event.type === "audience_action" ? "action" : event.type);
+  playSoundKind(event.type === "audience_action" ? "action" : event.type, event.timestamp);
 }
 
-function playSoundKind(kind: SoundKind): void {
-  stopAudioPlayback();
-  const selectedUrl = customSoundUrls.value[kind] ?? `/overlay/audio/${audioTheme.value}/${kind}.wav`;
+function playSoundKind(kind: SoundKind, eventKey: string | number = Date.now()): void {
+  const decision = overlayAudioScheduler.request(kind, Date.now(), eventKey);
+  if (decision.action === "drop") {
+    return;
+  }
+
+  if (decision.action === "queue") {
+    const timer = window.setTimeout(() => {
+      audioPlaybackTimers.delete(timer);
+      if (audioOutputEnabled && soundsEnabled.value && soundVolume.value > 0) {
+        startAudioPlayback(kind, decision.variant, true);
+      }
+    }, decision.delayMs);
+    audioPlaybackTimers.add(timer);
+    return;
+  }
+
+  startAudioPlayback(kind, decision.variant, decision.interrupt);
+}
+
+function startAudioPlayback(kind: SoundKind, variant: number, interrupt: boolean): void {
+  if (interrupt) {
+    stopActiveAudioPlayer();
+  }
+  const customUrl = customSoundUrls.value[kind];
+  const selectedSource = selectAudioCueSource(kind, variant, customUrl);
+  const selectedUrl = customUrl ? selectedSource : `/overlay/audio/${audioTheme.value}/${selectedSource}`;
   const audio = new Audio(new URL(selectedUrl, window.location.origin).href);
   audio.volume = soundVolume.value;
   activeAudioPlayer = audio;
@@ -565,115 +592,30 @@ function playSoundKind(kind: SoundKind): void {
     }
   };
   audio.addEventListener("ended", release, { once: true });
-  audio.addEventListener("error", release, { once: true });
-  void audio.play().catch(() => {
+  audio.addEventListener("error", () => {
     release();
-    playSynthSound(kind);
+    console.error(`[Duck Desk Audio] Missing or invalid ${kind} cue: ${selectedUrl}`);
+  }, { once: true });
+  void audio.play().catch((error: unknown) => {
+    release();
+    console.error(`[Duck Desk Audio] Could not play ${kind} cue`, error);
   });
 }
 
 function stopAudioPlayback(): void {
+  for (const timer of audioPlaybackTimers) {
+    window.clearTimeout(timer);
+  }
+  audioPlaybackTimers.clear();
+  overlayAudioScheduler.reset();
+  stopActiveAudioPlayer();
+}
+
+function stopActiveAudioPlayer(): void {
   if (activeAudioPlayer) {
     activeAudioPlayer.pause();
     activeAudioPlayer.currentTime = 0;
     activeAudioPlayer = null;
-  }
-}
-
-type AudioProfile = {
-  wave: OscillatorType;
-  frequencies: Record<SoundKind, number[]>;
-  volume: number;
-  step: number;
-};
-
-const audioProfiles: Record<AudioTheme, AudioProfile> = {
-  neon_pulse: {
-    wave: "triangle",
-    frequencies: { sale: [620, 880, 1240], bid: [470, 680], action: [320, 560], tip: [760, 1080], share: [410, 610, 820] },
-    volume: 0.18,
-    step: 0.075
-  },
-  arcade_8bit: {
-    wave: "square",
-    frequencies: { sale: [523, 784, 1047], bid: [392, 523], action: [262, 330, 392], tip: [659, 988], share: [330, 494, 659] },
-    volume: 0.105,
-    step: 0.065
-  },
-  broadcast: {
-    wave: "sine",
-    frequencies: { sale: [330, 494, 659], bid: [440, 554], action: [220, 330], tip: [554, 740], share: [294, 392, 523] },
-    volume: 0.2,
-    step: 0.09
-  },
-  crystal: {
-    wave: "sine",
-    frequencies: { sale: [784, 1175, 1568], bid: [659, 988], action: [523, 784], tip: [988, 1480], share: [698, 1047, 1397] },
-    volume: 0.14,
-    step: 0.11
-  },
-  duck_party: {
-    wave: "square",
-    frequencies: { sale: [370, 554, 740], bid: [294, 440], action: [220, 370, 294], tip: [494, 740, 988], share: [262, 392, 523] },
-    volume: 0.1,
-    step: 0.075
-  },
-  luxury: {
-    wave: "sine",
-    frequencies: { sale: [262, 392, 523], bid: [330, 415], action: [196, 294], tip: [440, 659], share: [247, 330, 494] },
-    volume: 0.17,
-    step: 0.13
-  },
-  retro: {
-    wave: "sawtooth",
-    frequencies: { sale: [440, 660, 880], bid: [349, 466], action: [233, 311, 415], tip: [587, 784], share: [277, 415, 554] },
-    volume: 0.075,
-    step: 0.07
-  },
-  stadium: {
-    wave: "triangle",
-    frequencies: { sale: [294, 587, 880], bid: [392, 587], action: [196, 294, 392], tip: [523, 784, 1047], share: [262, 523, 784] },
-    volume: 0.22,
-    step: 0.095
-  },
-  storm: {
-    wave: "sawtooth",
-    frequencies: { sale: [110, 220, 440], bid: [147, 294], action: [98, 196, 147], tip: [220, 440, 660], share: [123, 247, 370] },
-    volume: 0.09,
-    step: 0.12
-  },
-  zen: {
-    wave: "sine",
-    frequencies: { sale: [392, 523, 659], bid: [330, 440], action: [262, 349], tip: [494, 659], share: [294, 392, 523] },
-    volume: 0.12,
-    step: 0.16
-  }
-};
-
-function playSynthSound(kind: SoundKind): void {
-  try {
-    audioContext ??= new AudioContext();
-    const profile = audioProfiles[audioTheme.value];
-    const frequencies = profile.frequencies[kind];
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const start = audioContext.currentTime;
-    const duration = Math.max(0.22, frequencies.length * profile.step + 0.1);
-
-    oscillator.type = profile.wave;
-    oscillator.frequency.setValueAtTime(frequencies[0], start);
-    frequencies.slice(1).forEach((frequency, index) => {
-      oscillator.frequency.exponentialRampToValueAtTime(frequency, start + (index + 1) * profile.step);
-    });
-    gain.gain.setValueAtTime(0.001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(profile.volume * soundVolume.value, start + 0.018);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start(start);
-    oscillator.stop(start + duration + 0.02);
-  } catch {
-    // OBS or the browser preview can block audio until user interaction.
   }
 }
 

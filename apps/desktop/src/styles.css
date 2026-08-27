@@ -744,6 +744,55 @@ textarea {
   grid-column: span 2;
 }
 
+.actions .demo-preview-notice {
+  grid-column: 1 / -1;
+  min-height: 62px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-color: rgba(165, 255, 203, 0.34);
+  color: #dfffee;
+  background: linear-gradient(90deg, rgba(165, 255, 203, 0.13), rgba(52, 231, 255, 0.06));
+  text-align: left;
+}
+
+.actions .demo-preview-notice[hidden] {
+  display: none;
+}
+
+.demo-preview-notice > svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  color: #a5ffcb;
+}
+
+.demo-preview-notice > span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1;
+}
+
+.demo-preview-notice strong {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.demo-preview-notice small {
+  flex: 0 0 auto;
+  color: #34e7ff;
+  font-size: 12px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
 .preview-panel {
   overflow: hidden;
   grid-column: span 2;
@@ -768,6 +817,40 @@ textarea {
   min-height: 790px;
   position: relative;
   z-index: 1;
+}
+
+.preview-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-heading-actions > span {
+  white-space: nowrap;
+}
+
+button.preview-demo-toggle {
+  min-width: 152px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+button.preview-demo-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+
+button.preview-demo-toggle span {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-transform: none;
 }
 
 .phone-frame {
@@ -826,6 +909,85 @@ textarea {
   font-size: 15px;
   font-weight: 750;
   line-height: 1.45;
+}
+
+.preview-demo-panel {
+  width: min(100%, 480px);
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 14px;
+  border: 1px solid rgba(52, 231, 255, 0.3);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(52, 231, 255, 0.09), rgba(0, 8, 13, 0.3)),
+    rgba(1, 8, 12, 0.78);
+  box-shadow: inset 3px 0 0 rgba(165, 255, 203, 0.72);
+}
+
+.preview-demo-panel[hidden] {
+  display: none;
+}
+
+.preview-demo-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.preview-demo-title > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.preview-demo-title small {
+  color: rgba(237, 247, 255, 0.52);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.preview-notes .preview-demo-title strong {
+  color: #ffffff;
+  font-size: 17px;
+  line-height: 1.15;
+}
+
+.preview-notes .preview-demo-title > span {
+  padding: 5px 8px;
+  border-color: rgba(165, 255, 203, 0.4);
+  color: #071014;
+  background: #a5ffcb;
+  font-size: 10px;
+}
+
+.preview-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.preview-demo-grid button {
+  min-width: 0;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.preview-demo-grid button:first-child {
+  grid-column: 1 / -1;
+}
+
+.preview-demo-grid button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
 }
 
 .preview-notes::after {

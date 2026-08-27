@@ -224,6 +224,7 @@ type ShowEventLog = {
 };
 
 type DeskView = "live" | "setup" | "library";
+type DemoAction = "sale" | "bid" | "action" | "tip" | "share";
 type DeskTab =
   | "live-show"
   | "live-controls"
@@ -294,6 +295,11 @@ const preflightWhatnot = readElement<HTMLElement>("preflight-whatnot");
 const preflightData = readElement<HTMLElement>("preflight-data");
 const revealExtension = readElement<HTMLButtonElement>("reveal-extension");
 const demoToggle = readElement<HTMLButtonElement>("demo-toggle");
+const demoPreviewNotice = readElement<HTMLButtonElement>("demo-preview-notice");
+const previewDemoToggle = readElement<HTMLButtonElement>("preview-demo-toggle");
+const previewDemoToggleLabel = readElement<HTMLElement>("preview-demo-toggle-label");
+const previewDemoPanel = readElement<HTMLElement>("preview-demo-panel");
+const previewDemoActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-preview-demo-action]"));
 const sendTest = readElement<HTMLButtonElement>("send-test");
 const sendBid = readElement<HTMLButtonElement>("send-bid");
 const sendAction = readElement<HTMLButtonElement>("send-action");
@@ -488,24 +494,23 @@ revealExtension.addEventListener("click", () => {
   void window.duckDesk.revealExtension();
 });
 
-sendTest.addEventListener("click", () => {
-  void window.duckDesk.sendTestSale();
-});
+sendTest.addEventListener("click", () => void triggerDemoEvent("sale"));
+sendBid.addEventListener("click", () => void triggerDemoEvent("bid"));
+sendAction.addEventListener("click", () => void triggerDemoEvent("action"));
+sendTip.addEventListener("click", () => void triggerDemoEvent("tip"));
+sendShare.addEventListener("click", () => void triggerDemoEvent("share"));
 
-sendBid.addEventListener("click", () => {
-  void window.duckDesk.sendTestBid();
-});
+for (const action of previewDemoActions) {
+  action.addEventListener("click", () => {
+    const kind = action.dataset.previewDemoAction;
+    if (isDemoAction(kind)) {
+      void triggerDemoEvent(kind);
+    }
+  });
+}
 
-sendAction.addEventListener("click", () => {
-  void window.duckDesk.sendTestAction();
-});
-
-sendTip.addEventListener("click", () => {
-  void window.duckDesk.sendTestTip();
-});
-
-sendShare.addEventListener("click", () => {
-  void window.duckDesk.sendTestShare();
+demoPreviewNotice.addEventListener("click", () => {
+  setDeskView("live", "live-preview");
 });
 
 for (const card of themeCards) {
@@ -698,10 +703,13 @@ triggerRecap.addEventListener("click", async () => {
   renderStatus(await window.duckDesk.triggerRecap());
 });
 
-demoToggle.addEventListener("click", async () => {
+async function toggleDemoMode(): Promise<void> {
   const enabled = !(currentStatus?.demoMode ?? false);
   renderStatus(await window.duckDesk.setDemoMode(enabled));
-});
+}
+
+demoToggle.addEventListener("click", () => void toggleDemoMode());
+previewDemoToggle.addEventListener("click", () => void toggleDemoMode());
 
 window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
@@ -810,9 +818,17 @@ function renderStatus(status: DesktopStatus): void {
   demoToggle.textContent = status.demoMode ? "Demo Mode On" : "Demo Mode Off";
   demoToggle.classList.toggle("is-on", status.demoMode);
   demoToggle.setAttribute("aria-pressed", String(status.demoMode));
+  previewDemoToggleLabel.textContent = status.demoMode ? "Demo Mode On" : "Demo Mode Off";
+  previewDemoToggle.classList.toggle("is-on", status.demoMode);
+  previewDemoToggle.setAttribute("aria-pressed", String(status.demoMode));
+  demoPreviewNotice.hidden = !status.demoMode;
+  previewDemoPanel.hidden = !status.demoMode;
   for (const action of [sendTest, sendBid, sendAction, sendTip, sendShare]) {
     action.disabled = !status.demoMode;
     action.title = status.demoMode ? "" : "Turn on Demo Mode to send test events to the overlay.";
+  }
+  for (const action of previewDemoActions) {
+    action.disabled = !status.demoMode;
   }
   for (const action of addonTestActions) {
     action.disabled = false;
@@ -889,6 +905,24 @@ function deskViewForTab(tab: DeskTab): DeskView {
 
 function isDeskTab(value: string | undefined): value is DeskTab {
   return DESK_TABS.includes(value as DeskTab);
+}
+
+function isDemoAction(value: string | undefined): value is DemoAction {
+  return value === "sale" || value === "bid" || value === "action" || value === "tip" || value === "share";
+}
+
+async function triggerDemoEvent(action: DemoAction): Promise<void> {
+  if (action === "sale") {
+    await window.duckDesk.sendTestSale();
+  } else if (action === "bid") {
+    await window.duckDesk.sendTestBid();
+  } else if (action === "action") {
+    await window.duckDesk.sendTestAction();
+  } else if (action === "tip") {
+    await window.duckDesk.sendTestTip();
+  } else {
+    await window.duckDesk.sendTestShare();
+  }
 }
 
 function renderPreflightCheck(element: HTMLElement, ready: boolean, detail: string, pending = false): void {

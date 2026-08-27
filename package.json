@@ -24,6 +24,9 @@
     "build": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/server && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build -w @duck-desk/desktop",
     "typecheck": "npm run build -w @duck-desk/shared && npm run typecheck -w @duck-desk/server && npm run typecheck -w @duck-desk/overlay && npm run typecheck -w @duck-desk/extension && npm run typecheck -w @duck-desk/desktop",
     "audio:generate": "node scripts/generate-audio-themes.mjs",
+    "audio:validate": "node scripts/validate-audio-library.mjs",
+    "audio:test": "npm run build -w @duck-desk/shared && node --test scripts/audio-policy.test.mjs",
+    "test": "npm run audio:validate && npm run audio:test",
     "overlay:sync": "bash scripts/sync-overlay-to-app.sh",
     "mac:app": "npm run dist -w @duck-desk/desktop",
     "mac:dmg": "npm run dist:dmg -w @duck-desk/desktop",
@@ -31,7 +34,6 @@
     "mock:sale": "curl -X POST http://localhost:8741/events -H 'Content-Type: application/json' -d '{\"type\":\"sale\",\"buyer\":\"TestBuyer\",\"amount\":28,\"item\":\"Test Wheel Spin\",\"timestamp\":123456789}'"
   },
   "devDependencies": {
-    "@audio/decode-mp3": "^1.3.1",
     "@audio/decode-vorbis": "^1.3.2",
     "typescript": "^5.9.2"
   }
