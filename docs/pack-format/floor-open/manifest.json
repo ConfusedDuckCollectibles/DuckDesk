@@ -1,22 +1,29 @@
 {
   "version": 1,
   "format": "duckpack",
-  "name": "Night Market",
+  "name": "Floor Open",
   "author": "Duck Desk",
   "packVersion": "1.0.0",
-  "description": "Neon cyber market look with a broadcast frame and a starting scene.",
+  "description": "Auction-floor look for live bidding: sports desk skin, auction scene, and bid-forward banners.",
   "license": "MIT",
   "projectUrl": "https://github.com/ConfusedDuckCollectibles/DuckDesk",
   "preview": "preview.png",
   "setup": {
-    "theme": "neon",
-    "skin": "cyber_market",
+    "theme": "arena",
+    "skin": "sports_desk",
     "framePreset": "broadcast",
-    "typographyPreset": "modern",
-    "sceneMode": "starting",
+    "typographyPreset": "condensed",
+    "sceneMode": "auction",
     "promoBanners": [
-      "Duck Desk Night Market",
-      "Follow for the next drop"
+      "Bids are open",
+      "Call your number"
+    ],
+    "goals": [
+      {
+        "kind": "sales",
+        "target": 500,
+        "label": "Floor goal"
+      }
     ]
   },
   "assets": [

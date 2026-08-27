@@ -8,14 +8,18 @@ const outDir = path.join(root, "docs/images");
 const overlayUrl = "http://localhost:8741/overlay?audio=off";
 const rendererUrl = path.join(root, "apps/desktop/dist/renderer/index.html");
 const preloadPath = path.join(root, "scripts/capture-readme-preload.cjs");
-const cameraBg = fs.readFileSync(path.join(outDir, "duck-desk-camera-bg.png"));
-const cameraDataUrl = `data:image/png;base64,${cameraBg.toString("base64")}`;
+const cameraPath = path.join(outDir, "duck-desk-camera-bg.png");
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function captureOverlay(filename, skin, title) {
+  if (!fs.existsSync(cameraPath)) {
+    console.log(`Skip overlay capture; missing ${cameraPath}`);
+    return;
+  }
+  const cameraDataUrl = `data:image/png;base64,${fs.readFileSync(cameraPath).toString("base64")}`;
   const win = new BrowserWindow({
     width: 540,
     height: 960,
@@ -28,7 +32,13 @@ async function captureOverlay(filename, skin, title) {
     }
   });
 
-  await win.loadURL(overlayUrl);
+  try {
+    await win.loadURL(overlayUrl);
+  } catch (error) {
+    console.log(`Skip overlay capture; overlay is not running (${error instanceof Error ? error.message : String(error)})`);
+    win.close();
+    return;
+  }
   await delay(1400);
   await win.webContents.executeJavaScript(`(() => {
     const shell = document.querySelector(".overlay-shell");
@@ -112,6 +122,31 @@ async function captureDesktop(filename, view, tab) {
     document.querySelectorAll("[data-addon-theme]").forEach((card) => {
       card.hidden = false;
     });
+    if ("${tab}" === "live-remote") {
+      const qr = document.getElementById("remote-qr");
+      if (qr) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 220;
+        canvas.height = 220;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.fillStyle = "#f4fbff";
+          ctx.fillRect(0, 0, 220, 220);
+          ctx.fillStyle = "#061016";
+          for (let y = 0; y < 11; y += 1) {
+            for (let x = 0; x < 11; x += 1) {
+              const finder = (x < 3 && y < 3) || (x > 7 && y < 3) || (x < 3 && y > 7);
+              if (finder || (x + y) % 3 === 0) {
+                ctx.fillRect(x * 20, y * 20, 18, 18);
+              }
+            }
+          }
+        }
+        qr.src = canvas.toDataURL("image/png");
+        qr.hidden = false;
+      }
+      document.getElementById("remote-qr-unavailable")?.setAttribute("hidden", "");
+    }
     return document.querySelector(".dashboard")?.dataset.currentView + ":" + document.querySelector(".dashboard")?.dataset.currentTab;
   })()`);
   await delay(800);
@@ -125,5 +160,9 @@ app.whenReady().then(async () => {
   await captureDesktop("duck-desk-dashboard.png", "live", "live-show");
   await captureDesktop("duck-desk-preview.png", "live", "live-preview");
   await captureDesktop("duck-desk-library.png", "library", "library-themes");
+  await captureDesktop("duck-desk-remote.png", "live", "live-remote");
+  await captureDesktop("duck-desk-studio.png", "library", "library-studio");
+  await captureDesktop("duck-desk-packs.png", "library", "library-packs");
+  await captureDesktop("duck-desk-health.png", "setup", "setup-preflight");
   app.quit();
 });

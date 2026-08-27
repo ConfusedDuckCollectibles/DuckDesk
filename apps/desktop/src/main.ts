@@ -69,6 +69,17 @@ import {
   type UpdateStatus
 } from "./diagnostics.js";
 import {
+  createShowProfile,
+  createShowSessionReset,
+  loadShowProfileLibrary,
+  parseShowProfile,
+  saveShowProfileLibrary,
+  serializeProfileExport,
+  upsertShowProfile,
+  type ShowLook,
+  type ShowProfile
+} from "./show-session.js";
+import {
   AudioPlaybackScheduler,
   normalizeAudioVolume,
   selectAudioCueSource,
@@ -170,6 +181,10 @@ let installedPacks: InstalledPackRecord[] = [];
 let pendingPack: InspectedPack | null = null;
 let packUndoSnapshot: PackUndoSnapshot | null = null;
 let packNotice = "";
+let showProfiles: ShowProfile[] = [];
+let activeShowProfileId = "";
+let showEpoch = 0;
+let showNotice = "";
 let framePreset: PackFramePreset = "theme";
 let reducedMotion = false;
 const diagnosticRing = new DiagnosticRing();
@@ -270,6 +285,7 @@ void electronApp.whenReady().then(async () => {
   loadSettings();
   loadUserRehearsals();
   loadUserPacks();
+  loadShowProfiles();
   writeRuntimeMarker(false);
   registerIpc();
   createWindow();
@@ -1209,6 +1225,36 @@ function registerIpc(): void {
     return getStatus();
   });
 
+  ipcMain.handle("duck-desk:start-new-show", async () => {
+    await startNewShow();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:save-show-profile", (_event, name: unknown) => {
+    saveCurrentShowProfile(name);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:load-show-profile", (_event, id: unknown) => {
+    loadShowProfileById(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:delete-show-profile", (_event, id: unknown) => {
+    deleteShowProfileById(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:export-show-profile", async (_event, id: unknown) => {
+    await exportShowProfileById(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:import-show-profile", async () => {
+    await importShowProfileFromDisk();
+    return getStatus();
+  });
+
   ipcMain.handle("duck-desk:dismiss-recovery-notice", () => {
     recoveryNotice = "";
     return getStatus();
@@ -1787,6 +1833,208 @@ function loadUserRehearsals(): void {
 
 function persistUserRehearsals(): void {
   saveRehearsalTimelines(rehearsalLibraryPath(), userRehearsals);
+}
+
+function showProfileLibraryPath(): string {
+  return path.join(electronApp.getPath("userData"), "show-profiles.json");
+}
+
+function snapshotShowLook(): ShowLook {
+  return {
+    theme: activeTheme,
+    skin: activeSkin,
+    addOns: [...activeAddOns],
+    soundsEnabled,
+    soundVolume,
+    audioTheme,
+    streamTitle,
+    gifPlacement,
+    gifSize,
+    milestoneThresholds,
+    hypeMeterSeconds,
+    promoBanners,
+    sceneMode,
+    goals,
+    auctionTimerSeconds,
+    hideTopBanner,
+    themeEffectsEnabled,
+    alertVisuals,
+    framePreset,
+    reducedMotion
+  };
+}
+
+function applyShowLook(look: ShowLook): void {
+  applyConfigPatch({
+    theme: look.theme,
+    skin: look.skin,
+    addOns: look.addOns,
+    soundsEnabled: look.soundsEnabled,
+    soundVolume: look.soundVolume,
+    audioTheme: look.audioTheme,
+    streamTitle: look.streamTitle,
+    gifPlacement: look.gifPlacement,
+    gifSize: look.gifSize,
+    milestoneThresholds: look.milestoneThresholds,
+    hypeMeterSeconds: look.hypeMeterSeconds,
+    promoBanners: look.promoBanners,
+    sceneMode: look.sceneMode,
+    goals: look.goals,
+    auctionTimerSeconds: look.auctionTimerSeconds,
+    hideTopBanner: look.hideTopBanner,
+    themeEffectsEnabled: look.themeEffectsEnabled,
+    alertVisuals: look.alertVisuals
+  });
+  framePreset = look.framePreset;
+  reducedMotion = look.reducedMotion;
+}
+
+function loadShowProfiles(): void {
+  const loaded = loadShowProfileLibrary(showProfileLibraryPath());
+  showProfiles = loaded.profiles;
+  if (loaded.quarantined) {
+    showNotice = "A saved show profile file was invalid and was set aside.";
+  }
+}
+
+function persistShowProfiles(): void {
+  saveShowProfileLibrary(showProfileLibraryPath(), showProfiles);
+}
+
+async function startNewShow(): Promise<void> {
+  if (mainWindow) {
+    const choice = await dialog.showMessageBox(mainWindow, {
+      type: "question",
+      buttons: ["Start New Show", "Cancel"],
+      defaultId: 1,
+      cancelId: 1,
+      title: "Start New Show",
+      message: "Clear tonight's totals, recap, overlay queue, and event log?",
+      detail: "Looks, sounds, alerts, packs, and saved rehearsals stay. Live totals cannot be undone."
+    });
+    if (choice.response !== 0) {
+      return;
+    }
+  }
+  rehearsalManager.stop();
+  const reset = createShowSessionReset();
+  stats.salesCount = reset.stats.salesCount;
+  stats.grossSales = reset.stats.grossSales;
+  stats.bidCount = reset.stats.bidCount;
+  stats.audienceActions = reset.stats.audienceActions;
+  stats.tipCount = reset.stats.tipCount;
+  stats.tipTotal = reset.stats.tipTotal;
+  stats.shareCount = reset.stats.shareCount;
+  lastRealEventAt = reset.lastRealEventAt;
+  rejectedEventCount = reset.rejectedEventCount;
+  duplicateEventCount = reset.duplicateEventCount;
+  lastEventFingerprint = reset.lastEventFingerprint;
+  completedMilestones.clear();
+  demoMode = reset.demoMode;
+  jumbotronCameraEnabled = reset.jumbotronCameraEnabled;
+  sceneMode = reset.sceneMode;
+  showEpoch += 1;
+  showNotice = "New show started. Totals, recap, overlay queue, and the event log were cleared.";
+  diagnosticRing.push("show", "Started a new show session");
+  broadcast(createOverlayClear());
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function saveCurrentShowProfile(name: unknown): void {
+  if (typeof name !== "string") {
+    return;
+  }
+  const profile = createShowProfile(name, snapshotShowLook());
+  showProfiles = upsertShowProfile(showProfiles, profile);
+  activeShowProfileId = showProfiles[0]?.id ?? profile.id;
+  showNotice = `Saved look “${showProfiles[0]?.name ?? profile.name}”.`;
+  persistShowProfiles();
+  broadcastStatus();
+}
+
+function loadShowProfileById(id: unknown): void {
+  if (typeof id !== "string") {
+    return;
+  }
+  const profile = showProfiles.find((entry) => entry.id === id);
+  if (!profile) {
+    showNotice = "That show profile is no longer saved.";
+    broadcastStatus();
+    return;
+  }
+  applyShowLook(profile.look);
+  activeShowProfileId = profile.id;
+  showNotice = `Loaded “${profile.name}”. Start New Show if last night's totals are still on screen.`;
+  scheduleSettingsSave();
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function deleteShowProfileById(id: unknown): void {
+  if (typeof id !== "string") {
+    return;
+  }
+  const profile = showProfiles.find((entry) => entry.id === id);
+  showProfiles = showProfiles.filter((entry) => entry.id !== id);
+  if (activeShowProfileId === id) {
+    activeShowProfileId = showProfiles[0]?.id ?? "";
+  }
+  showNotice = profile ? `Removed “${profile.name}”.` : "That show profile was already gone.";
+  persistShowProfiles();
+  broadcastStatus();
+}
+
+async function exportShowProfileById(id: unknown): Promise<void> {
+  if (typeof id !== "string" || !mainWindow) {
+    return;
+  }
+  const profile = showProfiles.find((entry) => entry.id === id);
+  if (!profile) {
+    showNotice = "Save a look before exporting it.";
+    broadcastStatus();
+    return;
+  }
+  const target = await dialog.showSaveDialog(mainWindow, {
+    title: "Export show profile",
+    defaultPath: `${profile.name.replace(/[^\w\s-]+/g, "").trim() || "duck-desk-look"}.json`,
+    filters: [{ name: "Duck Desk show profile", extensions: ["json"] }]
+  } satisfies SaveDialogOptions);
+  if (target.canceled || !target.filePath) {
+    return;
+  }
+  fs.writeFileSync(target.filePath, `${JSON.stringify(serializeProfileExport(profile), null, 2)}\n`, { mode: 0o600 });
+  showNotice = `Exported “${profile.name}”. Custom audio and GIFs stay on this computer.`;
+  broadcastStatus();
+}
+
+async function importShowProfileFromDisk(): Promise<void> {
+  if (!mainWindow) {
+    return;
+  }
+  const picked = await dialog.showOpenDialog(mainWindow, {
+    title: "Import show profile",
+    properties: ["openFile"],
+    filters: [{ name: "Duck Desk show profile", extensions: ["json"] }]
+  } satisfies OpenDialogOptions);
+  const filePath = picked.filePaths[0];
+  if (picked.canceled || !filePath) {
+    return;
+  }
+  try {
+    const parsed = parseShowProfile(JSON.parse(fs.readFileSync(filePath, "utf8")) as unknown);
+    showProfiles = upsertShowProfile(showProfiles, parsed);
+    applyShowLook(parsed.look);
+    activeShowProfileId = showProfiles[0]?.id ?? parsed.id;
+    showNotice = `Imported “${parsed.name}”.`;
+    persistShowProfiles();
+    scheduleSettingsSave();
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+  } catch (error) {
+    showNotice = error instanceof Error ? error.message : "That profile could not be imported.";
+    broadcastStatus();
+  }
 }
 
 function listRehearsalSummaries(): Array<{
@@ -2735,6 +2983,10 @@ function getStatus(): {
   packNotice?: string;
   framePreset: PackFramePreset;
   reducedMotion: boolean;
+  showEpoch: number;
+  showNotice?: string;
+  showProfiles: Array<{ id: string; name: string; updatedAt: number }>;
+  activeShowProfileId?: string;
   healthChecks: HealthCheck[];
   update: UpdateStatus;
   recoveryNotice?: string;
@@ -2818,6 +3070,14 @@ function getStatus(): {
     packNotice: packNotice || undefined,
     framePreset,
     reducedMotion,
+    showEpoch,
+    showNotice: showNotice || undefined,
+    showProfiles: showProfiles.map((profile) => ({
+      id: profile.id,
+      name: profile.name,
+      updatedAt: profile.updatedAt
+    })),
+    activeShowProfileId: activeShowProfileId || undefined,
     healthChecks: buildHealthChecks(),
     update: updateStatus,
     recoveryNotice: recoveryNotice || undefined,

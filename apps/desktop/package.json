@@ -13,11 +13,12 @@
     "build:preload": "esbuild src/preload.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/preload.cjs --external:electron",
     "build:renderer": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:desktop": "node --import tsx --test src/remote.test.ts src/rehearsal.test.ts src/packs.test.ts src/diagnostics.test.ts",
+    "test:desktop": "node --import tsx --test src/remote.test.ts src/rehearsal.test.ts src/packs.test.ts src/diagnostics.test.ts src/show-session.test.ts",
     "duckpack": "tsx ../../scripts/duckpack-validate.ts",
     "dist": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac --dir --arm64",
     "dist:dmg": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac dmg --arm64",
-    "dist:win": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --win nsis --x64"
+    "dist:win": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --win nsis --x64",
+    "capture:readme": "electron ../../scripts/capture-readme-images.mjs"
   },
   "dependencies": {
     "@duck-desk/shared": "file:../../packages/shared",

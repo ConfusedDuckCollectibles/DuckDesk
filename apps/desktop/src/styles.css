@@ -262,7 +262,9 @@ body.platform-win32 .app-titlebar {
 .theme-panel,
 .library-panel,
 .active-addons-panel,
-.log-panel {
+.log-panel,
+.remote-panel,
+.show-profiles-panel {
   grid-column: 1 / -1;
 }
 
@@ -3066,4 +3068,50 @@ li {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.show-session-card {
+  display: grid;
+  gap: 10px;
+  max-width: 280px;
+  position: relative;
+  z-index: 1;
+}
+
+.show-session-card .module-note {
+  margin: 0;
+}
+
+.show-profile-save {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.show-profile-list {
+  display: grid;
+  gap: 8px;
+}
+
+button.show-profile-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid rgba(159, 224, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(5, 15, 19, 0.55);
+}
+
+button.show-profile-row.is-active {
+  border-color: rgba(52, 231, 255, 0.42);
+  background: rgba(52, 231, 255, 0.12);
+}
+
+button.show-profile-row span {
+  color: rgba(232, 246, 247, 0.62);
+  font-size: 12px;
 }

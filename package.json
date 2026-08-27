@@ -30,6 +30,7 @@
     "test:alerts": "npm run build -w @duck-desk/shared && node --test scripts/alerts.test.mjs",
     "test:desktop": "npm run build -w @duck-desk/shared && npm run test:desktop -w @duck-desk/desktop",
     "duckpack": "npm run build -w @duck-desk/shared && npm run duckpack -w @duck-desk/desktop --",
+    "capture:readme": "npm run build:renderer -w @duck-desk/desktop && npm run capture:readme -w @duck-desk/desktop",
     "overlay:sync": "bash scripts/sync-overlay-to-app.sh",
     "mac:app": "npm run dist -w @duck-desk/desktop",
     "mac:dmg": "npm run dist:dmg -w @duck-desk/desktop",

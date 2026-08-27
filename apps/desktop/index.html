@@ -58,6 +58,7 @@
           <div class="section-tab-set" data-tabs-for="setup" role="tablist" aria-label="Setup" hidden>
             <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="setup-connection">Connection</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="setup-preflight">Preflight</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="setup-show">Show</button>
           </div>
           <div class="section-tab-set" data-tabs-for="library" role="tablist" aria-label="Library" hidden>
             <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="library-themes">Themes</button>
@@ -73,8 +74,13 @@
             <h1>On air</h1>
             <p class="subhead">Local OBS event control for Whatnot streams.</p>
             <span class="console-badge">Production console</span>
+            <p id="status-error" class="status-error" hidden></p>
           </div>
-          <p id="status-error" class="status-error" hidden></p>
+          <div class="show-session-card">
+            <p class="module-note">Start New Show clears totals, recap, overlay queue, and the event log. Looks stay.</p>
+            <p id="show-session-notice" class="module-note" hidden></p>
+            <button id="start-new-show" type="button" class="module-command">Start New Show</button>
+          </div>
         </section>
 
         <section class="metrics" data-view="live" data-tab="live-show">
@@ -194,6 +200,31 @@
             <button id="export-diagnostics" type="button" class="module-command">Export Diagnostics</button>
           </div>
           <p class="module-note">Diagnostics never include buyer names, event text, pairing tokens, OBS passwords, or custom audio files. This build is not claimed as signed or notarized.</p>
+        </section>
+
+        <section class="library-panel show-profiles-panel is-tab-hidden" data-view="setup" data-tab="setup-show">
+          <div class="section-heading">
+            <h2><i data-lucide="layers" aria-hidden="true"></i>Show looks</h2>
+            <span id="show-profiles-status">No saved looks</span>
+          </div>
+          <p class="module-note">Save tonight's theme, alerts, banners, and goals as a named look. Export a backup JSON. Custom audio and GIFs stay on this computer.</p>
+          <p id="show-profile-notice" class="module-note" hidden></p>
+          <div class="show-profile-save">
+            <label for="show-profile-name">Look name</label>
+            <div class="url-row">
+              <input id="show-profile-name" maxlength="60" placeholder="Friday card show" />
+              <button id="save-show-profile" type="button" class="module-command">Save Look</button>
+            </div>
+          </div>
+          <div class="pack-toolbar">
+            <button id="load-show-profile" type="button">Load Look</button>
+            <button id="export-show-profile" type="button">Export Backup</button>
+            <button id="import-show-profile" type="button">Import Backup</button>
+            <button id="delete-show-profile" type="button">Delete Look</button>
+            <button id="start-new-show-setup" type="button" class="module-command">Start New Show</button>
+          </div>
+          <div id="show-profile-empty" class="empty-addons">No saved looks yet. Save the current theme and studio setup before you change it.</div>
+          <div id="show-profile-list" class="show-profile-list" role="listbox" aria-label="Saved looks"></div>
         </section>
 
         <section class="preview-panel is-tab-hidden" data-view="live" data-tab="live-preview">

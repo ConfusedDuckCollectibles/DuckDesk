@@ -48,4 +48,16 @@ npm run duckpack -- validate docs/pack-format/example
 npm run duckpack -- validate path/to/my-show-pack.duckpack
 ```
 
-See `docs/pack-format/example/` for a first-party reference pack.
+See the first-party packs in this folder:
+
+- `example/` Night Market
+- `floor-open/` Floor Open
+- `quiet-close/` Quiet Close
+
+Validate with:
+
+```sh
+npm run duckpack -- validate docs/pack-format/example
+npm run duckpack -- validate docs/pack-format/floor-open
+npm run duckpack -- validate docs/pack-format/quiet-close
+```

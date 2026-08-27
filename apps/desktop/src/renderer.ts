@@ -22,6 +22,7 @@ import {
   SlidersHorizontal,
   Smartphone,
   Sparkles,
+  Layers,
   Upload,
   Volume2,
   Package
@@ -84,6 +85,10 @@ type DesktopStatus = {
   pendingPack?: PendingPackReview;
   packUndoAvailable: boolean;
   packNotice?: string;
+  showEpoch: number;
+  showNotice?: string;
+  showProfiles: Array<{ id: string; name: string; updatedAt: number }>;
+  activeShowProfileId?: string;
   healthChecks: HealthCheckView[];
   update: UpdateStatusView;
   recoveryNotice?: string;
@@ -321,6 +326,12 @@ type DesktopApi = {
   applyPack: (id: string) => Promise<DesktopStatus>;
   exportPack: (id: string) => Promise<DesktopStatus>;
   exportCurrentSetup: () => Promise<DesktopStatus>;
+  startNewShow: () => Promise<DesktopStatus>;
+  saveShowProfile: (name: string) => Promise<DesktopStatus>;
+  loadShowProfile: (id: string) => Promise<DesktopStatus>;
+  deleteShowProfile: (id: string) => Promise<DesktopStatus>;
+  exportShowProfile: (id: string) => Promise<DesktopStatus>;
+  importShowProfile: () => Promise<DesktopStatus>;
   removePack: (id: string) => Promise<DesktopStatus>;
   undoPack: () => Promise<DesktopStatus>;
   restartBridge: () => Promise<DesktopStatus>;
@@ -358,6 +369,7 @@ type DeskTab =
   | "live-events"
   | "setup-connection"
   | "setup-preflight"
+  | "setup-show"
   | "library-themes"
   | "library-addons"
   | "library-studio"
@@ -371,6 +383,7 @@ const DESK_TABS: DeskTab[] = [
   "live-events",
   "setup-connection",
   "setup-preflight",
+  "setup-show",
   "library-themes",
   "library-addons",
   "library-studio",
@@ -512,6 +525,19 @@ const previewAlert = readElement<HTMLButtonElement>("preview-alert");
 const resetAlert = readElement<HTMLButtonElement>("reset-alert");
 const importPack = readElement<HTMLButtonElement>("import-pack");
 const exportCurrentSetup = readElement<HTMLButtonElement>("export-current-setup");
+const startNewShow = readElement<HTMLButtonElement>("start-new-show");
+const startNewShowSetup = readElement<HTMLButtonElement>("start-new-show-setup");
+const showSessionNotice = readElement<HTMLElement>("show-session-notice");
+const showProfileNotice = readElement<HTMLElement>("show-profile-notice");
+const showProfileName = readElement<HTMLInputElement>("show-profile-name");
+const saveShowProfile = readElement<HTMLButtonElement>("save-show-profile");
+const loadShowProfile = readElement<HTMLButtonElement>("load-show-profile");
+const exportShowProfile = readElement<HTMLButtonElement>("export-show-profile");
+const importShowProfile = readElement<HTMLButtonElement>("import-show-profile");
+const deleteShowProfile = readElement<HTMLButtonElement>("delete-show-profile");
+const showProfilesStatus = readElement<HTMLElement>("show-profiles-status");
+const showProfileEmpty = readElement<HTMLElement>("show-profile-empty");
+const showProfileList = readElement<HTMLElement>("show-profile-list");
 const undoPack = readElement<HTMLButtonElement>("undo-pack");
 const packNotice = readElement<HTMLElement>("pack-notice");
 const packsStatus = readElement<HTMLElement>("packs-status");
@@ -531,6 +557,8 @@ let renamingRehearsalId: string | undefined;
 let renamingRehearsalHost: "events" | "preview" | undefined;
 let selectedAlertKind: AlertKind = "sale";
 let syncingAlertStudio = false;
+let lastShowEpoch: number | undefined;
+let selectedShowProfileId = "";
 const lastDeskTabs: Record<DeskView, DeskTab> = {
   live: "live-show",
   setup: "setup-connection",
@@ -560,6 +588,7 @@ createIcons({
     SlidersHorizontal,
     Smartphone,
     Sparkles,
+    Layers,
     Upload,
     Volume2,
     Package
@@ -698,6 +727,47 @@ importPack.addEventListener("click", async () => {
 });
 exportCurrentSetup.addEventListener("click", async () => {
   renderStatus(await window.duckDesk.exportCurrentSetup());
+});
+
+startNewShow.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.startNewShow());
+});
+startNewShowSetup.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.startNewShow());
+});
+saveShowProfile.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.saveShowProfile(showProfileName.value));
+});
+loadShowProfile.addEventListener("click", async () => {
+  if (!selectedShowProfileId) {
+    return;
+  }
+  renderStatus(await window.duckDesk.loadShowProfile(selectedShowProfileId));
+});
+exportShowProfile.addEventListener("click", async () => {
+  if (!selectedShowProfileId) {
+    return;
+  }
+  renderStatus(await window.duckDesk.exportShowProfile(selectedShowProfileId));
+});
+importShowProfile.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.importShowProfile());
+});
+deleteShowProfile.addEventListener("click", async () => {
+  if (!selectedShowProfileId) {
+    return;
+  }
+  renderStatus(await window.duckDesk.deleteShowProfile(selectedShowProfileId));
+});
+showProfileList.addEventListener("click", (event) => {
+  const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-show-profile-id]");
+  if (!button?.dataset.showProfileId) {
+    return;
+  }
+  selectedShowProfileId = button.dataset.showProfileId;
+  for (const row of showProfileList.querySelectorAll<HTMLButtonElement>("[data-show-profile-id]")) {
+    row.classList.toggle("is-active", row.dataset.showProfileId === selectedShowProfileId);
+  }
 });
 undoPack.addEventListener("click", async () => {
   renderStatus(await window.duckDesk.undoPack());
@@ -1193,6 +1263,14 @@ function renderStatus(status: DesktopStatus): void {
   }
   renderRehearsal(status);
   renderAlertStudio(status);
+  renderShowProfiles(status);
+  if (lastShowEpoch === undefined) {
+    lastShowEpoch = status.showEpoch ?? 0;
+  } else if (status.showEpoch !== lastShowEpoch) {
+    lastShowEpoch = status.showEpoch;
+    eventLog.replaceChildren();
+    eventLogEmpty.hidden = false;
+  }
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
   moduleActivityCount.textContent = `${status.salesCount + status.bidCount + status.audienceActions + status.tipCount + status.shareCount} events`;
@@ -1910,6 +1988,44 @@ function renderCustomGifs(gifs: CustomGif[]): void {
     actions.append(trigger, remove);
     row.append(preview, details, actions);
     customGifList.append(row);
+  }
+}
+
+function renderShowProfiles(status: DesktopStatus): void {
+  const profiles = status.showProfiles ?? [];
+  const notice = status.showNotice ?? "";
+  showSessionNotice.hidden = !notice;
+  showSessionNotice.textContent = notice;
+  showProfileNotice.hidden = !notice;
+  showProfileNotice.textContent = notice;
+  showProfilesStatus.textContent = profiles.length === 0
+    ? "No saved looks"
+    : `${profiles.length} saved look${profiles.length === 1 ? "" : "s"}`;
+  showProfileEmpty.hidden = profiles.length > 0;
+  if (!selectedShowProfileId || !profiles.some((profile) => profile.id === selectedShowProfileId)) {
+    selectedShowProfileId = status.activeShowProfileId || profiles[0]?.id || "";
+  }
+  if (status.activeShowProfileId && !showProfileName.value) {
+    const active = profiles.find((profile) => profile.id === status.activeShowProfileId);
+    if (active) {
+      showProfileName.value = active.name;
+    }
+  }
+  showProfileList.replaceChildren();
+  for (const profile of profiles) {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "show-profile-row";
+    row.dataset.showProfileId = profile.id;
+    row.classList.toggle("is-active", profile.id === selectedShowProfileId);
+    row.setAttribute("role", "option");
+    row.setAttribute("aria-selected", String(profile.id === selectedShowProfileId));
+    const title = document.createElement("strong");
+    title.textContent = profile.name;
+    const meta = document.createElement("span");
+    meta.textContent = new Date(profile.updatedAt).toLocaleString();
+    row.append(title, meta);
+    showProfileList.append(row);
   }
 }
 

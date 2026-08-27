@@ -65,6 +65,30 @@ You do not add a new OBS source for every alert, GIF, or sound.
 
 <p align="center"><em>Check the phone canvas before you go live. It is the same overlay OBS uses.</em></p>
 
+<p align="center">
+  <img src="docs/images/duck-desk-remote.png" width="900" alt="Duck Desk Remote Show Deck with a QR code and session code">
+</p>
+
+<p align="center"><em>Pair a phone on your private Wi-Fi. The overlay stays on this computer.</em></p>
+
+<p align="center">
+  <img src="docs/images/duck-desk-studio.png" width="900" alt="Duck Desk Alert Studio with sale alert placement and duration controls">
+</p>
+
+<p align="center"><em>Alert Studio is in Library. Each event has its own size, place, and timing.</em></p>
+
+<p align="center">
+  <img src="docs/images/duck-desk-packs.png" width="900" alt="Duck Desk Community Packs with Night Market installed">
+</p>
+
+<p align="center"><em>Import a .duckpack look. First-party packs include Night Market, Floor Open, and Quiet Close.</em></p>
+
+<p align="center">
+  <img src="docs/images/duck-desk-health.png" width="900" alt="Duck Desk Production Health checks for bridge, OBS, extension, and real events">
+</p>
+
+<p align="center"><em>Production Health sits in Setup. Export diagnostics never include buyer names or tokens.</em></p>
+
 ## Download
 
 Most people should download a finished installer. You do not need the source code.
@@ -90,6 +114,7 @@ Duck Desk can check GitHub for a newer release. It does not download or install 
 - GIF reactions, goals, timers, scenes, and a jumbotron
 - Alert Studio, rehearsal playback, and a phone Remote Show Deck
 - Community `.duckpack` looks you can import, apply, export, and undo
+- Named show looks, backup export, and Start New Show so last night's totals do not leak into tonight
 - One-click OBS setup, plus a production health check before you go live
 - Automatic saving on this computer — no Duck Desk account
 
@@ -200,7 +225,7 @@ Tips only show if Whatnot’s tip message is visible in chat. Shares alert when 
 4. Watch the Preview tab and the OBS canvas.
 5. Turn **Demo Mode** off when you are done.
 
-Demo clicks do not change your real totals. Whatnot Rehearsal Mode is the best place to practice with real-looking activity.
+Demo clicks do not change your real totals. Whatnot Rehearsal Mode is the best place to practice with real-looking activity. Before a real show, use **Start New Show** on Live so last night's totals, recap, and event log are gone. Save a named look in Setup → Show if you run more than one format.
 
 ### 8. Send OBS to Whatnot
 
