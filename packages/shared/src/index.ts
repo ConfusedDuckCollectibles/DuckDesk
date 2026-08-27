@@ -165,6 +165,7 @@ export interface OverlayConfigMessage {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   hideTopBanner?: boolean;
+  themeEffectsEnabled?: boolean;
   timestamp: number;
 }
 
@@ -326,7 +327,8 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     value.goals.every(isGoalConfig) &&
     typeof value.auctionTimerSeconds === "number" &&
     Number.isFinite(value.auctionTimerSeconds) &&
-    (!("hideTopBanner" in value) || typeof value.hideTopBanner === "boolean")
+    (!("hideTopBanner" in value) || typeof value.hideTopBanner === "boolean") &&
+    (!("themeEffectsEnabled" in value) || typeof value.themeEffectsEnabled === "boolean")
   );
 }
 

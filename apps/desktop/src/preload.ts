@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld("duckDesk", {
   revealExtension: () => ipcRenderer.invoke("duck-desk:reveal-extension"),
   completeFirstRun: () => ipcRenderer.invoke("duck-desk:complete-first-run"),
   setHideTopBanner: (hidden: unknown) => ipcRenderer.invoke("duck-desk:set-hide-top-banner", hidden),
+  setThemeEffectsEnabled: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-theme-effects-enabled", enabled),
   autoAddObsOverlay: (password?: unknown) => ipcRenderer.invoke("duck-desk:auto-add-obs-overlay", password),
   sendTestSale: () => ipcRenderer.invoke("duck-desk:send-test-sale"),
   sendTestBid: () => ipcRenderer.invoke("duck-desk:send-test-bid"),

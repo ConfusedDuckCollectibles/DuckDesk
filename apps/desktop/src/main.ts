@@ -93,6 +93,7 @@ let goals: GoalConfig[] = [
 ];
 let auctionTimerSeconds = 45;
 let hideTopBanner = false;
+let themeEffectsEnabled = true;
 let firstRunComplete = false;
 const showReadyAddOns: AddOnId[] = ["stream_skins", "noise_machines", "bid_ladder", "activity_feed"];
 let obsStatus = "Not connected";
@@ -137,6 +138,7 @@ type PersistedSettings = {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
+  themeEffectsEnabled: boolean;
   firstRunComplete: boolean;
 };
 
@@ -381,6 +383,16 @@ function registerIpc(): void {
       return getStatus();
     }
     hideTopBanner = hidden;
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:set-theme-effects-enabled", (_event, enabled: unknown) => {
+    if (typeof enabled !== "boolean") {
+      return getStatus();
+    }
+    themeEffectsEnabled = enabled;
     broadcast(createOverlayConfig());
     broadcastStatus();
     return getStatus();
@@ -1081,6 +1093,13 @@ function applyConfigPatch(input: unknown): void {
     hideTopBanner = input.hideTopBanner;
   }
 
+  if ("themeEffectsEnabled" in input) {
+    if (typeof input.themeEffectsEnabled !== "boolean") {
+      throw new Error("Invalid theme effects setting.");
+    }
+    themeEffectsEnabled = input.themeEffectsEnabled;
+  }
+
 }
 
 function checkMilestones(): void {
@@ -1338,6 +1357,7 @@ function saveSettings(): void {
     goals,
     auctionTimerSeconds,
     hideTopBanner,
+    themeEffectsEnabled,
     firstRunComplete
   };
 
@@ -1599,6 +1619,7 @@ function getStatus(): {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
+  themeEffectsEnabled: boolean;
   firstRunComplete: boolean;
   platform: NodeJS.Platform;
   obsStatus: string;
@@ -1645,6 +1666,7 @@ function getStatus(): {
     goals,
     auctionTimerSeconds,
     hideTopBanner,
+    themeEffectsEnabled,
     firstRunComplete,
     platform: process.platform,
     obsStatus,
@@ -1676,6 +1698,7 @@ function createOverlayConfig(): {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
+  themeEffectsEnabled: boolean;
   timestamp: number;
 } {
   return {
@@ -1699,6 +1722,7 @@ function createOverlayConfig(): {
     goals,
     auctionTimerSeconds,
     hideTopBanner,
+    themeEffectsEnabled,
     timestamp: Date.now()
   };
 }

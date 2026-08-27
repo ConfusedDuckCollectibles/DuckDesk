@@ -63,6 +63,7 @@ const sceneMode = ref<SceneMode>("none");
 const goals = ref<GoalConfig[]>([]);
 const auctionTimerSeconds = ref(45);
 const hideTopBanner = ref(false);
+const themeEffectsEnabled = ref(true);
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
 const hypeMeter = ref<{ startedAt: number; durationSeconds: number; participants: Set<string> } | null>(null);
@@ -290,6 +291,7 @@ function connect(): void {
       goals.value = parsed.goals;
       auctionTimerSeconds.value = parsed.auctionTimerSeconds;
       hideTopBanner.value = parsed.hideTopBanner === true;
+      themeEffectsEnabled.value = parsed.themeEffectsEnabled !== false;
       if (!soundsEnabled.value || soundVolume.value === 0) {
         stopAudioPlayback();
       } else if (activeAudioPlayer) {
@@ -766,17 +768,18 @@ onMounted(() => {
       `skin-${skin}`,
       {
         'skin-premium': premiumSkinActive,
-        'is-alert-active': Boolean(activeEvent)
+        'is-alert-active': Boolean(activeEvent),
+        'theme-effects-off': !themeEffectsEnabled
       },
       activeAddOns.map((addOn) => `addon-${addOn}`)
     ]"
     aria-live="polite"
   >
-    <div class="overlay-frame" aria-hidden="true" />
-    <ThemeArt :skin="skin" />
-    <BroadcastFrame :skin="skin" />
+    <div v-if="themeEffectsEnabled" class="overlay-frame" aria-hidden="true" />
+    <ThemeArt v-if="themeEffectsEnabled" :skin="skin" />
+    <BroadcastFrame v-if="themeEffectsEnabled" :skin="skin" />
     <div
-      v-if="hasAddOn('stream_skins') && premiumSkinActive"
+      v-if="themeEffectsEnabled && hasAddOn('stream_skins') && premiumSkinActive"
       class="premium-atmosphere"
       aria-hidden="true"
     >
@@ -791,7 +794,7 @@ onMounted(() => {
         <i />
       </div>
     </div>
-    <div class="sparkle-field" aria-hidden="true">
+    <div v-if="themeEffectsEnabled" class="sparkle-field" aria-hidden="true">
       <span />
       <span />
       <span />
@@ -820,7 +823,11 @@ onMounted(() => {
       <span>{{ latestEventLabel }}</span>
       <span>{{ latestEventLabel }}</span>
     </div>
-    <div v-if="hasAddOn('stream_skins') && skin !== 'none'" class="skin-frame" aria-hidden="true">
+    <div
+      v-if="themeEffectsEnabled && hasAddOn('stream_skins') && skin !== 'none'"
+      class="skin-frame"
+      aria-hidden="true"
+    >
       <span />
       <span />
       <span />
@@ -832,7 +839,7 @@ onMounted(() => {
       class="burst-ring"
       aria-hidden="true"
     />
-    <div class="arena-bars" aria-hidden="true">
+    <div v-if="themeEffectsEnabled" class="arena-bars" aria-hidden="true">
       <span />
       <span />
       <span />

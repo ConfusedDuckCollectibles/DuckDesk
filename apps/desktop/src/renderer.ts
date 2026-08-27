@@ -18,6 +18,7 @@ import {
   RotateCcw,
   Share2,
   SlidersHorizontal,
+  Sparkles,
   Upload,
   Volume2
 } from "lucide";
@@ -57,6 +58,7 @@ type DesktopStatus = {
   goals: GoalConfig[];
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
+  themeEffectsEnabled: boolean;
   firstRunComplete: boolean;
   platform: string;
   obsStatus: string;
@@ -174,6 +176,7 @@ type DesktopApi = {
   revealExtension: () => Promise<void>;
   completeFirstRun: () => Promise<DesktopStatus>;
   setHideTopBanner: (hidden: boolean) => Promise<DesktopStatus>;
+  setThemeEffectsEnabled: (enabled: boolean) => Promise<DesktopStatus>;
   autoAddObsOverlay: (password?: string) => Promise<DesktopStatus>;
   sendTestSale: () => Promise<void>;
   sendTestBid: () => Promise<void>;
@@ -264,6 +267,8 @@ const titlebarClients = readElement<HTMLElement>("titlebar-clients");
 const eventLogEmpty = readElement<HTMLElement>("event-log-empty");
 const topBannerToggle = readElement<HTMLButtonElement>("top-banner-toggle");
 const topBannerToggleLabel = readElement<HTMLElement>("top-banner-toggle-label");
+const themeEffectsToggle = readElement<HTMLButtonElement>("theme-effects-toggle");
+const themeEffectsToggleLabel = readElement<HTMLElement>("theme-effects-toggle-label");
 const firstRun = readElement<HTMLElement>("first-run");
 const firstRunObs = readElement<HTMLButtonElement>("first-run-obs");
 const firstRunExtension = readElement<HTMLButtonElement>("first-run-extension");
@@ -379,6 +384,7 @@ createIcons({
     RotateCcw,
     Share2,
     SlidersHorizontal,
+    Sparkles,
     Upload,
     Volume2
   }
@@ -448,6 +454,10 @@ for (const button of tabButtons) {
 
 topBannerToggle.addEventListener("click", async () => {
   renderStatus(await window.duckDesk.setHideTopBanner(!(currentStatus?.hideTopBanner ?? false)));
+});
+
+themeEffectsToggle.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.setThemeEffectsEnabled(!(currentStatus?.themeEffectsEnabled ?? true)));
 });
 
 firstRunObs.addEventListener("click", async () => {
@@ -748,6 +758,12 @@ function renderStatus(status: DesktopStatus): void {
   topBannerToggle.title = topBannerVisible
     ? "Hide the top banner from viewers"
     : "Show the top banner to viewers";
+  themeEffectsToggleLabel.textContent = `Theme Effects ${status.themeEffectsEnabled ? "On" : "Off"}`;
+  themeEffectsToggle.classList.toggle("is-on", status.themeEffectsEnabled);
+  themeEffectsToggle.setAttribute("aria-pressed", String(status.themeEffectsEnabled));
+  themeEffectsToggle.title = status.themeEffectsEnabled
+    ? "Hide theme borders and ambient animation"
+    : "Show theme borders and ambient animation";
   if (liveSoundToggle) {
     liveSoundToggle.hidden = status.addOns.includes("noise_machines");
   }

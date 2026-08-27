@@ -723,20 +723,21 @@ textarea {
   grid-column: span 2;
 }
 
-.top-banner-toggle {
+.top-banner-toggle,
+.theme-effects-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
-.top-banner-toggle svg {
+.top-banner-toggle svg,
+.theme-effects-toggle svg {
   width: 17px;
   height: 17px;
 }
 
-#send-tip,
-#send-share {
+#send-action {
   grid-column: span 2;
 }
 
