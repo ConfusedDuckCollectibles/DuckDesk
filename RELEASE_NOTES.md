@@ -1,24 +1,23 @@
-# Duck Desk v0.1.0-alpha.4
+# Duck Desk v0.1.0-alpha.5
 
-Duck Desk alpha 4 is the show-ready control room: a clearer desktop, a much larger theme pack, Mac and Windows installers, and a denser live sound library.
+Duck Desk alpha 5 gives sellers more control over how much of the overlay viewers see. Keep the full themed broadcast package, simplify it during quieter moments, or run notifications by themselves.
 
-## New In Alpha 4
+## New In Alpha 5
 
-- Rebuilt the desktop into **Live**, **Setup**, and **Library**, with compact square rail buttons and section tabs (Show, Controls, Preview, Events, Connection, Preflight, Themes, Add-ons, Studio).
-- Added a first-run ready path, Live Preflight as its own Setup tab, and a phone-canvas Preview that matches the OBS overlay.
-- Overhauled the overlay: themed frames, Theme Art for premium looks, an animated ticker, safer widget placement, and calmer motion during alerts.
-- Expanded the included pack to **56 themes**: 20 standard looks and **36** animated premium themes (20 new animated looks in this release).
-- Shipped native **Mac (Apple silicon)** and **Windows (64-bit)** installers from the same app. No Terminal or PowerShell after install.
-- Rebuilt live audio to **90 cues** across the 10 sound themes, with three bid variants and three audience-action variants per theme, plus cooldowns so rapid bids stay restrained while sales and tips are never dropped.
-- Rewrote the README as a seller setup guide, with current screenshots and a get-on-stream path.
-- Fixed GitHub publishing so a prerelease is not marked as Latest.
+- Reduced the Duck Desk viewer branding so the seller's custom stream title carries more visual weight.
+- Added a **Top Banner** switch in Live Controls. It updates the preview and OBS overlay immediately and persists after restart.
+- Added a **Theme Effects** switch that removes frame borders, theme artwork, vignettes, ambient particles, sparkles, and background motion without disabling alerts, GIFs, or sounds.
+- Added a practical notification-only setup: turn off Top Banner and Theme Effects while bid, sale, tip, share, and audience alerts continue to appear.
+- Kept notification entrance motion intact when Theme Effects are off so alerts remain clear and readable.
+- Made the open-source GitHub footer permanent and removed its former hide control.
+- Refined the Live Controls grid so the new viewer controls remain wide, clear, and usable during a show.
 
 ## Highlights
 
 - Native Mac and Windows desktop apps with no Terminal or PowerShell required after installation.
 - One-click authenticated OBS source setup, repair, canvas fitting, and refresh.
 - 56 included themes: 20 standard themes and 36 animated premium-style themes.
-- Persistent themed frame, live header, ticker, and optional GitHub footer.
+- Independent controls for the top banner and theme frame effects.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
 - 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.
 - Hype bursts, goals, milestones, timers, promo banners, leaderboards, scenes, jumbotron, activity feed, and show recap.
@@ -29,8 +28,8 @@ Duck Desk alpha 4 is the show-ready control room: a clearer desktop, a much larg
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.4-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.4-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.5-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.5-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. Both installers are unsigned.
 
