@@ -144,6 +144,7 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
+          set -euo pipefail
           TAG="v${RELEASE_VERSION}"
           ASSETS=(
             dist-installers/DuckDesk-${RELEASE_VERSION}-arm64.dmg
@@ -151,8 +152,11 @@ jobs:
             dist-installers/DuckDesk-${RELEASE_VERSION}-windows-x64.exe
             dist-installers/DuckDesk-${RELEASE_VERSION}-windows-x64.exe.sha256
           )
+          echo "Release files:"
+          ls -lh dist-installers
           for asset in "${ASSETS[@]}"; do
             test -f "$asset"
+            test -s "$asset"
           done
           if [ "$PRERELEASE" = "true" ]; then
             CHANNEL_ARGS=(--prerelease --latest=false)
@@ -160,7 +164,6 @@ jobs:
             CHANNEL_ARGS=(--prerelease=false --latest)
           fi
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "${ASSETS[@]}" --clobber
             gh release edit "$TAG" \
               --target "$GITHUB_SHA" \
               --title "Duck Desk ${TAG}" \
@@ -168,9 +171,43 @@ jobs:
               "${CHANNEL_ARGS[@]}"
           else
             gh release create "$TAG" \
-              "${ASSETS[@]}" \
               --target "$GITHUB_SHA" \
               --title "Duck Desk ${TAG}" \
               --notes-file RELEASE_NOTES.md \
               "${CHANNEL_ARGS[@]}"
           fi
+
+          RELEASE_ID="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" --jq .id)"
+
+          delete_asset_named() {
+            local name="$1"
+            local asset_id
+            asset_id="$(gh api "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
+              --jq ".assets[] | select(.name==\"${name}\") | .id" | head -n 1 || true)"
+            if [ -n "${asset_id}" ]; then
+              gh api -X DELETE "repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}" >/dev/null
+            fi
+          }
+
+          upload_one() {
+            local path="$1"
+            local name
+            name="$(basename "$path")"
+            local attempt
+            for attempt in 1 2 3 4; do
+              delete_asset_named "$name"
+              if gh release upload "$TAG" "$path"; then
+                return 0
+              fi
+              echo "Upload of ${name} failed on attempt ${attempt}; retrying..."
+              sleep $((attempt * 8))
+            done
+            echo "Giving up on ${name}"
+            return 1
+          }
+
+          # HTTP/2 uploads to uploads.github.com can 400 on larger binaries.
+          export GODEBUG=http2client=0
+          for asset in "${ASSETS[@]}"; do
+            upload_one "$asset"
+          done
