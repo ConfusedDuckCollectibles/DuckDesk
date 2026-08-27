@@ -6,7 +6,7 @@ on:
       version:
         description: Version without the leading v
         required: true
-        default: 0.1.0-alpha.6",
+        default: "0.1.0-alpha.6"
         type: string
       prerelease:
         description: Mark this release as a prerelease
@@ -36,6 +36,8 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          echo "package.json version: ${PACKAGE_VERSION}"
+          echo "workflow input version: ${RELEASE_VERSION}"
           test "$PACKAGE_VERSION" = "$RELEASE_VERSION"
 
       - name: Install dependencies
@@ -88,6 +90,8 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          echo "package.json version: ${PACKAGE_VERSION}"
+          echo "workflow input version: ${RELEASE_VERSION}"
           test "$PACKAGE_VERSION" = "$RELEASE_VERSION"
 
       - name: Install dependencies
