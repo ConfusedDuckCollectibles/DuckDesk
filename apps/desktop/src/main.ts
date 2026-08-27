@@ -15,8 +15,9 @@ import {
   ipcMain,
   nativeTheme,
   shell,
-  type OpenDialogOptions
-} from "electron";
+    type OpenDialogOptions,
+    type SaveDialogOptions
+  } from "electron";
 import { WebSocket, WebSocketServer } from "ws";
 import QRCode from "qrcode";
 import { createRemoteDeckHtml } from "./remote-deck.js";
@@ -25,6 +26,48 @@ import {
   normalizeRemoteAction,
   type RemoteAction
 } from "./remote.js";
+import {
+  RehearsalManager,
+  createBuiltInRehearsals,
+  loadRehearsalLibrary,
+  sanitizeTimelineName,
+  saveRehearsalTimelines,
+  shouldUpdateLiveHealth,
+  type RehearsalAction,
+  type RehearsalActionInput,
+  type RehearsalStatus,
+  type RehearsalTimeline,
+  type ShowEventOrigin
+} from "./rehearsal.js";
+import {
+  PACK_PREVIEW_FALLBACK_PNG,
+  allocatePackDirectory,
+  assemblePackFiles,
+  createDuckPackArchive,
+  derivePackApplyState,
+  inspectDuckPackDirectory,
+  inspectDuckPackPath,
+  isPackId,
+  loadPackCatalog,
+  recordFromManifest,
+  resolvePackMediaFile,
+  savePackCatalog,
+  writeInstalledPack,
+  type InspectedPack,
+  type InstalledPackRecord,
+  type PackApplyTarget,
+  type PackFramePreset
+} from "./packs.js";
+import {
+  DiagnosticRing,
+  compareVersions,
+  createDiagnosticsArchive,
+  dailyLogName,
+  redactSettingsSummary,
+  redactText,
+  type HealthCheck,
+  type UpdateStatus
+} from "./diagnostics.js";
 import {
   AudioPlaybackScheduler,
   normalizeAudioVolume,
@@ -45,6 +88,12 @@ import {
   type OverlaySkin,
   type SceneMode,
   normalizeShowEvent,
+  DEFAULT_ALERT_VISUALS,
+  defaultAlertVisual,
+  isAlertKind,
+  normalizeAlertVisualMap,
+  patchAlertVisual,
+  type AlertVisualMap,
   type SoundKind,
   type OverlayTheme,
   type ShowEvent
@@ -55,6 +104,7 @@ const overlayUrl = `http://localhost:${port}/overlay`;
 const obsUrl = "ws://127.0.0.1:4455";
 const obsSourceName = "Duck Desk Overlay";
 const customAudioToken = randomUUID();
+const packMediaToken = randomUUID();
 const remoteSession = new RemotePairingSession(port);
 
 let mainWindow: BrowserWindow | null = null;
@@ -102,6 +152,7 @@ let goals: GoalConfig[] = [
 let auctionTimerSeconds = 45;
 let hideTopBanner = false;
 let themeEffectsEnabled = true;
+let alertVisuals: AlertVisualMap = DEFAULT_ALERT_VISUALS;
 let firstRunComplete = false;
 const showReadyAddOns: AddOnId[] = ["stream_skins", "noise_machines", "bid_ladder", "activity_feed"];
 let obsStatus = "Not connected";
@@ -112,6 +163,27 @@ let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
 let remoteQrDataUrl = "";
 let remoteQrUrl = "";
 let remoteQrPendingUrl = "";
+let userRehearsals: RehearsalTimeline[] = [];
+let rehearsalNotice = "";
+let rehearsalTick: ReturnType<typeof setInterval> | null = null;
+let installedPacks: InstalledPackRecord[] = [];
+let pendingPack: InspectedPack | null = null;
+let packUndoSnapshot: PackUndoSnapshot | null = null;
+let packNotice = "";
+let framePreset: PackFramePreset = "theme";
+let reducedMotion = false;
+const diagnosticRing = new DiagnosticRing();
+let rejectedEventCount = 0;
+let duplicateEventCount = 0;
+let lastEventFingerprint = "";
+let overlayLastSeenAt = 0;
+let recoveryNotice = "";
+let updateStatus: UpdateStatus = {
+  currentVersion: "0.1.0-alpha.6",
+  status: "unknown",
+  detail: "Not checked yet."
+};
+const isPrimaryInstance = electronApp.requestSingleInstanceLock();
 
 type CustomGif = {
   id: string;
@@ -150,8 +222,31 @@ type PersistedSettings = {
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
   themeEffectsEnabled: boolean;
+  alertVisuals: AlertVisualMap;
+  framePreset: PackFramePreset;
+  reducedMotion: boolean;
   firstRunComplete: boolean;
 };
+
+type PackUndoSnapshot = PackApplyTarget & {
+  customSounds: Partial<Record<SoundKind, CustomSoundSelection>>;
+  customGifs: CustomGif[];
+};
+
+if (!isPrimaryInstance) {
+  electronApp.quit();
+} else {
+  electronApp.on("second-instance", () => {
+    if (!mainWindow) {
+      return;
+    }
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    mainWindow.show();
+    mainWindow.focus();
+  });
+}
 
 process.on("uncaughtException", (error) => {
   lastError = error.message;
@@ -166,12 +261,20 @@ process.on("unhandledRejection", (error) => {
 });
 
 void electronApp.whenReady().then(async () => {
+  if (!isPrimaryInstance) {
+    return;
+  }
   log("app ready");
   nativeTheme.themeSource = "dark";
+  recoverUncleanShutdown();
   loadSettings();
+  loadUserRehearsals();
+  loadUserPacks();
+  writeRuntimeMarker(false);
   registerIpc();
   createWindow();
   await startLocalBridge();
+  void checkForUpdates(false);
 
   electronApp.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -187,12 +290,15 @@ electronApp.on("window-all-closed", () => {
 });
 
 electronApp.on("before-quit", () => {
+  rehearsalManager.stop();
+  stopRehearsalTick();
   stopNativeSound();
   if (settingsSaveTimer) {
     clearTimeout(settingsSaveTimer);
     settingsSaveTimer = null;
     saveSettings();
   }
+  writeRuntimeMarker(true);
   wss?.close();
   server?.close();
 });
@@ -257,10 +363,11 @@ async function startLocalBridge(): Promise<void> {
       const event = normalizeShowEvent(request.body);
       extensionLastSeenAt = Date.now();
       whatnotPageReportedActive = true;
-      lastRealEventAt = Date.now();
-      receiveEvent(event);
+      receiveEvent(event, "live");
       response.status(202).json({ ok: true, event });
     } catch (error) {
+      rejectedEventCount += 1;
+      diagnosticRing.push("event-rejected", "Invalid live event payload");
       const message = error instanceof Error ? error.message : "Invalid event.";
       response.status(400).json({ ok: false, error: message });
     }
@@ -361,6 +468,22 @@ async function startLocalBridge(): Promise<void> {
     response.sendFile(soundPath);
   });
 
+  expressApp.get("/pack-media/:packId/:fileName", (request, response) => {
+    const packId = request.params.packId;
+    const fileName = request.params.fileName;
+    if (!isPackId(packId) || request.query.token !== packMediaToken) {
+      response.sendStatus(404);
+      return;
+    }
+    const mediaPath = resolvePackMediaFile(path.join(resolvePacksRoot(), packId), fileName);
+    if (!mediaPath) {
+      response.sendStatus(404);
+      return;
+    }
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.sendFile(mediaPath);
+  });
+
   expressApp.use("/overlay", (_request, response, next) => {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     response.setHeader("Pragma", "no-cache");
@@ -387,6 +510,8 @@ async function startLocalBridge(): Promise<void> {
 
   wss.on("connection", (socket) => {
     clients.add(socket);
+    overlayLastSeenAt = Date.now();
+    diagnosticRing.push("overlay", "Overlay client connected");
     broadcastStatus();
 
     socket.send(JSON.stringify({ type: "connected", timestamp: Date.now() }));
@@ -400,8 +525,12 @@ async function startLocalBridge(): Promise<void> {
 
   await new Promise<void>((resolve) => {
     server?.once("error", (error) => {
-      lastError = error instanceof Error ? error.message : "Unable to start local bridge.";
+      const code = (error as NodeJS.ErrnoException).code;
+      lastError = code === "EADDRINUSE"
+        ? "Port 8741 is already in use. If another Duck Desk window is open, use that one. Otherwise quit the process holding the port."
+        : error instanceof Error ? error.message : "Unable to start local bridge.";
       log(`server error: ${lastError}`);
+      diagnosticRing.push("bridge", lastError);
       broadcastStatus();
       resolve();
     });
@@ -498,7 +627,7 @@ function registerIpc(): void {
       amount: 28,
       item: "Desktop Test Sale",
       timestamp: Date.now()
-    }, true);
+    }, "demo");
   });
 
   ipcMain.handle("duck-desk:send-test-bid", () => {
@@ -512,7 +641,7 @@ function registerIpc(): void {
       amount: 34,
       item: "Live Auction Demo",
       timestamp: Date.now()
-    }, true);
+    }, "demo");
   });
 
   ipcMain.handle("duck-desk:send-test-action", () => {
@@ -526,7 +655,7 @@ function registerIpc(): void {
       action: "reaction",
       message: "Audience surge",
       timestamp: Date.now()
-    }, true);
+    }, "demo");
   });
 
   ipcMain.handle("duck-desk:send-test-tip", () => {
@@ -540,7 +669,7 @@ function registerIpc(): void {
       amount: 5,
       message: "Thanks for supporting the show!",
       timestamp: Date.now()
-    }, true);
+    }, "demo");
   });
 
   ipcMain.handle("duck-desk:send-test-share", () => {
@@ -553,7 +682,7 @@ function registerIpc(): void {
       actor: "TestSharer",
       delta: 1,
       timestamp: Date.now()
-    }, true);
+    }, "demo");
   });
 
   ipcMain.handle("duck-desk:set-theme", (_event, theme: unknown) => {
@@ -933,6 +1062,157 @@ function registerIpc(): void {
     triggerRecapNow();
     return getStatus();
   });
+
+  ipcMain.handle("duck-desk:set-alert-visual", (_event, kind: unknown, patch: unknown) => {
+    if (!isAlertKind(kind)) {
+      return getStatus();
+    }
+    alertVisuals = patchAlertVisual(kind, alertVisuals, patch);
+    scheduleSettingsSave();
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:reset-alert-visual", (_event, kind: unknown) => {
+    if (!isAlertKind(kind)) {
+      return getStatus();
+    }
+    alertVisuals = { ...alertVisuals, [kind]: defaultAlertVisual(kind) };
+    scheduleSettingsSave();
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:preview-alert", (_event, kind: unknown) => {
+    previewAlert(kind);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:start-rehearsal", (_event, id: unknown) => {
+    startRehearsal(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:pause-rehearsal", () => {
+    rehearsalManager.pause();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:resume-rehearsal", () => {
+    rehearsalManager.resume();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:stop-rehearsal", () => {
+    rehearsalManager.stop();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:start-rehearsal-recording", () => {
+    rehearsalManager.startRecording();
+    rehearsalNotice = "";
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:save-rehearsal-recording", (_event, name: unknown) => {
+    saveRehearsalRecording(name);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:rename-rehearsal", (_event, id: unknown, name: unknown) => {
+    renameUserRehearsal(id, name);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:delete-rehearsal", (_event, id: unknown) => {
+    deleteUserRehearsal(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:import-pack", async () => {
+    await choosePackToImport();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:confirm-import-pack", () => {
+    confirmPendingPackInstall();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:cancel-import-pack", () => {
+    pendingPack = null;
+    packNotice = "";
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:apply-pack", (_event, id: unknown) => {
+    applyInstalledPack(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:export-pack", async (_event, id: unknown) => {
+    await exportInstalledPack(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:export-current-setup", async () => {
+    await exportCurrentSetup();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:remove-pack", (_event, id: unknown) => {
+    removeInstalledPack(id);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:undo-pack", () => {
+    undoPackApply();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:restart-bridge", async () => {
+    await restartLocalBridge();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:clear-overlay-queue", () => {
+    clearOverlayNow();
+    packNotice = packNotice;
+    diagnosticRing.push("overlay", "Overlay queue cleared");
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:reset-audio-output", () => {
+    stopNativeSound();
+    audioNotice = "Ready";
+    audioRevision += 1;
+    diagnosticRing.push("audio", "Audio output reset");
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:open-log-folder", async () => {
+    const logDir = resolveLogDirectory();
+    fs.mkdirSync(logDir, { recursive: true });
+    await shell.openPath(logDir);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:check-for-updates", async () => {
+    await checkForUpdates(true);
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:export-diagnostics", async () => {
+    await exportDiagnostics();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:dismiss-recovery-notice", () => {
+    recoveryNotice = "";
+    return getStatus();
+  });
 }
 
 function setBannerVisible(visible: boolean): void {
@@ -952,18 +1232,27 @@ function setSceneModeNow(mode: SceneMode): void {
   if (mode !== "none") {
     activeAddOns.add("scene_switcher");
   }
+  recordRehearsalAction({ kind: "scene", scene: mode });
   broadcast(createOverlayConfig());
   broadcastStatus();
 }
 
 function triggerGifSelection(selection: unknown): void {
-  const selectedUrl = typeof selection === "string"
-    ? customGifs.find((gif) => gif.id === selection)?.url ?? normalizeGifUrl(selection)
-    : customGifs[0]?.url ?? "/gifs/chat-spark.gif";
+  const selectedGif = typeof selection === "string"
+    ? customGifs.find((gif) => gif.id === selection)
+    : undefined;
+  const selectedUrl = selectedGif?.url
+    ?? (typeof selection === "string" ? normalizeGifUrl(selection) : undefined)
+    ?? customGifs[0]?.url
+    ?? "/gifs/chat-spark.gif";
   if (!selectedUrl) {
     return;
   }
   activeAddOns.add("gif_reactions");
+  recordRehearsalAction({
+    kind: "gif",
+    gifId: selectedGif?.id ?? (typeof selection === "string" && /^[a-zA-Z0-9-]{1,80}$/.test(selection) ? selection : "featured")
+  });
   broadcast(createOverlayConfig());
   broadcast(createOverlayGifTrigger(selectedUrl));
   broadcastStatus();
@@ -976,12 +1265,14 @@ function triggerSoundPad(kind: SoundKind): void {
     playSoundKind(kind, trigger.timestamp);
     broadcast(trigger);
   }
+  recordRehearsalAction({ kind: "sound", sound: kind });
   broadcast(createOverlayConfig());
   broadcastStatus();
 }
 
 function triggerBurst(): void {
   activeAddOns.add("hype_bursts");
+  recordRehearsalAction({ kind: "burst" });
   broadcast(createOverlayConfig());
   broadcast(createOverlayBurstTrigger());
   broadcastStatus();
@@ -989,6 +1280,7 @@ function triggerBurst(): void {
 
 function triggerHypeMeterNow(): void {
   activeAddOns.add("hype_meter");
+  recordRehearsalAction({ kind: "hype" });
   broadcast(createOverlayConfig());
   broadcast(createOverlayHypeMeterTrigger(hypeMeterSeconds));
   broadcastStatus();
@@ -996,19 +1288,23 @@ function triggerHypeMeterNow(): void {
 
 function triggerAuctionTimerNow(): void {
   activeAddOns.add("auction_timer");
+  recordRehearsalAction({ kind: "timer" });
   broadcast(createOverlayConfig());
   broadcast(createOverlayAuctionTimerTrigger(auctionTimerSeconds));
   broadcastStatus();
 }
 
 function triggerRecapNow(): void {
-  activeAddOns.add("show_recap");
-  broadcast(createOverlayConfig());
+  if (!activeAddOns.has("show_recap")) {
+    return;
+  }
+  recordRehearsalAction({ kind: "recap" });
   broadcast(createOverlayRecapTrigger());
   broadcastStatus();
 }
 
 function clearOverlayNow(): void {
+  recordRehearsalAction({ kind: "clear" });
   broadcast(createOverlayClear());
   broadcastStatus();
 }
@@ -1037,8 +1333,13 @@ function performRemoteAction(action: RemoteAction): void {
   }
 }
 
-function receiveEvent(event: ShowEvent, isDemoEvent = false): void {
-  if (!isDemoEvent) {
+function receiveEvent(event: ShowEvent, origin: ShowEventOrigin = "live"): void {
+  const fingerprint = `${event.type}:${event.timestamp}`;
+  if (origin === "live" && fingerprint === lastEventFingerprint) {
+    duplicateEventCount += 1;
+  }
+  lastEventFingerprint = fingerprint;
+  if (origin === "live") {
     if (event.type === "sale") {
       stats.salesCount += 1;
       stats.grossSales += event.amount;
@@ -1055,12 +1356,555 @@ function receiveEvent(event: ShowEvent, isDemoEvent = false): void {
     }
   }
 
+  if (shouldUpdateLiveHealth(origin)) {
+    lastRealEventAt = Date.now();
+  }
+
+  if (origin !== "rehearsal") {
+    recordRehearsalAction({ kind: "event", event });
+  }
+
   playEventSound(event);
   if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
-    mainWindow.webContents.send("duck-desk:event", event);
+    mainWindow.webContents.send("duck-desk:event", {
+      ...event,
+      rehearsal: origin === "rehearsal"
+    });
   }
   broadcast(event);
   broadcastStatus();
+}
+
+const rehearsalManager = new RehearsalManager(executeRehearsalAction, () => {
+  syncRehearsalTick();
+  broadcastStatus();
+});
+
+function executeRehearsalAction(action: RehearsalAction): void {
+  if (action.kind === "event") {
+    receiveEvent(action.event, "rehearsal");
+    return;
+  }
+  if (action.kind === "gif") {
+    const known = customGifs.find((gif) => gif.id === action.gifId);
+    triggerGifSelection(known?.id);
+    return;
+  }
+  if (action.kind === "sound") {
+    triggerSoundPad(action.sound);
+    return;
+  }
+  if (action.kind === "scene") {
+    setSceneModeNow(action.scene);
+    return;
+  }
+  if (action.kind === "burst") {
+    triggerBurst();
+    return;
+  }
+  if (action.kind === "hype") {
+    triggerHypeMeterNow();
+    return;
+  }
+  if (action.kind === "timer") {
+    triggerAuctionTimerNow();
+    return;
+  }
+  if (action.kind === "recap") {
+    triggerRecapNow();
+    return;
+  }
+  clearOverlayNow();
+}
+
+function recordRehearsalAction(action: RehearsalActionInput): void {
+  rehearsalManager.record(action);
+}
+
+function rehearsalLibraryPath(): string {
+  return path.join(electronApp.getPath("userData"), "rehearsal-timelines.json");
+}
+
+function resolvePacksRoot(): string {
+  return path.join(electronApp.getPath("userData"), "packs");
+}
+
+function packCatalogPath(): string {
+  return path.join(resolvePacksRoot(), "index.json");
+}
+
+function loadUserPacks(): void {
+  const loaded = loadPackCatalog(packCatalogPath());
+  installedPacks = loaded.packs;
+  if (loaded.quarantined) {
+    packNotice = "A pack catalog file was invalid and was set aside. Installed packs were not loaded.";
+  }
+}
+
+function persistPackCatalog(): void {
+  savePackCatalog(packCatalogPath(), installedPacks);
+}
+
+function captureShowLook(): PackUndoSnapshot {
+  return {
+    theme: activeTheme,
+    skin: activeSkin,
+    addOns: [...activeAddOns],
+    alertVisuals: structuredClone(alertVisuals),
+    promoBanners: [...promoBanners],
+    goals: goals.map((goal) => ({ ...goal })),
+    sceneMode,
+    framePreset,
+    reducedMotion,
+    customSounds: { ...customSounds },
+    customGifs: customGifs.map((gif) => ({ ...gif }))
+  };
+}
+
+function restoreShowLook(snapshot: PackUndoSnapshot): void {
+  activeTheme = snapshot.theme;
+  activeSkin = snapshot.skin;
+  activeAddOns.clear();
+  for (const addOn of snapshot.addOns) {
+    activeAddOns.add(addOn);
+  }
+  alertVisuals = snapshot.alertVisuals;
+  promoBanners = snapshot.promoBanners;
+  goals = snapshot.goals;
+  sceneMode = snapshot.sceneMode;
+  framePreset = snapshot.framePreset;
+  reducedMotion = snapshot.reducedMotion;
+  customSounds = snapshot.customSounds;
+  customGifs = snapshot.customGifs;
+}
+
+async function choosePackToImport(): Promise<void> {
+  const options: OpenDialogOptions = {
+    title: "Import Duck Desk pack",
+    properties: ["openFile"],
+    filters: [
+      { name: "Duckpack", extensions: ["duckpack", "zip"] },
+      { name: "All Files", extensions: ["*"] }
+    ]
+  };
+  const result = mainWindow
+    ? await dialog.showOpenDialog(mainWindow, options)
+    : await dialog.showOpenDialog(options);
+  const sourcePath = result.filePaths[0];
+  if (result.canceled || !sourcePath) {
+    return;
+  }
+  try {
+    pendingPack = await inspectDuckPackPath(sourcePath);
+    packNotice = "";
+  } catch (error) {
+    pendingPack = null;
+    packNotice = error instanceof Error ? error.message : "That pack could not be imported.";
+  }
+}
+
+function confirmPendingPackInstall(): void {
+  if (!pendingPack) {
+    packNotice = "Choose a pack to review before installing it.";
+    return;
+  }
+  try {
+    const { id, directory } = allocatePackDirectory(resolvePacksRoot());
+    writeInstalledPack(directory, pendingPack);
+    installedPacks = [recordFromManifest(id, pendingPack.manifest), ...installedPacks];
+    persistPackCatalog();
+    pendingPack = null;
+    packNotice = "Pack installed. Apply it when you want it on the overlay.";
+  } catch (error) {
+    packNotice = error instanceof Error ? error.message : "Duck Desk could not install that pack.";
+  }
+}
+
+function applyInstalledPack(id: unknown): void {
+  if (!isPackId(id)) {
+    packNotice = "That pack is not installed.";
+    return;
+  }
+  const record = installedPacks.find((pack) => pack.id === id);
+  if (!record) {
+    packNotice = "That pack is not installed.";
+    return;
+  }
+  const previous = captureShowLook();
+  try {
+    const inspected = inspectDuckPackDirectory(path.join(resolvePacksRoot(), id));
+    const next = derivePackApplyState(previous, inspected.manifest.setup);
+    restoreShowLook({
+      ...next,
+      customSounds: { ...customSounds },
+      customGifs: customGifs.filter((gif) => !gif.id.startsWith(`pack:${id}:`))
+    });
+    for (const asset of inspected.manifest.assets) {
+      if (asset.sound) {
+        installPackSound(id, asset.path, asset.sound, inspected.files.get(asset.path));
+      } else if (asset.kind === "image" && asset.path.startsWith("assets/")) {
+        const fileName = path.posix.basename(asset.path);
+        const url = packMediaPublicUrl(id, fileName, false);
+        if (!url) {
+          throw new Error(`Pack image ${asset.path} could not be served.`);
+        }
+        customGifs = [{
+          id: `pack:${id}:${fileName}`.slice(0, 80),
+          label: asset.label || fileName,
+          url
+        }, ...customGifs.filter((gif) => gif.id !== `pack:${id}:${fileName}`.slice(0, 80))].slice(0, 24);
+        activeAddOns.add("gif_reactions");
+      }
+    }
+    packUndoSnapshot = previous;
+    packNotice = `Applied ${inspected.manifest.name}. Undo is available until Duck Desk closes.`;
+    audioRevision += 1;
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+  } catch (error) {
+    restoreShowLook(previous);
+    packNotice = error instanceof Error ? error.message : "Applying that pack failed, so the current setup was left unchanged.";
+    broadcast(createOverlayConfig());
+    broadcastStatus();
+  }
+}
+
+function installPackSound(packId: string, relativePath: string, kind: SoundKind, data: Buffer | undefined): void {
+  if (!data) {
+    throw new Error(`Pack is missing ${relativePath}.`);
+  }
+  const soundDirectory = resolveCustomSoundDirectory();
+  fs.mkdirSync(soundDirectory, { recursive: true });
+  const sourceExtension = path.posix.extname(relativePath).toLowerCase() || ".wav";
+  const sourcePath = path.join(soundDirectory, `pack-${packId}-${kind}-src${sourceExtension}`);
+  const storedFileName = `pack-${packId}-${kind}.wav`;
+  const destinationPath = path.join(soundDirectory, storedFileName);
+  fs.writeFileSync(sourcePath, data);
+  const conversion = convertCustomSoundToWav(sourcePath, destinationPath);
+  fs.rmSync(sourcePath, { force: true });
+  if (!conversion.ok) {
+    fs.rmSync(destinationPath, { force: true });
+    throw new Error(conversion.message);
+  }
+  customSounds[kind] = {
+    storedFileName,
+    displayName: path.posix.basename(relativePath).slice(0, 100)
+  };
+  activeAddOns.add("noise_machines");
+}
+
+function undoPackApply(): void {
+  if (!packUndoSnapshot) {
+    packNotice = "There is nothing to undo until a pack is applied in this session.";
+    return;
+  }
+  restoreShowLook(packUndoSnapshot);
+  packUndoSnapshot = null;
+  packNotice = "Restored the setup from before the last pack apply.";
+  audioRevision += 1;
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function removeInstalledPack(id: unknown): void {
+  if (!isPackId(id)) {
+    return;
+  }
+  installedPacks = installedPacks.filter((pack) => pack.id !== id);
+  persistPackCatalog();
+  fs.rmSync(path.join(resolvePacksRoot(), id), { recursive: true, force: true });
+  customGifs = customGifs.filter((gif) => !gif.id.startsWith(`pack:${id}:`));
+  packNotice = "Pack removed.";
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+async function exportInstalledPack(id: unknown): Promise<void> {
+  if (!isPackId(id)) {
+    packNotice = "That pack is not installed.";
+    return;
+  }
+  const record = installedPacks.find((pack) => pack.id === id);
+  if (!record) {
+    packNotice = "That pack is not installed.";
+    return;
+  }
+  try {
+    const inspected = inspectDuckPackDirectory(path.join(resolvePacksRoot(), id));
+    const archive = await createDuckPackArchive([...inspected.files.entries()].map(([name, data]) => ({ name, data })));
+    await savePackArchive(`${sanitizeExportName(record.name)}.duckpack`, archive);
+    packNotice = `Exported ${record.name}.`;
+  } catch (error) {
+    packNotice = error instanceof Error ? error.message : "Duck Desk could not export that pack.";
+  }
+}
+
+async function exportCurrentSetup(): Promise<void> {
+  try {
+    const assets: Array<{ path: string; data: Buffer; kind: "image" | "audio"; sound?: SoundKind; label?: string }> = [
+      { path: "preview.png", data: PACK_PREVIEW_FALLBACK_PNG, kind: "image" }
+    ];
+    for (const [kind, selection] of Object.entries(customSounds) as Array<[SoundKind, CustomSoundSelection]>) {
+      const soundPath = resolveCustomSoundPath(selection);
+      if (fs.existsSync(soundPath)) {
+        assets.push({
+          path: `assets/${kind}${path.extname(selection.storedFileName) || ".wav"}`,
+          data: fs.readFileSync(soundPath),
+          kind: "audio",
+          sound: kind,
+          label: selection.displayName
+        });
+      }
+    }
+    for (const [index, gif] of customGifs.entries()) {
+      const local = localPackGifFile(gif.url);
+      if (!local) {
+        continue;
+      }
+      const extension = path.extname(local).toLowerCase() || ".png";
+      assets.push({
+        path: `assets/gif-${index + 1}${extension}`,
+        data: fs.readFileSync(local),
+        kind: "image",
+        label: gif.label
+      });
+    }
+    const assembled = assemblePackFiles({
+      name: streamTitle || "Current Setup",
+      author: "Duck Desk",
+      packVersion: "1.0.0",
+      description: "Exported from the current Duck Desk setup.",
+      license: "MIT",
+      preview: "preview.png",
+      setup: {
+        theme: activeTheme,
+        skin: activeSkin,
+        framePreset,
+        reducedMotion,
+        sceneMode,
+        promoBanners,
+        goals,
+        alerts: alertVisuals
+      }
+    }, assets);
+    const archive = await createDuckPackArchive(assembled.files);
+    await savePackArchive(`${sanitizeExportName(assembled.manifest.name)}.duckpack`, archive);
+    packNotice = "Exported the current setup.";
+  } catch (error) {
+    packNotice = error instanceof Error ? error.message : "Duck Desk could not export the current setup.";
+  }
+}
+
+async function savePackArchive(defaultName: string, archive: Buffer): Promise<void> {
+  const options: SaveDialogOptions = {
+    title: "Export Duck Desk pack",
+    defaultPath: defaultName,
+    filters: [{ name: "Duckpack", extensions: ["duckpack"] }]
+  };
+  const result = mainWindow
+    ? await dialog.showSaveDialog(mainWindow, options)
+    : await dialog.showSaveDialog(options);
+  if (result.canceled || !result.filePath) {
+    return;
+  }
+  fs.writeFileSync(result.filePath, archive);
+}
+
+function sanitizeExportName(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "duck-desk-pack";
+}
+
+function packMediaPublicUrl(packId: string, fileName: string, includeToken: boolean): string | null {
+  const safe = path.basename(fileName);
+  if (!safe || safe !== fileName) {
+    return null;
+  }
+  const url = new URL(`http://localhost:${port}/pack-media/${encodeURIComponent(packId)}/${encodeURIComponent(safe)}`);
+  if (includeToken) {
+    url.searchParams.set("token", packMediaToken);
+  }
+  return url.href;
+}
+
+function withCurrentPackToken(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.pathname.startsWith("/pack-media/")) {
+      return url;
+    }
+    parsed.protocol = "http:";
+    parsed.host = `localhost:${port}`;
+    parsed.searchParams.set("token", packMediaToken);
+    return parsed.href;
+  } catch {
+    return url;
+  }
+}
+
+function localPackGifFile(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const match = parsed.pathname.match(/^\/pack-media\/([^/]+)\/([^/]+)$/);
+    if (!match || !isPackId(match[1])) {
+      return null;
+    }
+    return resolvePackMediaFile(path.join(resolvePacksRoot(), match[1]), decodeURIComponent(match[2]));
+  } catch {
+    return null;
+  }
+}
+
+function pendingPackPreview(): string | undefined {
+  if (!pendingPack) {
+    return undefined;
+  }
+  const preview = pendingPack.files.get(pendingPack.manifest.preview);
+  if (!preview) {
+    return undefined;
+  }
+  const kind = preview.subarray(0, 8).toString("hex").startsWith("89504e47")
+    ? "png"
+    : preview.subarray(0, 2).toString("hex") === "ffd8"
+      ? "jpeg"
+      : "webp";
+  return `data:image/${kind};base64,${preview.toString("base64")}`;
+}
+
+function listPackStatus(): Array<InstalledPackRecord & { previewUrl?: string }> {
+  return installedPacks.map((pack) => ({
+    ...pack,
+    previewUrl: packMediaPublicUrl(pack.id, pack.preview, true) ?? undefined
+  }));
+}
+
+function loadUserRehearsals(): void {
+  const loaded = loadRehearsalLibrary(rehearsalLibraryPath());
+  userRehearsals = loaded.timelines;
+  rehearsalNotice = loaded.quarantined
+    ? "A saved rehearsal file was invalid and was set aside. Built-in scenarios are still available."
+    : "";
+}
+
+function persistUserRehearsals(): void {
+  saveRehearsalTimelines(rehearsalLibraryPath(), userRehearsals);
+}
+
+function listRehearsalSummaries(): Array<{
+  id: string;
+  name: string;
+  durationMs: number;
+  actionCount: number;
+  builtIn: boolean;
+}> {
+  return [...createBuiltInRehearsals(), ...userRehearsals].map((timeline) => ({
+    id: timeline.id,
+    name: timeline.name,
+    durationMs: timeline.durationMs,
+    actionCount: timeline.actions.length,
+    builtIn: Boolean(timeline.builtIn)
+  }));
+}
+
+function findRehearsal(id: string): RehearsalTimeline | undefined {
+  return userRehearsals.find((item) => item.id === id)
+    ?? createBuiltInRehearsals().find((item) => item.id === id);
+}
+
+function startRehearsal(id: unknown): void {
+  if (typeof id !== "string") {
+    return;
+  }
+  const timeline = findRehearsal(id);
+  if (!timeline) {
+    return;
+  }
+  rehearsalNotice = "";
+  rehearsalManager.start(timeline);
+}
+
+function saveRehearsalRecording(name: unknown): void {
+  if (userRehearsals.length >= 50) {
+    rehearsalNotice = "Saved rehearsal limit reached. Delete one before recording another.";
+    return;
+  }
+  const saved = rehearsalManager.saveRecording(randomUUID(), typeof name === "string" ? name : "Recorded Rehearsal");
+  if (!saved) {
+    rehearsalNotice = "Record at least one event or trigger before saving.";
+    return;
+  }
+  userRehearsals = [...userRehearsals, saved];
+  persistUserRehearsals();
+  rehearsalNotice = "";
+}
+
+function renameUserRehearsal(id: unknown, name: unknown): void {
+  if (typeof id !== "string" || typeof name !== "string") {
+    return;
+  }
+  const nextName = sanitizeTimelineName(name);
+  userRehearsals = userRehearsals.map((timeline) => (
+    timeline.id === id ? { ...timeline, name: nextName } : timeline
+  ));
+  persistUserRehearsals();
+}
+
+function deleteUserRehearsal(id: unknown): void {
+  if (typeof id !== "string") {
+    return;
+  }
+  if (rehearsalManager.getStatus().activeId === id) {
+    rehearsalManager.stop();
+  }
+  userRehearsals = userRehearsals.filter((timeline) => timeline.id !== id);
+  persistUserRehearsals();
+}
+
+function syncRehearsalTick(): void {
+  const state = rehearsalManager.getStatus().state;
+  if (state === "playing" || state === "recording") {
+    if (!rehearsalTick) {
+      rehearsalTick = setInterval(() => broadcastStatus(), 250);
+    }
+    return;
+  }
+  stopRehearsalTick();
+}
+
+function stopRehearsalTick(): void {
+  if (rehearsalTick) {
+    clearInterval(rehearsalTick);
+    rehearsalTick = null;
+  }
+}
+
+function previewAlert(kind: unknown): void {
+  if (!isAlertKind(kind)) {
+    return;
+  }
+  const timestamp = Date.now();
+  if (kind === "sale") {
+    receiveEvent({ type: "sale", buyer: "StudioPreview", amount: 48, item: "Preview Lot", timestamp }, "demo");
+    return;
+  }
+  if (kind === "bid") {
+    receiveEvent({ type: "bid", bidder: "StudioBidder", amount: 22, item: "Preview Lot", timestamp }, "demo");
+    return;
+  }
+  if (kind === "tip") {
+    receiveEvent({ type: "tip", tipper: "StudioTipper", amount: 10, message: "Great show", timestamp }, "demo");
+    return;
+  }
+  if (kind === "share") {
+    receiveEvent({ type: "share", actor: "StudioSharer", delta: 1, timestamp }, "demo");
+    return;
+  }
+  receiveEvent({
+    type: "audience_action",
+    actor: "StudioViewer",
+    action: "reaction",
+    message: "Alert preview",
+    timestamp
+  }, "demo");
 }
 
 function applyConfigPatch(input: unknown): void {
@@ -1246,6 +2090,9 @@ function applyConfigPatch(input: unknown): void {
     themeEffectsEnabled = input.themeEffectsEnabled;
   }
 
+  if ("alertVisuals" in input) {
+    alertVisuals = normalizeAlertVisualMap(input.alertVisuals);
+  }
 }
 
 function checkMilestones(): void {
@@ -1452,12 +2299,25 @@ function loadSettings(): void {
     if (typeof parsed.hideTopBanner === "boolean") {
       hideTopBanner = parsed.hideTopBanner;
     }
+    if ("alertVisuals" in parsed) {
+      alertVisuals = normalizeAlertVisualMap(parsed.alertVisuals);
+    }
+    if (parsed.framePreset === "theme" || parsed.framePreset === "broadcast" || parsed.framePreset === "none") {
+      framePreset = parsed.framePreset;
+    }
+    if (typeof parsed.reducedMotion === "boolean") {
+      reducedMotion = parsed.reducedMotion;
+    }
     log(`loaded creator settings version ${readNumber(parsed, "version") ?? 1}`);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       for (const addOn of showReadyAddOns) {
         activeAddOns.add(addOn);
       }
+    } else if (tryLoadSettingsBackup()) {
+      recoveryNotice = [recoveryNotice, "Creator settings were restored from the last good backup."]
+        .filter(Boolean)
+        .join(" ");
     } else {
       log(`unable to load creator settings: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -1504,6 +2364,9 @@ function saveSettings(): void {
     auctionTimerSeconds,
     hideTopBanner,
     themeEffectsEnabled,
+    alertVisuals,
+    framePreset,
+    reducedMotion,
     firstRunComplete
   };
 
@@ -1835,6 +2698,7 @@ function getStatus(): {
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
   themeEffectsEnabled: boolean;
+  alertVisuals: AlertVisualMap;
   firstRunComplete: boolean;
   platform: NodeJS.Platform;
   obsStatus: string;
@@ -1847,6 +2711,35 @@ function getStatus(): {
   remoteClients: number;
   remoteLastSeenAt?: number;
   lastRealEventAt?: number;
+  rehearsal: RehearsalStatus;
+  rehearsals: Array<{
+    id: string;
+    name: string;
+    durationMs: number;
+    actionCount: number;
+    builtIn: boolean;
+  }>;
+  rehearsalNotice?: string;
+  packs: Array<InstalledPackRecord & { previewUrl?: string }>;
+  pendingPack?: {
+    name: string;
+    author: string;
+    packVersion: string;
+    license: string;
+    description: string;
+    projectUrl?: string;
+    review: Array<{ label: string; detail: string }>;
+    previewDataUrl?: string;
+  };
+  packUndoAvailable: boolean;
+  packNotice?: string;
+  framePreset: PackFramePreset;
+  reducedMotion: boolean;
+  healthChecks: HealthCheck[];
+  update: UpdateStatus;
+  recoveryNotice?: string;
+  rejectedEventCount: number;
+  duplicateEventCount: number;
   lastError?: string;
 } {
   const extensionConnected = Date.now() - extensionLastSeenAt < 30_000;
@@ -1879,8 +2772,8 @@ function getStatus(): {
     audioRevision,
     demoMode,
     streamTitle,
-    customGifUrls: customGifs.map((gif) => gif.url),
-    customGifs,
+    customGifUrls: customGifs.map((gif) => withCurrentPackToken(gif.url)),
+    customGifs: customGifs.map((gif) => ({ ...gif, url: withCurrentPackToken(gif.url) })),
     gifPlacement,
     gifSize,
     milestoneThresholds,
@@ -1892,6 +2785,7 @@ function getStatus(): {
     auctionTimerSeconds,
     hideTopBanner,
     themeEffectsEnabled,
+    alertVisuals,
     firstRunComplete,
     platform: process.platform,
     obsStatus,
@@ -1904,6 +2798,31 @@ function getStatus(): {
     remoteClients: remoteSession.activeClientCount(),
     remoteLastSeenAt: remoteSession.lastSeenAt(),
     lastRealEventAt: lastRealEventAt || undefined,
+    rehearsal: rehearsalManager.getStatus(),
+    rehearsals: listRehearsalSummaries(),
+    rehearsalNotice: rehearsalNotice || undefined,
+    packs: listPackStatus(),
+    pendingPack: pendingPack
+      ? {
+          name: pendingPack.manifest.name,
+          author: pendingPack.manifest.author,
+          packVersion: pendingPack.manifest.packVersion,
+          license: pendingPack.manifest.license,
+          description: pendingPack.manifest.description,
+          projectUrl: pendingPack.manifest.projectUrl,
+          review: pendingPack.review,
+          previewDataUrl: pendingPackPreview()
+        }
+      : undefined,
+    packUndoAvailable: Boolean(packUndoSnapshot),
+    packNotice: packNotice || undefined,
+    framePreset,
+    reducedMotion,
+    healthChecks: buildHealthChecks(),
+    update: updateStatus,
+    recoveryNotice: recoveryNotice || undefined,
+    rejectedEventCount,
+    duplicateEventCount,
     lastError
   };
 }
@@ -1930,6 +2849,9 @@ function createOverlayConfig(): {
   auctionTimerSeconds: number;
   hideTopBanner: boolean;
   themeEffectsEnabled: boolean;
+  alertVisuals: AlertVisualMap;
+  framePreset: PackFramePreset;
+  reducedMotion: boolean;
   timestamp: number;
 } {
   return {
@@ -1942,7 +2864,7 @@ function createOverlayConfig(): {
     audioTheme,
     customSoundUrls: createCustomSoundUrls(),
     streamTitle,
-    customGifUrls: customGifs.map((gif) => gif.url),
+    customGifUrls: customGifs.map((gif) => withCurrentPackToken(gif.url)),
     gifPlacement,
     gifSize,
     milestoneThresholds,
@@ -1954,6 +2876,9 @@ function createOverlayConfig(): {
     auctionTimerSeconds,
     hideTopBanner,
     themeEffectsEnabled,
+    alertVisuals,
+    framePreset,
+    reducedMotion,
     timestamp: Date.now()
   };
 }
@@ -2009,7 +2934,7 @@ function createOverlayGifTrigger(url: string): {
 } {
   return {
     type: "gif_trigger",
-    url,
+    url: withCurrentPackToken(url),
     timestamp: Date.now()
   };
 }
@@ -2119,17 +3044,295 @@ function resolveExtensionPath(): string {
 }
 
 function log(message: string): void {
-  const line = `[${new Date().toISOString()}] ${message}\n`;
+  const redacted = redactText(message);
+  const line = `[${new Date().toISOString()}] ${redacted}\n`;
   try {
-    const logDir = electronApp.isReady()
-      ? electronApp.getPath("logs")
-      : path.join(os.homedir(), process.platform === "win32" ? path.join("AppData", "Roaming", "Duck Desk", "logs") : path.join("Library", "Logs"));
+    const logDir = resolveLogDirectory();
     fs.mkdirSync(logDir, { recursive: true });
-    fs.appendFileSync(path.join(logDir, "Duck Desk.log"), line);
+    fs.appendFileSync(path.join(logDir, dailyLogName()), line);
+    diagnosticRing.push("log", redacted);
   } catch {
     // Logging should never stop the desktop app from launching.
   }
   console.log(line.trim());
+}
+
+function resolveLogDirectory(): string {
+  if (electronApp.isReady()) {
+    return electronApp.getPath("logs");
+  }
+  return path.join(
+    os.homedir(),
+    process.platform === "win32"
+      ? path.join("AppData", "Roaming", "Duck Desk", "logs")
+      : path.join("Library", "Logs", "Duck Desk")
+  );
+}
+
+function runtimeMarkerPath(): string {
+  return path.join(electronApp.getPath("userData"), "runtime-marker.json");
+}
+
+function recoverUncleanShutdown(): void {
+  try {
+    const markerPath = runtimeMarkerPath();
+    if (!fs.existsSync(markerPath)) {
+      return;
+    }
+    const parsed = JSON.parse(fs.readFileSync(markerPath, "utf8")) as unknown;
+    if (isRecord(parsed) && parsed.clean !== true) {
+      recoveryNotice = "Duck Desk did not shut down cleanly last time. Check Setup > Preflight if the overlay or audio looks stuck.";
+      diagnosticRing.push("recovery", "Unclean previous shutdown");
+    }
+  } catch {
+    recoveryNotice = "Duck Desk could not read the previous session marker.";
+  }
+}
+
+function writeRuntimeMarker(clean: boolean): void {
+  try {
+    const markerPath = runtimeMarkerPath();
+    fs.mkdirSync(path.dirname(markerPath), { recursive: true });
+    const payload = `${JSON.stringify({ version: 1, pid: process.pid, startedAt: Date.now(), clean }, null, 2)}\n`;
+    const temporaryPath = `${markerPath}.tmp`;
+    fs.writeFileSync(temporaryPath, payload, { mode: 0o600 });
+    fs.renameSync(temporaryPath, markerPath);
+  } catch (error) {
+    log(`unable to write runtime marker: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+function tryLoadSettingsBackup(): boolean {
+  const backupPath = `${resolveSettingsPath()}.bak`;
+  if (!fs.existsSync(backupPath)) {
+    return false;
+  }
+  try {
+    const parsed = JSON.parse(fs.readFileSync(backupPath, "utf8")) as unknown;
+    if (!isRecord(parsed)) {
+      return false;
+    }
+    applyConfigPatch(parsed);
+    log("restored creator settings from backup");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function missingCustomSoundCount(): number {
+  return Object.values(customSounds).filter((selection) => selection && !fs.existsSync(resolveCustomSoundPath(selection))).length;
+}
+
+function storageWritable(): boolean {
+  try {
+    const directory = electronApp.getPath("userData");
+    fs.mkdirSync(directory, { recursive: true });
+    const probe = path.join(directory, ".write-check");
+    fs.writeFileSync(probe, "ok", { mode: 0o600 });
+    fs.rmSync(probe, { force: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function buildHealthChecks(): HealthCheck[] {
+  const obsReady = obsStatus.startsWith("Added") || obsStatus.startsWith("Updated");
+  const extensionConnected = Date.now() - extensionLastSeenAt < 30_000;
+  const overlayRecent = clients.size > 0 && Date.now() - overlayLastSeenAt < 30_000;
+  const missingSounds = missingCustomSoundCount();
+  const writable = storageWritable();
+  const remote = remoteSession.getConnectionInfo();
+  return [
+    {
+      id: "bridge",
+      label: "Local Bridge",
+      ready: !lastError,
+      detail: lastError || `Listening on ${overlayUrl}`,
+      action: lastError ? "Restart Local Bridge" : undefined
+    },
+    {
+      id: "overlay",
+      label: "Overlay Clients",
+      ready: overlayRecent,
+      pending: clients.size === 0,
+      detail: clients.size > 0 ? `${clients.size} connected` : "No overlay clients yet",
+      action: "Clear Overlay Queue"
+    },
+    {
+      id: "obs",
+      label: "OBS Source",
+      ready: obsReady,
+      pending: obsStatus.startsWith("Connecting"),
+      detail: obsStatus,
+      action: "Repair + Refresh OBS"
+    },
+    {
+      id: "extension",
+      label: "Extension",
+      ready: extensionConnected && whatnotPageReportedActive,
+      pending: !extensionConnected,
+      detail: whatnotPageReportedActive ? "Seller page connected" : extensionConnected ? "Open the seller page" : "Waiting for the extension",
+      action: "Reopen Extension Folder"
+    },
+    {
+      id: "events",
+      label: "Live Events",
+      ready: Boolean(lastRealEventAt),
+      pending: !lastRealEventAt,
+      detail: lastRealEventAt
+        ? `Last real event recorded. ${rejectedEventCount} rejected, ${duplicateEventCount} duplicates.`
+        : `No real events yet. ${rejectedEventCount} rejected, ${duplicateEventCount} duplicates.`
+    },
+    {
+      id: "audio",
+      label: "Audio Output",
+      ready: missingSounds === 0 && !audioNotice.toLowerCase().includes("could not"),
+      detail: missingSounds > 0 ? `${missingSounds} custom sound file(s) missing` : audioNotice,
+      action: "Reset Audio Output"
+    },
+    {
+      id: "remote",
+      label: "Remote Deck",
+      ready: remote.available,
+      detail: remote.available ? `${remoteSession.activeClientCount()} device(s), code ready` : "No private LAN address",
+      action: "Rotate Remote Access Code"
+    },
+    {
+      id: "rehearsal",
+      label: "Rehearsal",
+      ready: rehearsalManager.getStatus().state !== "playing",
+      pending: rehearsalManager.getStatus().state === "playing",
+      detail: `Scheduler ${rehearsalManager.getStatus().state}`
+    },
+    {
+      id: "storage",
+      label: "Settings Storage",
+      ready: writable,
+      detail: writable ? "Settings and packs can be saved" : "Duck Desk cannot write to its data folder",
+      action: "Open Log Folder"
+    },
+    {
+      id: "updates",
+      label: "App Version",
+      ready: updateStatus.status !== "error",
+      pending: updateStatus.status === "unknown",
+      detail: `${electronApp.getVersion()} · ${updateStatus.detail}`,
+      action: "Check for Updates"
+    }
+  ];
+}
+
+async function checkForUpdates(manual: boolean): Promise<void> {
+  const currentVersion = electronApp.getVersion();
+  updateStatus = {
+    currentVersion,
+    status: "unknown",
+    detail: manual ? "Checking GitHub Releases…" : "Startup check in progress."
+  };
+  if (!manual && rehearsalManager.getStatus().state === "playing") {
+    updateStatus.detail = "Update check postponed until rehearsal is idle.";
+    return;
+  }
+  try {
+    const response = await fetch("https://api.github.com/repos/ConfusedDuckCollectibles/DuckDesk/releases/latest", {
+      headers: { Accept: "application/vnd.github+json", "User-Agent": "DuckDesk" }
+    });
+    if (!response.ok) {
+      throw new Error(`GitHub returned ${response.status}`);
+    }
+    const payload = await response.json() as { tag_name?: string; html_url?: string };
+    const latestVersion = typeof payload.tag_name === "string" ? payload.tag_name.replace(/^v/i, "") : undefined;
+    if (!latestVersion) {
+      throw new Error("Latest release has no tag.");
+    }
+    const comparison = compareVersions(currentVersion, latestVersion);
+    updateStatus = {
+      currentVersion,
+      latestVersion,
+      notesUrl: typeof payload.html_url === "string" ? payload.html_url : undefined,
+      status: comparison,
+      detail: comparison === "available"
+        ? `Update available: ${latestVersion}. Duck Desk will not download it during a show.`
+        : `This build matches the latest GitHub release tag ${latestVersion}.`
+    };
+  } catch (error) {
+    updateStatus = {
+      currentVersion,
+      status: "error",
+      detail: `Could not check GitHub Releases (${error instanceof Error ? error.message : "network error"}).`
+    };
+  }
+  diagnosticRing.push("update", updateStatus.detail);
+  broadcastStatus();
+}
+
+async function restartLocalBridge(): Promise<void> {
+  diagnosticRing.push("bridge", "Restarting local bridge");
+  await new Promise<void>((resolve) => {
+    if (!server) {
+      resolve();
+      return;
+    }
+    wss?.close();
+    server.close(() => resolve());
+    server = null;
+    wss = null;
+  });
+  await startLocalBridge();
+}
+
+async function exportDiagnostics(): Promise<void> {
+  const options: SaveDialogOptions = {
+    title: "Export Duck Desk diagnostics",
+    defaultPath: `duck-desk-diagnostics-${new Date().toISOString().slice(0, 10)}.zip`,
+    filters: [{ name: "Zip", extensions: ["zip"] }]
+  };
+  const result = mainWindow
+    ? await dialog.showSaveDialog(mainWindow, options)
+    : await dialog.showSaveDialog(options);
+  if (result.canceled || !result.filePath) {
+    return;
+  }
+  const logDir = resolveLogDirectory();
+  const todayLog = path.join(logDir, dailyLogName());
+  let recentLog = "";
+  try {
+    if (fs.existsSync(todayLog)) {
+      const contents = fs.readFileSync(todayLog, "utf8");
+      recentLog = redactText(contents.split("\n").slice(-200).join("\n"));
+    }
+  } catch {
+    recentLog = "Logs were unavailable.";
+  }
+  const archive = await createDiagnosticsArchive([
+    { name: "health.json", data: `${JSON.stringify({ checks: buildHealthChecks(), update: updateStatus, platform: process.platform, arch: process.arch, appVersion: electronApp.getVersion(), signed: false, notarized: false, installerType: electronApp.isPackaged ? "packaged" : "development" }, null, 2)}\n` },
+    { name: "settings-summary.json", data: `${JSON.stringify(redactSettingsSummary({
+      version: 1,
+      theme: activeTheme,
+      skin: activeSkin,
+      addOns: [...activeAddOns],
+      soundsEnabled,
+      audioTheme,
+      customSounds,
+      customGifs,
+      sceneMode,
+      hideTopBanner,
+      themeEffectsEnabled,
+      firstRunComplete
+    }), null, 2)}\n` },
+    { name: "recent-log.txt", data: recentLog },
+    { name: "bridge-events.json", data: `${JSON.stringify(diagnosticRing.list(), null, 2)}\n` },
+    { name: "obs-status.txt", data: redactText(obsStatus) },
+    { name: "extension-status.json", data: `${JSON.stringify({
+      lastSeenAt: extensionLastSeenAt || undefined,
+      sellerPageActive: whatnotPageReportedActive,
+      overlayClients: clients.size
+    }, null, 2)}\n` }
+  ]);
+  fs.writeFileSync(result.filePath, archive);
+  diagnosticRing.push("diagnostics", "Exported diagnostics zip");
 }
 
 async function autoAddObsOverlay(suppliedPassword = ""): Promise<string> {
@@ -2456,6 +3659,21 @@ function normalizeGifUrl(url: string): string | null {
     const parsed = new URL(url.trim());
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
       return null;
+    }
+
+    const packMatch = parsed.pathname.match(/^\/pack-media\/([0-9a-f-]{36})\/([A-Za-z0-9._-]+)$/i);
+    if (
+      (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+      && parsed.port === String(port)
+      && packMatch
+      && isPackId(packMatch[1])
+      && /\.(gif|webp|png|jpe?g)$/i.test(packMatch[2])
+    ) {
+      parsed.protocol = "http:";
+      parsed.host = `localhost:${port}`;
+      parsed.search = "";
+      parsed.hash = "";
+      return parsed.href;
     }
 
     if (/\.(gif|webp)(?:$|[?#])/i.test(parsed.href)) {

@@ -1,0 +1,234 @@
+.overlay-shell .event-card.alert-place-upper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  transform: none;
+  z-index: 13;
+}
+
+.overlay-shell .event-card.alert-place-center,
+.overlay-shell .event-card.alert-place-lower {
+  position: fixed;
+  left: calc(64 * var(--u));
+  right: calc(64 * var(--u));
+  width: auto;
+  max-width: none;
+  transform: none;
+  z-index: 13;
+}
+
+.overlay-shell .event-card.alert-place-center {
+  top: 50%;
+}
+
+.overlay-shell .event-card.alert-place-lower {
+  top: auto;
+  bottom: 110px;
+}
+
+.overlay-shell .event-card.alert-size-compact {
+  min-height: 64px;
+}
+
+.overlay-shell .event-card.alert-size-compact .event-primary {
+  font-size: 22px;
+}
+
+.overlay-shell .event-card.alert-size-compact .event-amount strong {
+  font-size: 24px;
+}
+
+.overlay-shell .event-card.alert-size-large {
+  min-height: 128px;
+}
+
+.overlay-shell .event-card.alert-size-large .event-primary {
+  font-size: 36px;
+}
+
+.overlay-shell .event-card.alert-size-large .event-amount strong {
+  font-size: 44px;
+}
+
+.overlay-shell .event-card.alert-type-modern {
+  font-family: "Manrope Variable", "Manrope", sans-serif;
+}
+
+.overlay-shell .event-card.alert-type-condensed {
+  font-family: "Barlow Condensed", sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.overlay-shell .event-card.alert-type-editorial {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+}
+
+.overlay-shell .event-card.alert-custom-art .event-theme-art,
+.overlay-shell .event-card.alert-custom-art .event-theme-ornament {
+  display: none;
+}
+
+.overlay-shell .event-card.alert-custom-accent {
+  --event-tone: var(--alert-accent);
+}
+
+.event-alert-media {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.overlay-shell .event-card.alert-size-compact .event-alert-media {
+  width: 40px;
+  height: 40px;
+}
+
+.alert-rise-enter-active {
+  animation: sale-in 480ms cubic-bezier(0.17, 0.84, 0.44, 1) both;
+}
+
+.alert-rise-leave-active {
+  animation: sale-out 320ms ease-in both;
+}
+
+.alert-slide-enter-active {
+  animation: alert-slide-in 420ms cubic-bezier(0.2, 0.76, 0.25, 1) both;
+}
+
+.alert-slide-leave-active {
+  animation: alert-slide-out 260ms ease-in both;
+}
+
+.alert-pop-enter-active {
+  animation: alert-pop-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.alert-pop-leave-active {
+  animation: sale-out 240ms ease-in both;
+}
+
+.alert-broadcast-enter-active {
+  animation: broadcast-alert-in 420ms cubic-bezier(0.2, 0.76, 0.25, 1) both;
+}
+
+.alert-broadcast-leave-active {
+  animation: broadcast-alert-out 260ms ease-in both;
+}
+
+.alert-none-enter-active,
+.alert-none-leave-active {
+  animation: none;
+  transition: opacity 80ms linear;
+}
+
+@keyframes alert-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-72px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes alert-slide-out {
+  to {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes alert-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.preview-guides {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.preview-guides i {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  border: 1px dashed rgba(255, 207, 97, 0.55);
+  background: rgba(255, 207, 97, 0.08);
+}
+
+.preview-guides .guide-top {
+  top: 28px;
+  height: 168px;
+}
+
+.preview-guides .guide-upper {
+  top: 28px;
+  height: 86px;
+}
+
+.preview-guides .guide-center {
+  top: 50%;
+  height: 120px;
+  transform: translateY(-50%);
+}
+
+.preview-guides .guide-lower {
+  bottom: 110px;
+  height: 86px;
+}
+
+.preview-guides .guide-footer {
+  right: 26px;
+  bottom: 22px;
+  left: 26px;
+  height: 42px;
+  border-color: rgba(97, 229, 180, 0.7);
+  background: rgba(97, 229, 180, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert-rise-enter-active,
+  .alert-slide-enter-active,
+  .alert-pop-enter-active,
+  .alert-broadcast-enter-active,
+  .alert-rise-leave-active,
+  .alert-slide-leave-active,
+  .alert-pop-leave-active,
+  .alert-broadcast-leave-active {
+    animation: alert-reduced-fade 180ms ease both;
+  }
+}
+
+.overlay-shell.pack-reduced-motion *,
+.overlay-shell.pack-reduced-motion *::before,
+.overlay-shell.pack-reduced-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+.overlay-shell.frame-preset-none .overlay-frame,
+.overlay-shell.frame-preset-none .skin-frame {
+  display: none;
+}
+
+@keyframes alert-reduced-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

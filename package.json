@@ -1,6 +1,6 @@
 {
   "name": "duck-desk",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "private": true,
   "type": "module",
   "repository": {
@@ -26,8 +26,10 @@
     "audio:generate": "node scripts/generate-audio-themes.mjs",
     "audio:validate": "node scripts/validate-audio-library.mjs",
     "audio:test": "npm run build -w @duck-desk/shared && node --test scripts/audio-policy.test.mjs",
-    "test": "npm run audio:validate && npm run audio:test && npm run test:remote",
-    "test:remote": "npm run build -w @duck-desk/shared && npm run test:remote -w @duck-desk/desktop",
+    "test": "npm run audio:validate && npm run audio:test && npm run test:alerts && npm run test:desktop",
+    "test:alerts": "npm run build -w @duck-desk/shared && node --test scripts/alerts.test.mjs",
+    "test:desktop": "npm run build -w @duck-desk/shared && npm run test:desktop -w @duck-desk/desktop",
+    "duckpack": "npm run build -w @duck-desk/shared && npm run duckpack -w @duck-desk/desktop --",
     "overlay:sync": "bash scripts/sync-overlay-to-app.sh",
     "mac:app": "npm run dist -w @duck-desk/desktop",
     "mac:dmg": "npm run dist:dmg -w @duck-desk/desktop",

@@ -8,13 +8,13 @@ Active branch: `codex/next-level-sprint`
 
 | Workstream | Status | Verification |
 | --- | --- | --- |
-| Baseline and shared command contracts | Complete | `npm run typecheck`, `npm test`, and `npm run build` pass on alpha.5 |
+| Baseline and shared command contracts | Complete | `npm run typecheck`, `npm test`, and `npm run build` pass on alpha.6 |
 | Remote Show Deck | Complete | 4 security tests, desktop visual QA, 390px phone QA, valid/invalid pairing, and live command round trip pass |
-| Rehearsal and Event Replay | In progress | Pending |
-| Visual Alert Studio | Not started | Pending |
-| Community Pack System | Not started | Pending |
-| Production Reliability | Not started | Pending |
-| Full build, visual QA, and documentation | Not started | Pending |
+| Rehearsal and Event Replay | Implemented | Wired on Live → Preview and Live → Events. Typecheck and desktop rehearsal tests pass. |
+| Visual Alert Studio | Implemented, visual QA pending | Shared alert tests pass. Typecheck and `npm test` pass. Library > Studio editor and overlay config are wired. Overlay placement/size/entrance screenshot QA still pending. |
+| Community Pack System | Implemented, visual QA pending | Pack schema, ZIP security tests, import/apply/export/undo, and Library > Packs UI are wired. `npm run duckpack -- validate` works on the example pack. |
+| Production Reliability | Implemented, visual QA pending | Health center, redacted diagnostics export, crash marker, single-instance lock, and GitHub update check are wired. Signing/notarization is not claimed. |
+| Full build, visual QA, and documentation | Release-ready | Version bumped to `0.1.0-alpha.6`. Release notes and README download links updated. GitHub Action publish still awaits user confirmation. |
 
 Update this table as each vertical slice becomes usable. A workstream is only
 marked complete after its automated checks and relevant visual or workflow QA
@@ -33,6 +33,73 @@ have passed.
 - Fixed private-LAN browser compatibility by avoiding secure-context-only web
   APIs.
 - Verified `npm audit --omit=dev` reports zero production vulnerabilities.
+
+### In progress: Rehearsal and Event Replay
+
+- Codex left a scheduler, built-in scenarios, recording, and persistence helpers in
+  `apps/desktop/src/rehearsal.ts`. Those are now wired into Live > Events.
+- Built-in scenarios: Quiet Show, Rapid Auction, Full Sale Moment, and Stress Test.
+- Start, Pause, Resume, Stop, Record Session, saved names, Play, Rename, and Delete
+  are available in the streamer UI, with a `REHEARSAL` titlebar badge.
+- Rehearsal playback uses the same command functions as Remote Deck, never updates
+  `lastRealEventAt`, never fakes extension/seller-page connection, and marks event-log
+  rows without adding extra fields to overlay WebSocket payloads.
+- Saved timelines live in `userData/rehearsal-timelines.json` with atomic writes,
+  50/500/2 MB caps, and quarantine of malformed files.
+- Automated checks cover ordering, pause/resume, stop, recording, identical
+  timestamps, live-health isolation, quarantine, and single-timer Stress Test playback.
+
+### If this session stops here
+
+Rehearsal, Alert Studio, Community Packs, and Production Reliability are on
+`codex/next-level-sprint` and **not committed**. Remaining work is full build,
+visual QA, and documentation.
+
+Do not resume the rules-engine idea. Do not claim signing or notarization.
+
+### Implemented: Community Pack System
+
+- Constrained `.duckpack` ZIP format in `apps/desktop/src/packs.ts` with SHA-256
+  hashes, signature checks, license allowlist, and size limits.
+- Format docs: `docs/pack-format/README.md`, `docs/pack-format/duckpack.schema.json`,
+  and first-party example `docs/pack-format/example/`.
+- Validate with `npm run duckpack -- validate <path>`.
+- Library > Packs: Import, review sheet, Install, Apply, Export, Remove, Export
+  Current Setup, and Undo until the app closes.
+- Installs to `userData/packs/{id}/` with `index.json`. Never overwrites another
+  pack in place. Pack media is served on localhost with a per-launch token.
+- Overlay config can apply theme, skin, frame preset, reduced motion, alerts,
+  banners, goals, scene, audio replacements, and GIF library entries.
+
+### Implemented: Production Reliability
+
+- Setup > Preflight is now Production Health with bridge, overlay, OBS,
+  extension, events, audio, remote, rehearsal, storage, and version checks.
+- Recovery actions: Restart Local Bridge, Repair + Refresh OBS, Reopen
+  Extension Folder, Clear Overlay Queue, Reset Audio Output, Rotate Remote
+  Access, Open Log Folder, Check for Updates, Export Diagnostics.
+- Diagnostics ZIP includes a privacy summary and redacts tokens, home paths,
+  media URLs, and sound payloads. Tests live in `apps/desktop/src/diagnostics.test.ts`.
+- Daily rotating logs, unclean-shutdown recovery notice, settings `.bak`
+  restore, single-instance lock, and a manual/startup GitHub Releases check
+  that never auto-downloads during a show.
+- macOS entitlements file exists for future CI signing. Local builds stay
+  unsigned (`identity: null`). Do not claim notarization.
+
+### Implemented: Visual Alert Studio
+
+- Shared module: `packages/shared/src/alerts.ts` plus `scripts/alerts.test.mjs`.
+- Defaults match pre-sprint overlay durations and theme art.
+- `alertVisuals` is on overlay config and `creator-settings.json`. Missing
+  settings migrate per event.
+- `EventAlert.vue` reads enabled, placement, size, duration, entrance, accent,
+  typography, and optional GIF/image media. Theme art stays unless typography or
+  accent is customized.
+- Library > Studio has an always-visible Alert Studio editor. Audio Studio still
+  owns sounds.
+- `Preview This Alert` sends a demo-origin sample event. `Reset Event` restores
+  that event's defaults.
+- Desktop preview iframe requests `?audio=off&guides=1`. OBS overlay does not.
 
 ## Purpose
 
@@ -75,10 +142,10 @@ functionality.
 - Demo data must never appear when Demo Mode is off unless an explicit
   rehearsal is running.
 - Current branch at the time of this handoff: `main`.
-- Current commit: `5786f0a Release v0.1.0-alpha.5`.
-- The alpha.5 build, tests, DMG, and commit were completed and pushed. The
-  public GitHub Actions release form was staged but was not submitted because
-  the final representational action was awaiting user confirmation.
+- Current branch: `codex/next-level-sprint`.
+- Version is `0.1.0-alpha.6`. Typecheck, tests, duckpack validate, and `npm run build` pass.
+- The public GitHub Actions release form still awaits user confirmation. Do not
+  claim signing or notarization.
 
 No application implementation for this sprint had been committed when this
 plan was written.

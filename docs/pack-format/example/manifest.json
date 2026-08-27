@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "format": "duckpack",
+  "name": "Night Market",
+  "author": "Duck Desk",
+  "packVersion": "1.0.0",
+  "description": "First-party reference pack: neon theme, cyber market skin, broadcast frame, and a starting scene.",
+  "license": "MIT",
+  "projectUrl": "https://github.com/ConfusedDuckCollectibles/DuckDesk",
+  "preview": "preview.png",
+  "setup": {
+    "theme": "neon",
+    "skin": "cyber_market",
+    "framePreset": "broadcast",
+    "typographyPreset": "modern",
+    "sceneMode": "starting",
+    "promoBanners": [
+      "Duck Desk Night Market",
+      "Follow for the next drop"
+    ]
+  },
+  "assets": [
+    {
+      "path": "preview.png",
+      "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+      "kind": "image"
+    }
+  ]
+}

@@ -12,9 +12,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.5"><strong>Download for Mac</strong></a>
+  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.6"><strong>Download for Mac</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.5"><strong>Download for Windows</strong></a>
+  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.6"><strong>Download for Windows</strong></a>
   &nbsp;·&nbsp;
   <a href="#get-on-stream">Setup</a>
   &nbsp;·&nbsp;
@@ -31,7 +31,7 @@
 
 <p align="center"><em>This is what buyers see. The open center is your product camera.</em></p>
 
-> **Public alpha `v0.1.0-alpha.5`.** Download the Mac or Windows installer. You do not need Terminal, PowerShell, or any coding.
+> **Public alpha `v0.1.0-alpha.6`.** Download the Mac or Windows installer. You do not need Terminal, PowerShell, or any coding.
 
 ## How it works
 
@@ -69,18 +69,18 @@ You do not add a new OBS source for every alert, GIF, or sound.
 
 Most people should download a finished installer. You do not need the source code.
 
-1. Open **[Duck Desk v0.1.0-alpha.5](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.5)**.
+1. Open **[Duck Desk v0.1.0-alpha.6](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.6)**.
 2. Scroll to **Assets**.
 3. Download one file:
-   - **Mac (Apple silicon):** `DuckDesk-0.1.0-alpha.5-arm64.dmg`
-   - **Windows (64-bit):** `DuckDesk-0.1.0-alpha.5-windows-x64.exe`
+   - **Mac (Apple silicon):** `DuckDesk-0.1.0-alpha.6-arm64.dmg`
+   - **Windows (64-bit):** `DuckDesk-0.1.0-alpha.6-windows-x64.exe`
 4. Skip the `Source code` files unless you are a developer.
 
 **Mac:** Apple menu → **About This Mac**. If **Chip** says M1, M2, M3, M4, or newer, you are set. Intel Macs are not in this alpha. The app is not Apple-notarized yet, so the first open may need a right-click.
 
 **Windows:** 64-bit Windows 10 or 11. The installer is unsigned, so SmartScreen may say Windows protected your PC. Choose **More info**, then **Run anyway**. You do not need administrator permission.
 
-Duck Desk does not update itself yet. When a newer build is out, install it over the current copy. Your show settings stay on this computer.
+Duck Desk can check GitHub for a newer release. It does not download or install updates by itself, and it will not interrupt a live show. When a newer build is out, install it over the current copy. Your show settings stay on this computer.
 
 ## What you get
 
@@ -88,7 +88,9 @@ Duck Desk does not update itself yet. When a newer build is out, install it over
 - A live header, ticker, and vertical frame around your camera
 - Sounds for bids, sales, tips, shares, and audience energy
 - GIF reactions, goals, timers, scenes, and a jumbotron
-- One-click OBS setup, plus a ready-check before you go live
+- Alert Studio, rehearsal playback, and a phone Remote Show Deck
+- Community `.duckpack` looks you can import, apply, export, and undo
+- One-click OBS setup, plus a production health check before you go live
 - Automatic saving on this computer — no Duck Desk account
 
 No cloud login. No analytics from Duck Desk. No AI features.
@@ -144,7 +146,7 @@ The canvas should look like a phone, not a TV.
 1. Open OBS first, then Duck Desk.
 2. In Duck Desk, click **Setup**, then **Connect + Add**.
 3. Wait until the message turns green.
-4. Click **Preflight** and confirm **OBS Source** says Ready.
+4. Click **Preflight** and confirm **OBS Source** says Ready. That screen is now a production health center with recovery actions and an optional diagnostics export.
 
 If Duck Desk cannot find the OBS password:
 
@@ -255,10 +257,12 @@ Turn **Event Sound On**. Add **Audio Studio** from the Library, press play next 
 
 Duck Desk stays on your computer.
 
-- It listens only at `127.0.0.1` on this machine.
+- The overlay listens on `localhost` on this machine.
+- Remote Show Deck can bind your private LAN address with a per-launch access code. It is not a public internet service.
 - No Duck Desk account.
 - No Duck Desk analytics.
 - OBS passwords are used locally and are not saved with your show settings.
+- Diagnostics exports redact pairing tokens, GIF query tokens, home directory paths, buyer names, and custom audio files.
 - The Chrome helper reads visible seller-page content, not passwords or hidden account data.
 
 Duck Desk is not affiliated with or endorsed by Whatnot. Follow Whatnot’s rules and applicable laws.
@@ -284,7 +288,9 @@ MIT licensed. Built by Confused Duck Collectibles so sellers can have a real pro
 ```bash
 npm install
 npm run typecheck
+npm test
 npm run build
+npm run duckpack -- validate docs/pack-format/example
 npm run mac:dmg    # Mac only
 npm run win:nsis   # Windows only
 ```

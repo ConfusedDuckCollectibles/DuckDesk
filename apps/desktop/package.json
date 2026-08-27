@@ -1,6 +1,6 @@
 {
   "name": "@duck-desk/desktop",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "description": "Desktop companion for Duck Desk live overlays.",
   "author": "Duck Desk",
   "private": true,
@@ -13,7 +13,8 @@
     "build:preload": "esbuild src/preload.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/preload.cjs --external:electron",
     "build:renderer": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:remote": "node --import tsx --test src/remote.test.ts",
+    "test:desktop": "node --import tsx --test src/remote.test.ts src/rehearsal.test.ts src/packs.test.ts src/diagnostics.test.ts",
+    "duckpack": "tsx ../../scripts/duckpack-validate.ts",
     "dist": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac --dir --arm64",
     "dist:dmg": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --mac dmg --arm64",
     "dist:win": "npm run build -w @duck-desk/shared && npm run build -w @duck-desk/overlay && npm run build -w @duck-desk/extension && npm run build && electron-builder --win nsis --x64"
@@ -24,7 +25,9 @@
     "express": "^5.1.0",
     "lucide": "^1.33.0",
     "qrcode": "^1.5.4",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "yauzl": "^2.10.0",
+    "yazl": "^3.3.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -32,6 +35,8 @@
     "@types/node": "^24.3.0",
     "@types/qrcode": "^1.5.6",
     "@types/ws": "^8.18.1",
+    "@types/yauzl": "^2.10.3",
+    "@types/yazl": "^3.3.1",
     "electron": "38.2.0",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.25.9",
@@ -44,6 +49,11 @@
     "mac": {
       "icon": "build/icon.icns",
       "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "identity": null,
       "target": [
         "dir",
         "dmg"

@@ -29,7 +29,11 @@ import {
   type OverlayTheme,
   type ShowEvent,
   type SoundKind,
-  isOverlaySkin
+  isOverlaySkin,
+  DEFAULT_ALERT_VISUALS,
+  alertKindFromEventType,
+  normalizeAlertVisualMap,
+  type AlertVisualMap
 } from "@duck-desk/shared";
 import BroadcastFrame from "./components/BroadcastFrame.vue";
 import ThemeArt from "./components/ThemeArt.vue";
@@ -64,6 +68,10 @@ const goals = ref<GoalConfig[]>([]);
 const auctionTimerSeconds = ref(45);
 const hideTopBanner = ref(false);
 const themeEffectsEnabled = ref(true);
+const alertVisuals = ref<AlertVisualMap>(DEFAULT_ALERT_VISUALS);
+const framePreset = ref<"theme" | "broadcast" | "none">("theme");
+const reducedMotion = ref(false);
+const showPreviewGuides = new URLSearchParams(window.location.search).get("guides") === "1";
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
 const hypeMeter = ref<{ startedAt: number; durationSeconds: number; participants: Set<string> } | null>(null);
@@ -82,6 +90,8 @@ const buyerTotals = ref<Record<string, number>>({});
 const grossSales = ref(0);
 const orderCount = ref(0);
 const followCount = ref(0);
+const bidCount = ref(0);
+const tipTotal = ref(0);
 const burstKey = ref(0);
 const statusLabel = computed(() => (connected.value ? "live" : "offline"));
 const latestBid = computed(() => recentEvents.value.find((event) => event.type === "bid"));
@@ -103,6 +113,10 @@ const latestEventLabel = computed(() => {
 });
 const jumbotronLabel = computed(() => recentEvents.value[0]?.type.toUpperCase() ?? "ROOM READY");
 const tickerTape = computed(() => [...recentEvents.value, ...recentEvents.value]);
+const activeAlertVisual = computed(() => (
+  activeEvent.value ? visualForEvent(activeEvent.value) : DEFAULT_ALERT_VISUALS.sale
+));
+const alertTransitionName = computed(() => `alert-${activeAlertVisual.value.entrance}`);
 const displayedGif = computed(() => manualGifUrl.value);
 const activePromo = computed(() => promoBanners.value[promoIndex.value % Math.max(1, promoBanners.value.length)] ?? "");
 const hypeRemaining = ref(0);
@@ -183,7 +197,7 @@ const sceneContent = computed(() => {
     return { eyebrow: "Winner Moment", title: "Winner!", detail: "Congrats to the latest buyer." };
   }
   if (sceneMode.value === "ending") {
-    return { eyebrow: "Ending Soon", title: "Final call", detail: "Last chances before we wrap." };
+    return { eyebrow: "Ending Soon", title: "Wrapping up", detail: "Last chances before we wrap." };
   }
   return null;
 });
@@ -194,14 +208,12 @@ const topBuyers = computed(() => (
 ));
 const recapStats = computed(() => {
   const topBuyer = topBuyers.value[0];
-  const recap = recapCard.value;
   return [
-    { label: "Sales", value: `$${Math.round(recap?.grossSales ?? grossSales.value).toLocaleString()}` },
-    { label: "Orders", value: (recap?.salesCount ?? orderCount.value).toLocaleString() },
-    { label: "Follows", value: followCount.value.toLocaleString() },
-    { label: "Bids", value: (recap?.bidCount ?? 0).toLocaleString() },
-    { label: "Audience", value: (recap?.audienceActions ?? 0).toLocaleString() },
-    { label: "Top Buyer", value: topBuyer ? `@${topBuyer[0]}` : "-" }
+    { label: "Sold", value: `$${Math.round(grossSales.value).toLocaleString()}` },
+    { label: "Orders", value: orderCount.value.toLocaleString() },
+    { label: "Bids", value: bidCount.value.toLocaleString() },
+    { label: "Tips", value: `$${Math.round(tipTotal.value).toLocaleString()}` },
+    { label: "Top Buyer", value: topBuyer ? `@${topBuyer[0]}` : "—" }
   ];
 });
 
@@ -223,14 +235,6 @@ const previewSkin = (() => {
   const value = new URLSearchParams(window.location.search).get("skin");
   return isOverlaySkin(value) ? value : null;
 })();
-
-const eventDisplayDurations: Record<ShowEvent["type"], number> = {
-  bid: 1600,
-  sale: 3400,
-  audience_action: 2200,
-  tip: 3200,
-  share: 2400
-};
 
 onMounted(connect);
 onBeforeUnmount(() => {
@@ -292,6 +296,9 @@ function connect(): void {
       auctionTimerSeconds.value = parsed.auctionTimerSeconds;
       hideTopBanner.value = parsed.hideTopBanner === true;
       themeEffectsEnabled.value = parsed.themeEffectsEnabled !== false;
+      alertVisuals.value = normalizeAlertVisualMap(parsed.alertVisuals);
+      framePreset.value = parsed.framePreset === "broadcast" || parsed.framePreset === "none" ? parsed.framePreset : "theme";
+      reducedMotion.value = parsed.reducedMotion === true;
       if (!soundsEnabled.value || soundVolume.value === 0) {
         stopAudioPlayback();
       } else if (activeAudioPlayer) {
@@ -386,22 +393,50 @@ function scheduleReconnect(): void {
   }, 1200);
 }
 
+function visualForEvent(event: ShowEvent) {
+  return alertVisuals.value[alertKindFromEventType(event.type)];
+}
+
 function showNextEvent(): void {
-  if (activeEvent.value || queue.value.length === 0) {
+  if (activeEvent.value) {
     return;
   }
 
-  const nextEvent = queue.value.shift();
-  if (!nextEvent) {
+  while (queue.value.length > 0) {
+    const nextEvent = queue.value.shift();
+    if (!nextEvent) {
+      return;
+    }
+    const visual = visualForEvent(nextEvent);
+    if (!visual.enabled) {
+      continue;
+    }
+    window.clearTimeout(dismissTimer);
+    activeEvent.value = nextEvent;
+    dismissTimer = window.setTimeout(() => {
+      activeEvent.value = null;
+      window.setTimeout(showNextEvent, 180);
+    }, visual.durationMs);
     return;
   }
+}
 
-  activeEvent.value = nextEvent;
+watch(alertVisuals, () => {
+  if (!activeEvent.value) {
+    return;
+  }
+  const visual = visualForEvent(activeEvent.value);
+  window.clearTimeout(dismissTimer);
+  if (!visual.enabled) {
+    activeEvent.value = null;
+    showNextEvent();
+    return;
+  }
   dismissTimer = window.setTimeout(() => {
     activeEvent.value = null;
     window.setTimeout(showNextEvent, 180);
-  }, eventDisplayDurations[nextEvent.type]);
-}
+  }, visual.durationMs);
+}, { deep: true });
 
 function parseMessage(data: unknown): BridgeMessage | null {
   if (typeof data !== "string") {
@@ -440,6 +475,8 @@ function clearOverlayData(): void {
   grossSales.value = 0;
   orderCount.value = 0;
   followCount.value = 0;
+  bidCount.value = 0;
+  tipTotal.value = 0;
   burstKey.value = 0;
   manualGifUrl.value = "";
   manualGifTimestamp.value = 0;
@@ -462,10 +499,18 @@ function hasAddOn(addOn: AddOnId): boolean {
 }
 
 function applyEventStats(event: ShowEvent): void {
+  if (event.type === "audience_action" && event.action === "follow") {
+    followCount.value += 1;
+  }
+  if (event.type === "bid") {
+    bidCount.value += 1;
+    return;
+  }
+  if (event.type === "tip") {
+    tipTotal.value += event.amount;
+    return;
+  }
   if (event.type !== "sale") {
-    if (event.type === "audience_action" && event.action === "follow") {
-      followCount.value += 1;
-    }
     return;
   }
 
@@ -769,7 +814,11 @@ onMounted(() => {
       {
         'skin-premium': premiumSkinActive,
         'is-alert-active': Boolean(activeEvent),
-        'theme-effects-off': !themeEffectsEnabled
+        'theme-effects-off': !themeEffectsEnabled,
+        'is-banner-hidden': hideTopBanner,
+        'pack-reduced-motion': reducedMotion,
+        'frame-preset-none': framePreset === 'none',
+        'frame-preset-broadcast': framePreset === 'broadcast'
       },
       activeAddOns.map((addOn) => `addon-${addOn}`)
     ]"
@@ -895,10 +944,37 @@ onMounted(() => {
           </div>
         </div>
       </section>
-
-      <Transition name="sale-alert">
-        <EventAlert v-if="activeEvent" :event="activeEvent" />
+      <Transition :name="alertTransitionName">
+        <EventAlert v-if="activeEvent" :event="activeEvent" :visual="activeAlertVisual" />
       </Transition>
+      <section v-if="hypeMeter" class="hype-meter">
+        <strong>Hype</strong>
+        <div class="hype-meter-track">
+          <i :style="{ width: `${hypeProgress}%` }" />
+        </div>
+        <span>{{ hypeRemaining }}s</span>
+      </section>
+      <section
+        v-if="hasAddOn('scene_switcher') && sceneContent"
+        class="scene-state"
+        :class="`scene-${sceneMode}`"
+      >
+        <span>{{ sceneContent.eyebrow }}</span>
+        <strong>{{ sceneContent.title }}</strong>
+        <em>{{ sceneContent.detail }}</em>
+      </section>
+      <section v-if="milestoneCard" class="milestone-card">
+        <span>Milestone Hit</span>
+        <strong>${{ milestoneCard.amount }}</strong>
+        <em>{{ milestoneCard.label }}</em>
+      </section>
+    </div>
+    <div v-if="showPreviewGuides" class="preview-guides" aria-hidden="true">
+      <i class="guide-top" />
+      <i class="guide-upper" />
+      <i class="guide-center" />
+      <i class="guide-lower" />
+      <i class="guide-footer" />
     </div>
 
     <section v-if="hasAddOn('jumbotron')" class="jumbotron-stage">
@@ -916,16 +992,6 @@ onMounted(() => {
       />
     </section>
 
-    <section
-      v-if="hasAddOn('scene_switcher') && sceneContent"
-      class="scene-state"
-      :class="`scene-${sceneMode}`"
-    >
-      <span>{{ sceneContent.eyebrow }}</span>
-      <strong>{{ sceneContent.title }}</strong>
-      <em>{{ sceneContent.detail }}</em>
-    </section>
-
     <section v-if="hasAddOn('goal_widgets') && activeGoals.length > 0" class="goal-stack">
       <article v-for="goal in activeGoals" :key="`${goal.kind}-${goal.label}`" class="goal-widget">
         <div>
@@ -938,7 +1004,7 @@ onMounted(() => {
 
     <section v-if="auctionTimer" class="auction-timer">
       <div>
-        <span>Final Call</span>
+        <span>Lot timer</span>
         <strong>{{ auctionRemaining }}</strong>
       </div>
       <i><b :style="{ width: `${auctionProgress}%` }" /></i>
@@ -970,23 +1036,6 @@ onMounted(() => {
           <strong>{{ stat.value }}</strong>
         </article>
       </div>
-    </section>
-
-    <section v-if="hypeMeter" class="hype-meter">
-      <div class="hype-meter-head">
-        <strong>HYPE METER</strong>
-        <span>{{ hypeRemaining }}s</span>
-      </div>
-      <div class="hype-meter-track">
-        <i :style="{ width: `${hypeProgress}%` }" />
-      </div>
-      <small>{{ hypeMeter.participants.size }} active viewers</small>
-    </section>
-
-    <section v-if="milestoneCard" class="milestone-card">
-      <span>Milestone Hit</span>
-      <strong>${{ milestoneCard.amount }}</strong>
-      <em>{{ milestoneCard.label }}</em>
     </section>
 
     <section

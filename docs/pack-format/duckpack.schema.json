@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ConfusedDuckCollectibles/DuckDesk/docs/pack-format/duckpack.schema.json",
+  "title": "Duck Desk community pack manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "format", "name", "author", "packVersion", "description", "license", "preview", "setup", "assets"],
+  "properties": {
+    "version": { "const": 1 },
+    "format": { "const": "duckpack" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "author": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "packVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "description": { "type": "string", "maxLength": 500 },
+    "license": {
+      "type": "string",
+      "enum": ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "CC0-1.0", "CC-BY-4.0", "CC-BY-SA-4.0", "Unlicense"]
+    },
+    "projectUrl": { "type": "string", "format": "uri", "maxLength": 200 },
+    "preview": {
+      "type": "string",
+      "enum": ["preview.png", "preview.jpg", "preview.jpeg", "preview.webp"]
+    },
+    "setup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "theme": { "type": "string", "enum": ["neon", "arena", "duck"] },
+        "skin": { "type": "string" },
+        "framePreset": { "type": "string", "enum": ["theme", "broadcast", "none"] },
+        "typographyPreset": { "type": "string", "enum": ["theme", "modern", "condensed", "editorial"] },
+        "reducedMotion": { "type": "boolean" },
+        "sceneMode": { "type": "string", "enum": ["none", "starting", "auction", "break", "winner", "ending"] },
+        "promoBanners": { "type": "array", "maxItems": 6, "items": { "type": "string", "maxLength": 80 } },
+        "goals": { "type": "array", "maxItems": 4 },
+        "alerts": { "type": "object" }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "kind"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "kind": { "type": "string", "enum": ["image", "audio"] },
+          "sound": { "type": "string", "enum": ["sale", "bid", "action", "tip", "share"] },
+          "label": { "type": "string", "maxLength": 40 }
+        }
+      }
+    }
+  }
+}

@@ -2252,24 +2252,24 @@ body,
 @keyframes sale-in {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(80px) scale(0.86) rotate(-2deg);
+    transform: translateY(80px) scale(0.86) rotate(-2deg);
   }
 
   68% {
     opacity: 1;
-    transform: translateX(-50%) translateY(-8px) scale(1.04) rotate(1deg);
+    transform: translateY(-8px) scale(1.04) rotate(1deg);
   }
 
   100% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1) rotate(0);
+    transform: translateY(0) scale(1) rotate(0);
   }
 }
 
 @keyframes sale-out {
   to {
     opacity: 0;
-    transform: translateX(-50%) translateY(54px) scale(0.96);
+    transform: translateY(54px) scale(0.96);
   }
 }
 
@@ -3683,13 +3683,13 @@ body,
   0% {
     opacity: 0;
     clip-path: inset(0 100% 0 0);
-    transform: translateX(-50%) translateY(-8px);
+    transform: translateY(-8px);
   }
 
   100% {
     opacity: 1;
     clip-path: inset(0 0 0 0);
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 }
 
@@ -3697,7 +3697,7 @@ body,
   to {
     opacity: 0;
     clip-path: inset(0 0 0 100%);
-    transform: translateX(-50%) translateY(-5px);
+    transform: translateY(-5px);
   }
 }
 

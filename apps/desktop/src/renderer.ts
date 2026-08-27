@@ -23,7 +23,8 @@ import {
   Smartphone,
   Sparkles,
   Upload,
-  Volume2
+  Volume2,
+  Package
 } from "lucide";
 
 type DesktopStatus = {
@@ -75,7 +76,88 @@ type DesktopStatus = {
   remoteClients: number;
   remoteLastSeenAt?: number;
   lastError?: string;
+  rehearsal: RehearsalStatus;
+  rehearsals: RehearsalSummary[];
+  rehearsalNotice?: string;
+  alertVisuals: AlertVisualMap;
+  packs: InstalledPackView[];
+  pendingPack?: PendingPackReview;
+  packUndoAvailable: boolean;
+  packNotice?: string;
+  healthChecks: HealthCheckView[];
+  update: UpdateStatusView;
+  recoveryNotice?: string;
+  rejectedEventCount: number;
+  duplicateEventCount: number;
 };
+
+type RehearsalState = "idle" | "playing" | "paused" | "recording";
+type RehearsalStatus = {
+  state: RehearsalState;
+  activeId?: string;
+  activeName?: string;
+  elapsedMs: number;
+  durationMs: number;
+  nextActionAtMs?: number;
+  nextActionKind?: string;
+  recordingActions: number;
+};
+type RehearsalSummary = {
+  id: string;
+  name: string;
+  durationMs: number;
+  actionCount: number;
+  builtIn: boolean;
+};
+type InstalledPackView = {
+  id: string;
+  name: string;
+  author: string;
+  packVersion: string;
+  description: string;
+  license: string;
+  projectUrl?: string;
+  preview?: string;
+  previewUrl?: string;
+  installedAt: number;
+};
+type PendingPackReview = {
+  name: string;
+  author: string;
+  packVersion: string;
+  license: string;
+  description: string;
+  projectUrl?: string;
+  review: Array<{ label: string; detail: string }>;
+  previewDataUrl?: string;
+};
+type HealthCheckView = {
+  id: string;
+  label: string;
+  ready: boolean;
+  pending?: boolean;
+  detail: string;
+  action?: string;
+};
+type UpdateStatusView = {
+  currentVersion: string;
+  latestVersion?: string;
+  notesUrl?: string;
+  status: "unknown" | "current" | "available" | "error";
+  detail: string;
+};
+type AlertKind = "sale" | "bid" | "action" | "tip" | "share";
+type AlertVisualConfig = {
+  enabled: boolean;
+  placement: "below_banner" | "upper" | "center" | "lower";
+  size: "compact" | "standard" | "large";
+  durationMs: number;
+  entrance: "rise" | "slide" | "pop" | "broadcast" | "none";
+  accent: string;
+  typography: "theme" | "modern" | "condensed" | "editorial";
+  mediaUrl?: string;
+};
+type AlertVisualMap = Record<AlertKind, AlertVisualConfig>;
 
 type OverlayTheme = "neon" | "arena" | "duck";
 type OverlaySkin =
@@ -222,6 +304,32 @@ type DesktopApi = {
   setAuctionTimerSeconds: (seconds: number) => Promise<DesktopStatus>;
   triggerAuctionTimer: () => Promise<DesktopStatus>;
   triggerRecap: () => Promise<DesktopStatus>;
+  setAlertVisual: (kind: AlertKind, patch: Partial<AlertVisualConfig> & { mediaUrl?: string | null }) => Promise<DesktopStatus>;
+  resetAlertVisual: (kind: AlertKind) => Promise<DesktopStatus>;
+  previewAlert: (kind: AlertKind) => Promise<DesktopStatus>;
+  startRehearsal: (id: string) => Promise<DesktopStatus>;
+  pauseRehearsal: () => Promise<DesktopStatus>;
+  resumeRehearsal: () => Promise<DesktopStatus>;
+  stopRehearsal: () => Promise<DesktopStatus>;
+  startRehearsalRecording: () => Promise<DesktopStatus>;
+  saveRehearsalRecording: (name: string) => Promise<DesktopStatus>;
+  renameRehearsal: (id: string, name: string) => Promise<DesktopStatus>;
+  deleteRehearsal: (id: string) => Promise<DesktopStatus>;
+  importPack: () => Promise<DesktopStatus>;
+  confirmImportPack: () => Promise<DesktopStatus>;
+  cancelImportPack: () => Promise<DesktopStatus>;
+  applyPack: (id: string) => Promise<DesktopStatus>;
+  exportPack: (id: string) => Promise<DesktopStatus>;
+  exportCurrentSetup: () => Promise<DesktopStatus>;
+  removePack: (id: string) => Promise<DesktopStatus>;
+  undoPack: () => Promise<DesktopStatus>;
+  restartBridge: () => Promise<DesktopStatus>;
+  clearOverlayQueue: () => Promise<DesktopStatus>;
+  resetAudioOutput: () => Promise<DesktopStatus>;
+  openLogFolder: () => Promise<DesktopStatus>;
+  checkForUpdates: () => Promise<DesktopStatus>;
+  exportDiagnostics: () => Promise<DesktopStatus>;
+  dismissRecoveryNotice: () => Promise<DesktopStatus>;
   onStatus: (callback: (status: DesktopStatus) => void) => void;
   onEvent: (callback: (event: ShowEventLog) => void) => void;
 };
@@ -237,6 +345,7 @@ type ShowEventLog = {
   delta?: number;
   item?: string;
   message?: string;
+  rehearsal?: boolean;
 };
 
 type DeskView = "live" | "setup" | "library";
@@ -251,7 +360,8 @@ type DeskTab =
   | "setup-preflight"
   | "library-themes"
   | "library-addons"
-  | "library-studio";
+  | "library-studio"
+  | "library-packs";
 
 const DESK_TABS: DeskTab[] = [
   "live-show",
@@ -263,7 +373,8 @@ const DESK_TABS: DeskTab[] = [
   "setup-preflight",
   "library-themes",
   "library-addons",
-  "library-studio"
+  "library-studio",
+  "library-packs"
 ];
 
 declare global {
@@ -310,10 +421,15 @@ const autoObs = readElement<HTMLButtonElement>("auto-obs");
 const obsPassword = readElement<HTMLInputElement>("obs-password");
 const obsConnectionStatus = readElement<HTMLElement>("obs-connection-status");
 const preflightSummary = readElement<HTMLElement>("preflight-summary");
-const preflightBridge = readElement<HTMLElement>("preflight-bridge");
-const preflightObs = readElement<HTMLElement>("preflight-obs");
-const preflightWhatnot = readElement<HTMLElement>("preflight-whatnot");
-const preflightData = readElement<HTMLElement>("preflight-data");
+const healthChecks = readElement<HTMLElement>("health-checks");
+const recoveryNotice = readElement<HTMLElement>("recovery-notice");
+const updateStatusLine = readElement<HTMLElement>("update-status");
+const restartBridge = readElement<HTMLButtonElement>("restart-bridge");
+const clearOverlayQueue = readElement<HTMLButtonElement>("clear-overlay-queue");
+const resetAudioOutput = readElement<HTMLButtonElement>("reset-audio-output");
+const openLogFolder = readElement<HTMLButtonElement>("open-log-folder");
+const checkForUpdates = readElement<HTMLButtonElement>("check-for-updates");
+const exportDiagnostics = readElement<HTMLButtonElement>("export-diagnostics");
 const revealExtension = readElement<HTMLButtonElement>("reveal-extension");
 const demoToggle = readElement<HTMLButtonElement>("demo-toggle");
 const demoPreviewNotice = readElement<HTMLButtonElement>("demo-preview-notice");
@@ -380,9 +496,41 @@ const openRemoteDeck = readElement<HTMLButtonElement>("open-remote-deck");
 const rotateRemoteAccess = readElement<HTMLButtonElement>("rotate-remote-access");
 const remoteClientCount = readElement<HTMLElement>("remote-client-count");
 const remoteLastSeen = readElement<HTMLElement>("remote-last-seen");
+const rehearsalTitlebarBadge = readElement<HTMLElement>("rehearsal-titlebar-badge");
+const rehearsalRecordingName = readElement<HTMLInputElement>("rehearsal-recording-name");
+const alertKindTabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-alert-kind]"));
+const alertEnabled = readElement<HTMLInputElement>("alert-enabled");
+const alertPlacement = readElement<HTMLSelectElement>("alert-placement");
+const alertSize = readElement<HTMLSelectElement>("alert-size");
+const alertDuration = readElement<HTMLInputElement>("alert-duration");
+const alertEntrance = readElement<HTMLSelectElement>("alert-entrance");
+const alertTypography = readElement<HTMLSelectElement>("alert-typography");
+const alertAccent = readElement<HTMLInputElement>("alert-accent");
+const alertAccentTheme = readElement<HTMLInputElement>("alert-accent-theme");
+const alertMedia = readElement<HTMLSelectElement>("alert-media");
+const previewAlert = readElement<HTMLButtonElement>("preview-alert");
+const resetAlert = readElement<HTMLButtonElement>("reset-alert");
+const importPack = readElement<HTMLButtonElement>("import-pack");
+const exportCurrentSetup = readElement<HTMLButtonElement>("export-current-setup");
+const undoPack = readElement<HTMLButtonElement>("undo-pack");
+const packNotice = readElement<HTMLElement>("pack-notice");
+const packsStatus = readElement<HTMLElement>("packs-status");
+const packReview = readElement<HTMLElement>("pack-review");
+const packReviewTitle = readElement<HTMLElement>("pack-review-title");
+const packReviewMeta = readElement<HTMLElement>("pack-review-meta");
+const packReviewPreview = readElement<HTMLImageElement>("pack-review-preview");
+const packReviewChanges = readElement<HTMLElement>("pack-review-changes");
+const confirmImportPack = readElement<HTMLButtonElement>("confirm-import-pack");
+const cancelImportPack = readElement<HTMLButtonElement>("cancel-import-pack");
+const packEmpty = readElement<HTMLElement>("pack-empty");
+const packGrid = readElement<HTMLElement>("pack-grid");
 
 let currentStatus: DesktopStatus | undefined;
 let volumeSaveTimer: number | undefined;
+let renamingRehearsalId: string | undefined;
+let renamingRehearsalHost: "events" | "preview" | undefined;
+let selectedAlertKind: AlertKind = "sale";
+let syncingAlertStudio = false;
 const lastDeskTabs: Record<DeskView, DeskTab> = {
   live: "live-show",
   setup: "setup-connection",
@@ -413,7 +561,8 @@ createIcons({
     Smartphone,
     Sparkles,
     Upload,
-    Volume2
+    Volume2,
+    Package
   }
 });
 
@@ -450,6 +599,182 @@ rotateRemoteAccess.addEventListener("click", async () => {
   } finally {
     rotateRemoteAccess.disabled = false;
   }
+});
+
+dashboard?.addEventListener("click", async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+  const commandButton = target.closest<HTMLButtonElement>("[data-rehearsal-command]");
+  if (commandButton) {
+    const command = commandButton.dataset.rehearsalCommand;
+    if (command === "pause") {
+      renderStatus(await window.duckDesk.pauseRehearsal());
+      return;
+    }
+    if (command === "resume") {
+      renderStatus(await window.duckDesk.resumeRehearsal());
+      return;
+    }
+    if (command === "stop") {
+      renderStatus(await window.duckDesk.stopRehearsal());
+      return;
+    }
+    if (command === "record") {
+      renderStatus(await window.duckDesk.startRehearsalRecording());
+      return;
+    }
+    if (command === "save") {
+      renderStatus(await window.duckDesk.saveRehearsalRecording(rehearsalRecordingNameValue()));
+    }
+    return;
+  }
+  const button = target.closest("button");
+  if (!(button instanceof HTMLButtonElement) || !button.dataset.rehearsalAction) {
+    return;
+  }
+  const card = button.closest<HTMLElement>("[data-rehearsal-id]");
+  const id = card?.dataset.rehearsalId;
+  if (!id) {
+    return;
+  }
+  if (button.dataset.rehearsalAction === "play") {
+    renderStatus(await window.duckDesk.startRehearsal(id));
+    return;
+  }
+  if (button.dataset.rehearsalAction === "rename") {
+    renamingRehearsalHost = button.closest(".preview-rehearsal") ? "preview" : "events";
+    const input = card.querySelector("input");
+    if (input instanceof HTMLInputElement && renamingRehearsalId === id) {
+      renamingRehearsalId = undefined;
+      renamingRehearsalHost = undefined;
+      renderStatus(await window.duckDesk.renameRehearsal(id, input.value));
+      return;
+    }
+    renamingRehearsalId = id;
+    if (currentStatus) {
+      renderStatus(currentStatus);
+    }
+    return;
+  }
+  if (button.dataset.rehearsalAction === "delete") {
+    renamingRehearsalId = undefined;
+    renamingRehearsalHost = undefined;
+    renderStatus(await window.duckDesk.deleteRehearsal(id));
+  }
+});
+
+dashboard?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") {
+    return;
+  }
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement) || !target.closest(".rehearsal-timelines")) {
+    return;
+  }
+  const id = target.closest<HTMLElement>("[data-rehearsal-id]")?.dataset.rehearsalId;
+  if (!id) {
+    return;
+  }
+  renamingRehearsalId = undefined;
+  renamingRehearsalHost = undefined;
+  void window.duckDesk.renameRehearsal(id, target.value).then(renderStatus);
+});
+
+for (const input of rehearsalNameInputs()) {
+  input.addEventListener("input", () => {
+    const value = input.value;
+    for (const other of rehearsalNameInputs()) {
+      if (other !== input) {
+        other.value = value;
+      }
+    }
+  });
+}
+
+importPack.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.importPack());
+});
+exportCurrentSetup.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.exportCurrentSetup());
+});
+undoPack.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.undoPack());
+});
+confirmImportPack.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.confirmImportPack());
+});
+cancelImportPack.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.cancelImportPack());
+});
+restartBridge.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.restartBridge());
+});
+clearOverlayQueue.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.clearOverlayQueue());
+});
+resetAudioOutput.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.resetAudioOutput());
+});
+openLogFolder.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.openLogFolder());
+});
+checkForUpdates.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.checkForUpdates());
+});
+exportDiagnostics.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.exportDiagnostics());
+});
+
+for (const tab of alertKindTabs) {
+  tab.addEventListener("click", () => {
+    const kind = tab.dataset.alertKind;
+    if (!isAlertKind(kind)) {
+      return;
+    }
+    selectedAlertKind = kind;
+    if (currentStatus) {
+      renderAlertStudio(currentStatus);
+    }
+  });
+}
+
+alertEnabled.addEventListener("change", () => {
+  void persistAlertPatch({ enabled: alertEnabled.checked });
+});
+alertPlacement.addEventListener("change", () => {
+  void persistAlertPatch({ placement: alertPlacement.value as AlertVisualConfig["placement"] });
+});
+alertSize.addEventListener("change", () => {
+  void persistAlertPatch({ size: alertSize.value as AlertVisualConfig["size"] });
+});
+alertDuration.addEventListener("change", () => {
+  void persistAlertPatch({ durationMs: Number(alertDuration.value) });
+});
+alertEntrance.addEventListener("change", () => {
+  void persistAlertPatch({ entrance: alertEntrance.value as AlertVisualConfig["entrance"] });
+});
+alertTypography.addEventListener("change", () => {
+  void persistAlertPatch({ typography: alertTypography.value as AlertVisualConfig["typography"] });
+});
+alertAccent.addEventListener("input", () => {
+  if (alertAccentTheme.checked) {
+    return;
+  }
+  void persistAlertPatch({ accent: alertAccent.value });
+});
+alertAccentTheme.addEventListener("change", () => {
+  void persistAlertPatch({ accent: alertAccentTheme.checked ? "theme" : alertAccent.value });
+});
+alertMedia.addEventListener("change", () => {
+  void persistAlertPatch({ mediaUrl: alertMedia.value || undefined });
+});
+previewAlert.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.previewAlert(selectedAlertKind));
+});
+resetAlert.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.resetAlertVisual(selectedAlertKind));
 });
 
 saveTitle.addEventListener("click", async () => {
@@ -776,6 +1101,7 @@ window.duckDesk.onStatus(renderStatus);
 window.duckDesk.onEvent((event) => {
   const item = document.createElement("li");
   item.textContent = formatEventLog(event);
+  item.classList.toggle("is-rehearsal", Boolean(event.rehearsal));
   eventLog.prepend(item);
   eventLogEmpty.hidden = true;
 
@@ -825,21 +1151,15 @@ function renderStatus(status: DesktopStatus): void {
   titlebarBridge.textContent = status.ok ? "Bridge on" : "Bridge";
   titlebarObs.textContent = obsReady ? "OBS ready" : "OBS";
   titlebarClients.textContent = `${status.clients} client${status.clients === 1 ? "" : "s"}`;
-  renderPreflightCheck(preflightBridge, status.ok, status.ok ? "Online" : "Needs attention");
-  renderPreflightCheck(preflightObs, obsReady, obsReady ? "Ready" : obsConnecting ? "Connecting" : "Setup needed", obsConnecting);
-  renderPreflightCheck(
-    preflightWhatnot,
-    status.whatnotPageActive,
-    status.whatnotPageActive ? "Seller page connected" : status.extensionConnected ? "Open seller page" : "Extension waiting"
-  );
-  renderPreflightCheck(
-    preflightData,
-    Boolean(status.lastRealEventAt),
-    status.lastRealEventAt ? `Received ${formatRelativeTime(status.lastRealEventAt)}` : "No real events yet",
-    !status.lastRealEventAt
-  );
-  const readyChecks = [status.ok, obsReady, status.whatnotPageActive, Boolean(status.lastRealEventAt)].filter(Boolean).length;
-  preflightSummary.textContent = readyChecks === 4 ? "Ready to stream" : `${readyChecks} of 4 ready`;
+  renderHealthChecks(status);
+  const readyChecks = (status.healthChecks ?? []).filter((check) => check.ready).length;
+  const totalChecks = Math.max(1, (status.healthChecks ?? []).length);
+  preflightSummary.textContent = readyChecks === totalChecks ? "Ready to stream" : `${readyChecks} of ${totalChecks} ready`;
+  recoveryNotice.hidden = !status.recoveryNotice;
+  recoveryNotice.textContent = status.recoveryNotice ?? "";
+  updateStatusLine.textContent = status.update
+    ? `${status.update.currentVersion} · ${status.update.detail}`
+    : "Version check has not run yet.";
   streamTitle.value = status.streamTitle;
   milestoneThresholds.value = status.milestoneThresholds.join(", ");
   hypeSeconds.value = String(status.hypeMeterSeconds);
@@ -871,6 +1191,8 @@ function renderStatus(status: DesktopStatus): void {
   if (status.remoteQrDataUrl && remoteQr.src !== status.remoteQrDataUrl) {
     remoteQr.src = status.remoteQrDataUrl;
   }
+  renderRehearsal(status);
+  renderAlertStudio(status);
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
   moduleActivityCount.textContent = `${status.salesCount + status.bidCount + status.audienceActions + status.tipCount + status.shareCount} events`;
@@ -945,6 +1267,7 @@ function renderStatus(status: DesktopStatus): void {
 
   renderAddOns(status.addOns);
   renderCustomGifs(status.customGifs);
+  renderPacks(status);
 }
 
 function isObsReady(status: string): boolean {
@@ -1014,14 +1337,22 @@ async function triggerDemoEvent(action: DemoAction): Promise<void> {
   }
 }
 
-function renderPreflightCheck(element: HTMLElement, ready: boolean, detail: string, pending = false): void {
-  const detailElement = element.querySelector("strong");
-  if (detailElement) {
-    detailElement.textContent = detail;
+function renderHealthChecks(status: DesktopStatus): void {
+  const checks = status.healthChecks ?? [];
+  healthChecks.replaceChildren();
+  for (const check of checks) {
+    const row = document.createElement("div");
+    row.className = "preflight-check";
+    row.classList.toggle("is-ready", check.ready);
+    row.classList.toggle("is-pending", !check.ready && Boolean(check.pending));
+    row.classList.toggle("is-warning", !check.ready && !check.pending);
+    const label = document.createElement("span");
+    label.textContent = check.label;
+    const detail = document.createElement("strong");
+    detail.textContent = check.detail;
+    row.append(label, detail);
+    healthChecks.append(row);
   }
-  element.classList.toggle("is-ready", ready);
-  element.classList.toggle("is-pending", !ready && pending);
-  element.classList.toggle("is-warning", !ready && !pending);
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -1036,25 +1367,233 @@ function formatRelativeTime(timestamp: number): string {
 }
 
 function formatEventLog(event: ShowEventLog): string {
+  const prefix = event.rehearsal ? "REHEARSAL " : "";
   if (event.type === "sale") {
-    return `SOLD @${event.buyer} ${dollars.format(event.amount ?? 0)}${event.item ? ` - ${event.item}` : ""}`;
+    return `${prefix}SOLD @${event.buyer} ${dollars.format(event.amount ?? 0)}${event.item ? ` - ${event.item}` : ""}`;
   }
 
   if (event.type === "bid") {
-    return `BID @${event.bidder} ${dollars.format(event.amount ?? 0)}${event.item ? ` - ${event.item}` : ""}`;
+    return `${prefix}BID @${event.bidder} ${dollars.format(event.amount ?? 0)}${event.item ? ` - ${event.item}` : ""}`;
   }
 
   if (event.type === "tip") {
-    return `TIP @${event.tipper} ${dollars.format(event.amount ?? 0)}${event.message ? ` - ${event.message}` : ""}`;
+    return `${prefix}TIP @${event.tipper} ${dollars.format(event.amount ?? 0)}${event.message ? ` - ${event.message}` : ""}`;
   }
 
   if (event.type === "share") {
     const actor = event.actor ? ` @${event.actor}` : "";
     const count = event.delta && event.delta > 1 ? ` +${event.delta}` : event.shareCount ? ` (${event.shareCount} total)` : "";
-    return `SHARE${actor}${count}`;
+    return `${prefix}SHARE${actor}${count}`;
   }
 
-  return `AUDIENCE @${event.actor}${event.message ? ` - ${event.message}` : ""}`;
+  return `${prefix}AUDIENCE @${event.actor}${event.message ? ` - ${event.message}` : ""}`;
+}
+
+function formatClock(ms: number): string {
+  const total = Math.max(0, Math.round(ms / 1000));
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function rehearsalStateLabel(state: RehearsalState): string {
+  if (state === "playing") {
+    return "Playing";
+  }
+  if (state === "paused") {
+    return "Paused";
+  }
+  if (state === "recording") {
+    return "Recording";
+  }
+  return "Idle";
+}
+
+function nextActionLabel(kind?: string): string {
+  if (kind === "event") {
+    return "event";
+  }
+  if (kind === "gif") {
+    return "GIF";
+  }
+  if (kind === "sound") {
+    return "sound";
+  }
+  if (kind === "scene") {
+    return "scene";
+  }
+  if (kind === "burst") {
+    return "burst";
+  }
+  if (kind === "hype") {
+    return "hype meter";
+  }
+  if (kind === "timer") {
+    return "timer";
+  }
+  if (kind === "recap") {
+    return "recap";
+  }
+  if (kind === "clear") {
+    return "clear";
+  }
+  return "action";
+}
+
+function renderRehearsal(status: DesktopStatus): void {
+  const rehearsal = status.rehearsal;
+  if (!rehearsal) {
+    return;
+  }
+  const active = rehearsal.state === "playing" || rehearsal.state === "paused" || rehearsal.state === "recording";
+  rehearsalTitlebarBadge.hidden = !active;
+  for (const badge of rehearsalElements("rehearsal-state-badge")) {
+    badge.textContent = rehearsalStateLabel(rehearsal.state);
+    badge.classList.toggle("is-active", active);
+  }
+  for (const notice of rehearsalElements("rehearsal-notice")) {
+    notice.hidden = !status.rehearsalNotice;
+    notice.textContent = status.rehearsalNotice ?? "";
+  }
+  const progress = rehearsal.durationMs > 0 ? Math.min(100, (rehearsal.elapsedMs / rehearsal.durationMs) * 100) : 0;
+  for (const fill of rehearsalElements("rehearsal-progress-fill")) {
+    fill.style.width = `${progress}%`;
+  }
+  let progressCopy = "Choose a scenario to start.";
+  if (rehearsal.state === "recording") {
+    progressCopy = `Recording ${formatClock(rehearsal.elapsedMs)} · ${rehearsal.recordingActions} captured`;
+  } else if (rehearsal.state === "playing" || rehearsal.state === "paused") {
+    const next = rehearsal.nextActionAtMs == null
+      ? "Finishing"
+      : `Next ${nextActionLabel(rehearsal.nextActionKind)} at ${formatClock(rehearsal.nextActionAtMs)}`;
+    progressCopy = `${rehearsal.activeName ?? "Rehearsal"} · ${formatClock(rehearsal.elapsedMs)} / ${formatClock(rehearsal.durationMs)} · ${next}`;
+  }
+  for (const copy of rehearsalElements("rehearsal-progress-copy")) {
+    copy.textContent = progressCopy;
+  }
+  for (const button of rehearsalCommandButtons("pause")) {
+    button.disabled = rehearsal.state !== "playing";
+  }
+  for (const button of rehearsalCommandButtons("resume")) {
+    button.disabled = rehearsal.state !== "paused";
+  }
+  for (const button of rehearsalCommandButtons("stop")) {
+    button.disabled = rehearsal.state === "idle";
+  }
+  for (const button of rehearsalCommandButtons("record")) {
+    button.disabled = rehearsal.state === "recording";
+  }
+  for (const button of rehearsalCommandButtons("save")) {
+    button.disabled = rehearsal.state !== "recording" || rehearsal.recordingActions === 0;
+  }
+  const focused = document.activeElement;
+  const keepRenameFocus = focused instanceof HTMLInputElement && focused.closest(".rehearsal-timelines");
+  if (!keepRenameFocus) {
+    const lists = Array.from(document.querySelectorAll<HTMLElement>(".rehearsal-timelines"));
+    for (const list of lists) {
+      list.replaceChildren(...status.rehearsals.map((timeline) => buildRehearsalCard(timeline, rehearsal.activeId)));
+    }
+    if (renamingRehearsalId) {
+      const host = renamingRehearsalHost === "preview"
+        ? document.querySelector(".preview-rehearsal .rehearsal-timelines")
+        : document.getElementById("rehearsal-timelines");
+      host?.querySelector("input")?.focus();
+    }
+  }
+}
+
+function buildRehearsalCard(timeline: RehearsalSummary, activeId?: string): HTMLElement {
+  const card = document.createElement("article");
+  card.className = "rehearsal-card";
+  card.classList.toggle("is-active", timeline.id === activeId);
+  card.dataset.rehearsalId = timeline.id;
+  const copy = document.createElement("div");
+  copy.className = "rehearsal-card-copy";
+  if (renamingRehearsalId === timeline.id && !timeline.builtIn) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = 60;
+    input.value = timeline.name;
+    copy.append(input);
+  } else {
+    const title = document.createElement("strong");
+    title.textContent = timeline.name;
+    copy.append(title);
+  }
+  const meta = document.createElement("span");
+  meta.textContent = `${timeline.builtIn ? "Built-in" : "Saved"} · ${formatClock(timeline.durationMs)} · ${timeline.actionCount} actions`;
+  copy.append(meta);
+  const actions = document.createElement("div");
+  actions.className = "rehearsal-card-actions";
+  const play = document.createElement("button");
+  play.type = "button";
+  play.dataset.rehearsalAction = "play";
+  play.textContent = "Play";
+  actions.append(play);
+  if (!timeline.builtIn) {
+    const rename = document.createElement("button");
+    rename.type = "button";
+    rename.dataset.rehearsalAction = "rename";
+    rename.textContent = renamingRehearsalId === timeline.id ? "Save" : "Rename";
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.dataset.rehearsalAction = "delete";
+    remove.textContent = "Delete";
+    actions.append(rename, remove);
+  }
+  card.append(copy, actions);
+  return card;
+}
+
+function isAlertKind(value: unknown): value is AlertKind {
+  return value === "sale" || value === "bid" || value === "action" || value === "tip" || value === "share";
+}
+
+async function persistAlertPatch(patch: Partial<AlertVisualConfig>): Promise<void> {
+  if (syncingAlertStudio) {
+    return;
+  }
+  renderStatus(await window.duckDesk.setAlertVisual(selectedAlertKind, patch));
+}
+
+function renderAlertStudio(status: DesktopStatus): void {
+  if (!status.alertVisuals) {
+    return;
+  }
+  const visual = status.alertVisuals[selectedAlertKind];
+  syncingAlertStudio = true;
+  for (const tab of alertKindTabs) {
+    const active = tab.dataset.alertKind === selectedAlertKind;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  }
+  alertEnabled.checked = visual.enabled;
+  alertPlacement.value = visual.placement;
+  alertSize.value = visual.size;
+  alertDuration.value = String(visual.durationMs);
+  alertEntrance.value = visual.entrance;
+  alertTypography.value = visual.typography;
+  const themeAccent = !visual.accent || visual.accent === "theme";
+  alertAccentTheme.checked = themeAccent;
+  alertAccent.disabled = themeAccent;
+  if (!themeAccent) {
+    alertAccent.value = visual.accent;
+  }
+  const mediaOptions = [
+    ["", "No extra media"],
+    ...status.customGifs.map((gif) => [gif.url, gif.label] as const)
+  ];
+  if (visual.mediaUrl && !mediaOptions.some(([url]) => url === visual.mediaUrl)) {
+    mediaOptions.push([visual.mediaUrl, "Current media"]);
+  }
+  alertMedia.replaceChildren(...mediaOptions.map(([url, label]) => {
+    const option = document.createElement("option");
+    option.value = url;
+    option.textContent = label;
+    return option;
+  }));
+  alertMedia.value = visual.mediaUrl ?? "";
+  syncingAlertStudio = false;
 }
 
 function themeName(theme: OverlayTheme): string {
@@ -1374,6 +1913,78 @@ function renderCustomGifs(gifs: CustomGif[]): void {
   }
 }
 
+function renderPacks(status: DesktopStatus): void {
+  const packs = status.packs ?? [];
+  packsStatus.textContent = `${packs.length} Installed`;
+  packNotice.hidden = !status.packNotice;
+  packNotice.textContent = status.packNotice ?? "";
+  undoPack.hidden = !status.packUndoAvailable;
+  packEmpty.hidden = packs.length > 0 || Boolean(status.pendingPack);
+
+  const pending = status.pendingPack;
+  packReview.hidden = !pending;
+  if (pending) {
+    packReviewTitle.textContent = pending.name;
+    packReviewMeta.textContent = `${pending.author} · ${pending.packVersion} · ${pending.license}`;
+    packReviewPreview.hidden = !pending.previewDataUrl;
+    packReviewPreview.src = pending.previewDataUrl ?? "";
+    packReviewChanges.replaceChildren();
+    for (const change of pending.review) {
+      const item = document.createElement("li");
+      item.textContent = `${change.label}: ${change.detail}`;
+      packReviewChanges.append(item);
+    }
+    if (pending.review.length === 0) {
+      const item = document.createElement("li");
+      item.textContent = "Preview and media only. Overlay settings stay as they are until you apply this pack.";
+      packReviewChanges.append(item);
+    }
+  }
+
+  packGrid.replaceChildren();
+  for (const pack of packs) {
+    const card = document.createElement("article");
+    card.className = "pack-card";
+    if (pack.previewUrl) {
+      const preview = document.createElement("img");
+      preview.src = pack.previewUrl;
+      preview.alt = "";
+      card.append(preview);
+    }
+    const title = document.createElement("h3");
+    title.textContent = pack.name;
+    const meta = document.createElement("p");
+    meta.className = "pack-meta";
+    meta.textContent = `${pack.author} · ${pack.packVersion} · ${pack.license}`;
+    const description = document.createElement("p");
+    description.textContent = pack.description || "No description.";
+    const actions = document.createElement("div");
+    actions.className = "pack-card-actions";
+    const apply = document.createElement("button");
+    apply.type = "button";
+    apply.className = "module-command";
+    apply.textContent = "Apply";
+    apply.addEventListener("click", () => {
+      void window.duckDesk.applyPack(pack.id).then(renderStatus);
+    });
+    const exportPack = document.createElement("button");
+    exportPack.type = "button";
+    exportPack.textContent = "Export";
+    exportPack.addEventListener("click", () => {
+      void window.duckDesk.exportPack(pack.id).then(renderStatus);
+    });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => {
+      void window.duckDesk.removePack(pack.id).then(renderStatus);
+    });
+    actions.append(apply, exportPack, remove);
+    card.append(title, meta, description, actions);
+    packGrid.append(card);
+  }
+}
+
 async function addGifFromInput(): Promise<void> {
   const rawUrl = gifUrl.value.trim();
   if (!rawUrl) {
@@ -1437,4 +2048,24 @@ function readElement<T extends HTMLElement>(id: string): T {
   }
 
   return element as T;
+}
+
+function rehearsalElements<T extends HTMLElement>(id: string): T[] {
+  return Array.from(document.querySelectorAll<T>(`#${id}, [data-mirror="${id}"]`));
+}
+
+function rehearsalCommandButtons(command: string): HTMLButtonElement[] {
+  return Array.from(document.querySelectorAll<HTMLButtonElement>(`[data-rehearsal-command="${command}"]`));
+}
+
+function rehearsalNameInputs(): HTMLInputElement[] {
+  return Array.from(document.querySelectorAll<HTMLInputElement>("#rehearsal-recording-name, [data-mirror='rehearsal-recording-name']"));
+}
+
+function rehearsalRecordingNameValue(): string {
+  const focused = document.activeElement;
+  if (focused instanceof HTMLInputElement && rehearsalNameInputs().includes(focused)) {
+    return focused.value;
+  }
+  return rehearsalRecordingName.value;
 }

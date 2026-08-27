@@ -8,3 +8,4 @@
 @import "./standard-geometry.css" layer(base);
 @import "./craft.css" layer(craft);
 @import "./premium-expansion.css" layer(expansion);
+@import "./alert-studio.css" layer(studio);
