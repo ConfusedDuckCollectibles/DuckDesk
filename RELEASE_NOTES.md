@@ -1,43 +1,36 @@
-# Duck Desk v0.1.0-alpha.3
+# Duck Desk v0.1.0-alpha.4
 
-Duck Desk alpha 3 replaces the complete bundled sound library with richer,
-better-balanced cues designed for long live shows.
+Duck Desk alpha 4 is the show-ready control room: a clearer desktop, a much larger theme pack, Mac and Windows installers, and a denser live sound library.
 
-## New In Alpha 3
+## New In Alpha 4
 
-- Rebuilt all 90 bid, sale, tip, share, and audience-action cues across the 10 sound themes.
-- Added three deterministic bid variants and three audience-action variants per theme.
-- Replaced pitch-shifted synthesizer variations with individually layered digital, broadcast, glass, tabletop, mechanical, crowd, weather, and organic recordings.
-- Redesigned Thunder Strike with distant thunder, filtered wind, and restrained accents instead of the previous harsh synthetic crack.
-- Gave every sound theme a distinct identity while keeping each event recognizable during a busy show.
-- Shortened bid cues and allowed sales and tips slightly more room without drowning out the seller.
-- Trimmed dead air from source-pack effects so alerts react promptly.
-- Applied consistent loudness targets, gentle peak control, and quieter mastering for Storm and Soft Focus.
-- Added a deterministic 48 kHz stereo audio pipeline so all 90 mastered WAV files can be reproduced from a clean checkout.
-- Added cooldowns and protected playback so rapid bids stay restrained while tips and sales are never discarded.
-- Added curated CC0 source recordings, original pack licenses, and detailed third-party audio credits.
-- Kept custom per-event sound files, the master effects-volume control, and immediate mute behavior unchanged.
+- Rebuilt the desktop into **Live**, **Setup**, and **Library**, with compact square rail buttons and section tabs (Show, Controls, Preview, Events, Connection, Preflight, Themes, Add-ons, Studio).
+- Added a first-run ready path, Live Preflight as its own Setup tab, and a phone-canvas Preview that matches the OBS overlay.
+- Overhauled the overlay: themed frames, Theme Art for premium looks, an animated ticker, safer widget placement, and calmer motion during alerts.
+- Expanded the included pack to **56 themes**: 20 standard looks and **36** animated premium themes (20 new animated looks in this release).
+- Shipped native **Mac (Apple silicon)** and **Windows (64-bit)** installers from the same app. No Terminal or PowerShell after install.
+- Rebuilt live audio to **90 cues** across the 10 sound themes, with three bid variants and three audience-action variants per theme, plus cooldowns so rapid bids stay restrained while sales and tips are never dropped.
+- Rewrote the README as a seller setup guide, with current screenshots and a get-on-stream path.
+- Fixed GitHub publishing so a prerelease is not marked as Latest.
 
 ## Highlights
 
 - Native Mac and Windows desktop apps with no Terminal or PowerShell required after installation.
-- Windows 64-bit installer published alongside the Apple-silicon Mac DMG from the same Electron app.
 - One-click authenticated OBS source setup, repair, canvas fitting, and refresh.
-- 36 included themes: 20 standard themes and 16 animated premium-style themes.
-- Persistent themed frame, live header, ticker, and open-source footer.
+- 56 included themes: 20 standard themes and 36 animated premium-style themes.
+- Persistent themed frame, live header, ticker, and optional GitHub footer.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
 - 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.
 - Hype bursts, goals, milestones, timers, promo banners, leaderboards, scenes, jumbotron, activity feed, and show recap.
 - Live Preflight checks for the local bridge, OBS source, Chrome extension, seller page, and real event path.
 - Local automatic saving for creator preferences without saving demo data or OBS passwords.
-- Chrome extension health popup and visible-page event bridge.
 
 ## Download
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.3-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.3-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.4-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.4-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. Both installers are unsigned.
 
