@@ -51,6 +51,7 @@
             <button type="button" class="section-tab is-active" role="tab" aria-selected="true" data-desk-tab="live-show">Show</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-controls">Controls</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-preview">Preview</button>
+            <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-remote">Remote</button>
             <button type="button" class="section-tab" role="tab" aria-selected="false" data-desk-tab="live-events">Events</button>
           </div>
           <div class="section-tab-set" data-tabs-for="setup" role="tablist" aria-label="Setup" hidden>
@@ -894,6 +895,50 @@ orders|10|Order Goal</textarea>
           </div>
           <p id="event-log-empty" class="empty-log">Events appear when the Chrome extension sees Whatnot activity.</p>
           <ol id="event-log" aria-live="polite"></ol>
+        </section>
+
+        <section class="remote-panel is-tab-hidden" data-view="live" data-tab="live-remote" aria-labelledby="remote-title">
+          <div class="section-heading">
+            <h2 id="remote-title"><i data-lucide="smartphone" aria-hidden="true"></i>Remote Show Deck</h2>
+            <span id="remote-connection-badge">Waiting</span>
+          </div>
+          <div class="remote-layout">
+            <div class="remote-qr-card">
+              <div class="remote-qr-frame">
+                <img id="remote-qr" alt="QR code for the local Duck Desk Remote Show Deck" hidden />
+                <div id="remote-qr-unavailable" class="remote-qr-unavailable">Connect this Mac to Wi-Fi or Ethernet to create a local remote link.</div>
+              </div>
+              <div class="remote-code">
+                <span>Session code</span>
+                <strong id="remote-pairing-code">------</strong>
+              </div>
+            </div>
+            <div class="remote-setup">
+              <p class="eyebrow">One-handed show control</p>
+              <h3>Run Duck Desk from your phone</h3>
+              <p>Keep the phone and Mac on the same private Wi-Fi network, then scan the code. The link changes whenever Duck Desk restarts.</p>
+              <label for="remote-url">Private local link</label>
+              <div class="url-row">
+                <input id="remote-url" readonly placeholder="Waiting for a local network" />
+                <button id="copy-remote-url" type="button">Copy</button>
+              </div>
+              <div class="remote-actions">
+                <button id="open-remote-deck" class="primary" type="button">
+                  <i data-lucide="external-link" aria-hidden="true"></i>
+                  Open Deck
+                </button>
+                <button id="rotate-remote-access" type="button">
+                  <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                  Rotate Code
+                </button>
+              </div>
+              <div class="remote-health" aria-live="polite">
+                <div><span>Remote devices</span><strong id="remote-client-count">0 connected</strong></div>
+                <div><span>Last activity</span><strong id="remote-last-seen">None yet</strong></div>
+              </div>
+              <p class="remote-security-note">Access is local to your network and protected by the full QR link. Rotate the code immediately if it is shared by mistake.</p>
+            </div>
+          </div>
         </section>
       </section>
     </main>

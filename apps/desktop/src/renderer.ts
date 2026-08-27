@@ -4,6 +4,7 @@ import {
   AudioWaveform,
   CircleDollarSign,
   createIcons,
+  ExternalLink,
   Gauge,
   Gavel,
   HandCoins,
@@ -15,9 +16,11 @@ import {
   Play,
   PlugZap,
   Radio,
+  RefreshCw,
   RotateCcw,
   Share2,
   SlidersHorizontal,
+  Smartphone,
   Sparkles,
   Upload,
   Volume2
@@ -65,6 +68,12 @@ type DesktopStatus = {
   extensionConnected: boolean;
   whatnotPageActive: boolean;
   lastRealEventAt?: number;
+  remoteAvailable: boolean;
+  remoteUrl?: string;
+  remotePairingCode: string;
+  remoteQrDataUrl?: string;
+  remoteClients: number;
+  remoteLastSeenAt?: number;
   lastError?: string;
 };
 
@@ -173,6 +182,9 @@ type DesktopApi = {
   getStatus: () => Promise<DesktopStatus>;
   copyOverlayUrl: () => Promise<void>;
   openOverlay: () => Promise<void>;
+  copyRemoteUrl: () => Promise<DesktopStatus>;
+  openRemoteDeck: () => Promise<DesktopStatus>;
+  rotateRemoteAccess: () => Promise<DesktopStatus>;
   revealExtension: () => Promise<void>;
   completeFirstRun: () => Promise<DesktopStatus>;
   setHideTopBanner: (hidden: boolean) => Promise<DesktopStatus>;
@@ -233,6 +245,7 @@ type DeskTab =
   | "live-show"
   | "live-controls"
   | "live-preview"
+  | "live-remote"
   | "live-events"
   | "setup-connection"
   | "setup-preflight"
@@ -244,6 +257,7 @@ const DESK_TABS: DeskTab[] = [
   "live-show",
   "live-controls",
   "live-preview",
+  "live-remote",
   "live-events",
   "setup-connection",
   "setup-preflight",
@@ -356,6 +370,16 @@ const auctionTimerSeconds = readElement<HTMLInputElement>("auction-timer-seconds
 const saveAuctionTimer = readElement<HTMLButtonElement>("save-auction-timer");
 const triggerAuctionTimer = readElement<HTMLButtonElement>("trigger-auction-timer");
 const triggerRecap = readElement<HTMLButtonElement>("trigger-recap");
+const remoteConnectionBadge = readElement<HTMLElement>("remote-connection-badge");
+const remoteQr = readElement<HTMLImageElement>("remote-qr");
+const remoteQrUnavailable = readElement<HTMLElement>("remote-qr-unavailable");
+const remotePairingCode = readElement<HTMLElement>("remote-pairing-code");
+const remoteUrl = readElement<HTMLInputElement>("remote-url");
+const copyRemoteUrl = readElement<HTMLButtonElement>("copy-remote-url");
+const openRemoteDeck = readElement<HTMLButtonElement>("open-remote-deck");
+const rotateRemoteAccess = readElement<HTMLButtonElement>("rotate-remote-access");
+const remoteClientCount = readElement<HTMLElement>("remote-client-count");
+const remoteLastSeen = readElement<HTMLElement>("remote-last-seen");
 
 let currentStatus: DesktopStatus | undefined;
 let volumeSaveTimer: number | undefined;
@@ -370,6 +394,7 @@ createIcons({
     Activity,
     AudioWaveform,
     CircleDollarSign,
+    ExternalLink,
     Gauge,
     Gavel,
     HandCoins,
@@ -381,9 +406,11 @@ createIcons({
     Play,
     PlugZap,
     Radio,
+    RefreshCw,
     RotateCcw,
     Share2,
     SlidersHorizontal,
+    Smartphone,
     Sparkles,
     Upload,
     Volume2
@@ -402,6 +429,27 @@ copyUrl.addEventListener("click", async () => {
   window.setTimeout(() => {
     copyUrl.textContent = "Copy";
   }, 1200);
+});
+
+copyRemoteUrl.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.copyRemoteUrl());
+  copyRemoteUrl.textContent = "Copied";
+  window.setTimeout(() => {
+    copyRemoteUrl.textContent = "Copy";
+  }, 1200);
+});
+
+openRemoteDeck.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.openRemoteDeck());
+});
+
+rotateRemoteAccess.addEventListener("click", async () => {
+  rotateRemoteAccess.disabled = true;
+  try {
+    renderStatus(await window.duckDesk.rotateRemoteAccess());
+  } finally {
+    rotateRemoteAccess.disabled = false;
+  }
 });
 
 saveTitle.addEventListener("click", async () => {
@@ -807,6 +855,22 @@ function renderStatus(status: DesktopStatus): void {
   audienceCount.textContent = String(status.audienceActions);
   tipTotal.textContent = dollars.format(status.tipTotal);
   shareCount.textContent = String(status.shareCount);
+  remoteConnectionBadge.textContent = status.remoteClients > 0
+    ? `${status.remoteClients} connected`
+    : status.remoteAvailable ? "Ready to pair" : "Network unavailable";
+  remoteConnectionBadge.classList.toggle("is-ready", status.remoteClients > 0);
+  remotePairingCode.textContent = status.remotePairingCode;
+  remoteUrl.value = status.remoteUrl ?? "";
+  copyRemoteUrl.disabled = !status.remoteAvailable;
+  openRemoteDeck.disabled = !status.remoteAvailable;
+  remoteClientCount.textContent = `${status.remoteClients} connected`;
+  remoteLastSeen.textContent = status.remoteLastSeenAt ? formatRelativeTime(status.remoteLastSeenAt) : "None yet";
+  const qrReady = Boolean(status.remoteQrDataUrl);
+  remoteQr.hidden = !qrReady;
+  remoteQrUnavailable.hidden = qrReady;
+  if (status.remoteQrDataUrl && remoteQr.src !== status.remoteQrDataUrl) {
+    remoteQr.src = status.remoteQrDataUrl;
+  }
   moduleBids.textContent = String(status.bidCount);
   moduleLeaderboard.textContent = `${status.salesCount} / ${dollars.format(status.grossSales)}`;
   moduleActivityCount.textContent = `${status.salesCount + status.bidCount + status.audienceActions + status.tipCount + status.shareCount} events`;

@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createServer, type Server } from "node:http";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { pathToFileURL } from "node:url";
@@ -18,6 +18,13 @@ import {
   type OpenDialogOptions
 } from "electron";
 import { WebSocket, WebSocketServer } from "ws";
+import QRCode from "qrcode";
+import { createRemoteDeckHtml } from "./remote-deck.js";
+import {
+  RemotePairingSession,
+  normalizeRemoteAction,
+  type RemoteAction
+} from "./remote.js";
 import {
   AudioPlaybackScheduler,
   normalizeAudioVolume,
@@ -48,6 +55,7 @@ const overlayUrl = `http://localhost:${port}/overlay`;
 const obsUrl = "ws://127.0.0.1:4455";
 const obsSourceName = "Duck Desk Overlay";
 const customAudioToken = randomUUID();
+const remoteSession = new RemotePairingSession(port);
 
 let mainWindow: BrowserWindow | null = null;
 let server: Server | null = null;
@@ -101,6 +109,9 @@ let extensionLastSeenAt = 0;
 let whatnotPageReportedActive = false;
 let lastRealEventAt = 0;
 let settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
+let remoteQrDataUrl = "";
+let remoteQrUrl = "";
+let remoteQrPendingUrl = "";
 
 type CustomGif = {
   id: string;
@@ -266,6 +277,54 @@ async function startLocalBridge(): Promise<void> {
     response.json(createOverlayConfig());
   });
 
+  expressApp.get("/remote", (request, response) => {
+    if (!remoteSession.authorize(request.query.token, request.socket.remoteAddress)) {
+      response.sendStatus(404);
+      return;
+    }
+    const nonce = randomBytes(18).toString("base64url");
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.setHeader("Content-Security-Policy", `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`);
+    response.setHeader("Referrer-Policy", "no-referrer");
+    response.setHeader("X-Content-Type-Options", "nosniff");
+    response.setHeader("X-Frame-Options", "DENY");
+    response.type("html").send(createRemoteDeckHtml(nonce));
+  });
+
+  expressApp.get("/remote/api/status", (request, response) => {
+    if (!remoteSession.authorize(request.query.token, request.socket.remoteAddress)) {
+      response.sendStatus(404);
+      return;
+    }
+    const clientId = remoteSession.touchClient(request.query.clientId);
+    if (!clientId) {
+      response.status(400).json({ ok: false });
+      return;
+    }
+    response.setHeader("Cache-Control", "no-store");
+    response.json(createRemoteControlStatus());
+  });
+
+  expressApp.post("/remote/api/action", (request, response) => {
+    if (!remoteSession.authorize(request.query.token, request.socket.remoteAddress)) {
+      response.sendStatus(404);
+      return;
+    }
+    const clientId = isRecord(request.body) ? remoteSession.touchClient(request.body.clientId) : null;
+    const action = isRecord(request.body) ? normalizeRemoteAction(request.body.action) : null;
+    if (!clientId || !action) {
+      response.status(400).json({ ok: false });
+      return;
+    }
+    if (!remoteSession.allowAction(clientId)) {
+      response.status(429).json({ ok: false, error: "Rate limit reached." });
+      return;
+    }
+    performRemoteAction(action);
+    response.setHeader("Cache-Control", "no-store");
+    response.status(202).json(createRemoteControlStatus());
+  });
+
   expressApp.post("/config", (request, response) => {
     try {
       applyConfigPatch(request.body);
@@ -347,9 +406,10 @@ async function startLocalBridge(): Promise<void> {
       resolve();
     });
 
-    server?.listen(port, "127.0.0.1", () => {
+    server?.listen(port, "0.0.0.0", () => {
       lastError = undefined;
       log(`local bridge listening on ${overlayUrl}`);
+      void refreshRemoteQr();
       broadcastStatus();
       resolve();
     });
@@ -367,6 +427,29 @@ function registerIpc(): void {
     void shell.openExternal(`${overlayUrl}?audio=off`);
   });
 
+  ipcMain.handle("duck-desk:copy-remote-url", () => {
+    const remoteUrl = remoteSession.getConnectionInfo().url;
+    if (remoteUrl) {
+      clipboard.writeText(remoteUrl);
+    }
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:open-remote-deck", () => {
+    const remoteUrl = remoteSession.getConnectionInfo().url;
+    if (remoteUrl) {
+      void shell.openExternal(remoteUrl);
+    }
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:rotate-remote-access", async () => {
+    remoteSession.rotate();
+    await refreshRemoteQr();
+    broadcastStatus();
+    return getStatus();
+  });
+
   ipcMain.handle("duck-desk:reveal-extension", () => {
     void shell.openPath(resolveExtensionPath());
   });
@@ -382,9 +465,7 @@ function registerIpc(): void {
     if (typeof hidden !== "boolean") {
       return getStatus();
     }
-    hideTopBanner = hidden;
-    broadcast(createOverlayConfig());
-    broadcastStatus();
+    setBannerVisible(!hidden);
     return getStatus();
   });
 
@@ -392,9 +473,7 @@ function registerIpc(): void {
     if (typeof enabled !== "boolean") {
       return getStatus();
     }
-    themeEffectsEnabled = enabled;
-    broadcast(createOverlayConfig());
-    broadcastStatus();
+    setThemeEffects(enabled);
     return getStatus();
   });
 
@@ -727,17 +806,7 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:trigger-gif", (_event, url: unknown) => {
-    const selectedUrl = typeof url === "string"
-      ? customGifs.find((gif) => gif.id === url)?.url ?? normalizeGifUrl(url)
-      : customGifs[0]?.url ?? "/gifs/chat-spark.gif";
-    if (!selectedUrl) {
-      return getStatus();
-    }
-
-    activeAddOns.add("gif_reactions");
-    broadcast(createOverlayConfig());
-    broadcast(createOverlayGifTrigger(selectedUrl));
-    broadcastStatus();
+    triggerGifSelection(url);
     return getStatus();
   });
 
@@ -758,23 +827,12 @@ function registerIpc(): void {
     if (!isSoundKind(kind)) {
       return getStatus();
     }
-
-    activeAddOns.add("noise_machines");
-    if (soundsEnabled) {
-      const trigger = createOverlaySoundTrigger(kind);
-      playSoundKind(kind, trigger.timestamp);
-      broadcast(trigger);
-    }
-    broadcast(createOverlayConfig());
-    broadcastStatus();
+    triggerSoundPad(kind);
     return getStatus();
   });
 
   ipcMain.handle("duck-desk:trigger-burst", () => {
-    activeAddOns.add("hype_bursts");
-    broadcast(createOverlayConfig());
-    broadcast(createOverlayBurstTrigger());
-    broadcastStatus();
+    triggerBurst();
     return getStatus();
   });
 
@@ -797,10 +855,7 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:trigger-hype-meter", () => {
-    activeAddOns.add("hype_meter");
-    broadcast(createOverlayConfig());
-    broadcast(createOverlayHypeMeterTrigger(hypeMeterSeconds));
-    broadcastStatus();
+    triggerHypeMeterNow();
     return getStatus();
   });
 
@@ -843,12 +898,7 @@ function registerIpc(): void {
       return getStatus();
     }
 
-    sceneMode = mode;
-    if (mode !== "none") {
-      activeAddOns.add("scene_switcher");
-    }
-    broadcast(createOverlayConfig());
-    broadcastStatus();
+    setSceneModeNow(mode);
     return getStatus();
   });
 
@@ -875,20 +925,116 @@ function registerIpc(): void {
   });
 
   ipcMain.handle("duck-desk:trigger-auction-timer", () => {
-    activeAddOns.add("auction_timer");
-    broadcast(createOverlayConfig());
-    broadcast(createOverlayAuctionTimerTrigger(auctionTimerSeconds));
-    broadcastStatus();
+    triggerAuctionTimerNow();
     return getStatus();
   });
 
   ipcMain.handle("duck-desk:trigger-recap", () => {
-    activeAddOns.add("show_recap");
-    broadcast(createOverlayConfig());
-    broadcast(createOverlayRecapTrigger());
-    broadcastStatus();
+    triggerRecapNow();
     return getStatus();
   });
+}
+
+function setBannerVisible(visible: boolean): void {
+  hideTopBanner = !visible;
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function setThemeEffects(enabled: boolean): void {
+  themeEffectsEnabled = enabled;
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function setSceneModeNow(mode: SceneMode): void {
+  sceneMode = mode;
+  if (mode !== "none") {
+    activeAddOns.add("scene_switcher");
+  }
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function triggerGifSelection(selection: unknown): void {
+  const selectedUrl = typeof selection === "string"
+    ? customGifs.find((gif) => gif.id === selection)?.url ?? normalizeGifUrl(selection)
+    : customGifs[0]?.url ?? "/gifs/chat-spark.gif";
+  if (!selectedUrl) {
+    return;
+  }
+  activeAddOns.add("gif_reactions");
+  broadcast(createOverlayConfig());
+  broadcast(createOverlayGifTrigger(selectedUrl));
+  broadcastStatus();
+}
+
+function triggerSoundPad(kind: SoundKind): void {
+  activeAddOns.add("noise_machines");
+  if (soundsEnabled) {
+    const trigger = createOverlaySoundTrigger(kind);
+    playSoundKind(kind, trigger.timestamp);
+    broadcast(trigger);
+  }
+  broadcast(createOverlayConfig());
+  broadcastStatus();
+}
+
+function triggerBurst(): void {
+  activeAddOns.add("hype_bursts");
+  broadcast(createOverlayConfig());
+  broadcast(createOverlayBurstTrigger());
+  broadcastStatus();
+}
+
+function triggerHypeMeterNow(): void {
+  activeAddOns.add("hype_meter");
+  broadcast(createOverlayConfig());
+  broadcast(createOverlayHypeMeterTrigger(hypeMeterSeconds));
+  broadcastStatus();
+}
+
+function triggerAuctionTimerNow(): void {
+  activeAddOns.add("auction_timer");
+  broadcast(createOverlayConfig());
+  broadcast(createOverlayAuctionTimerTrigger(auctionTimerSeconds));
+  broadcastStatus();
+}
+
+function triggerRecapNow(): void {
+  activeAddOns.add("show_recap");
+  broadcast(createOverlayConfig());
+  broadcast(createOverlayRecapTrigger());
+  broadcastStatus();
+}
+
+function clearOverlayNow(): void {
+  broadcast(createOverlayClear());
+  broadcastStatus();
+}
+
+function performRemoteAction(action: RemoteAction): void {
+  if (action.type === "clear") {
+    clearOverlayNow();
+  } else if (action.type === "set_scene") {
+    setSceneModeNow(action.scene);
+  } else if (action.type === "set_banner") {
+    setBannerVisible(action.visible);
+  } else if (action.type === "set_effects") {
+    setThemeEffects(action.enabled);
+  } else if (action.type === "trigger_sound") {
+    triggerSoundPad(action.kind);
+  } else if (action.type === "trigger_gif") {
+    triggerGifSelection(action.id);
+  } else if (action.type === "trigger_burst") {
+    triggerBurst();
+  } else if (action.type === "trigger_hype") {
+    triggerHypeMeterNow();
+  } else if (action.type === "trigger_timer") {
+    triggerAuctionTimerNow();
+  } else if (action.type === "trigger_recap") {
+    triggerRecapNow();
+  }
 }
 
 function receiveEvent(event: ShowEvent, isDemoEvent = false): void {
@@ -1584,6 +1730,75 @@ function broadcastStatus(): void {
   }
 }
 
+async function refreshRemoteQr(): Promise<void> {
+  const remoteUrl = remoteSession.getConnectionInfo().url;
+  if (!remoteUrl) {
+    remoteQrDataUrl = "";
+    remoteQrUrl = "";
+    remoteQrPendingUrl = "";
+    return;
+  }
+  if (remoteUrl === remoteQrUrl || remoteUrl === remoteQrPendingUrl) {
+    return;
+  }
+  remoteQrPendingUrl = remoteUrl;
+  try {
+    const dataUrl = await QRCode.toDataURL(remoteUrl, {
+      errorCorrectionLevel: "M",
+      margin: 1,
+      width: 320,
+      color: { dark: "#071014", light: "#f3f8f7" }
+    });
+    if (remoteQrPendingUrl === remoteUrl) {
+      remoteQrDataUrl = dataUrl;
+      remoteQrUrl = remoteUrl;
+    }
+  } catch (error) {
+    log(`unable to create Remote Deck QR code: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    if (remoteQrPendingUrl === remoteUrl) {
+      remoteQrPendingUrl = "";
+    }
+  }
+}
+
+function createRemoteControlStatus(): {
+  ok: boolean;
+  obsReady: boolean;
+  sceneMode: SceneMode;
+  sceneLabel: string;
+  bannerVisible: boolean;
+  effectsEnabled: boolean;
+  salesCount: number;
+  grossSales: number;
+  bidCount: number;
+  tipTotal: number;
+  shareCount: number;
+  gifs: Array<{ id: string; label: string }>;
+} {
+  return {
+    ok: !lastError,
+    obsReady: obsStatus.startsWith("Added") || obsStatus.startsWith("Updated"),
+    sceneMode,
+    sceneLabel: {
+      none: "Live",
+      starting: "Starting",
+      auction: "Auction",
+      break: "Break",
+      winner: "Winner",
+      ending: "Ending"
+    }[sceneMode],
+    bannerVisible: !hideTopBanner,
+    effectsEnabled: themeEffectsEnabled,
+    salesCount: stats.salesCount,
+    grossSales: stats.grossSales,
+    bidCount: stats.bidCount,
+    tipTotal: stats.tipTotal,
+    shareCount: stats.shareCount,
+    gifs: customGifs.map(({ id, label }) => ({ id, label }))
+  };
+}
+
 function getStatus(): {
   ok: boolean;
   port: number;
@@ -1625,10 +1840,20 @@ function getStatus(): {
   obsStatus: string;
   extensionConnected: boolean;
   whatnotPageActive: boolean;
+  remoteAvailable: boolean;
+  remoteUrl?: string;
+  remotePairingCode: string;
+  remoteQrDataUrl?: string;
+  remoteClients: number;
+  remoteLastSeenAt?: number;
   lastRealEventAt?: number;
   lastError?: string;
 } {
   const extensionConnected = Date.now() - extensionLastSeenAt < 30_000;
+  const remote = remoteSession.getConnectionInfo();
+  if (remote.url && remote.url !== remoteQrUrl && remote.url !== remoteQrPendingUrl) {
+    void refreshRemoteQr().then(broadcastStatus);
+  }
   return {
     ok: !lastError,
     port,
@@ -1672,6 +1897,12 @@ function getStatus(): {
     obsStatus,
     extensionConnected,
     whatnotPageActive: extensionConnected && whatnotPageReportedActive,
+    remoteAvailable: remote.available,
+    remoteUrl: remote.url,
+    remotePairingCode: remote.pairingCode,
+    remoteQrDataUrl: remote.url === remoteQrUrl ? remoteQrDataUrl : undefined,
+    remoteClients: remoteSession.activeClientCount(),
+    remoteLastSeenAt: remoteSession.lastSeenAt(),
     lastRealEventAt: lastRealEventAt || undefined,
     lastError
   };
