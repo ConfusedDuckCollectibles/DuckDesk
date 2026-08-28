@@ -1552,6 +1552,13 @@ button.preview-theme-option.is-active {
     linear-gradient(180deg, #9bd5f5 0 38%, #78b66b 39% 68%, #4e6f3d 69%);
 }
 
+.swatch.starlight-station {
+  background:
+    radial-gradient(circle at 22% 62%, #e4b45a 0 7%, transparent 8%),
+    radial-gradient(circle at 78% 38%, #7ec8d4 0 6%, transparent 7%),
+    linear-gradient(180deg, #12182a 0 42%, #2a3148 43% 70%, #1a1410 71%);
+}
+
 .theme-collection-title {
   grid-column: 1 / -1;
   display: flex;

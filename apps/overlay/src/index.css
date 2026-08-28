@@ -63,7 +63,8 @@
   .geometry-sunset-boardwalk,
   .geometry-midnight-observatory,
   .geometry-tea-house,
-  .geometry-peaceful-village
+  .geometry-peaceful-village,
+  .geometry-starlight-station
 ) > path:first-child {
   stroke-width: 3;
 }
@@ -82,6 +83,7 @@
 .overlay-shell .west-mesa,
 .overlay-shell .moonlit-waves,
 .overlay-shell .village-scene,
-.overlay-shell .village-meadow {
+.overlay-shell .village-meadow,
+.overlay-shell .station-scene {
   width: 100%;
 }

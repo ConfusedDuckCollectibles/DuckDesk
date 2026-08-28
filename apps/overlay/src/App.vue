@@ -175,7 +175,8 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "sunset_boardwalk",
   "midnight_observatory",
   "tea_house",
-  "peaceful_village"
+  "peaceful_village",
+  "starlight_station"
 ]);
 const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
 const gameSkinId = computed(() => gameThemeFromSkin(skin.value));

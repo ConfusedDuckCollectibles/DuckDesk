@@ -13,6 +13,7 @@ function overlayPublicUrl(filePath: string): string {
 }
 
 const villageAsset = (name: string) => overlayPublicUrl(`premium-character-themes/peaceful-village/${name}`);
+const stationAsset = (name: string) => overlayPublicUrl(`premium-character-themes/starlight-station/${name}`);
 
 /*
  * Signature art per premium skin.
@@ -800,6 +801,34 @@ const auroraStars = [
         :style="{
           '--villager': i - 1,
           backgroundImage: `url('${villageAsset('villagers-spritesheet.png')}')`
+        }"
+      />
+    </div>
+  </div>
+
+  <div v-else-if="skin === 'starlight_station'" class="theme-art theme-art-starlight-station" aria-hidden="true">
+    <div class="station-sky" />
+    <div class="station-stars" />
+    <div
+      class="station-steam station-steam-back"
+      :style="{ backgroundImage: `url('${stationAsset('steam-atlas.png')}')` }"
+    />
+    <div
+      class="station-steam station-steam-front"
+      :style="{ backgroundImage: `url('${stationAsset('steam-atlas.png')}')` }"
+    />
+    <div class="station-glow" />
+    <div
+      class="station-scene"
+      :style="{ backgroundImage: `url('${stationAsset('station-strip.png')}')` }"
+    />
+    <div class="station-characters">
+      <i
+        v-for="i in 6"
+        :key="`traveler-${i}`"
+        :style="{
+          '--traveler': i - 1,
+          backgroundImage: `url('${stationAsset('travelers-spritesheet.png')}')`
         }"
       />
     </div>

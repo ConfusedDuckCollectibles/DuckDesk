@@ -53,7 +53,8 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "sunset_boardwalk",
   "midnight_observatory",
   "tea_house",
-  "peaceful_village"
+  "peaceful_village",
+  "starlight_station"
 ]);
 
 const isPremium = computed(() => premiumSkins.has(props.skin));
@@ -501,6 +502,11 @@ const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
       <g v-if="skin === 'peaceful_village'" class="premium-geometry geometry-peaceful-village">
         <path class="village-frame" d="M0 0H1080V1920H0Z" />
         <path class="village-cloud-frame" d="M70 42C170 8 290 12 400 46 M680 46C790 12 910 8 1010 42" />
+      </g>
+
+      <g v-if="skin === 'starlight_station'" class="premium-geometry geometry-starlight-station">
+        <path class="station-frame" d="M0 0H1080V1920H0Z" />
+        <path class="station-steam-frame" d="M64 48C168 10 286 16 398 50 M682 50C794 16 912 10 1016 48" />
       </g>
     </svg>
 

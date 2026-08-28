@@ -967,7 +967,8 @@
   );
 }
 
-.overlay-shell.skin-peaceful_village .frame-vignette {
+.overlay-shell.skin-peaceful_village .frame-vignette,
+.overlay-shell.skin-starlight_station .frame-vignette {
   display: none;
 }
 

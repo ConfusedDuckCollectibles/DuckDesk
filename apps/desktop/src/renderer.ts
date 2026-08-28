@@ -255,6 +255,7 @@ type OverlaySkin =
   | "midnight_observatory"
   | "tea_house"
   | "peaceful_village"
+  | "starlight_station"
   | GameThemeId;
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
@@ -1842,6 +1843,7 @@ function skinName(skin: OverlaySkin): string {
     midnight_observatory: "Midnight Observatory",
     tea_house: "Tea House",
     peaceful_village: "Peaceful Village",
+    starlight_station: "Starlight Station",
     game_tower_tresses: "Tower Tresses",
     game_starship_rally: "Starship Rally",
     game_moon_garden: "Moon Garden",
@@ -2051,6 +2053,7 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "midnight_observatory" ||
     value === "tea_house" ||
     value === "peaceful_village" ||
+    value === "starlight_station" ||
     value === "game_tower_tresses" ||
     value === "game_starship_rally" ||
     value === "game_moon_garden" ||

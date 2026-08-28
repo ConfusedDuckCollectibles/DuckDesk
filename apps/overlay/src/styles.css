@@ -2963,7 +2963,8 @@ body,
   filter: drop-shadow(0 0 12px color-mix(in srgb, var(--primary) 24%, transparent));
 }
 
-.overlay-shell.skin-peaceful_village .broadcast-frame-svg {
+.overlay-shell.skin-peaceful_village .broadcast-frame-svg,
+.overlay-shell.skin-starlight_station .broadcast-frame-svg {
   filter: none;
 }
 

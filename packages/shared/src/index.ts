@@ -110,6 +110,7 @@ export type OverlaySkin =
   | "midnight_observatory"
   | "tea_house"
   | "peaceful_village"
+  | "starlight_station"
   | "game_tower_tresses"
   | "game_starship_rally"
   | "game_moon_garden"
@@ -608,6 +609,7 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "midnight_observatory" ||
     value === "tea_house" ||
     value === "peaceful_village" ||
+    value === "starlight_station" ||
     value === "game_tower_tresses" ||
     value === "game_starship_rally" ||
     value === "game_moon_garden" ||

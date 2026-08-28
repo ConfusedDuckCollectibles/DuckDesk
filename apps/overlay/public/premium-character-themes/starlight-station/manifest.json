@@ -1,0 +1,29 @@
+{
+  "id": "starlight_station",
+  "category": "Premium Animated With Characters",
+  "assets": {
+    "stationStrip": {
+      "file": "station-strip.png",
+      "size": [1600, 643]
+    },
+    "steamAtlas": {
+      "file": "steam-atlas.png",
+      "size": [1400, 430]
+    },
+    "travelers": {
+      "file": "travelers-spritesheet.png",
+      "cell": [96, 96],
+      "grid": [4, 6],
+      "framesPerCharacter": 4,
+      "characters": 6
+    }
+  },
+  "sourceReferences": [
+    "design/premium-character-themes/starlight-station/source/travelers-concept.png",
+    "design/premium-character-themes/starlight-station/source/travelers-magenta.png",
+    "design/premium-character-themes/starlight-station/source/station-strip-concept.png",
+    "design/premium-character-themes/starlight-station/source/steam-concept.png",
+    "design/premium-character-themes/starlight-station/source/steam-magenta.png"
+  ],
+  "notes": "Transparent runtime assets for the Starlight Station premium animated character theme. Night train platform with six travelers on a regular 4-frame grid for CSS step animation; generated concept art is retained in design/."
+}
