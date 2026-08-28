@@ -22,8 +22,8 @@ jobs:
     name: Build Mac DMG
     runs-on: macos-14
     env:
-      electron_config_cache: ${{ runner.temp }}/electron-cache
-      ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
+      electron_config_cache: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -38,8 +38,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ runner.temp }}/electron-cache
-            ${{ runner.temp }}/electron-builder-cache
+            .cache/electron
+            .cache/electron-builder
           key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Keep electron-builder tools in CommonJS
@@ -106,8 +106,8 @@ jobs:
     name: Build Windows installer
     runs-on: windows-latest
     env:
-      electron_config_cache: ${{ runner.temp }}/electron-cache
-      ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
+      electron_config_cache: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -122,8 +122,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ runner.temp }}/electron-cache
-            ${{ runner.temp }}/electron-builder-cache
+            .cache/electron
+            .cache/electron-builder
           key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Keep electron-builder tools in CommonJS
