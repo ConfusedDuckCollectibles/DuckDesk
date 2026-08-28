@@ -1,4 +1,5 @@
 import { isAlertVisualMap, type AlertVisualMap } from "./alerts.js";
+import { isGameThemeProgressPayload, type GameThemeProgress } from "./games.js";
 
 export interface SaleEvent {
   type: "sale";
@@ -97,7 +98,12 @@ export type OverlaySkin =
   | "racing_grid"
   | "wild_west"
   | "celestial_clockwork"
-  | "sakura_festival";
+  | "sakura_festival"
+  | "game_tower_tresses"
+  | "game_starship_rally"
+  | "game_moon_garden"
+  | "game_crystal_quest"
+  | "game_neon_grand_prix";
 export type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 export type GifSize = "small" | "medium" | "large";
 export type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -135,6 +141,88 @@ export {
   type AlertVisualConfig
 } from "./alerts.js";
 export { isAlertVisualMap, type AlertVisualMap };
+export {
+  GAME_ACTION_CLIP_MS,
+  GAME_THEME_DEFINITIONS,
+  GAME_THEME_IDS,
+  GAME_V2_SCHEMA_VERSION,
+  TOWER_TRESSES_SCHEMA_VERSION,
+  UNINTERRUPTIBLE_GAME_ACTIONS,
+  advanceGameTheme,
+  celebrationActiveUntil,
+  celebrationClipAction,
+  createGameAnimationState,
+  createGameProgressMap,
+  createGameThemeProgress,
+  enqueueGameAction,
+  finishGameAction,
+  gameActionForEvent,
+  gameLevelCount,
+  gameSchemaVersion,
+  gameThemeFromSkin,
+  gameTargetForLevel,
+  isGameThemeId,
+  isGameThemeProgress,
+  isGameThemeProgressPayload,
+  normalizeGameProgressMap,
+  normalizeGameThemeProgress,
+  pointsForGameEvent,
+  type GameAction,
+  type GameAnimationCommand,
+  type GameAnimationIntensity,
+  type GameAnimationState,
+  type GameCelebration,
+  type GameEventType,
+  type GameProgressMap,
+  type GameScoringEvent,
+  type GameThemeDefinition,
+  type GameThemeId,
+  type GameThemeProgress
+} from "./games.js";
+export {
+  TOWER_LAYOUT,
+  TOWER_TRESSES_CLIPS,
+  birdRect,
+  clipFrameIndex,
+  combRect,
+  journeyRatioForProgress,
+  princeRescueBox,
+  princeSaleOffset,
+  reducedMotionHoldFrame,
+  towerBraidFill,
+  towerBraidHeight,
+  towerBraidSegments,
+  towerOccupancyViolations,
+  towerPersistentRects,
+  type TowerClip,
+  type TowerRect
+} from "./tower-tresses.js";
+export {
+  GAME_EDGE,
+  occupancyViolations,
+  lanePoint,
+  rectContained,
+  rectsOverlap,
+  type GameRect
+} from "./game-edge.js";
+export {
+  CRYSTAL_CLIPS,
+  GARDEN_CLIPS,
+  RACE_CLIPS,
+  RACE_PATH,
+  STARSHIP_CLIPS,
+  STARSHIP_PATH,
+  cartFrame,
+  cartX,
+  crystalPersistentRects,
+  edgeOccupancyViolations,
+  gardenPersistentRects,
+  gardenPlantRect,
+  plantFrame,
+  plantStage,
+  racePersistentRects,
+  starshipPersistentRects
+} from "./game-worlds.js";
 export type AudioTheme =
   | "neon_pulse"
   | "arcade_8bit"
@@ -195,6 +283,7 @@ export interface OverlayConfigMessage {
   alertVisuals?: AlertVisualMap;
   framePreset?: "theme" | "broadcast" | "none";
   reducedMotion?: boolean;
+  gameState?: GameThemeProgress;
   timestamp: number;
 }
 
@@ -360,7 +449,8 @@ export function isOverlayConfigMessage(value: unknown): value is OverlayConfigMe
     (!("themeEffectsEnabled" in value) || typeof value.themeEffectsEnabled === "boolean") &&
     (!("alertVisuals" in value) || isAlertVisualMap(value.alertVisuals)) &&
     (!("framePreset" in value) || value.framePreset === "theme" || value.framePreset === "broadcast" || value.framePreset === "none") &&
-    (!("reducedMotion" in value) || typeof value.reducedMotion === "boolean")
+    (!("reducedMotion" in value) || typeof value.reducedMotion === "boolean") &&
+    (!("gameState" in value) || value.gameState === undefined || isGameThemeProgressPayload(value.gameState))
   );
 }
 
@@ -495,7 +585,12 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "racing_grid" ||
     value === "wild_west" ||
     value === "celestial_clockwork" ||
-    value === "sakura_festival"
+    value === "sakura_festival" ||
+    value === "game_tower_tresses" ||
+    value === "game_starship_rally" ||
+    value === "game_moon_garden" ||
+    value === "game_crystal_quest" ||
+    value === "game_neon_grand_prix"
   );
 }
 

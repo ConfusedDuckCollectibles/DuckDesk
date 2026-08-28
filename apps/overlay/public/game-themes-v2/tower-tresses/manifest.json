@@ -1,0 +1,81 @@
+{
+  "grid": 32,
+  "sheets": {
+    "princess-window": {
+      "file": "princess-window.png",
+      "frameWidth": 144,
+      "frameHeight": 224,
+      "frames": 7
+    },
+    "princess-celebrate": {
+      "file": "princess-celebrate.png",
+      "frameWidth": 160,
+      "frameHeight": 208,
+      "frames": 3
+    },
+    "prince": {
+      "file": "prince.png",
+      "frameWidth": 128,
+      "frameHeight": 224,
+      "frames": 8
+    },
+    "bird": {
+      "file": "bird.png",
+      "frameWidth": 160,
+      "frameHeight": 112,
+      "frames": 5
+    },
+    "comb": {
+      "file": "comb.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "frames": 3
+    }
+  },
+  "tiles": {
+    "braid-root": {
+      "file": "braid-root.png",
+      "width": 32,
+      "height": 48
+    },
+    "braid-tile": {
+      "file": "braid-tile.png",
+      "width": 32,
+      "height": 32
+    },
+    "braid-tassel": {
+      "file": "braid-tassel.png",
+      "width": 64,
+      "height": 64
+    },
+    "tower-roof": {
+      "file": "tower-roof.png",
+      "width": 128,
+      "height": 96
+    },
+    "tower-wall-tile": {
+      "file": "tower-wall-tile.png",
+      "width": 72,
+      "height": 48
+    },
+    "courtyard-stone-tile": {
+      "file": "courtyard-stone-tile.png",
+      "width": 96,
+      "height": 96
+    }
+  },
+  "anchors": {
+    "princess": {
+      "x": 72,
+      "y": 224
+    },
+    "prince": {
+      "x": 64,
+      "y": 224
+    },
+    "scalp": {
+      "x": 96,
+      "y": 200
+    }
+  }
+}

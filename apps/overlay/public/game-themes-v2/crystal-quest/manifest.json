@@ -1,0 +1,41 @@
+{
+  "grid": 32,
+  "sheets": {
+    "explorer": {
+      "file": "explorer.png",
+      "frameWidth": 96,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    "swing": {
+      "file": "swing.png",
+      "frameWidth": 96,
+      "frameHeight": 128,
+      "frames": 6
+    },
+      "cart": {
+        "file": "cart.png",
+        "frameWidth": 160,
+        "frameHeight": 144,
+        "frames": 4
+      },
+      "door": {
+        "file": "door.png",
+        "frameWidth": 160,
+        "frameHeight": 112,
+        "frames": 4
+      },
+    "bat": {
+      "file": "bat.png",
+      "frameWidth": 48,
+      "frameHeight": 64,
+      "frames": 5
+    },
+    "gem": {
+      "file": "gem.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 5
+    }
+  }
+}

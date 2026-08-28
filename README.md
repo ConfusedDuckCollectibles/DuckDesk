@@ -108,7 +108,7 @@ Duck Desk can check GitHub for a newer release. It does not download or install 
 
 ## What you get
 
-- 56 stream looks, including 36 animated premium themes
+- 61 stream looks: 20 standard, 36 animated premium, and 5 audience-powered Game Themes
 - A live header, ticker, and vertical frame around your camera
 - Sounds for bids, sales, tips, shares, and audience energy
 - GIF reactions, goals, timers, scenes, and a jumbotron
@@ -119,6 +119,20 @@ Duck Desk can check GitHub for a newer release. It does not download or install 
 - Automatic saving on this computer — no Duck Desk account
 
 No cloud login. No analytics from Duck Desk. No AI features.
+
+## Game Themes
+
+Game Themes turn normal show activity into a small pixel-art game around the camera. The center stays open for your products.
+
+- **Tower Tresses:** grow a golden braid from the tower to complete the rescue.
+- **Starship Rally:** fuel the ship along the bottom lane and jump to the next orbit.
+- **Moon Garden:** grow the planter and border vines under the moon.
+- **Crystal Quest:** fill the mine cart and open the crystal chamber.
+- **Neon Grand Prix:** race the circuit to the finish gantry.
+
+Bids add 2 points. Sales and tips add 10. Shares add 1. Follows add 2, and other audience actions add 1. Every game has 100 levels, and the first level takes one bid. Completing a full run shows a short win moment, then starts a new run and keeps the win count.
+
+Open **Library → Themes**, choose a Game Theme, and use its panel under **Library → Studio** to see progress, preview a 2-point step, or reset that game. **Preview +2** changes only the game; it does not create fake bids or change live totals. **Start New Show** resets all game progress after confirmation.
 
 ## What you need
 

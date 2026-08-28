@@ -8,4 +8,7 @@
 @import "./standard-geometry.css" layer(base);
 @import "./craft.css" layer(craft);
 @import "./premium-expansion.css" layer(expansion);
+@import "./game-themes.css" layer(games);
+@import "./tower-tresses-v2.css" layer(games);
+@import "./game-themes-v2.css" layer(games);
 @import "./alert-studio.css" layer(studio);

@@ -1,0 +1,35 @@
+{
+  "grid": 32,
+  "sheets": {
+    "pilot": {
+      "file": "pilot.png",
+      "frameWidth": 96,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    "ship": {
+      "file": "ship.png",
+      "frameWidth": 176,
+      "frameHeight": 96,
+      "frames": 6
+    },
+    "portal": {
+      "file": "portal.png",
+      "frameWidth": 80,
+      "frameHeight": 128,
+      "frames": 5
+    },
+    "fuel": {
+      "file": "fuel.png",
+      "frameWidth": 56,
+      "frameHeight": 80,
+      "frames": 6
+    },
+    "satellite": {
+      "file": "satellite.png",
+      "frameWidth": 64,
+      "frameHeight": 96,
+      "frames": 5
+    }
+  }
+}

@@ -1,0 +1,168 @@
+.game-game_tower_tresses {
+  background: none;
+}
+
+.pixel-sprite {
+  position: absolute;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.tower-v2 > .pixel-sprite {
+  z-index: 5;
+}
+
+.tower-v2 > .tower-v2-prince {
+  z-index: 8;
+}
+
+.tower-action-level_up > .tower-v2-prince,
+.tower-action-win > .tower-v2-prince,
+.tower-v2[data-rescuing="1"] > .tower-v2-prince {
+  z-index: 20;
+}
+
+.tower-v2 {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #fff7d6;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.tower-v2-wall,
+.tower-v2-courtyard,
+.tower-v2-goal,
+.tower-v2-marker,
+.tower-v2-braid-root,
+.tower-v2-braid-tile,
+.tower-v2-braid-tassel,
+.tower-v2-roof,
+.tower-v2-rail {
+  position: absolute;
+  image-rendering: pixelated;
+}
+
+.tower-v2-wall {
+  z-index: 2;
+  overflow: hidden;
+  background-color: #2c3458;
+  background-repeat: repeat-y;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
+.tower-v2-roof {
+  z-index: 3;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.tower-v2-braid-root,
+.tower-v2-braid-tile,
+.tower-v2-braid-tassel {
+  z-index: 6;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.tower-v2-braid-tile-new,
+.tower-action-bid .tower-v2-braid-tassel,
+.tower-action-tip .tower-v2-braid-tassel,
+.tower-action-sale .tower-v2-braid-tassel {
+  filter: brightness(1.35);
+}
+
+.tower-v2-courtyard {
+  z-index: 5;
+  overflow: hidden;
+  background-color: #1d2344;
+  background-repeat: repeat;
+  background-size: calc(96 * var(--u)) calc(96 * var(--u));
+}
+
+.tower-v2-rail {
+  right: 0;
+  bottom: calc(132 * var(--u));
+  left: calc(144 * var(--u));
+  height: calc(64 * var(--u));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: auto 100%;
+}
+
+.tower-v2-goal {
+  z-index: 5;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: calc(18 * var(--u));
+  padding: calc(10 * var(--u)) calc(8 * var(--u));
+  border: calc(4 * var(--u)) solid #3d4a78;
+  border-right: 0;
+  background: #11152c;
+}
+
+.tower-v2-goal span {
+  color: #ffd34e;
+  font-size: calc(18 * var(--u));
+  font-weight: 900;
+}
+
+.tower-v2-goal i {
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  border: calc(4 * var(--u)) solid #3d4a78;
+  background-color: #090c24;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80% 80%;
+}
+
+.tower-v2-goal i.reached {
+  border-color: #fff0a0;
+  background-color: #7a4bb8;
+}
+
+.tower-v2-win {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  display: grid;
+  grid-template-columns: calc(170 * var(--u)) minmax(0, 1fr) calc(170 * var(--u));
+  place-items: center;
+  gap: calc(24 * var(--u));
+  padding: calc(26 * var(--u)) calc(72 * var(--u));
+  border: calc(12 * var(--u)) solid #3d4a78;
+  background: #090c24;
+}
+
+.tower-v2-win .pixel-sprite {
+  position: relative;
+  left: auto;
+  top: auto;
+}
+
+.tower-v2-win div {
+  display: grid;
+  gap: calc(8 * var(--u));
+  text-align: center;
+}
+
+.tower-v2-win span,
+.tower-v2-win em {
+  color: #74c7ff;
+  font-size: calc(18 * var(--u));
+  font-style: normal;
+  font-weight: 900;
+}
+
+.tower-v2-win strong {
+  color: #fff0a0;
+  font-size: calc(48 * var(--u));
+  line-height: 0.9;
+}

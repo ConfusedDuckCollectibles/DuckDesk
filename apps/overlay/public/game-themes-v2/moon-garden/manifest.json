@@ -1,0 +1,23 @@
+{
+  "grid": 32,
+  "sheets": {
+    "gardener": {
+      "file": "gardener.png",
+      "frameWidth": 128,
+      "frameHeight": 176,
+      "frames": 8
+    },
+    "firefly": {
+      "file": "firefly.png",
+      "frameWidth": 80,
+      "frameHeight": 96,
+      "frames": 6
+    },
+    "plant": {
+      "file": "plant.png",
+      "frameWidth": 128,
+      "frameHeight": 240,
+      "frames": 6
+    }
+  }
+}

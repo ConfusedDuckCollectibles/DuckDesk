@@ -1,0 +1,204 @@
+.game-v2-hud,
+.tower-v2-hud {
+  position: absolute;
+  left: 0;
+  top: calc(1688 * var(--u));
+  z-index: 22;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1.4fr) minmax(120px, 1fr) auto;
+  align-items: center;
+  gap: calc(10 * var(--u));
+  width: 100%;
+  height: calc(56 * var(--u));
+  overflow: hidden;
+  padding: 0 calc(16 * var(--u));
+  border: 0;
+  border-top: calc(3 * var(--u)) solid var(--primary, #ffd34e);
+  background: #11152c;
+  color: #fff7d6;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  pointer-events: none;
+}
+
+.game-v2-hud span,
+.tower-v2-hud span {
+  color: var(--secondary, #74c7ff);
+  font-size: calc(15 * var(--u));
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.game-v2-hud strong,
+.tower-v2-hud strong {
+  overflow: hidden;
+  font-size: calc(16 * var(--u));
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-v2-hud em,
+.tower-v2-hud > b {
+  color: var(--primary, #fff0a0);
+  font-size: calc(15 * var(--u));
+  font-style: normal;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.game-v2-track,
+.tower-v2-track {
+  height: calc(10 * var(--u));
+  padding: 0;
+  border: calc(2 * var(--u)) solid #3d4a78;
+  background: #070919;
+}
+
+.game-v2-track b,
+.tower-v2-track i {
+  display: block;
+  height: 100%;
+  background: var(--primary, #ffd34e);
+}
+
+.game-v2-hud-won,
+.tower-v2-hud-won {
+  border-top-color: #ffd34e;
+  background: #3a2a10;
+}
+
+.edge-game {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.game-game_starship_rally,
+.game-game_moon_garden,
+.game-game_crystal_quest,
+.game-game_neon_grand_prix {
+  background: none;
+}
+
+.edge-game .pixel-sprite {
+  z-index: 6;
+}
+
+.starship-v2-ship,
+.race-v2-car {
+  z-index: 8;
+}
+
+.starship-v2-station {
+  position: absolute;
+  left: calc(8 * var(--u));
+  top: calc(1544 * var(--u));
+  width: calc(72 * var(--u));
+  height: calc(96 * var(--u));
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: calc(128 * var(--u)) calc(96 * var(--u));
+  background-position: left center;
+}
+
+.starship-v2-fuel {
+  position: absolute;
+  left: calc(16 * var(--u));
+  top: calc(620 * var(--u));
+  z-index: 5;
+}
+
+.garden-v2-vine {
+  position: absolute;
+  top: calc(420 * var(--u));
+  width: calc(64 * var(--u));
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+.garden-v2-vine-left { left: calc(8 * var(--u)); }
+.garden-v2-vine-right { right: calc(8 * var(--u)); }
+
+.garden-v2-planter {
+  position: absolute;
+  left: calc(176 * var(--u));
+  top: calc(1576 * var(--u));
+  z-index: 4;
+  width: calc(720 * var(--u));
+  height: calc(80 * var(--u));
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.garden-v2-arch {
+  position: absolute;
+  left: calc(412 * var(--u));
+  top: calc(230 * var(--u));
+  width: calc(256 * var(--u));
+  height: calc(90 * var(--u));
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.crystal-v2-wall {
+  position: absolute;
+  top: calc(300 * var(--u));
+  width: calc(96 * var(--u));
+  height: calc(1240 * var(--u));
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+.crystal-v2-wall-left { left: 0; }
+.crystal-v2-wall-right { right: 0; }
+
+.crystal-v2-track {
+  position: absolute;
+  left: calc(144 * var(--u));
+  top: calc(1608 * var(--u));
+  width: calc(792 * var(--u));
+  height: calc(48 * var(--u));
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
+
+.race-v2-rail-left {
+  position: absolute;
+  left: calc(8 * var(--u));
+  top: calc(1504 * var(--u));
+  width: calc(48 * var(--u));
+  height: calc(176 * var(--u));
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+.race-v2-road {
+  position: absolute;
+  left: calc(144 * var(--u));
+  top: calc(1584 * var(--u));
+  width: calc(792 * var(--u));
+  height: calc(64 * var(--u));
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
+
+.race-v2-finish {
+  position: absolute;
+  right: 0;
+  top: calc(1568 * var(--u));
+  z-index: 7;
+  width: calc(144 * var(--u));
+  height: calc(76 * var(--u));
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: calc(152 * var(--u)) calc(116 * var(--u));
+  background-position: center top;
+}
+
+.race-v2-finish.lit {
+  filter: brightness(1.35);
+}

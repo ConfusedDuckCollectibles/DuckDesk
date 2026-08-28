@@ -547,6 +547,30 @@
               <span class="swatch sakura-festival"></span>
               <span class="theme-card-copy"><strong>Sakura Festival</strong><small>Premium Animated</small></span>
             </button>
+            <div class="theme-collection-title game-collection-title" data-addon-theme-title hidden>
+              <span>Game Themes</span>
+              <small>Audience actions move the game forward</small>
+            </div>
+            <button class="theme-card game-theme-card" data-skin="game_tower_tresses" data-addon-theme type="button" hidden>
+              <span class="swatch game-tower-tresses"></span>
+              <span class="theme-card-copy"><strong>Tower Tresses</strong><small>Game Theme</small></span>
+            </button>
+            <button class="theme-card game-theme-card" data-skin="game_starship_rally" data-addon-theme type="button" hidden>
+              <span class="swatch game-starship-rally"></span>
+              <span class="theme-card-copy"><strong>Starship Rally</strong><small>Game Theme</small></span>
+            </button>
+            <button class="theme-card game-theme-card" data-skin="game_moon_garden" data-addon-theme type="button" hidden>
+              <span class="swatch game-moon-garden"></span>
+              <span class="theme-card-copy"><strong>Moon Garden</strong><small>Game Theme</small></span>
+            </button>
+            <button class="theme-card game-theme-card" data-skin="game_crystal_quest" data-addon-theme type="button" hidden>
+              <span class="swatch game-crystal-quest"></span>
+              <span class="theme-card-copy"><strong>Crystal Quest</strong><small>Game Theme</small></span>
+            </button>
+            <button class="theme-card game-theme-card" data-skin="game_neon_grand_prix" data-addon-theme type="button" hidden>
+              <span class="swatch game-neon-grand-prix"></span>
+              <span class="theme-card-copy"><strong>Neon Grand Prix</strong><small>Game Theme</small></span>
+            </button>
           </div>
         </section>
 
@@ -559,8 +583,8 @@
             <article class="addon-card featured" data-addon="stream_skins">
               <div>
                 <span class="addon-type">Theme Pack</span>
-                <h3>56 Total Themes</h3>
-                <p>Includes 20 standard looks and 36 Premium Animated experiences with distinct border and alert motion.</p>
+                <h3>61 Total Themes</h3>
+                <p>Includes 20 standard looks, 36 Premium Animated experiences, and 5 audience-powered Game Themes.</p>
               </div>
               <button class="addon-action" type="button">Add Pack</button>
             </article>
@@ -769,9 +793,31 @@
             <article class="addon-module module-skins" data-addon-panel="stream_skins" hidden>
               <div class="module-header">
                 <span>Skin Pack</span>
-                <strong>56 Total Themes</strong>
+                <strong>61 Total Themes</strong>
               </div>
-              <p class="module-note">Theme Pack is on. Pick looks from Overlay Theme above — one picker, not two catalogs.</p>
+              <p class="module-note">Theme Pack is on. Pick looks from Overlay Theme above, including five audience-powered Game Themes.</p>
+              <section id="game-theme-controls" class="game-theme-controls" hidden aria-labelledby="game-theme-name">
+                <div class="game-theme-control-heading">
+                  <div>
+                    <span class="addon-type">Active Game</span>
+                    <h3 id="game-theme-name">Game Theme</h3>
+                  </div>
+                  <strong id="game-theme-level">Level 1 of 100</strong>
+                </div>
+                <p id="game-theme-objective" class="module-note"></p>
+                <div class="game-theme-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                  <span id="game-theme-progress-fill"></span>
+                </div>
+                <div class="game-theme-progress-meta">
+                  <span id="game-theme-points">0 / 18 points</span>
+                  <span id="game-theme-wins">0 wins</span>
+                </div>
+                <div class="game-theme-actions">
+                  <button id="preview-game-progress" class="module-command" type="button"><i data-lucide="play" aria-hidden="true"></i>Preview +2</button>
+                  <button id="reset-game-theme" type="button"><i data-lucide="rotate-ccw" aria-hidden="true"></i>Reset Game</button>
+                </div>
+                <p class="game-scoring-note">Bid +2 · Sale +10 · Tip +10 · Share +1 · Follow +2</p>
+              </section>
             </article>
 
             <article class="addon-module module-audio" data-addon-panel="noise_machines" aria-labelledby="audio-studio-title" hidden>

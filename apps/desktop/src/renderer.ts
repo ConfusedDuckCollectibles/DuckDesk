@@ -94,7 +94,29 @@ type DesktopStatus = {
   recoveryNotice?: string;
   rejectedEventCount: number;
   duplicateEventCount: number;
+  gameState?: GameThemeProgress;
 };
+
+type GameThemeProgress = {
+  schemaVersion: number;
+  theme: GameThemeId;
+  level: number;
+  progress: number;
+  target: number;
+  totalPoints: number;
+  wins: number;
+  lastGain: number;
+  revision: number;
+  lastAction: "idle" | "bid" | "audience" | "share" | "tip" | "sale" | "level_up" | "win";
+  actionAt?: number;
+  celebration: "none" | "level_up" | "win";
+};
+type GameThemeId =
+  | "game_tower_tresses"
+  | "game_starship_rally"
+  | "game_moon_garden"
+  | "game_crystal_quest"
+  | "game_neon_grand_prix";
 
 type RehearsalState = "idle" | "playing" | "paused" | "recording";
 type RehearsalStatus = {
@@ -221,7 +243,8 @@ type OverlaySkin =
   | "racing_grid"
   | "wild_west"
   | "celestial_clockwork"
-  | "sakura_festival";
+  | "sakura_festival"
+  | GameThemeId;
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
 type SoundKind = "sale" | "bid" | "action" | "tip" | "share";
@@ -284,6 +307,8 @@ type DesktopApi = {
   sendTestShare: () => Promise<void>;
   setTheme: (theme: OverlayTheme) => Promise<DesktopStatus>;
   setSkin: (skin: OverlaySkin) => Promise<DesktopStatus>;
+  resetGameTheme: () => Promise<DesktopStatus>;
+  previewGameProgress: () => Promise<DesktopStatus>;
   setAddOn: (addOn: AddOnId, enabled: boolean) => Promise<DesktopStatus>;
   setSoundsEnabled: (enabled: boolean) => Promise<DesktopStatus>;
   setSoundVolume: (volume: number) => Promise<DesktopStatus>;
@@ -480,6 +505,16 @@ const themeCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".the
 const addonActions = Array.from(document.querySelectorAll<HTMLButtonElement>(".addon-action"));
 const addonPanels = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-panel]"));
 const addonThemeCards = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-theme]"));
+const addonThemeTitles = Array.from(document.querySelectorAll<HTMLElement>("[data-addon-theme-title]"));
+const gameThemeControls = readElement<HTMLElement>("game-theme-controls");
+const gameThemeName = readElement<HTMLElement>("game-theme-name");
+const gameThemeLevel = readElement<HTMLElement>("game-theme-level");
+const gameThemeObjective = readElement<HTMLElement>("game-theme-objective");
+const gameThemeProgress = readElement<HTMLElement>("game-theme-progress-fill");
+const gameThemePoints = readElement<HTMLElement>("game-theme-points");
+const gameThemeWins = readElement<HTMLElement>("game-theme-wins");
+const previewGameProgress = readElement<HTMLButtonElement>("preview-game-progress");
+const resetGameTheme = readElement<HTMLButtonElement>("reset-game-theme");
 const addonTestActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-addon-test]"));
 const skinActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-skin]"));
 const gifPlacementActions = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gif-placement]"));
@@ -1020,6 +1055,14 @@ for (const action of skinActions) {
   });
 }
 
+previewGameProgress.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.previewGameProgress());
+});
+
+resetGameTheme.addEventListener("click", async () => {
+  renderStatus(await window.duckDesk.resetGameTheme());
+});
+
 for (const action of gifPlacementActions) {
   action.addEventListener("click", async () => {
     const placement = action.dataset.gifPlacement;
@@ -1342,6 +1385,8 @@ function renderStatus(status: DesktopStatus): void {
   for (const action of skinActions) {
     action.classList.toggle("is-active", action.dataset.skin === status.skin);
   }
+
+  renderGameThemeStatus(status.gameState);
 
   renderAddOns(status.addOns);
   renderCustomGifs(status.customGifs);
@@ -1743,9 +1788,44 @@ function skinName(skin: OverlaySkin): string {
     racing_grid: "Racing Grid",
     wild_west: "Wild West",
     celestial_clockwork: "Celestial Clockwork",
-    sakura_festival: "Sakura Festival"
+    sakura_festival: "Sakura Festival",
+    game_tower_tresses: "Tower Tresses",
+    game_starship_rally: "Starship Rally",
+    game_moon_garden: "Moon Garden",
+    game_crystal_quest: "Crystal Quest",
+    game_neon_grand_prix: "Neon Grand Prix"
   };
   return names[skin];
+}
+
+function renderGameThemeStatus(game: GameThemeProgress | undefined): void {
+  gameThemeControls.hidden = !game;
+  if (!game) {
+    return;
+  }
+  const names: Record<GameThemeId, string> = {
+    game_tower_tresses: "Tower Tresses",
+    game_starship_rally: "Starship Rally",
+    game_moon_garden: "Moon Garden",
+    game_crystal_quest: "Crystal Quest",
+    game_neon_grand_prix: "Neon Grand Prix"
+  };
+  const objectives: Record<GameThemeId, string> = {
+    game_tower_tresses: "Each level, grow the braid to the courtyard so the prince can climb it and rescue her. Tower 1 takes one bid.",
+    game_starship_rally: "Fuel the ship along the bottom lane and jump to the next orbit. Orbit 1 takes one bid.",
+    game_moon_garden: "Grow the planter and border vines. Moon 1 takes one bid.",
+    game_crystal_quest: "Fill the mine cart and open the chamber. Depth 1 takes one bid.",
+    game_neon_grand_prix: "Race the circuit to the finish gantry. Lap 1 takes one bid."
+  };
+  const maxLevel = 100;
+  const percent = Math.min(100, Math.round((game.progress / Math.max(1, game.target)) * 100));
+  gameThemeName.textContent = names[game.theme];
+  gameThemeLevel.textContent = `Level ${game.level} of ${maxLevel}`;
+  gameThemeObjective.textContent = objectives[game.theme];
+  gameThemeProgress.style.width = `${percent}%`;
+  gameThemeProgress.parentElement?.setAttribute("aria-valuenow", String(percent));
+  gameThemePoints.textContent = `${Math.round(game.progress)} / ${game.target} points`;
+  gameThemeWins.textContent = `${game.wins} ${game.wins === 1 ? "win" : "wins"}`;
 }
 
 function updateLibraryStatus(): void {
@@ -1776,6 +1856,10 @@ function renderAddOns(addOns: AddOnId[]): void {
 
   for (const card of addonThemeCards) {
     card.hidden = !addOns.includes("stream_skins");
+  }
+
+  for (const title of addonThemeTitles) {
+    title.hidden = !addOns.includes("stream_skins");
   }
 
   updateLibraryStatus();
@@ -1875,7 +1959,12 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "racing_grid" ||
     value === "wild_west" ||
     value === "celestial_clockwork" ||
-    value === "sakura_festival"
+    value === "sakura_festival" ||
+    value === "game_tower_tresses" ||
+    value === "game_starship_rally" ||
+    value === "game_moon_garden" ||
+    value === "game_crystal_quest" ||
+    value === "game_neon_grand_prix"
   );
 }
 

@@ -19,6 +19,8 @@ contextBridge.exposeInMainWorld("duckDesk", {
   sendTestShare: () => ipcRenderer.invoke("duck-desk:send-test-share"),
   setTheme: (theme: unknown) => ipcRenderer.invoke("duck-desk:set-theme", theme),
   setSkin: (skin: unknown) => ipcRenderer.invoke("duck-desk:set-skin", skin),
+  resetGameTheme: () => ipcRenderer.invoke("duck-desk:reset-game-theme"),
+  previewGameProgress: () => ipcRenderer.invoke("duck-desk:preview-game-progress"),
   setAddOn: (addOn: unknown, enabled: unknown) => ipcRenderer.invoke("duck-desk:set-addon", addOn, enabled),
   setSoundsEnabled: (enabled: unknown) => ipcRenderer.invoke("duck-desk:set-sounds-enabled", enabled),
   setSoundVolume: (volume: unknown) => ipcRenderer.invoke("duck-desk:set-sound-volume", volume),

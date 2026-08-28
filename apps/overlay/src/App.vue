@@ -33,11 +33,17 @@ import {
   DEFAULT_ALERT_VISUALS,
   alertKindFromEventType,
   normalizeAlertVisualMap,
-  type AlertVisualMap
+  type AlertVisualMap,
+  createGameThemeProgress,
+  gameThemeFromSkin,
+  isGameThemeId,
+  normalizeGameThemeProgress,
+  type GameThemeProgress
 } from "@duck-desk/shared";
 import BroadcastFrame from "./components/BroadcastFrame.vue";
 import ThemeArt from "./components/ThemeArt.vue";
 import EventAlert from "./components/EventAlert.vue";
+import GameThemeLayer from "./components/GameThemeLayer.vue";
 
 const queue = ref<ShowEvent[]>([]);
 const activeEvent = ref<ShowEvent | null>(null);
@@ -71,6 +77,7 @@ const themeEffectsEnabled = ref(true);
 const alertVisuals = ref<AlertVisualMap>(DEFAULT_ALERT_VISUALS);
 const framePreset = ref<"theme" | "broadcast" | "none">("theme");
 const reducedMotion = ref(false);
+const gameState = ref<GameThemeProgress>();
 const showPreviewGuides = new URLSearchParams(window.location.search).get("guides") === "1";
 const promoIndex = ref(0);
 const milestoneCard = ref<{ amount: number; label: string; timestamp: number } | null>(null);
@@ -160,6 +167,15 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "sakura_festival"
 ]);
 const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
+const gameSkinId = computed(() => gameThemeFromSkin(skin.value));
+const gameSkinActive = computed(() => gameSkinId.value !== null);
+const displayedGameState = computed(() => {
+  const game = gameSkinId.value;
+  if (!game) {
+    return undefined;
+  }
+  return gameState.value?.theme === game ? gameState.value : createGameThemeProgress(game);
+});
 const hypeProgress = computed(() => {
   if (!hypeMeter.value) {
     return 0;
@@ -299,6 +315,9 @@ function connect(): void {
       alertVisuals.value = normalizeAlertVisualMap(parsed.alertVisuals);
       framePreset.value = parsed.framePreset === "broadcast" || parsed.framePreset === "none" ? parsed.framePreset : "theme";
       reducedMotion.value = parsed.reducedMotion === true;
+      gameState.value = parsed.gameState && isGameThemeId(parsed.gameState.theme)
+        ? normalizeGameThemeProgress(parsed.gameState.theme, parsed.gameState)
+        : undefined;
       if (!soundsEnabled.value || soundVolume.value === 0) {
         stopAudioPlayback();
       } else if (activeAudioPlayer) {
@@ -813,6 +832,7 @@ onMounted(() => {
       `skin-${skin}`,
       {
         'skin-premium': premiumSkinActive,
+        'skin-game': gameSkinActive,
         'is-alert-active': Boolean(activeEvent),
         'theme-effects-off': !themeEffectsEnabled,
         'is-banner-hidden': hideTopBanner,
@@ -824,9 +844,10 @@ onMounted(() => {
     ]"
     aria-live="polite"
   >
-    <div v-if="themeEffectsEnabled" class="overlay-frame" aria-hidden="true" />
-    <ThemeArt v-if="themeEffectsEnabled" :skin="skin" />
-    <BroadcastFrame v-if="themeEffectsEnabled" :skin="skin" />
+    <div v-if="themeEffectsEnabled && !gameSkinActive" class="overlay-frame" aria-hidden="true" />
+    <ThemeArt v-if="themeEffectsEnabled && !gameSkinActive" :skin="skin" />
+    <BroadcastFrame v-if="themeEffectsEnabled && !gameSkinActive" :skin="skin" />
+    <GameThemeLayer v-if="themeEffectsEnabled && displayedGameState" :state="displayedGameState" />
     <div
       v-if="themeEffectsEnabled && hasAddOn('stream_skins') && premiumSkinActive"
       class="premium-atmosphere"
@@ -843,7 +864,7 @@ onMounted(() => {
         <i />
       </div>
     </div>
-    <div v-if="themeEffectsEnabled" class="sparkle-field" aria-hidden="true">
+    <div v-if="themeEffectsEnabled && !gameSkinActive" class="sparkle-field" aria-hidden="true">
       <span />
       <span />
       <span />
@@ -873,7 +894,7 @@ onMounted(() => {
       <span>{{ latestEventLabel }}</span>
     </div>
     <div
-      v-if="themeEffectsEnabled && hasAddOn('stream_skins') && skin !== 'none'"
+      v-if="themeEffectsEnabled && hasAddOn('stream_skins') && skin !== 'none' && !gameSkinActive"
       class="skin-frame"
       aria-hidden="true"
     >
@@ -888,7 +909,7 @@ onMounted(() => {
       class="burst-ring"
       aria-hidden="true"
     />
-    <div v-if="themeEffectsEnabled" class="arena-bars" aria-hidden="true">
+    <div v-if="themeEffectsEnabled && !gameSkinActive" class="arena-bars" aria-hidden="true">
       <span />
       <span />
       <span />

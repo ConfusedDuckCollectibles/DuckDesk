@@ -1,0 +1,29 @@
+{
+  "grid": 32,
+  "sheets": {
+    "car": {
+      "file": "car.png",
+      "frameWidth": 144,
+      "frameHeight": 64,
+      "frames": 7
+    },
+    "boost": {
+      "file": "boost.png",
+      "frameWidth": 160,
+      "frameHeight": 80,
+      "frames": 6
+    },
+    "crew": {
+      "file": "crew.png",
+      "frameWidth": 96,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    "drone": {
+      "file": "drone.png",
+      "frameWidth": 80,
+      "frameHeight": 80,
+      "frames": 4
+    }
+  }
+}

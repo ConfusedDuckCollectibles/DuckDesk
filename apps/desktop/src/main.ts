@@ -91,11 +91,18 @@ import {
   isOverlayTheme,
   isSceneMode,
   isSoundKind,
+  advanceGameTheme,
+  createGameProgressMap,
+  createGameThemeProgress,
+  gameThemeFromSkin,
+  normalizeGameProgressMap,
   type AddOnId,
   type AudioTheme,
   type GifPlacement,
   type GifSize,
   type GoalConfig,
+  type GameProgressMap,
+  type GameThemeProgress,
   type OverlaySkin,
   type SceneMode,
   normalizeShowEvent,
@@ -135,6 +142,7 @@ const stats = {
 };
 let activeTheme: OverlayTheme = "neon";
 let activeSkin: OverlaySkin = "none";
+let gameProgress: GameProgressMap = createGameProgressMap();
 const activeAddOns = new Set<AddOnId>();
 let soundsEnabled = true;
 let soundVolume = 0.75;
@@ -240,6 +248,7 @@ type PersistedSettings = {
   alertVisuals: AlertVisualMap;
   framePreset: PackFramePreset;
   reducedMotion: boolean;
+  gameProgress: GameProgressMap;
   firstRunComplete: boolean;
 };
 
@@ -722,6 +731,26 @@ function registerIpc(): void {
     activeAddOns.add("stream_skins");
     broadcast(createOverlayConfig());
     broadcastStatus();
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:reset-game-theme", () => {
+    const game = gameThemeFromSkin(activeSkin);
+    if (game) {
+      gameProgress[game] = createGameThemeProgress(game);
+      broadcast(createOverlayConfig());
+      broadcastStatus();
+    }
+    return getStatus();
+  });
+
+  ipcMain.handle("duck-desk:preview-game-progress", () => {
+    const game = gameThemeFromSkin(activeSkin);
+    if (game) {
+      gameProgress[game] = advanceGameTheme(gameProgress[game], { type: "bid" });
+      broadcast(createOverlayConfig());
+      broadcastStatus();
+    }
     return getStatus();
   });
 
@@ -1418,6 +1447,11 @@ function receiveEvent(event: ShowEvent, origin: ShowEventOrigin = "live"): void 
     });
   }
   broadcast(event);
+  const game = gameThemeFromSkin(activeSkin);
+  if (game) {
+    gameProgress[game] = advanceGameTheme(gameProgress[game], event);
+    broadcast(createOverlayConfig());
+  }
   broadcastStatus();
 }
 
@@ -1909,8 +1943,8 @@ async function startNewShow(): Promise<void> {
       defaultId: 1,
       cancelId: 1,
       title: "Start New Show",
-      message: "Clear tonight's totals, recap, overlay queue, and event log?",
-      detail: "Looks, sounds, alerts, packs, and saved rehearsals stay. Live totals cannot be undone."
+      message: "Clear tonight's totals, game progress, recap, overlay queue, and event log?",
+      detail: "Looks, sounds, alerts, packs, and saved rehearsals stay. Live totals and game progress cannot be undone."
     });
     if (choice.response !== 0) {
       return;
@@ -1930,11 +1964,12 @@ async function startNewShow(): Promise<void> {
   duplicateEventCount = reset.duplicateEventCount;
   lastEventFingerprint = reset.lastEventFingerprint;
   completedMilestones.clear();
+  gameProgress = createGameProgressMap();
   demoMode = reset.demoMode;
   jumbotronCameraEnabled = reset.jumbotronCameraEnabled;
   sceneMode = reset.sceneMode;
   showEpoch += 1;
-  showNotice = "New show started. Totals, recap, overlay queue, and the event log were cleared.";
+  showNotice = "New show started. Totals, game progress, recap, overlay queue, and the event log were cleared.";
   diagnosticRing.push("show", "Started a new show session");
   broadcast(createOverlayClear());
   broadcast(createOverlayConfig());
@@ -2341,6 +2376,10 @@ function applyConfigPatch(input: unknown): void {
   if ("alertVisuals" in input) {
     alertVisuals = normalizeAlertVisualMap(input.alertVisuals);
   }
+
+  if ("gameProgress" in input) {
+    gameProgress = normalizeGameProgressMap(input.gameProgress);
+  }
 }
 
 function checkMilestones(): void {
@@ -2615,6 +2654,7 @@ function saveSettings(): void {
     alertVisuals,
     framePreset,
     reducedMotion,
+    gameProgress,
     firstRunComplete
   };
 
@@ -2983,6 +3023,7 @@ function getStatus(): {
   packNotice?: string;
   framePreset: PackFramePreset;
   reducedMotion: boolean;
+  gameState?: GameThemeProgress;
   showEpoch: number;
   showNotice?: string;
   showProfiles: Array<{ id: string; name: string; updatedAt: number }>;
@@ -3070,6 +3111,7 @@ function getStatus(): {
     packNotice: packNotice || undefined,
     framePreset,
     reducedMotion,
+    gameState: currentGameState(),
     showEpoch,
     showNotice: showNotice || undefined,
     showProfiles: showProfiles.map((profile) => ({
@@ -3112,6 +3154,7 @@ function createOverlayConfig(): {
   alertVisuals: AlertVisualMap;
   framePreset: PackFramePreset;
   reducedMotion: boolean;
+  gameState?: GameThemeProgress;
   timestamp: number;
 } {
   return {
@@ -3139,8 +3182,14 @@ function createOverlayConfig(): {
     alertVisuals,
     framePreset,
     reducedMotion,
+    gameState: currentGameState(),
     timestamp: Date.now()
   };
+}
+
+function currentGameState(): GameThemeProgress | undefined {
+  const game = gameThemeFromSkin(activeSkin);
+  return game ? gameProgress[game] : undefined;
 }
 
 function parseGoals(rawGoals: string): GoalConfig[] {

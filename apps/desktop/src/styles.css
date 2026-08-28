@@ -1412,8 +1412,176 @@ button.preview-demo-toggle span {
     linear-gradient(135deg, #15182f, #ef8fb0 55%, #ffd8aa);
 }
 
+.theme-collection-title {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 16px 2px 6px;
+  border-top: 1px solid rgba(159, 224, 255, 0.18);
+}
+
+.theme-collection-title[hidden] {
+  display: none;
+}
+
+.theme-collection-title span {
+  color: #f7fbff;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.theme-collection-title small {
+  color: rgba(194, 215, 227, 0.72);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.game-theme-card {
+  grid-column: span 2;
+  min-height: 112px;
+  height: auto;
+  grid-template-columns: 54px minmax(0, 1fr);
+  border-color: rgba(121, 255, 170, 0.36);
+  background:
+    linear-gradient(135deg, rgba(121, 255, 170, 0.08), transparent 56%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.game-theme-card .swatch {
+  width: 50px;
+  height: 50px;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 3px rgba(3, 8, 14, 0.72), 0 0 0 4px rgba(121, 255, 170, 0.24);
+}
+
+.game-theme-card .theme-card-copy small {
+  color: #79ffaa;
+}
+
+.swatch.game-tower-tresses {
+  background:
+    linear-gradient(90deg, transparent 42%, #ffd34e 43% 58%, transparent 59%),
+    repeating-linear-gradient(0deg, #18234c 0 8px, #5e6ba1 8px 12px, #18234c 12px 18px);
+}
+
+.swatch.game-starship-rally {
+  background:
+    radial-gradient(circle at 72% 24%, #fff 0 3%, transparent 4%),
+    linear-gradient(34deg, transparent 0 38%, #f7f9ff 39% 47%, #ff5f45 48% 55%, transparent 56%),
+    #071536;
+}
+
+.swatch.game-moon-garden {
+  background:
+    radial-gradient(circle at 70% 28%, #fff4b0 0 12%, transparent 13%),
+    repeating-linear-gradient(90deg, #102638 0 7px, #1c8762 7px 12px, #102638 12px 18px);
+}
+
+.swatch.game-crystal-quest {
+  background:
+    conic-gradient(from 25deg at 55% 60%, #101426, #59ecff 12%, #b77cff 24%, #11182a 36%, #ffd66b 48%, #101426 62%);
+}
+
+.swatch.game-neon-grand-prix {
+  background:
+    conic-gradient(#fff 25%, #101116 0 50%, #fff 0 75%, #101116 0) right bottom / 12px 12px,
+    linear-gradient(135deg, #11121b 0 46%, #ff1694 47% 64%, #13dbff 65%);
+}
+
 .premium-theme-card {
   border-color: rgba(255, 207, 97, 0.34);
+}
+
+.game-theme-controls {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(121, 255, 170, 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(121, 255, 170, 0.08), transparent 48%),
+    rgba(2, 8, 13, 0.48);
+}
+
+.game-theme-controls[hidden] {
+  display: none;
+}
+
+.game-theme-control-heading,
+.game-theme-progress-meta,
+.game-theme-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.game-theme-control-heading h3 {
+  margin: 5px 0 0;
+  font-size: 19px;
+}
+
+.game-theme-control-heading > strong {
+  color: #79ffaa;
+  font-size: 12px;
+}
+
+.game-theme-progress {
+  height: 12px;
+  margin: 14px 0 8px;
+  overflow: hidden;
+  border: 1px solid rgba(159, 224, 255, 0.22);
+  border-radius: 4px;
+  background: rgba(1, 5, 9, 0.72);
+}
+
+.game-theme-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #34e7ff, #79ffaa 64%, #ffcf61);
+  box-shadow: 0 0 16px rgba(121, 255, 170, 0.46);
+  transition: width 260ms ease;
+}
+
+.game-theme-progress-meta,
+.game-scoring-note {
+  color: rgba(194, 215, 227, 0.78);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.game-theme-actions {
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.game-theme-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-theme-actions svg {
+  width: 15px;
+  height: 15px;
+}
+
+.game-scoring-note {
+  margin: 14px 0 0;
+}
+
+@media (max-width: 760px) {
+  .game-theme-card {
+    grid-column: 1 / -1;
+  }
+
+  .theme-collection-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 .premium-animated-card {
