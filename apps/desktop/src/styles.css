@@ -1412,6 +1412,73 @@ button.preview-demo-toggle span {
     linear-gradient(135deg, #15182f, #ef8fb0 55%, #ffd8aa);
 }
 
+.swatch.neon-museum {
+  background:
+    linear-gradient(90deg, transparent 0 20%, #46e8ff 21% 24%, transparent 25% 75%, #ff5ed0 76% 79%, transparent 80%),
+    radial-gradient(circle at 50% 24%, #ffcf6e 0 8%, transparent 9%),
+    linear-gradient(135deg, #08101c, #12345c 52%, #1a0f2d);
+}
+
+.swatch.chrome-showroom {
+  background:
+    linear-gradient(110deg, transparent 0 24%, #f7fbff 25% 34%, transparent 35% 64%, #6fe7ff 65% 72%, transparent 73%),
+    linear-gradient(135deg, #0a0f15, #808b96 52%, #d9e5ef);
+}
+
+.swatch.prism-arcade {
+  background:
+    conic-gradient(from 24deg at 56% 50%, #86f7ff, #ff4daf 18%, #ffe45d 32%, #0e0920 46%, #86f7ff 62%, #ff4daf);
+}
+
+.swatch.velvet-casino {
+  background:
+    radial-gradient(circle at 50% 50%, #f3c768 0 9%, transparent 10%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 7px, rgba(243, 199, 104, 0.65) 8px 9px, transparent 10px 14px),
+    linear-gradient(135deg, #160711, #d42d59 58%, #36d6b2);
+}
+
+.swatch.alpine-lodge {
+  background:
+    linear-gradient(135deg, transparent 0 40%, #fff6df 41% 46%, transparent 47%),
+    linear-gradient(45deg, transparent 0 42%, #8dd7d0 43% 48%, transparent 49%),
+    linear-gradient(150deg, #10201e, #2e5149 54%, #e5b061);
+}
+
+.swatch.circuit-garden {
+  background:
+    linear-gradient(rgba(95, 217, 255, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 239, 145, 0.32) 1px, transparent 1px),
+    radial-gradient(circle at 68% 30%, #f5e46a 0 8%, transparent 9%),
+    #07130d;
+  background-size: 9px 9px, 9px 9px, auto, auto;
+}
+
+.swatch.gemstone-gallery {
+  background:
+    conic-gradient(from 20deg at 50% 50%, #8b7cff, #5fe7f1 18%, #f7d36c 34%, #231c48 48%, #8b7cff 66%, #fffaff);
+}
+
+.swatch.sunset-boardwalk {
+  background:
+    radial-gradient(circle at 50% 48%, #ffd36b 0 13%, transparent 14%),
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(255, 211, 107, 0.38) 10px 12px),
+    linear-gradient(180deg, #161126, #ff9060 56%, #43d9d2 57%);
+}
+
+.swatch.midnight-observatory {
+  background:
+    repeating-radial-gradient(circle at 50% 58%, transparent 0 8px, #f4d889 9px 10px, transparent 11px 16px),
+    radial-gradient(circle at 28% 24%, #f5f8ff 0 3%, transparent 4%),
+    linear-gradient(135deg, #070d20, #273878 58%, #74e5ff);
+}
+
+.swatch.tea-house {
+  background:
+    linear-gradient(90deg, transparent 0 30%, #d8b86a 31% 34%, transparent 35% 65%, #d8b86a 66% 69%, transparent 70%),
+    linear-gradient(0deg, transparent 0 30%, #86cfa5 31% 34%, transparent 35% 65%, #86cfa5 66% 69%, transparent 70%),
+    linear-gradient(135deg, #18201b, #fff9eb 54%, #e9827f);
+}
+
 .theme-collection-title {
   grid-column: 1 / -1;
   display: flex;

@@ -164,7 +164,17 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "racing_grid",
   "wild_west",
   "celestial_clockwork",
-  "sakura_festival"
+  "sakura_festival",
+  "neon_museum",
+  "chrome_showroom",
+  "prism_arcade",
+  "velvet_casino",
+  "alpine_lodge",
+  "circuit_garden",
+  "gemstone_gallery",
+  "sunset_boardwalk",
+  "midnight_observatory",
+  "tea_house"
 ]);
 const premiumSkinActive = computed(() => premiumSkins.has(skin.value));
 const gameSkinId = computed(() => gameThemeFromSkin(skin.value));

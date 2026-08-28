@@ -679,6 +679,96 @@ const auroraStars = [
     <div class="sakura-petals"><i v-for="i in 12" :key="`sakura-${i}`" :style="{ '--i': i }" /></div>
   </div>
 
+  <div v-else-if="skin === 'neon_museum'" class="theme-art theme-art-neon-museum" aria-hidden="true">
+    <div class="museum-wall" />
+    <svg class="museum-light-lines" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M120 520H316V850H120Z M764 520H960V850H764Z M120 1070H316V1400H120Z M764 1070H960V1400H764Z" />
+      <path d="M318 686H762 M318 1236H762" />
+    </svg>
+    <div class="museum-spotlights"><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'chrome_showroom'" class="theme-art theme-art-chrome-showroom" aria-hidden="true">
+    <div class="chrome-floor" />
+    <div class="chrome-sweep"><i /><i /><i /></div>
+    <svg class="chrome-reflections" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M60 360C300 300 780 300 1020 360 M92 1560C318 1620 762 1620 988 1560" />
+      <path d="M170 0L60 1920 M910 0L1020 1920" />
+    </svg>
+  </div>
+
+  <div v-else-if="skin === 'prism_arcade'" class="theme-art theme-art-prism-arcade" aria-hidden="true">
+    <div class="prism-grid" />
+    <svg class="prism-shards" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M0 260L220 120L150 420Z M1080 320L850 154L926 460Z M0 1640L210 1788L152 1500Z M1080 1600L858 1780L920 1480Z" />
+      <path d="M420 0L540 220L660 0 M420 1920L540 1700L660 1920" />
+    </svg>
+    <div class="prism-pixels"><i v-for="i in 10" :key="`prism-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'velvet_casino'" class="theme-art theme-art-velvet-casino" aria-hidden="true">
+    <div class="casino-velvet" />
+    <div class="casino-marquee"><i v-for="i in 24" :key="`casino-${i}`" :style="{ '--i': i }" /></div>
+    <svg class="casino-felt" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M150 480Q540 290 930 480 M150 1440Q540 1630 930 1440" />
+      <circle cx="540" cy="960" r="260" />
+    </svg>
+  </div>
+
+  <div v-else-if="skin === 'alpine_lodge'" class="theme-art theme-art-alpine-lodge" aria-hidden="true">
+    <div class="alpine-sky" />
+    <svg class="alpine-ridge" viewBox="0 0 1080 500" preserveAspectRatio="none">
+      <path d="M0 500V260L110 330L210 140L330 300L430 80L540 260L650 110L760 300L870 180L990 340L1080 270V500Z" />
+      <path d="M0 500V360L150 300L260 390L390 280L540 400L690 280L820 390L940 310L1080 370V500Z" />
+    </svg>
+    <div class="alpine-embers"><i v-for="i in 10" :key="`ember-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'circuit_garden'" class="theme-art theme-art-circuit-garden" aria-hidden="true">
+    <div class="circuit-greenhouse" />
+    <svg class="circuit-traces" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M110 0V390H270V660H150V1040H300V1320H110V1920 M970 0V390H810V660H930V1040H780V1320H970V1920" />
+      <path d="M260 520q160-120 280 0t280 0 M260 1400q160 120 280 0t280 0" />
+    </svg>
+    <div class="circuit-blooms"><i v-for="i in 12" :key="`circuit-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'gemstone_gallery'" class="theme-art theme-art-gemstone-gallery" aria-hidden="true">
+    <div class="gemstone-glow" />
+    <svg class="gemstone-facets" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M0 0H260L88 380Z M1080 0H820L992 380Z M0 1920H260L88 1540Z M1080 1920H820L992 1540Z" />
+      <path d="M340 0L540 260L740 0 M340 1920L540 1660L740 1920" />
+    </svg>
+    <div class="gemstone-sparks"><i v-for="i in 12" :key="`gem-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'sunset_boardwalk'" class="theme-art theme-art-sunset-boardwalk" aria-hidden="true">
+    <div class="boardwalk-sunset" />
+    <svg class="boardwalk-water" viewBox="0 0 1080 420" preserveAspectRatio="none">
+      <path class="boardwalk-water-back" d="M0 220Q135 150 270 220t270 0 270 0 270 0V420H0Z" />
+      <path class="boardwalk-water-front" d="M0 312Q135 240 270 312t270 0 270 0 270 0V420H0Z" />
+    </svg>
+    <div class="boardwalk-lights"><i v-for="i in 12" :key="`boardwalk-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'midnight_observatory'" class="theme-art theme-art-midnight-observatory" aria-hidden="true">
+    <div class="observatory-sky" />
+    <svg class="observatory-dome" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M170 560A370 370 0 0 1 910 560 M230 560H850 M540 190V560" />
+      <path d="M130 1600A410 170 0 0 0 950 1600" />
+    </svg>
+    <div class="observatory-stars"><i v-for="i in 16" :key="`observatory-${i}`" :style="{ '--i': i }" /></div>
+  </div>
+
+  <div v-else-if="skin === 'tea_house'" class="theme-art theme-art-tea-house" aria-hidden="true">
+    <div class="tea-paper" />
+    <svg class="tea-panels" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+      <path d="M0 320H240V700H0 M1080 320H840V700H1080 M0 1220H240V1600H0 M1080 1220H840V1600H1080" />
+      <path d="M120 320V700 M960 320V700 M120 1220V1600 M960 1220V1600" />
+    </svg>
+    <div class="tea-steam"><i /><i /><i /></div>
+  </div>
+
   <div v-else-if="skin === 'sports_broadcast'" class="theme-art theme-art-sports" aria-hidden="true">
     <div class="sports-score-glow" />
     <svg class="sports-hash" viewBox="0 0 1080 1920" preserveAspectRatio="none">

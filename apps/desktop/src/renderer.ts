@@ -244,6 +244,16 @@ type OverlaySkin =
   | "wild_west"
   | "celestial_clockwork"
   | "sakura_festival"
+  | "neon_museum"
+  | "chrome_showroom"
+  | "prism_arcade"
+  | "velvet_casino"
+  | "alpine_lodge"
+  | "circuit_garden"
+  | "gemstone_gallery"
+  | "sunset_boardwalk"
+  | "midnight_observatory"
+  | "tea_house"
   | GameThemeId;
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
@@ -1789,6 +1799,16 @@ function skinName(skin: OverlaySkin): string {
     wild_west: "Wild West",
     celestial_clockwork: "Celestial Clockwork",
     sakura_festival: "Sakura Festival",
+    neon_museum: "Neon Museum",
+    chrome_showroom: "Chrome Showroom",
+    prism_arcade: "Prism Arcade",
+    velvet_casino: "Velvet Casino",
+    alpine_lodge: "Alpine Lodge",
+    circuit_garden: "Circuit Garden",
+    gemstone_gallery: "Gemstone Gallery",
+    sunset_boardwalk: "Sunset Boardwalk",
+    midnight_observatory: "Midnight Observatory",
+    tea_house: "Tea House",
     game_tower_tresses: "Tower Tresses",
     game_starship_rally: "Starship Rally",
     game_moon_garden: "Moon Garden",
@@ -1960,6 +1980,16 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "wild_west" ||
     value === "celestial_clockwork" ||
     value === "sakura_festival" ||
+    value === "neon_museum" ||
+    value === "chrome_showroom" ||
+    value === "prism_arcade" ||
+    value === "velvet_casino" ||
+    value === "alpine_lodge" ||
+    value === "circuit_garden" ||
+    value === "gemstone_gallery" ||
+    value === "sunset_boardwalk" ||
+    value === "midnight_observatory" ||
+    value === "tea_house" ||
     value === "game_tower_tresses" ||
     value === "game_starship_rally" ||
     value === "game_moon_garden" ||

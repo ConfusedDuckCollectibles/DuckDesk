@@ -99,6 +99,16 @@ export type OverlaySkin =
   | "wild_west"
   | "celestial_clockwork"
   | "sakura_festival"
+  | "neon_museum"
+  | "chrome_showroom"
+  | "prism_arcade"
+  | "velvet_casino"
+  | "alpine_lodge"
+  | "circuit_garden"
+  | "gemstone_gallery"
+  | "sunset_boardwalk"
+  | "midnight_observatory"
+  | "tea_house"
   | "game_tower_tresses"
   | "game_starship_rally"
   | "game_moon_garden"
@@ -586,6 +596,16 @@ export function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "wild_west" ||
     value === "celestial_clockwork" ||
     value === "sakura_festival" ||
+    value === "neon_museum" ||
+    value === "chrome_showroom" ||
+    value === "prism_arcade" ||
+    value === "velvet_casino" ||
+    value === "alpine_lodge" ||
+    value === "circuit_garden" ||
+    value === "gemstone_gallery" ||
+    value === "sunset_boardwalk" ||
+    value === "midnight_observatory" ||
+    value === "tea_house" ||
     value === "game_tower_tresses" ||
     value === "game_starship_rally" ||
     value === "game_moon_garden" ||

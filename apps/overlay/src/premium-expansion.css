@@ -609,9 +609,203 @@
   50% { transform: translate(calc(-52 * var(--u)), calc(-34 * var(--u))) rotate(202deg); }
 }
 
+/* --------------------------------------------------------------------------
+   Release premium set: ten additional broadcast packages
+   -------------------------------------------------------------------------- */
+
+.overlay-shell.skin-neon_museum {
+  --panel:#08101c; --ink:#f4fbff; --primary:#46e8ff; --secondary:#ffcf6e; --accent:#ff5ed0;
+  --theme-font:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --mat-radius:0; --mat-shape:polygon(0 0,100% 0,100% 100%,0 100%);
+  --mat-tint:rgba(70,232,255,.14); --mat-rail:linear-gradient(90deg,#46e8ff,#ffcf6e,#ff5ed0);
+}
+
+.overlay-shell.skin-chrome_showroom {
+  --panel:#0a0f15; --ink:#f7fbff; --primary:#d9e5ef; --secondary:#6fe7ff; --accent:#ff8f5d;
+  --theme-font:"Manrope",system-ui,sans-serif;
+  --mat-radius:8px; --mat-shape:inset(0 round 8px);
+  --mat-tint:rgba(217,229,239,.14); --mat-rail:linear-gradient(90deg,#f7fbff,#6fe7ff,#808b96);
+}
+
+.overlay-shell.skin-prism_arcade {
+  --panel:#0e0920; --ink:#fff8ff; --primary:#86f7ff; --secondary:#ffe45d; --accent:#ff4daf;
+  --theme-font:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --mat-radius:0; --mat-shape:polygon(3% 0,97% 0,100% 8%,96% 100%,4% 100%,0 8%);
+  --mat-tint:rgba(134,247,255,.13); --mat-rail:linear-gradient(90deg,#86f7ff,#ff4daf,#ffe45d);
+}
+
+.overlay-shell.skin-velvet_casino {
+  --panel:#160711; --ink:#fff6e8; --primary:#d42d59; --secondary:#f3c768; --accent:#36d6b2;
+  --theme-font:"Cormorant Garamond","Hoefler Text",Georgia,serif;
+  --mat-radius:8px; --mat-shape:inset(0 round 8px);
+  --mat-tint:rgba(212,45,89,.16); --mat-rail:linear-gradient(90deg,#d42d59,#f3c768,#d42d59);
+}
+
+.overlay-shell.skin-alpine_lodge {
+  --panel:#10201e; --ink:#fff6df; --primary:#8dd7d0; --secondary:#e5b061; --accent:#c85f45;
+  --theme-font:"Manrope",system-ui,sans-serif;
+  --mat-radius:6px; --mat-shape:polygon(0 0,100% 0,100% 100%,0 100%);
+  --mat-tint:rgba(141,215,208,.13); --mat-rail:linear-gradient(90deg,#8dd7d0,#e5b061,#c85f45);
+}
+
+.overlay-shell.skin-circuit_garden {
+  --panel:#07130d; --ink:#f1fff5; --primary:#66ef91; --secondary:#5fd9ff; --accent:#f5e46a;
+  --theme-font:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --mat-radius:0; --mat-shape:polygon(0 0,96% 0,100% 6%,100% 100%,4% 100%,0 94%);
+  --mat-tint:rgba(102,239,145,.14); --mat-rail:linear-gradient(90deg,#66ef91,#5fd9ff,#f5e46a);
+}
+
+.overlay-shell.skin-gemstone_gallery {
+  --panel:#0d0b1c; --ink:#fffaff; --primary:#8b7cff; --secondary:#5fe7f1; --accent:#f7d36c;
+  --theme-font:"Cormorant Garamond","Hoefler Text",Georgia,serif;
+  --mat-radius:0; --mat-shape:polygon(4% 0,96% 0,100% 42%,96% 100%,4% 100%,0 58%);
+  --mat-tint:rgba(139,124,255,.16); --mat-rail:linear-gradient(90deg,#8b7cff,#5fe7f1,#f7d36c);
+}
+
+.overlay-shell.skin-sunset_boardwalk {
+  --panel:#161126; --ink:#fff7eb; --primary:#ff9060; --secondary:#ffd36b; --accent:#43d9d2;
+  --theme-font:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --mat-radius:8px; --mat-shape:inset(0 round 8px);
+  --mat-tint:rgba(255,144,96,.15); --mat-rail:linear-gradient(90deg,#ff9060,#ffd36b,#43d9d2);
+}
+
+.overlay-shell.skin-midnight_observatory {
+  --panel:#070d20; --ink:#f5f8ff; --primary:#8fa8ff; --secondary:#f4d889; --accent:#74e5ff;
+  --theme-font:"Cormorant Garamond","Hoefler Text",Georgia,serif;
+  --mat-radius:0; --mat-shape:polygon(0 6%,4% 0,96% 0,100% 6%,100% 94%,96% 100%,4% 100%,0 94%);
+  --mat-tint:rgba(143,168,255,.15); --mat-rail:linear-gradient(90deg,#8fa8ff,#f4d889,#74e5ff);
+}
+
+.overlay-shell.skin-tea_house {
+  --panel:#18201b; --ink:#fff9eb; --primary:#d8b86a; --secondary:#86cfa5; --accent:#e9827f;
+  --theme-font:"Cormorant Garamond","Hoefler Text",Georgia,serif;
+  --mat-radius:4px; --mat-shape:polygon(0 0,100% 0,100% 100%,0 100%);
+  --mat-tint:rgba(216,184,106,.14); --mat-rail:linear-gradient(90deg,#d8b86a,#86cfa5,#e9827f);
+}
+
+:is(.geometry-neon-museum,.geometry-chrome-showroom,.geometry-prism-arcade,.geometry-velvet-casino,.geometry-alpine-lodge,
+  .geometry-circuit-garden,.geometry-gemstone-gallery,.geometry-sunset-boardwalk,.geometry-midnight-observatory,.geometry-tea-house) {
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+:is(.geometry-neon-museum,.geometry-chrome-showroom,.geometry-prism-arcade,.geometry-velvet-casino,.geometry-alpine-lodge,
+  .geometry-circuit-garden,.geometry-gemstone-gallery,.geometry-sunset-boardwalk,.geometry-midnight-observatory,.geometry-tea-house) > path:first-child {
+  stroke:color-mix(in srgb,var(--panel) 78%,black);
+  stroke-width:15;
+}
+
+:is(.geometry-neon-museum,.geometry-chrome-showroom,.geometry-prism-arcade,.geometry-velvet-casino,.geometry-alpine-lodge,
+  .geometry-circuit-garden,.geometry-gemstone-gallery,.geometry-sunset-boardwalk,.geometry-midnight-observatory,.geometry-tea-house) > path:not(:first-child) {
+  stroke:var(--secondary);
+  stroke-width:2.4;
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--primary) 42%,transparent));
+}
+
+.geometry-neon-museum .museum-gallery-rail,
+.geometry-chrome-showroom .chrome-glide-frame,
+.geometry-prism-arcade .prism-trace-frame,
+.geometry-velvet-casino .casino-bulb-frame,
+.geometry-circuit-garden .circuit-vine-frame,
+.geometry-gemstone-gallery .gem-spark-frame,
+.geometry-midnight-observatory .observatory-orbit-frame,
+.geometry-tea-house .tea-steam-frame {
+  stroke-dasharray:34 16;
+  animation:release-premium-march 5.8s linear infinite;
+}
+
+.geometry-alpine-lodge .alpine-timber-frame,
+.geometry-sunset-boardwalk .boardwalk-wave-frame {
+  animation:release-premium-breathe 5.4s ease-in-out infinite;
+}
+
+.geometry-prism-arcade .prism-shards-frame,
+.geometry-gemstone-gallery .gem-facet-frame,
+.geometry-midnight-observatory .observatory-star-frame {
+  animation:release-premium-glint 3.8s ease-in-out infinite;
+}
+
+.geometry-circuit-garden .circuit-node-frame,
+.geometry-velvet-casino .casino-chip-frame {
+  stroke-linecap:round;
+  stroke-width:10;
+  stroke-dasharray:1 30;
+  animation:release-premium-pips 2.8s linear infinite;
+}
+
+.skin-neon_museum .premium-frame-loop .frame-loop-outer { stroke:#46e8ff; }
+.skin-chrome_showroom .premium-frame-loop .frame-loop-outer { stroke:#d9e5ef; }
+.skin-prism_arcade .premium-frame-loop .frame-loop-outer { stroke:#86f7ff; }
+.skin-velvet_casino .premium-frame-loop .frame-loop-outer { stroke:#f3c768; }
+.skin-alpine_lodge .premium-frame-loop .frame-loop-outer { stroke:#8dd7d0; }
+.skin-circuit_garden .premium-frame-loop .frame-loop-outer { stroke:#66ef91; }
+.skin-gemstone_gallery .premium-frame-loop .frame-loop-outer { stroke:#8b7cff; }
+.skin-sunset_boardwalk .premium-frame-loop .frame-loop-outer { stroke:#ff9060; }
+.skin-midnight_observatory .premium-frame-loop .frame-loop-outer { stroke:#8fa8ff; }
+.skin-tea_house .premium-frame-loop .frame-loop-outer { stroke:#d8b86a; }
+
+:is(.skin-neon_museum,.skin-chrome_showroom,.skin-prism_arcade,.skin-velvet_casino,.skin-alpine_lodge,
+  .skin-circuit_garden,.skin-gemstone_gallery,.skin-sunset_boardwalk,.skin-midnight_observatory,.skin-tea_house) .brand-index {
+  border-color:color-mix(in srgb,var(--primary) 58%,white);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 18%,transparent),color-mix(in srgb,var(--panel) 92%,black));
+}
+
+:is(.skin-neon_museum,.skin-chrome_showroom,.skin-prism_arcade,.skin-velvet_casino,.skin-alpine_lodge,
+  .skin-circuit_garden,.skin-gemstone_gallery,.skin-sunset_boardwalk,.skin-midnight_observatory,.skin-tea_house) .open-source-banner {
+  border-color:color-mix(in srgb,var(--primary) 42%,transparent);
+  background:color-mix(in srgb,var(--panel) 90%,transparent);
+}
+
+.skin-neon_museum .open-source-banner{clip-path:polygon(0 0,100% 0,96% 100%,4% 100%)}
+.skin-chrome_showroom .open-source-banner{border-radius:8px;box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(255,255,255,.24)}
+.skin-prism_arcade .open-source-banner{clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%)}
+.skin-velvet_casino .open-source-banner{border-radius:8px;box-shadow:inset 0 calc(-3 * var(--u)) var(--secondary)}
+.skin-alpine_lodge .open-source-banner{border-radius:6px;box-shadow:inset 0 calc(-3 * var(--u)) rgba(229,176,97,.38)}
+.skin-circuit_garden .open-source-banner{clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%,4% 50%)}
+.skin-gemstone_gallery .open-source-banner{clip-path:polygon(4% 0,96% 0,100% 36%,96% 100%,4% 100%,0 64%)}
+.skin-sunset_boardwalk .open-source-banner{border-radius:8px;box-shadow:inset 0 calc(-3 * var(--u)) var(--accent)}
+.skin-midnight_observatory .open-source-banner{clip-path:polygon(4% 0,46% 0,50% 18%,54% 0,96% 0,100% 50%,96% 100%,4% 100%,0 50%)}
+.skin-tea_house .open-source-banner{border-radius:4px;box-shadow:inset 0 0 0 calc(2 * var(--u)) rgba(216,184,106,.2)}
+
+:is(.theme-art-neon-museum,.theme-art-chrome-showroom,.theme-art-prism-arcade,.theme-art-velvet-casino,.theme-art-alpine-lodge,
+  .theme-art-circuit-garden,.theme-art-gemstone-gallery,.theme-art-sunset-boardwalk,.theme-art-midnight-observatory,.theme-art-tea-house) {
+  isolation:isolate;
+}
+
+:is(.theme-art-neon-museum,.theme-art-chrome-showroom,.theme-art-prism-arcade,.theme-art-velvet-casino,.theme-art-alpine-lodge,
+  .theme-art-circuit-garden,.theme-art-gemstone-gallery,.theme-art-sunset-boardwalk,.theme-art-midnight-observatory,.theme-art-tea-house)::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  box-shadow:inset 0 0 calc(34 * var(--u)) rgba(0,0,0,.12);
+}
+
+.theme-art-neon-museum{background:radial-gradient(ellipse at 50% 16%,rgba(70,232,255,.1),transparent 42%)}.museum-wall{position:absolute;inset:0;background:linear-gradient(90deg,rgba(70,232,255,.08),transparent 18% 82%,rgba(255,94,208,.08))}.museum-light-lines{position:absolute;inset:0;fill:none;stroke:rgba(70,232,255,.35);stroke-width:3;animation:museum-lines 8s linear infinite}.museum-spotlights i{position:absolute;top:0;width:calc(250 * var(--u));height:48%;background:linear-gradient(180deg,rgba(255,207,110,.16),transparent);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);filter:blur(calc(6 * var(--u)));animation:museum-spot 5s ease-in-out infinite}.museum-spotlights i:nth-child(1){left:8%}.museum-spotlights i:nth-child(2){left:39%;animation-delay:-1.7s}.museum-spotlights i:nth-child(3){right:8%;animation-delay:-3.4s}
+.theme-art-chrome-showroom{background:radial-gradient(ellipse at 50% 84%,rgba(111,231,255,.12),transparent 42%)}.chrome-floor{position:absolute;inset:auto 0 0;height:38%;background:linear-gradient(180deg,transparent,rgba(217,229,239,.13))}.chrome-sweep i{position:absolute;top:-10%;width:calc(120 * var(--u));height:120%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);filter:blur(calc(4 * var(--u)));animation:chrome-sweep 6s ease-in-out infinite}.chrome-sweep i:nth-child(1){left:12%}.chrome-sweep i:nth-child(2){left:48%;animation-delay:-2s}.chrome-sweep i:nth-child(3){right:10%;animation-delay:-4s}.chrome-reflections{position:absolute;inset:0;fill:none;stroke:rgba(217,229,239,.28);stroke-width:3;animation:chrome-reflect 7s ease-in-out infinite}
+.theme-art-prism-arcade{background:radial-gradient(ellipse at 50% 50%,rgba(134,247,255,.08),transparent 54%)}.prism-grid{position:absolute;inset:0;background:linear-gradient(90deg,rgba(134,247,255,.05) 1px,transparent 1px),linear-gradient(rgba(255,77,175,.045) 1px,transparent 1px);background-size:calc(70 * var(--u)) calc(70 * var(--u));animation:prism-grid 7s linear infinite}.prism-shards{position:absolute;inset:0;fill:rgba(134,247,255,.16);stroke:rgba(255,228,93,.34);stroke-width:2;animation:prism-shards 5s ease-in-out infinite}.prism-pixels i{position:absolute;left:calc(var(--i) * 8.8%);top:calc(12% + var(--i) * 7%);width:calc(9 * var(--u));height:calc(9 * var(--u));background:var(--accent);animation:prism-pixel calc(2.4s + var(--i)*.16s) steps(2,end) calc(var(--i)*-.22s) infinite}
+.theme-art-velvet-casino{background:radial-gradient(ellipse at 50% 18%,rgba(243,199,104,.12),transparent 38%)}.casino-velvet{position:absolute;inset:0;background:linear-gradient(90deg,rgba(212,45,89,.16),transparent 28% 72%,rgba(212,45,89,.16))}.casino-marquee i{position:absolute;left:calc(var(--i) * 4.15%);top:calc(54 * var(--u));width:calc(8 * var(--u));height:calc(8 * var(--u));border-radius:50%;background:#f3c768;box-shadow:0 0 calc(12 * var(--u)) #f3c768;animation:casino-bulb 1.8s steps(2,end) calc(var(--i)*-.08s) infinite}.casino-felt{position:absolute;inset:0;fill:none;stroke:rgba(54,214,178,.28);stroke-width:4;animation:casino-felt 7s ease-in-out infinite}
+.theme-art-alpine-lodge{background:linear-gradient(180deg,rgba(141,215,208,.12),transparent 52%)}.alpine-sky{position:absolute;inset:0;background:radial-gradient(circle at 50% 18%,rgba(255,246,223,.16),transparent 32%)}.alpine-ridge{position:absolute;right:0;bottom:0;left:0;height:calc(450 * var(--u));fill:rgba(141,215,208,.2);stroke:rgba(255,246,223,.36);stroke-width:2}.alpine-ridge path:nth-child(2){fill:rgba(200,95,69,.18)}.alpine-embers i{position:absolute;left:calc(var(--i) * 9%);bottom:calc(4% + var(--i) * 1.5%);width:calc(5 * var(--u));height:calc(5 * var(--u));border-radius:50%;background:#e5b061;animation:alpine-ember calc(5s + var(--i)*.2s) ease-out calc(var(--i)*-.4s) infinite}
+.theme-art-circuit-garden{background:radial-gradient(ellipse at 50% 50%,rgba(102,239,145,.08),transparent 58%)}.circuit-greenhouse{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(90 * var(--u)),rgba(95,217,255,.04) calc(92 * var(--u)) calc(94 * var(--u)))}.circuit-traces{position:absolute;inset:0;fill:none;stroke:rgba(102,239,145,.38);stroke-width:4;animation:circuit-trace 7s linear infinite}.circuit-blooms i{position:absolute;left:calc(var(--i) * 8%);top:calc(10% + var(--i) * 6.8%);width:calc(8 * var(--u));height:calc(8 * var(--u));border-radius:50%;background:var(--secondary);box-shadow:0 0 calc(10 * var(--u)) var(--primary);animation:circuit-bloom calc(3s + var(--i)*.16s) ease-in-out calc(var(--i)*-.3s) infinite}
+.theme-art-gemstone-gallery{background:radial-gradient(ellipse at 50% 104%,rgba(139,124,255,.14),transparent 48%)}.gemstone-glow{position:absolute;inset:0;background:linear-gradient(115deg,transparent 22%,rgba(95,231,241,.12) 46%,transparent 68%);animation:gemstone-glow 6s ease-in-out infinite}.gemstone-facets{position:absolute;inset:0;fill:rgba(139,124,255,.18);stroke:rgba(247,211,108,.34);stroke-width:2;animation:gemstone-facet 5s ease-in-out infinite}.gemstone-sparks i{position:absolute;left:calc(var(--i) * 8.3%);top:calc(12% + var(--i) * 6.5%);width:calc(10 * var(--u));height:calc(10 * var(--u));background:white;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:gemstone-spark calc(2.8s + var(--i)*.15s) ease-in-out calc(var(--i)*-.26s) infinite}
+.theme-art-sunset-boardwalk{background:linear-gradient(180deg,rgba(255,144,96,.14),transparent 54%)}.boardwalk-sunset{position:absolute;left:50%;bottom:calc(210 * var(--u));width:calc(280 * var(--u));aspect-ratio:1;border-radius:50%;transform:translateX(-50%);background:radial-gradient(circle,#ffd36b,#ff9060 64%,transparent 66%);opacity:.34;filter:drop-shadow(0 0 calc(42 * var(--u)) rgba(255,144,96,.28))}.boardwalk-water{position:absolute;right:0;bottom:0;left:0;height:calc(330 * var(--u));fill:rgba(67,217,210,.24)}.boardwalk-water-front{fill:rgba(67,217,210,.34);animation:boardwalk-wave 6s ease-in-out infinite}.boardwalk-water-back{animation:boardwalk-wave 8s ease-in-out -2s infinite reverse}.boardwalk-lights i{position:absolute;left:calc(6% + var(--i) * 8%);bottom:calc(200 * var(--u));width:calc(7 * var(--u));height:calc(7 * var(--u));border-radius:50%;background:#ffd36b;box-shadow:0 0 calc(12 * var(--u)) #ffd36b;animation:boardwalk-light 2.2s ease-in-out calc(var(--i)*-.16s) infinite}
+.theme-art-midnight-observatory{background:radial-gradient(circle at 50% 28%,rgba(143,168,255,.13),transparent 45%)}.observatory-sky{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(245,248,255,.72) 0 1px,transparent 1.5px);background-size:calc(90 * var(--u)) calc(76 * var(--u));opacity:.18;animation:observatory-sky 10s linear infinite}.observatory-dome{position:absolute;inset:0;fill:none;stroke:rgba(244,216,137,.35);stroke-width:4;animation:observatory-dome 9s ease-in-out infinite}.observatory-stars i{position:absolute;left:calc(var(--i) * 6.1%);top:calc(8% + var(--i) * 5.4%);width:calc(5 * var(--u));height:calc(5 * var(--u));border-radius:50%;background:#f5f8ff;animation:observatory-star calc(3s + var(--i)*.14s) ease-in-out calc(var(--i)*-.2s) infinite}
+.theme-art-tea-house{background:linear-gradient(180deg,rgba(216,184,106,.1),transparent 52%)}.tea-paper{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 16%,rgba(255,249,235,.12),transparent 38%),linear-gradient(90deg,rgba(134,207,165,.08),transparent 20% 80%,rgba(232,130,127,.08))}.tea-panels{position:absolute;inset:0;fill:rgba(255,249,235,.08);stroke:rgba(216,184,106,.34);stroke-width:3;animation:tea-panel 8s ease-in-out infinite}.tea-steam i{position:absolute;bottom:calc(250 * var(--u));left:calc(38% + var(--i, 0) * 8%);width:calc(50 * var(--u));height:calc(220 * var(--u));border-left:calc(4 * var(--u)) solid rgba(255,249,235,.18);border-radius:50%;animation:tea-steam 5.8s ease-in-out infinite}.tea-steam i:nth-child(2){--i:1;animation-delay:-1.9s}.tea-steam i:nth-child(3){--i:2;animation-delay:-3.8s}
+
+.overlay-shell.skin-neon_museum .sale-alert-enter-active{animation:alert-museum .5s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-chrome_showroom .sale-alert-enter-active{animation:alert-chrome .48s cubic-bezier(.16,.9,.24,1) both}.overlay-shell.skin-prism_arcade .sale-alert-enter-active{animation:alert-prism .46s steps(6,end) both}.overlay-shell.skin-velvet_casino .sale-alert-enter-active{animation:alert-casino .58s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-alpine_lodge .sale-alert-enter-active{animation:alert-alpine .6s ease-out both}.overlay-shell.skin-circuit_garden .sale-alert-enter-active{animation:alert-circuit .48s steps(8,end) both}.overlay-shell.skin-gemstone_gallery .sale-alert-enter-active{animation:alert-gemstone .54s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-sunset_boardwalk .sale-alert-enter-active{animation:alert-boardwalk .62s ease-out both}.overlay-shell.skin-midnight_observatory .sale-alert-enter-active{animation:alert-observatory .68s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-tea_house .sale-alert-enter-active{animation:alert-tea .66s ease-out both}
+
+@keyframes release-premium-march{to{stroke-dashoffset:-160}}@keyframes release-premium-breathe{50%{opacity:.52;transform:translateY(calc(5 * var(--u)))}}@keyframes release-premium-glint{50%{stroke:var(--primary);filter:drop-shadow(0 0 12px var(--accent))}}@keyframes release-premium-pips{to{stroke-dashoffset:-62}}
+@keyframes museum-lines{to{stroke-dashoffset:-140}}@keyframes museum-spot{50%{opacity:.42;transform:translateX(calc(18 * var(--u)))}}@keyframes chrome-sweep{50%{opacity:.34;transform:translateX(calc(80 * var(--u))) skewX(-8deg)}}@keyframes chrome-reflect{50%{opacity:.48;transform:translateY(calc(8 * var(--u)))}}@keyframes prism-grid{to{background-position:calc(70 * var(--u)) calc(70 * var(--u))}}@keyframes prism-shards{50%{opacity:.58;transform:scale(1.015)}}@keyframes prism-pixel{50%{opacity:.18;transform:translateY(calc(-18 * var(--u)))}}@keyframes casino-bulb{50%{opacity:.28}}@keyframes casino-felt{50%{transform:scaleX(1.02);opacity:.52}}@keyframes alpine-ember{to{opacity:0;transform:translateY(calc(-180 * var(--u))) scale(.45)}}@keyframes circuit-trace{to{stroke-dashoffset:-180}}@keyframes circuit-bloom{50%{opacity:.24;transform:scale(.6)}}@keyframes gemstone-glow{50%{opacity:.5;transform:translateX(8%)}}@keyframes gemstone-facet{50%{opacity:.62;transform:scale(1.01)}}@keyframes gemstone-spark{50%{opacity:.14;transform:scale(.55) rotate(45deg)}}@keyframes boardwalk-wave{50%{transform:translateX(calc(30 * var(--u)))}}@keyframes boardwalk-light{50%{opacity:.25}}@keyframes observatory-sky{to{background-position:calc(90 * var(--u)) calc(76 * var(--u))}}@keyframes observatory-dome{50%{opacity:.56;transform:translateY(calc(6 * var(--u)))}}@keyframes observatory-star{50%{opacity:.24;transform:scale(.55)}}@keyframes tea-panel{50%{opacity:.56}}@keyframes tea-steam{50%{opacity:.36;transform:translateY(calc(-54 * var(--u))) translateX(calc(18 * var(--u)))}}
+@keyframes alert-museum{from{opacity:0;clip-path:inset(0 50%);transform:translateX(-50%) scaleX(.72)}to{opacity:1;clip-path:inset(0);transform:translateX(-50%)}}@keyframes alert-chrome{from{opacity:0;filter:brightness(2.1);transform:translateX(-50%) scaleX(.5)}to{opacity:1;filter:none;transform:translateX(-50%)}}@keyframes alert-prism{from{opacity:0;clip-path:polygon(0 0,12% 0,12% 36%,40% 36%,40% 70%,70% 70%,70% 100%,0 100%);transform:translateX(-50%)}to{opacity:1;clip-path:var(--mat-shape);transform:translateX(-50%)}}@keyframes alert-casino{from{opacity:0;transform:translateX(-50%) scaleY(.12);transform-origin:top}to{opacity:1;transform:translateX(-50%) scaleY(1)}}@keyframes alert-alpine{from{opacity:0;filter:blur(8px);transform:translateX(-50%) translateY(calc(26 * var(--u)))}to{opacity:1;filter:none;transform:translateX(-50%)}}@keyframes alert-circuit{from{opacity:0;clip-path:inset(0 100% 0 0);filter:hue-rotate(70deg);transform:translateX(-50%)}to{opacity:1;clip-path:var(--mat-shape);filter:none;transform:translateX(-50%)}}@keyframes alert-gemstone{from{opacity:0;filter:brightness(2.2);clip-path:polygon(50% 0,52% 50%,50% 100%,48% 50%);transform:translateX(-50%)}to{opacity:1;filter:none;clip-path:var(--mat-shape);transform:translateX(-50%)}}@keyframes alert-boardwalk{from{opacity:0;transform:translateX(-50%) translateY(calc(28 * var(--u)));filter:saturate(1.8)}to{opacity:1;transform:translateX(-50%);filter:none}}@keyframes alert-observatory{from{opacity:0;filter:blur(8px);transform:translateX(-50%) scale(.18) rotate(-2deg)}to{opacity:1;filter:none;transform:translateX(-50%)}}@keyframes alert-tea{from{opacity:0;filter:blur(6px);transform:translateX(-50%) translateY(calc(18 * var(--u))) scaleY(.86)}to{opacity:1;filter:none;transform:translateX(-50%)}}
+
 @media (prefers-reduced-motion: reduce) {
   :is(.theme-art-solar,.theme-art-glacier,.theme-art-noir,.theme-art-spaceport,.theme-art-royal,.theme-art-desert,
     .theme-art-forest,.theme-art-foundry,.theme-art-hologram,.theme-art-glass,.theme-art-paper,.theme-art-library,
     .theme-art-carnival,.theme-art-moonlit,.theme-art-koi,.theme-art-crystal,.theme-art-racing,.theme-art-west,
     .theme-art-celestial,.theme-art-sakura) * { animation-duration:1ms !important; animation-iteration-count:1 !important; }
+  :is(.theme-art-neon-museum,.theme-art-chrome-showroom,.theme-art-prism-arcade,.theme-art-velvet-casino,.theme-art-alpine-lodge,
+    .theme-art-circuit-garden,.theme-art-gemstone-gallery,.theme-art-sunset-boardwalk,.theme-art-midnight-observatory,.theme-art-tea-house) *,
+  :is(.geometry-neon-museum,.geometry-chrome-showroom,.geometry-prism-arcade,.geometry-velvet-casino,.geometry-alpine-lodge,
+    .geometry-circuit-garden,.geometry-gemstone-gallery,.geometry-sunset-boardwalk,.geometry-midnight-observatory,.geometry-tea-house) * { animation-duration:1ms !important; animation-iteration-count:1 !important; }
 }
