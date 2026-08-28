@@ -22,8 +22,8 @@ jobs:
     name: Build Mac DMG
     runs-on: macos-14
     env:
-      electron_config_cache: ${{ github.workspace }}/.cache/electron
-      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+      electron_config_cache: ${{ runner.temp }}/electron-cache
+      ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -38,9 +38,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .cache/electron
-            .cache/electron-builder
+            ${{ runner.temp }}/electron-cache
+            ${{ runner.temp }}/electron-builder-cache
           key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Keep electron-builder tools in CommonJS
+        shell: bash
+        run: |
+          mkdir -p "$ELECTRON_BUILDER_CACHE"
+          printf '%s\n' '{"type":"commonjs"}' > "$ELECTRON_BUILDER_CACHE/package.json"
 
       - name: Verify release version
         env:
@@ -100,8 +106,8 @@ jobs:
     name: Build Windows installer
     runs-on: windows-latest
     env:
-      electron_config_cache: ${{ github.workspace }}/.cache/electron
-      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+      electron_config_cache: ${{ runner.temp }}/electron-cache
+      ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -116,9 +122,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .cache/electron
-            .cache/electron-builder
+            ${{ runner.temp }}/electron-cache
+            ${{ runner.temp }}/electron-builder-cache
           key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Keep electron-builder tools in CommonJS
+        shell: bash
+        run: |
+          mkdir -p "$ELECTRON_BUILDER_CACHE"
+          printf '%s\n' '{"type":"commonjs"}' > "$ELECTRON_BUILDER_CACHE/package.json"
 
       - name: Verify release version
         shell: bash

@@ -62,7 +62,7 @@
       "artifactName": "DuckDesk-${version}-${arch}.${ext}"
     },
     "win": {
-      "icon": "build/icon.png",
+      "icon": "build/icon.ico",
       "requestedExecutionLevel": "asInvoker",
       "target": [
         {
