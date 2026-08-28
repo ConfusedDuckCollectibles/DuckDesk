@@ -563,37 +563,32 @@
    -------------------------------------------------------------------------- */
 
 .overlay-shell .open-source-banner {
-  right: calc(64 * var(--u));
-  bottom: calc(42 * var(--u));
-  left: calc(64 * var(--u));
-  min-height: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: var(--github-bar);
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: center;
   gap: calc(10 * var(--u));
-  padding: calc(11 * var(--u)) calc(22 * var(--u));
-  border: var(--mat-hairline) solid transparent;
-  border-radius: calc(8 * var(--u));
+  padding: 0 calc(18 * var(--u));
+  border: 0;
+  border-top: calc(2 * var(--u)) solid color-mix(in srgb, var(--ink-base) 22%, transparent);
+  border-radius: 0;
   color: var(--ink-3);
   background:
-    linear-gradient(180deg, rgba(6, 8, 12, 0.62), rgba(6, 8, 12, 0.78)) padding-box,
-    linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--ink-base) 15%, transparent),
-        color-mix(in srgb, var(--ink-base) 5%, transparent)
-      )
-      border-box;
+    linear-gradient(180deg, rgba(6, 8, 12, 0.78), rgba(6, 8, 12, 0.92));
   box-shadow: none;
   clip-path: none;
-  filter: drop-shadow(0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0, 0, 0, 0.45));
+  filter: none;
   font-family: var(--face-text);
   font-size: calc(16 * var(--u));
   font-weight: 600;
   letter-spacing: 0.06em;
   line-height: 1.3;
   text-align: center;
-  white-space: normal;
+  white-space: nowrap;
   backdrop-filter: blur(calc(8 * var(--u)));
 }
 

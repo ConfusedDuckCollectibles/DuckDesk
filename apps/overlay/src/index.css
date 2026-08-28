@@ -12,3 +12,39 @@
 @import "./tower-tresses-v2.css" layer(games);
 @import "./game-themes-v2.css" layer(games);
 @import "./alert-studio.css" layer(studio);
+
+/* GitHub credit is a full-bleed floor. Theme art, atmosphere, and game
+   worlds sit on top of it so no theme is left floating in a black gap. */
+.overlay-shell {
+  --github-bar: calc(72 * var(--u));
+}
+
+.overlay-shell .open-source-banner {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  height: var(--github-bar);
+  min-height: var(--github-bar);
+  margin: 0;
+  padding: 0 calc(18 * var(--u));
+  overflow: hidden;
+  border-width: calc(2 * var(--u)) 0 0;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--primary) 62%, white);
+  border-radius: 0;
+  clip-path: none;
+  transform: none;
+  filter: none;
+  white-space: nowrap;
+}
+
+.overlay-shell .theme-art,
+.overlay-shell .premium-atmosphere,
+.overlay-shell .game-theme-layer {
+  bottom: var(--github-bar);
+}
+
+.overlay-shell .game-progress-hud {
+  bottom: 0;
+}

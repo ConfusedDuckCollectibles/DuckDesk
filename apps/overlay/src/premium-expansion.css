@@ -838,7 +838,7 @@
 
 .theme-art-peaceful-village .village-scene {
   right: 0;
-  bottom: calc(118 * var(--u));
+  bottom: 0;
   left: 0;
   background-size: 108% auto;
   filter: none;
@@ -851,7 +851,7 @@
 .theme-art-peaceful-village .village-characters i,
 .theme-art-peaceful-village .village-characters i:nth-child(2n),
 .theme-art-peaceful-village .village-characters i:nth-child(3n) {
-  bottom: calc(118 * var(--u));
+  bottom: 0;
 }
 
 .overlay-shell.skin-neon_museum .sale-alert-enter-active{animation:alert-museum .5s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-chrome_showroom .sale-alert-enter-active{animation:alert-chrome .48s cubic-bezier(.16,.9,.24,1) both}.overlay-shell.skin-prism_arcade .sale-alert-enter-active{animation:alert-prism .46s steps(6,end) both}.overlay-shell.skin-velvet_casino .sale-alert-enter-active{animation:alert-casino .58s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-alpine_lodge .sale-alert-enter-active{animation:alert-alpine .6s ease-out both}.overlay-shell.skin-circuit_garden .sale-alert-enter-active{animation:alert-circuit .48s steps(8,end) both}.overlay-shell.skin-gemstone_gallery .sale-alert-enter-active{animation:alert-gemstone .54s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-sunset_boardwalk .sale-alert-enter-active{animation:alert-boardwalk .62s ease-out both}.overlay-shell.skin-midnight_observatory .sale-alert-enter-active{animation:alert-observatory .68s cubic-bezier(.16,1,.3,1) both}.overlay-shell.skin-tea_house .sale-alert-enter-active{animation:alert-tea .66s ease-out both}

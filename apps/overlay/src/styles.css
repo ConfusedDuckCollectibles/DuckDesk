@@ -1066,9 +1066,9 @@ body,
 
 .open-source-banner {
   position: absolute;
-  right: 26px;
-  bottom: 22px;
-  left: 26px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 14;
   min-height: 42px;
   display: flex;
@@ -1078,7 +1078,7 @@ body,
   padding: 8px 14px;
   overflow: hidden;
   border: 2px solid color-mix(in srgb, var(--primary) 72%, white);
-  border-radius: 6px;
+  border-radius: 0;
   color: #ffffff;
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--primary) 20%, transparent), transparent 30% 70%, color-mix(in srgb, var(--accent) 20%, transparent)),
@@ -2816,9 +2816,9 @@ body,
   }
 
   .open-source-banner {
-    right: 12px;
-    bottom: 12px;
-    left: 12px;
+    right: 0;
+    bottom: 0;
+    left: 0;
     min-height: 48px;
     flex-direction: column;
     gap: 3px;
@@ -3537,9 +3537,9 @@ body,
 }
 
 .overlay-shell:not(.skin-premium) .open-source-banner {
-  right: 42px;
-  bottom: 24px;
-  left: 42px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   min-height: 38px;
   gap: 7px;
   padding: 7px 18px;
@@ -3551,7 +3551,7 @@ body,
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 0 1px rgba(0, 0, 0, 0.22);
   clip-path: none;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.32));
+  filter: none;
   font-family: var(--broadcast-body);
   font-size: 13px;
   font-weight: 700;
@@ -3838,9 +3838,9 @@ body,
   }
 
   .overlay-shell:not(.skin-premium) .open-source-banner {
-    right: 20px;
-    bottom: 12px;
-    left: 20px;
+    right: 0;
+    bottom: 0;
+    left: 0;
     min-height: 28px;
     padding: 5px 11px;
     font-size: 8px;
