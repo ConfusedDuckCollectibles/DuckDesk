@@ -1,23 +1,20 @@
-# Duck Desk v0.1.0-alpha.6
+# Duck Desk v0.1.0-alpha.7
 
-Duck Desk alpha 6 adds the show-day tools that sit around a live overlay: a phone remote, rehearsal playback, Alert Studio, community look packs, and a production health check. Overlay alerts stay on the phone canvas, and the product camera stays clear.
+Duck Desk alpha 7 adds more overlay looks around the same live canvas: ten new premium animated themes, five audience-powered Game Themes, and two Premium Animated With Characters scenes. Overlay alerts stay on the phone canvas, and the product camera stays clear.
 
-## New In Alpha 6
+## New In Alpha 7
 
-- Added a **Remote Show Deck** for one-handed phone control of scenes, safety buttons, sounds, GIFs, show triggers, and live totals. Pair it from the desktop Remote tab with a QR code. The OBS overlay stays on this computer; the phone deck uses your private network and a new access code each launch.
-- Added **Rehearsal** on Live → Preview and Live → Events. Play Quiet Show, Rapid Auction, Full Sale Moment, or Stress Test, record a session, then replay it. Rehearsal never pretends the Chrome extension or seller page is connected.
-- Added **Alert Studio** in Library so you can place, size, and time bid, sale, tip, share, and audience alerts without leaving Duck Desk.
-- Added community **`.duckpack`** looks. Import, apply, export, and undo from Library → Packs. Packs cannot run scripts or load files from outside the pack.
-- Added a **Production Health** check and a redacted diagnostics export. Duck Desk can also check GitHub for a newer release. It does not download or install updates by itself, and it will not interrupt a live show.
-- Kept the product camera clear: scene status and milestones sit under the LIVE header, the lot timer sits in the lower-right, and the hype meter is a thin bar under the header.
-- Made **Show Recap** opt-in from Library → Add-Ons. Recap numbers come from what actually played on the overlay, including rehearsal.
-- Kept alerts, GIFs, and recap cards inside the phone canvas instead of sliding off-screen.
+- Added ten **Premium Animated** overlay themes: Neon Museum, Chrome Showroom, Prism Arcade, Velvet Casino, Alpine Lodge, Circuit Garden, Gemstone Gallery, Sunset Boardwalk, Midnight Observatory, and Tea House.
+- Added five **Game Themes** that move with bids, sales, tips, and audience actions: Tower Tresses, Starship Rally, Moon Garden, Crystal Quest, and Neon Grand Prix.
+- Added **Premium Animated With Characters**: Peaceful Village and Starlight Station, with pixel scenes and walking sprites along the bottom of the overlay.
+- Tightened theme frames so decorative borders sit on the view edge and every look rests on the GitHub credit bar.
+- Kept premium border and theme-art animations running while bid, sale, tip, share, and audience alerts play over the scene.
 
 ## Highlights
 
 - Native Mac and Windows desktop apps with no Terminal or PowerShell required after installation.
 - One-click authenticated OBS source setup, repair, canvas fitting, and refresh.
-- 56 included themes: 20 standard themes and 36 animated premium-style themes.
+- 63 included themes: 20 standard, 36 Premium Animated, 2 Premium Animated With Characters, and 5 Game Themes.
 - Independent controls for the top banner and theme frame effects.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
 - 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.
@@ -30,8 +27,8 @@ Duck Desk alpha 6 adds the show-day tools that sit around a live overlay: a phon
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.6-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.6-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.7-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.7-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. Both installers are unsigned.
 
