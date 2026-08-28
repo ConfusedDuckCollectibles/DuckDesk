@@ -2935,19 +2935,10 @@ body,
 .overlay-shell.addon-stream_skins .overlay-frame,
 .overlay-shell.skin-premium.addon-stream_skins .overlay-frame {
   border: 0 !important;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--panel) 24%, transparent), transparent 8% 92%, color-mix(in srgb, var(--panel) 24%, transparent)),
-    linear-gradient(180deg, color-mix(in srgb, var(--panel) 13%, transparent), transparent 17% 84%, color-mix(in srgb, var(--panel) 16%, transparent));
-  box-shadow: inset 0 0 42px color-mix(in srgb, var(--panel) 28%, transparent) !important;
+  background: none;
+  box-shadow: none !important;
   opacity: 1;
   animation: none;
-}
-
-.overlay-shell.skin-peaceful_village .overlay-frame,
-.overlay-shell.skin-peaceful_village.addon-stream_skins .overlay-frame,
-.overlay-shell.skin-peaceful_village.skin-premium.addon-stream_skins .overlay-frame {
-  background: none !important;
-  box-shadow: none !important;
 }
 
 .skin-frame,

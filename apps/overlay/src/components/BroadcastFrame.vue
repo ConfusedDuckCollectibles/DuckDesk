@@ -60,9 +60,9 @@ const isPremium = computed(() => premiumSkins.has(props.skin));
 
 const standardLoop: Record<string, { shadow: string; keyline: string; inner: string }> = {
   none: {
-    shadow: "M24 24H1056V1896H24Z",
-    keyline: "M40 40H1040V1880H40Z",
-    inner: "M56 56H1024V1864H56Z"
+    shadow: "M0 0H1080V1920H0Z",
+    keyline: "M8 8H1072V1912H8Z",
+    inner: "M24 24H1056V1896H24Z"
   },
   cyber_market: {
     shadow: "M24 48H56V24H1056V48H1024V1896H1056V1872H24V1896H56V48Z",
@@ -80,9 +80,9 @@ const standardLoop: Record<string, { shadow: string; keyline: string; inner: str
     inner: "M56 88L104 64H1008L968 1856H72Z"
   },
   card_shop: {
-    shadow: "M48 24H1032V1896H48Z",
-    keyline: "M64 40H1016V1880H64Z",
-    inner: "M88 64H992V1856H88Z"
+    shadow: "M0 0H1080V1920H0Z",
+    keyline: "M12 12H1068V1908H12Z",
+    inner: "M32 32H1048V1888H32Z"
   },
   retro_toy: {
     shadow: "M72 24H1008Q1056 24 1056 72V1848Q1056 1896 1008 1896H72Q24 1896 24 1848V72Q24 24 72 24Z",
@@ -90,9 +90,9 @@ const standardLoop: Record<string, { shadow: string; keyline: string; inner: str
     inner: "M96 64H984Q1024 64 1024 104V1816Q1024 1856 984 1856H96Q56 1856 56 1816V104Q56 64 96 64Z"
   },
   midnight_gold: {
-    shadow: "M32 32H1048V1888H32Z",
-    keyline: "M44 44H1036V1876H44Z",
-    inner: "M60 60H1020V1860H60Z"
+    shadow: "M0 0H1080V1920H0Z",
+    keyline: "M10 10H1070V1910H10Z",
+    inner: "M28 28H1052V1892H28Z"
   },
   pastel_pop: {
     shadow: "M48 24H1032Q1056 48 1056 72V1848Q1056 1896 1008 1896H72Q24 1896 24 1848V72Q24 48 48 24Z",
@@ -115,9 +115,9 @@ const standardLoop: Record<string, { shadow: string; keyline: string; inner: str
     inner: "M72 80H1008V1840H72Z"
   },
   luxury_black: {
-    shadow: "M36 36H1044V1884H36Z",
-    keyline: "M48 48H1032V1872H48Z",
-    inner: "M64 64H1016V1856H64Z"
+    shadow: "M0 0H1080V1920H0Z",
+    keyline: "M10 10H1070V1910H10Z",
+    inner: "M28 28H1052V1892H28Z"
   },
   jungle_neon: {
     shadow: "M24 80C80 16 200 24 320 48H760C880 24 1000 16 1056 80V1840C1000 1904 880 1896 760 1872H320C200 1896 80 1904 24 1840Z",
@@ -439,61 +439,61 @@ const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
       </g>
 
       <g v-if="skin === 'neon_museum'" class="premium-geometry geometry-neon-museum">
-        <path class="museum-frame" d="M56 64H1024V1856H56Z" />
+        <path class="museum-frame" d="M0 0H1080V1920H0Z" />
         <path class="museum-gallery-rail" d="M92 124H988 M92 1796H988 M124 92V508 M956 92V508 M124 1412V1828 M956 1412V1828" />
         <path class="museum-frame-cards" d="M118 196H252V406H118Z M828 196H962V406H828Z M118 1514H252V1724H118Z M828 1514H962V1724H828Z" />
       </g>
 
       <g v-if="skin === 'chrome_showroom'" class="premium-geometry geometry-chrome-showroom">
-        <path class="chrome-frame" d="M56 76C56 48 78 34 106 34H974C1002 34 1024 48 1024 76V1844C1024 1872 1002 1886 974 1886H106C78 1886 56 1872 56 1844Z" />
+        <path class="chrome-frame" d="M4 32C4 12 18 4 38 4H1042C1062 4 1076 12 1076 32V1888C1076 1908 1062 1916 1042 1916H38C18 1916 4 1908 4 1888Z" />
         <path class="chrome-glide-frame" d="M92 118H988 M92 1802H988 M118 92V1828 M962 92V1828" />
         <path class="chrome-caps-frame" d="M116 116C218 66 862 66 964 116 M116 1804C218 1854 862 1854 964 1804" />
       </g>
 
       <g v-if="skin === 'prism_arcade'" class="premium-geometry geometry-prism-arcade">
-        <path class="prism-frame" d="M62 56H1018V1864H62Z" />
+        <path class="prism-frame" d="M0 0H1080V1920H0Z" />
         <path class="prism-trace-frame" d="M94 94H986L910 204H170Z M94 1826H986L910 1716H170Z" />
         <path class="prism-shards-frame" d="M70 292L174 214L248 318L144 396Z M1010 292L906 214L832 318L936 396Z M70 1628L174 1706L248 1602L144 1524Z M1010 1628L906 1706L832 1602L936 1524Z" />
       </g>
 
       <g v-if="skin === 'velvet_casino'" class="premium-geometry geometry-velvet-casino">
-        <path class="casino-frame" d="M58 80Q58 44 94 44H986Q1022 44 1022 80V1840Q1022 1876 986 1876H94Q58 1876 58 1840Z" />
+        <path class="casino-frame" d="M4 28Q4 4 28 4H1052Q1076 4 1076 28V1892Q1076 1916 1052 1916H28Q4 1916 4 1892Z" />
         <path class="casino-bulb-frame" d="M118 82H962 M118 1838H962 M80 150V1770 M1000 150V1770" />
         <path class="casino-chip-frame" d="M156 156a58 58 0 1 0 0.1 0 M924 156a58 58 0 1 0 0.1 0 M156 1764a58 58 0 1 0 0.1 0 M924 1764a58 58 0 1 0 0.1 0" />
       </g>
 
       <g v-if="skin === 'alpine_lodge'" class="premium-geometry geometry-alpine-lodge">
-        <path class="alpine-frame" d="M68 72H1012V1848H68Z" />
+        <path class="alpine-frame" d="M0 0H1080V1920H0Z" />
         <path class="alpine-timber-frame" d="M96 96L218 218 M984 96L862 218 M96 1824L218 1702 M984 1824L862 1702 M96 362H214 M866 362H984 M96 1558H214 M866 1558H984" />
         <path class="alpine-peak-frame" d="M330 92L540 236L750 92 M330 1828L540 1684L750 1828" />
       </g>
 
       <g v-if="skin === 'circuit_garden'" class="premium-geometry geometry-circuit-garden">
-        <path class="circuit-frame" d="M56 58H1024V1862H56Z" />
+        <path class="circuit-frame" d="M0 0H1080V1920H0Z" />
         <path class="circuit-vine-frame" d="M104 104V454H234V680H104V1040H234V1284H104V1816 M976 104V454H846V680H976V1040H846V1284H976V1816" />
         <path class="circuit-node-frame" d="M104 454h0 M234 680h0 M104 1040h0 M234 1284h0 M976 454h0 M846 680h0 M976 1040h0 M846 1284h0" />
       </g>
 
       <g v-if="skin === 'gemstone_gallery'" class="premium-geometry geometry-gemstone-gallery">
-        <path class="gem-frame" d="M62 62H1018V1858H62Z" />
+        <path class="gem-frame" d="M0 0H1080V1920H0Z" />
         <path class="gem-facet-frame" d="M118 118H962L1004 244L940 366H140L76 244Z M118 1802H962L1004 1676L940 1554H140L76 1676Z" />
         <path class="gem-spark-frame" d="M156 244h768 M208 118l96 248 M872 118l-96 248 M208 1802l96-248 M872 1802l-96-248" />
       </g>
 
       <g v-if="skin === 'sunset_boardwalk'" class="premium-geometry geometry-sunset-boardwalk">
-        <path class="boardwalk-frame" d="M58 70H1022V1850H58Z" />
+        <path class="boardwalk-frame" d="M0 0H1080V1920H0Z" />
         <path class="boardwalk-wave-frame" d="M100 332Q210 260 320 332t220 0 220 0 220 0 M100 1588Q210 1660 320 1588t220 0 220 0 220 0" />
         <path class="boardwalk-plank-frame" d="M122 92V430 M230 92V390 M858 92V390 M966 92V430 M122 1490V1828 M230 1530V1828 M858 1530V1828 M966 1490V1828" />
       </g>
 
       <g v-if="skin === 'midnight_observatory'" class="premium-geometry geometry-midnight-observatory">
-        <path class="observatory-frame" d="M56 56H1024V1864H56Z" />
+        <path class="observatory-frame" d="M0 0H1080V1920H0Z" />
         <path class="observatory-orbit-frame" d="M138 232C308 90 772 90 942 232 M138 1688C308 1830 772 1830 942 1688 M90 540C220 464 344 464 474 540 M606 540C736 464 860 464 990 540 M90 1380C220 1456 344 1456 474 1380 M606 1380C736 1456 860 1456 990 1380" />
         <path class="observatory-star-frame" d="M540 92l18 44l46 4l-36 30l12 46l-40-24l-40 24l12-46l-36-30l46-4z M540 1828l18-44l46-4l-36-30l12-46l-40 24l-40-24l12 46l-36 30l46 4z" />
       </g>
 
       <g v-if="skin === 'tea_house'" class="premium-geometry geometry-tea-house">
-        <path class="tea-frame" d="M72 72H1008V1848H72Z" />
+        <path class="tea-frame" d="M0 0H1080V1920H0Z" />
         <path class="tea-shoji-frame" d="M112 112H968V430H112Z M112 1490H968V1808H112Z M326 112V430 M540 112V430 M754 112V430 M326 1490V1808 M540 1490V1808 M754 1490V1808" />
         <path class="tea-steam-frame" d="M142 640C214 580 122 500 194 440 M938 640C866 580 958 500 886 440 M142 1280C214 1340 122 1420 194 1480 M938 1280C866 1340 958 1420 886 1480" />
       </g>

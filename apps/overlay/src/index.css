@@ -48,3 +48,40 @@
 .overlay-shell .game-progress-hud {
   bottom: 0;
 }
+
+/* Rectangle frames hug the view edge with a thin stroke so the art is not
+   boxed in or eaten by a 15px inset plate. Corner-assembly themes keep their
+   own plate weights. */
+.overlay-shell :is(
+  .geometry-neon-museum,
+  .geometry-chrome-showroom,
+  .geometry-prism-arcade,
+  .geometry-velvet-casino,
+  .geometry-alpine-lodge,
+  .geometry-circuit-garden,
+  .geometry-gemstone-gallery,
+  .geometry-sunset-boardwalk,
+  .geometry-midnight-observatory,
+  .geometry-tea-house,
+  .geometry-peaceful-village
+) > path:first-child {
+  stroke-width: 3;
+}
+
+.overlay-shell .frame-shadow {
+  stroke-width: 4;
+}
+
+.overlay-shell .frame-vignette-bottom {
+  display: none;
+}
+
+.overlay-shell .desert-dunes,
+.overlay-shell .boardwalk-water,
+.overlay-shell .alpine-ridge,
+.overlay-shell .west-mesa,
+.overlay-shell .moonlit-waves,
+.overlay-shell .village-scene,
+.overlay-shell .village-meadow {
+  width: 100%;
+}
