@@ -151,23 +151,25 @@ jobs:
         run: npm run typecheck
 
       - name: Build Windows NSIS installer
-        shell: bash
+        shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: |
-          set +e
-          for attempt in 1 2 3; do
-            echo "win:nsis attempt ${attempt}"
+          $ok = $false
+          foreach ($attempt in 1, 2, 3) {
+            Write-Host "win:nsis attempt $attempt"
             npm run win:nsis
-            status=$?
-            if [ "$status" -eq 0 ]; then
-              exit 0
-            fi
-            echo "Windows installer build failed with ${status}; retrying"
-            rm -rf apps/desktop/release || true
-            sleep $((attempt * 20))
-          done
-          exit 1
+            if ($LASTEXITCODE -eq 0) {
+              $ok = $true
+              break
+            }
+            Write-Host "Windows installer build failed with $LASTEXITCODE; retrying"
+            if (Test-Path "apps/desktop/release") {
+              Remove-Item -Recurse -Force "apps/desktop/release"
+            }
+            Start-Sleep -Seconds ($attempt * 20)
+          }
+          if (-not $ok) { exit 1 }
 
       - name: Create checksum
         shell: bash
