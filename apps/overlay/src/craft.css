@@ -1647,18 +1647,22 @@
 }
 
 .overlay-shell .reef-kelp-left {
-  left: 0;
+  left: calc(-18 * var(--u));
 }
 
 .overlay-shell .reef-kelp-right {
-  right: 0;
+  right: calc(-18 * var(--u));
 }
 
 .overlay-shell .reef-kelp path {
   fill: #0e6d72;
-  animation: reef-sway 7.6s ease-in-out infinite;
+  animation: reef-sway-left 7.6s ease-in-out infinite;
   transform-box: fill-box;
   transform-origin: 50% 100%;
+}
+
+.overlay-shell .reef-kelp-right path {
+  animation-name: reef-sway-right;
 }
 
 .overlay-shell .reef-kelp-left path:nth-child(2),
@@ -1676,7 +1680,7 @@
   animation-delay: -4.1s;
 }
 
-@keyframes reef-sway {
+@keyframes reef-sway-left {
   0%,
   100% {
     transform: skewX(0deg);
@@ -1684,6 +1688,17 @@
 
   50% {
     transform: skewX(3.4deg);
+  }
+}
+
+@keyframes reef-sway-right {
+  0%,
+  100% {
+    transform: skewX(0deg);
+  }
+
+  50% {
+    transform: skewX(-3.4deg);
   }
 }
 
@@ -2372,13 +2387,6 @@
 
 .overlay-shell.is-alert-active .ticker-marquee {
   animation-play-state: paused;
-}
-
-.overlay-shell.is-alert-active .theme-art,
-.overlay-shell.is-alert-active .theme-art *,
-.overlay-shell.is-alert-active .premium-atmosphere,
-.overlay-shell.is-alert-active .premium-atmosphere * {
-  animation-play-state: paused !important;
 }
 
 .overlay-shell.is-alert-active .show-hud {

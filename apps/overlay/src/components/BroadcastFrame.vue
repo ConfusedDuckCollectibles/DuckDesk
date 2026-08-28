@@ -303,8 +303,8 @@ const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
       </g>
 
       <g v-if="skin === 'deep_reef'" class="premium-geometry geometry-reef">
-        <path class="reef-plate" d="M28 338C28 176 92 42 248 28H392 M688 28H840C996 42 1052 176 1052 338 M28 1582C28 1744 92 1878 248 1892H392 M688 1892H840C996 1878 1052 1744 1052 1582" />
-        <path class="reef-inlay" d="M48 352C48 198 108 62 252 50H368 M712 50H828C972 62 1032 198 1032 352 M48 1568C48 1722 108 1858 252 1870H368 M712 1870H828C972 1858 1032 1722 1032 1568" />
+        <path class="reef-plate" d="M34 338C34 176 98 42 254 28H398 M682 28H826C982 42 1046 176 1046 338 M34 1582C34 1744 98 1878 254 1892H398 M682 1892H826C982 1878 1046 1744 1046 1582" />
+        <path class="reef-inlay" d="M58 352C58 198 118 62 262 50H378 M702 50H818C962 62 1022 198 1022 352 M58 1568C58 1722 118 1858 262 1870H378 M702 1870H818C962 1858 1022 1722 1022 1568" />
       </g>
 
       <g v-if="skin === 'zen_garden'" class="premium-geometry geometry-zen">

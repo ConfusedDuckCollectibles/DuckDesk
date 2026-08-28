@@ -984,6 +984,90 @@
   box-shadow: inset 0 -3px #ff6b1d, 0 8px 24px rgba(0, 0, 0, 0.38);
 }
 
+/* Premium tightening pass: keep the signature silhouettes, but pull heavy
+   decorative rails back so the frame reads crisp at real overlay size. */
+.overlay-shell.skin-premium .premium-frame-loop .frame-loop-outer {
+  stroke-width: 4.2;
+  opacity: 0.92;
+}
+
+.overlay-shell.skin-premium .premium-frame-loop .frame-loop-inner {
+  stroke-width: 1.35;
+  opacity: 0.72;
+}
+
+.geometry-vault .vault-heavy,
+.geometry-boss .boss-blocks,
+.geometry-haunted .haunted-arch,
+.geometry-anime .anime-slash-a {
+  stroke-width: 21;
+}
+
+.geometry-cosmic .cosmic-arc,
+.geometry-sports .sports-swoop-a,
+.geometry-candy .candy-ribbon {
+  stroke-width: 15;
+}
+
+.geometry-vault .vault-inlay,
+.geometry-boss .boss-health,
+.geometry-sports .sports-swoop-b,
+.geometry-candy .candy-twist,
+.geometry-inferno .inferno-molten-rail {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 42%, transparent));
+}
+
+.geometry-boss .boss-health {
+  stroke-width: 7;
+}
+
+.geometry-sports .sports-swoop-b,
+.geometry-candy .candy-twist {
+  stroke-width: 5;
+}
+
+.geometry-cosmic .cosmic-arc {
+  opacity: 0.8;
+  filter: drop-shadow(0 0 11px rgba(111, 209, 255, 0.38));
+}
+
+.geometry-haunted .haunted-spine,
+.geometry-anime .anime-slash-b,
+.geometry-club .club-deco {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, currentColor 38%, transparent));
+}
+
+.skin-cosmic_auction .ornament-a {
+  width: 390px;
+  height: 72px;
+}
+
+.skin-cosmic_auction .ornament-b {
+  width: 510px;
+  height: 98px;
+  opacity: 0.28;
+}
+
+.skin-haunted_drop .event-theme-ornament {
+  bottom: -18px;
+  height: 52px;
+  opacity: 0.78;
+}
+
+.skin-sports_broadcast .event-theme-ornament,
+.skin-anime_powerup .event-theme-ornament {
+  opacity: 0.84;
+}
+
+.skin-anime_powerup .ornament-b {
+  left: 304px;
+  transform: rotate(9deg) scaleX(1.16);
+}
+
+.skin-candy_rush .event-theme-ornament {
+  opacity: 0.78;
+}
+
 @keyframes geometry-storm-strike-a {
   0%, 72%, 100% { opacity: 0; stroke-dashoffset: 1; }
   73% { opacity: 1; stroke-dashoffset: 1; }

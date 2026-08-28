@@ -376,6 +376,239 @@
 @keyframes alert-celestial{from{opacity:0;filter:blur(8px);transform:translateX(-50%) scale(.12) rotate(-4deg)}to{opacity:1;filter:none;transform:translateX(-50%)}}
 @keyframes alert-sakura{from{opacity:0;filter:blur(8px);transform:translateX(-50%) translate(calc(-34 * var(--u)),calc(-18 * var(--u)))}to{opacity:1;filter:none;transform:translateX(-50%)}}
 
+/* Premium expansion tightening pass. These packages were expressive, but a
+   few edge effects were large enough to feel detached from the frame. */
+:is(.geometry-solar, .geometry-glacier, .geometry-noir, .geometry-spaceport, .geometry-royal,
+  .geometry-desert, .geometry-forest, .geometry-foundry, .geometry-hologram, .geometry-glass,
+  .geometry-paper, .geometry-library, .geometry-carnival, .geometry-moonlit, .geometry-koi,
+  .geometry-crystal, .geometry-racing, .geometry-west, .geometry-celestial, .geometry-sakura) > path:first-child {
+  stroke-width: 15;
+  opacity: 0.94;
+}
+
+:is(.geometry-solar, .geometry-glacier, .geometry-noir, .geometry-spaceport, .geometry-royal,
+  .geometry-desert, .geometry-forest, .geometry-foundry, .geometry-hologram, .geometry-glass,
+  .geometry-paper, .geometry-library, .geometry-carnival, .geometry-moonlit, .geometry-koi,
+  .geometry-crystal, .geometry-racing, .geometry-west, .geometry-celestial, .geometry-sakura) > path:not(:first-child) {
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--frame-bright) 42%, transparent));
+}
+
+.geometry-library .library-books,
+.geometry-racing .racing-stripes-frame,
+.geometry-carnival .carnival-bulb-line {
+  stroke-width: 6;
+}
+
+:is(.theme-art-solar,.theme-art-glacier,.theme-art-noir,.theme-art-spaceport,.theme-art-royal,.theme-art-desert,
+  .theme-art-forest,.theme-art-foundry,.theme-art-hologram,.theme-art-glass,.theme-art-paper,.theme-art-library,
+  .theme-art-carnival,.theme-art-moonlit,.theme-art-koi,.theme-art-crystal,.theme-art-racing,.theme-art-west,
+  .theme-art-celestial,.theme-art-sakura) {
+  isolation: isolate;
+}
+
+:is(.theme-art-solar,.theme-art-glacier,.theme-art-noir,.theme-art-spaceport,.theme-art-royal,.theme-art-desert,
+  .theme-art-forest,.theme-art-foundry,.theme-art-hologram,.theme-art-glass,.theme-art-paper,.theme-art-library,
+  .theme-art-carnival,.theme-art-moonlit,.theme-art-koi,.theme-art-crystal,.theme-art-racing,.theme-art-west,
+  .theme-art-celestial,.theme-art-sakura)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 calc(34 * var(--u)) rgba(0, 0, 0, 0.12);
+}
+
+.solar-disc {
+  bottom: calc(-355 * var(--u));
+  width: calc(690 * var(--u));
+  filter: drop-shadow(0 0 calc(52 * var(--u)) rgba(255, 95, 26, 0.52));
+}
+
+.solar-disc i {
+  opacity: 0.82;
+}
+
+.solar-prominence i {
+  bottom: calc(44 * var(--u));
+  width: calc(98 * var(--u));
+  height: calc(170 * var(--u));
+  opacity: 0.72;
+}
+
+.glacier-ice {
+  opacity: 0.78;
+}
+
+.glacier-snow i {
+  opacity: 0.54;
+}
+
+.noir-rain i {
+  opacity: 0.74;
+}
+
+.spaceport-sweep {
+  bottom: calc(-50 * var(--u));
+  width: calc(520 * var(--u));
+  height: calc(520 * var(--u));
+  opacity: 0.78;
+}
+
+.royal-seal {
+  bottom: calc(84 * var(--u));
+  opacity: 0.3;
+}
+
+.desert-dunes {
+  height: calc(430 * var(--u));
+}
+
+.forest-vines {
+  stroke-width: 7;
+  opacity: 0.82;
+}
+
+.foundry-pipes {
+  stroke-width: 18;
+  opacity: 0.78;
+}
+
+.foundry-gears i {
+  border-width: calc(9 * var(--u));
+  opacity: 0.78;
+}
+
+.foundry-gears i:nth-child(2) {
+  right: calc(-46 * var(--u));
+}
+
+.holo-grid {
+  inset: calc(26 * var(--u));
+  opacity: 0.22;
+}
+
+.holo-scan {
+  left: calc(22 * var(--u));
+  right: calc(22 * var(--u));
+}
+
+.holo-reticles {
+  opacity: 0.78;
+}
+
+.glass-light {
+  inset: 0 8%;
+}
+
+.paper-layer {
+  right: -1%;
+  left: -1%;
+}
+
+.library-lamp {
+  top: calc(190 * var(--u));
+  width: calc(540 * var(--u));
+  opacity: 0.82;
+}
+
+.carnival-canopy {
+  height: calc(250 * var(--u));
+  opacity: 0.2;
+}
+
+.carnival-wheel {
+  opacity: 0.72;
+  stroke-width: 3;
+}
+
+.moonlit-reflection {
+  height: 40%;
+  opacity: 0.74;
+}
+
+.moonlit-waves {
+  height: calc(350 * var(--u));
+}
+
+.koi-ripples {
+  opacity: 0.82;
+}
+
+.koi-fish {
+  width: calc(150 * var(--u));
+  height: calc(76 * var(--u));
+}
+
+.koi-fish-a {
+  animation-name: koi-swim-a;
+}
+
+.koi-fish-b {
+  animation-name: koi-swim-b;
+}
+
+.crystal-beam i {
+  width: calc(164 * var(--u));
+  opacity: 0.82;
+}
+
+.crystal-cluster {
+  width: calc(250 * var(--u));
+  height: calc(620 * var(--u));
+  opacity: 0.84;
+}
+
+.crystal-cluster-left {
+  left: -2%;
+}
+
+.crystal-cluster-right {
+  right: -2%;
+}
+
+.racing-streaks i {
+  width: calc(136 * var(--u));
+  opacity: 0.82;
+}
+
+.racing-checker {
+  width: calc(225 * var(--u));
+  height: calc(150 * var(--u));
+  opacity: 0.1;
+}
+
+.west-rope {
+  stroke-width: 10;
+  opacity: 0.82;
+}
+
+.celestial-orrery {
+  inset: calc(18 * var(--u));
+  opacity: 0.82;
+}
+
+.celestial-gears i {
+  border-width: calc(9 * var(--u));
+  opacity: 0.76;
+}
+
+.sakura-gate {
+  stroke-width: 14;
+  opacity: 0.84;
+}
+
+.sakura-lanterns {
+  top: calc(190 * var(--u));
+}
+
+@keyframes koi-swim-a {
+  50% { transform: translate(calc(52 * var(--u)), calc(34 * var(--u))) rotate(34deg); }
+}
+
+@keyframes koi-swim-b {
+  50% { transform: translate(calc(-52 * var(--u)), calc(-34 * var(--u))) rotate(202deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :is(.theme-art-solar,.theme-art-glacier,.theme-art-noir,.theme-art-spaceport,.theme-art-royal,.theme-art-desert,
     .theme-art-forest,.theme-art-foundry,.theme-art-hologram,.theme-art-glass,.theme-art-paper,.theme-art-library,
