@@ -19,6 +19,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   min-width: 960px;
   min-height: 620px;
@@ -53,10 +59,11 @@ textarea {
 }
 
 .shell {
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
   gap: 0;
+  overflow: hidden;
 }
 
 .rail {
@@ -70,6 +77,10 @@ textarea {
     linear-gradient(180deg, rgba(52, 231, 255, 0.08), transparent 36%),
     rgba(2, 8, 12, 0.74);
   -webkit-app-region: drag;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
 }
 
 body.platform-win32 .rail {
@@ -142,6 +153,7 @@ button.rail-nav-btn.is-active svg {
 }
 
 .dashboard {
+  height: 100vh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 18px;
@@ -150,6 +162,8 @@ button.rail-nav-btn.is-active svg {
   max-width: 1680px;
   width: 100%;
   margin: 0 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .dashboard[data-current-view="live"] > [data-view]:not([data-view~="live"]),
@@ -801,7 +815,7 @@ textarea {
 }
 
 .preview-panel {
-  overflow: hidden;
+  overflow: visible;
   grid-column: span 2;
   position: relative;
 }
@@ -863,6 +877,9 @@ button.preview-demo-toggle span {
 .phone-frame {
   width: min(100%, 440px);
   padding: 12px;
+  position: sticky;
+  top: 18px;
+  align-self: start;
   border: 1px solid rgba(52, 231, 255, 0.28);
   border-radius: 32px;
   background:
@@ -889,8 +906,7 @@ button.preview-demo-toggle span {
   display: grid;
   gap: 12px;
   max-width: 520px;
-  max-height: 790px;
-  overflow: auto;
+  overflow: visible;
   align-content: start;
   padding-right: 4px;
 }
@@ -922,6 +938,7 @@ button.preview-demo-toggle span {
   line-height: 1.45;
 }
 
+.preview-theme-picker,
 .preview-rehearsal,
 .preview-demo-panel {
   width: min(100%, 480px);
@@ -935,6 +952,56 @@ button.preview-demo-toggle span {
     linear-gradient(180deg, rgba(52, 231, 255, 0.09), rgba(0, 8, 13, 0.3)),
     rgba(1, 8, 12, 0.78);
   box-shadow: inset 3px 0 0 rgba(165, 255, 203, 0.72);
+}
+
+.preview-theme-picker {
+  max-height: none;
+}
+
+.preview-theme-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+button.preview-theme-option {
+  min-width: 0;
+  min-height: 50px;
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  padding: 10px 11px;
+  border-color: rgba(159, 224, 255, 0.15);
+  border-radius: 7px;
+  color: rgba(237, 247, 255, 0.78);
+  background: rgba(0, 7, 12, 0.32);
+  text-align: left;
+}
+
+button.preview-theme-option[hidden] {
+  display: none;
+}
+
+button.preview-theme-option strong {
+  min-width: 0;
+  max-width: 100%;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+button.preview-theme-option span {
+  color: rgba(237, 247, 255, 0.48);
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+button.preview-theme-option.is-active {
+  border-color: rgba(52, 231, 255, 0.58);
+  background: rgba(52, 231, 255, 0.13);
+  box-shadow: inset 3px 0 0 #34e7ff;
 }
 
 .preview-rehearsal .module-note,
@@ -1477,6 +1544,12 @@ button.preview-demo-toggle span {
     linear-gradient(90deg, transparent 0 30%, #d8b86a 31% 34%, transparent 35% 65%, #d8b86a 66% 69%, transparent 70%),
     linear-gradient(0deg, transparent 0 30%, #86cfa5 31% 34%, transparent 35% 65%, #86cfa5 66% 69%, transparent 70%),
     linear-gradient(135deg, #18201b, #fff9eb 54%, #e9827f);
+}
+
+.swatch.peaceful-village {
+  background:
+    radial-gradient(circle at 28% 72%, #f0c35a 0 8%, transparent 9%),
+    linear-gradient(180deg, #9bd5f5 0 38%, #78b66b 39% 68%, #4e6f3d 69%);
 }
 
 .theme-collection-title {
@@ -3025,7 +3098,7 @@ li {
   }
 
   .preview-notes {
-    max-height: 760px;
+    max-height: none;
   }
 
   .phone-frame {

@@ -1,0 +1,40 @@
+{
+  "id": "peaceful_village",
+  "category": "Premium Animated With Characters",
+  "assets": {
+    "villageStrip": {
+      "file": "village-strip.png",
+      "size": [
+        1600,
+        415
+      ]
+    },
+    "cloudAtlas": {
+      "file": "clouds-atlas.png",
+      "size": [
+        1400,
+        430
+      ]
+    },
+    "villagers": {
+      "file": "villagers-spritesheet.png",
+      "cell": [
+        96,
+        96
+      ],
+      "grid": [
+        4,
+        6
+      ],
+      "framesPerCharacter": 4,
+      "characters": 6
+    }
+  },
+  "sourceReferences": [
+    "design/premium-character-themes/peaceful-village/source/villagers-concept-01.png",
+    "design/premium-character-themes/peaceful-village/source/villagers-concept-02.png",
+    "design/premium-character-themes/peaceful-village/source/village-strip-concept.png",
+    "design/premium-character-themes/peaceful-village/source/clouds-concept.png"
+  ],
+  "notes": "Transparent runtime assets for the Peaceful Village premium animated character theme. The villager sheet is a regular 4-frame grid for CSS step animation; generated concept art is retained in design/."
+}

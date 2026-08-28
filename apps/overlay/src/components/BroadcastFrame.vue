@@ -52,7 +52,8 @@ const premiumSkins: ReadonlySet<OverlaySkin> = new Set([
   "gemstone_gallery",
   "sunset_boardwalk",
   "midnight_observatory",
-  "tea_house"
+  "tea_house",
+  "peaceful_village"
 ]);
 
 const isPremium = computed(() => premiumSkins.has(props.skin));
@@ -495,6 +496,11 @@ const loop = computed(() => standardLoop[props.skin] ?? standardLoop.none);
         <path class="tea-frame" d="M72 72H1008V1848H72Z" />
         <path class="tea-shoji-frame" d="M112 112H968V430H112Z M112 1490H968V1808H112Z M326 112V430 M540 112V430 M754 112V430 M326 1490V1808 M540 1490V1808 M754 1490V1808" />
         <path class="tea-steam-frame" d="M142 640C214 580 122 500 194 440 M938 640C866 580 958 500 886 440 M142 1280C214 1340 122 1420 194 1480 M938 1280C866 1340 958 1420 886 1480" />
+      </g>
+
+      <g v-if="skin === 'peaceful_village'" class="premium-geometry geometry-peaceful-village">
+        <path class="village-frame" d="M0 0H1080V1920H0Z" />
+        <path class="village-cloud-frame" d="M70 42C170 8 290 12 400 46 M680 46C790 12 910 8 1010 42" />
       </g>
     </svg>
 

@@ -254,6 +254,7 @@ type OverlaySkin =
   | "sunset_boardwalk"
   | "midnight_observatory"
   | "tea_house"
+  | "peaceful_village"
   | GameThemeId;
 type GifPlacement = "center" | "top" | "bottom" | "left" | "right";
 type GifSize = "small" | "medium" | "large";
@@ -491,6 +492,7 @@ const sendAction = readElement<HTMLButtonElement>("send-action");
 const sendTip = readElement<HTMLButtonElement>("send-tip");
 const sendShare = readElement<HTMLButtonElement>("send-share");
 const activeThemeLabel = readElement<HTMLElement>("active-theme-label");
+const previewThemeList = readElement<HTMLElement>("preview-theme-list");
 const libraryStatus = readElement<HTMLElement>("library-status");
 const activeAddonsStatus = readElement<HTMLElement>("active-addons-status");
 const activeAddonsEmpty = readElement<HTMLElement>("active-addons-empty");
@@ -1023,6 +1025,28 @@ for (const card of themeCards) {
   });
 }
 
+const previewThemeButtons = createPreviewThemeButtons();
+
+previewThemeList.addEventListener("click", async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+  const button = target.closest<HTMLButtonElement>("[data-preview-theme], [data-preview-skin]");
+  if (!button) {
+    return;
+  }
+  const theme = button.dataset.previewTheme;
+  if (theme === "neon" || theme === "arena" || theme === "duck") {
+    renderStatus(await window.duckDesk.setTheme(theme));
+    return;
+  }
+  const skin = button.dataset.previewSkin;
+  if (isOverlaySkin(skin)) {
+    renderStatus(await window.duckDesk.setSkin(skin));
+  }
+});
+
 for (const action of addonActions) {
   action.addEventListener("click", async () => {
     const card = action.closest<HTMLElement>(".addon-card");
@@ -1394,6 +1418,14 @@ function renderStatus(status: DesktopStatus): void {
 
   for (const action of skinActions) {
     action.classList.toggle("is-active", action.dataset.skin === status.skin);
+  }
+
+  for (const action of previewThemeButtons) {
+    const isBaseTheme = action.dataset.previewTheme === status.theme && !action.dataset.previewSkin && status.skin === "none";
+    const isSkinTheme = action.dataset.previewSkin === status.skin && status.addOns.includes("stream_skins");
+    const premiumLocked = Boolean(action.dataset.previewSkin) && !status.addOns.includes("stream_skins");
+    action.hidden = premiumLocked;
+    action.classList.toggle("is-active", isBaseTheme || isSkinTheme);
   }
 
   renderGameThemeStatus(status.gameState);
@@ -1809,6 +1841,7 @@ function skinName(skin: OverlaySkin): string {
     sunset_boardwalk: "Sunset Boardwalk",
     midnight_observatory: "Midnight Observatory",
     tea_house: "Tea House",
+    peaceful_village: "Peaceful Village",
     game_tower_tresses: "Tower Tresses",
     game_starship_rally: "Starship Rally",
     game_moon_garden: "Moon Garden",
@@ -1854,6 +1887,33 @@ function updateLibraryStatus(): void {
   libraryStatus.textContent = added === 0 ? `${total} Available` : `${added} Added`;
   activeAddonsStatus.textContent = added === 0 ? "None Loaded" : `${added} Loaded`;
   activeAddonsEmpty.hidden = added > 0;
+}
+
+function createPreviewThemeButtons(): HTMLButtonElement[] {
+  previewThemeList.replaceChildren();
+  const buttons: HTMLButtonElement[] = [];
+  for (const card of themeCards) {
+    if (!card.dataset.theme && !card.dataset.skin) {
+      continue;
+    }
+    const label = card.querySelector("strong")?.textContent?.trim() ?? "Theme";
+    const meta = card.querySelector("small")?.textContent?.trim() ?? (card.dataset.theme ? "Standard" : "Premium");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "preview-theme-option";
+    if (card.dataset.theme) {
+      button.dataset.previewTheme = card.dataset.theme;
+    }
+    if (card.dataset.skin) {
+      button.dataset.previewSkin = card.dataset.skin;
+    }
+    button.innerHTML = `<strong></strong><span></span>`;
+    button.querySelector("strong")!.textContent = label;
+    button.querySelector("span")!.textContent = meta;
+    previewThemeList.append(button);
+    buttons.push(button);
+  }
+  return buttons;
 }
 
 function renderAddOns(addOns: AddOnId[]): void {
@@ -1990,6 +2050,7 @@ function isOverlaySkin(value: unknown): value is OverlaySkin {
     value === "sunset_boardwalk" ||
     value === "midnight_observatory" ||
     value === "tea_house" ||
+    value === "peaceful_village" ||
     value === "game_tower_tresses" ||
     value === "game_starship_rally" ||
     value === "game_moon_garden" ||

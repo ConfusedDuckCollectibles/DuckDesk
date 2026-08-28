@@ -5,6 +5,15 @@ defineProps<{
   skin: OverlaySkin;
 }>();
 
+function overlayPublicUrl(filePath: string): string {
+  const url = new URL(window.location.href);
+  const path = url.pathname.replace(/\/index\.html$/i, "");
+  const directory = path.endsWith("/") ? path : `${path}/`;
+  return `${url.origin}${directory}${filePath.replace(/^\//, "")}`;
+}
+
+const villageAsset = (name: string) => overlayPublicUrl(`premium-character-themes/peaceful-village/${name}`);
+
 /*
  * Signature art per premium skin.
  *
@@ -767,6 +776,33 @@ const auroraStars = [
       <path d="M120 320V700 M960 320V700 M120 1220V1600 M960 1220V1600" />
     </svg>
     <div class="tea-steam"><i /><i /><i /></div>
+  </div>
+
+  <div v-else-if="skin === 'peaceful_village'" class="theme-art theme-art-peaceful-village" aria-hidden="true">
+    <div class="village-sky" />
+    <div
+      class="village-clouds village-clouds-back"
+      :style="{ backgroundImage: `url('${villageAsset('clouds-atlas.png')}')` }"
+    />
+    <div
+      class="village-clouds village-clouds-front"
+      :style="{ backgroundImage: `url('${villageAsset('clouds-atlas.png')}')` }"
+    />
+    <div class="village-meadow" />
+    <div
+      class="village-scene"
+      :style="{ backgroundImage: `url('${villageAsset('village-strip.png')}')` }"
+    />
+    <div class="village-characters">
+      <i
+        v-for="i in 6"
+        :key="`villager-${i}`"
+        :style="{
+          '--villager': i - 1,
+          backgroundImage: `url('${villageAsset('villagers-spritesheet.png')}')`
+        }"
+      />
+    </div>
   </div>
 
   <div v-else-if="skin === 'sports_broadcast'" class="theme-art theme-art-sports" aria-hidden="true">
