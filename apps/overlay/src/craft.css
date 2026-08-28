@@ -163,7 +163,53 @@
   top: calc(48 * var(--u));
   right: calc(64 * var(--u));
   left: calc(64 * var(--u));
-  gap: calc(16 * var(--u));
+  gap: calc(12 * var(--u));
+}
+
+.overlay-shell .hud-dock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: calc(12 * var(--u));
+}
+
+.overlay-shell .hud-dock:not(:has(.hud-rail)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.overlay-shell .hud-rail {
+  width: calc(268 * var(--u));
+  display: grid;
+  align-content: start;
+  gap: calc(8 * var(--u));
+}
+
+.overlay-shell .show-hud:has(.hud-utils) {
+  gap: calc(8 * var(--u));
+  padding-bottom: calc(12 * var(--u));
+}
+
+.overlay-shell .show-hud.is-utils-only {
+  min-height: 0;
+  gap: calc(8 * var(--u));
+  padding: calc(12 * var(--u)) calc(16 * var(--u));
+}
+
+.overlay-shell .hud-utils {
+  display: grid;
+  gap: calc(6 * var(--u));
+  padding-top: calc(4 * var(--u));
+  border-top: var(--mat-hairline) solid color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+.overlay-shell .hud-utils:has(.goal-stack):has(.bid-ladder) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+
+.overlay-shell .show-hud.is-utils-only .hud-utils {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .overlay-shell .hud-brand {
@@ -2347,24 +2393,176 @@
   max-height: calc(480 * var(--u));
 }
 
-.overlay-shell .activity-feed {
+.overlay-shell .goal-stack,
+.overlay-shell .activity-feed,
+.overlay-shell .bid-ladder,
+.overlay-shell .leaderboard-deck {
+  position: relative;
   top: auto;
-  right: calc(48 * var(--u));
-  bottom: calc(210 * var(--u));
-  width: calc(300 * var(--u));
-}
-
-.overlay-shell .add-on-stack {
-  top: calc(430 * var(--u));
-  left: calc(48 * var(--u));
   right: auto;
-  width: calc(300 * var(--u));
+  bottom: auto;
+  left: auto;
+  width: auto;
+  max-width: none;
+  z-index: 1;
 }
 
 .overlay-shell .goal-stack {
-  left: calc(48 * var(--u));
-  right: calc(48 * var(--u));
-  bottom: calc(96 * var(--u));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(8 * var(--u));
+}
+
+.overlay-shell .goal-stack:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.overlay-shell .show-hud .goal-widget,
+.overlay-shell .show-hud .bid-ladder {
+  min-height: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  filter: none;
+  backdrop-filter: none;
+}
+
+.overlay-shell .show-hud .goal-widget {
+  gap: calc(4 * var(--u));
+  padding: calc(4 * var(--u)) calc(8 * var(--u));
+  border: var(--mat-hairline) solid color-mix(in srgb, var(--primary) 22%, transparent);
+  background: color-mix(in srgb, black 22%, transparent);
+}
+
+.overlay-shell .goal-widget div {
+  gap: calc(8 * var(--u));
+}
+
+.overlay-shell .goal-widget span {
+  font-size: calc(11 * var(--u));
+  letter-spacing: 0.08em;
+}
+
+.overlay-shell .goal-widget strong {
+  font-size: calc(15 * var(--u));
+  line-height: 1;
+}
+
+.overlay-shell .goal-widget i {
+  height: calc(6 * var(--u));
+  border-width: max(1px, calc(1.2 * var(--u)));
+}
+
+.overlay-shell .show-hud .bid-ladder {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: calc(10 * var(--u));
+  padding: calc(2 * var(--u)) calc(8 * var(--u)) 0;
+}
+
+.overlay-shell .hud-utils:has(.goal-stack) .bid-ladder {
+  grid-template-columns: 1fr;
+  justify-items: end;
+  align-content: center;
+  row-gap: calc(1 * var(--u));
+  min-width: calc(148 * var(--u));
+  padding: calc(4 * var(--u)) calc(8 * var(--u));
+  border-left: var(--mat-hairline) solid color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+.overlay-shell .bid-ladder span,
+.overlay-shell .leaderboard-deck > span,
+.overlay-shell .activity-feed header span {
+  font-size: calc(11 * var(--u));
+  letter-spacing: 0.12em;
+}
+
+.overlay-shell .bid-ladder strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: calc(20 * var(--u));
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-shell .bid-ladder small {
+  font-size: calc(13 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.overlay-shell .hud-rail .activity-feed,
+.overlay-shell .hud-rail .leaderboard-deck {
+  min-height: 0;
+  gap: calc(6 * var(--u));
+  padding: calc(10 * var(--u)) calc(12 * var(--u));
+}
+
+.overlay-shell .activity-feed header {
+  padding-bottom: calc(4 * var(--u));
+}
+
+.overlay-shell .activity-feed header strong {
+  min-width: calc(22 * var(--u));
+  min-height: calc(18 * var(--u));
+  font-size: calc(12 * var(--u));
+}
+
+.overlay-shell .activity-feed ol,
+.overlay-shell .leaderboard-deck ol {
+  gap: 0;
+}
+
+.overlay-shell .activity-feed li,
+.overlay-shell .leaderboard-deck li {
+  min-height: 0;
+  padding: calc(5 * var(--u)) 0;
+  border-width: 0 0 max(1px, calc(1.2 * var(--u)));
+  border-radius: 0;
+  background: transparent;
+}
+
+.overlay-shell .activity-feed li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: calc(6 * var(--u));
+}
+
+.overlay-shell .activity-feed i {
+  padding: calc(2 * var(--u)) calc(6 * var(--u));
+  font-size: calc(10 * var(--u));
+}
+
+.overlay-shell .activity-feed strong,
+.overlay-shell .leaderboard-deck strong,
+.overlay-shell .leaderboard-deck em,
+.overlay-shell .activity-feed em {
+  overflow: hidden;
+  font-size: calc(14 * var(--u));
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-shell .activity-feed em,
+.overlay-shell .leaderboard-deck em {
+  justify-self: end;
+  font-size: calc(13 * var(--u));
+}
+
+.overlay-shell .leaderboard-deck p,
+.overlay-shell .activity-feed p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: calc(13 * var(--u));
 }
 
 .overlay-shell .scene-state,

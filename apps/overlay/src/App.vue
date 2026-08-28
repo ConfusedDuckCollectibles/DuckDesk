@@ -222,6 +222,16 @@ const topBuyers = computed(() => (
     .sort((left, right) => right[1] - left[1])
     .slice(0, 3)
 ));
+const showHudUtils = computed(() => (
+  (activeAddOns.value.includes("goal_widgets") && activeGoals.value.length > 0)
+  || (activeAddOns.value.includes("bid_ladder") && !activeAddOns.value.includes("jumbotron"))
+));
+const showHudRail = computed(() => (
+  activeAddOns.value.includes("activity_feed")
+  || (activeAddOns.value.includes("leaderboard_deck") && !activeAddOns.value.includes("jumbotron"))
+));
+const showHudDock = computed(() => !hideTopBanner.value || showHudUtils.value || showHudRail.value);
+const hudGoals = computed(() => activeGoals.value.slice(0, 2));
 const recapStats = computed(() => {
   const topBuyer = topBuyers.value[0];
   return [
@@ -603,19 +613,16 @@ function formatActivityActor(event: ShowEvent): string {
 }
 
 function formatActivityMeta(event: ShowEvent): string {
-  if (event.type === "sale" || event.type === "bid") {
-    return `$${event.amount.toLocaleString()}${event.item ? ` - ${event.item}` : ""}`;
-  }
-  if (event.type === "tip") {
-    return `$${event.amount.toLocaleString()}${event.message ? ` - ${event.message}` : ""}`;
+  if (event.type === "sale" || event.type === "bid" || event.type === "tip") {
+    return `$${event.amount.toLocaleString()}`;
   }
   if (event.type === "share") {
     if (event.delta && event.delta > 1) {
-      return `+${event.delta} new shares`;
+      return `+${event.delta}`;
     }
-    return event.shareCount === undefined ? "Shared the show" : `${event.shareCount.toLocaleString()} total shares`;
+    return event.shareCount === undefined ? "Shared" : `${event.shareCount.toLocaleString()}`;
   }
-  return event.message ?? "Audience action";
+  return event.message ?? event.action;
 }
 
 function playEventTone(event: ShowEvent): void {
@@ -915,56 +922,112 @@ onMounted(() => {
       <span />
     </div>
     <div class="top-stack">
-      <section v-if="!hideTopBanner" class="show-hud">
-        <div class="hud-chrome" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div class="hud-brand">
-          <div class="brand-lockup">
-            <span class="brand-index" aria-hidden="true">
-              <svg viewBox="0 0 32 32">
-                <circle cx="13.5" cy="16.5" r="9" fill="currentColor" />
-                <circle cx="16.5" cy="13.5" r="1.7" fill="#071014" />
-                <path d="M22 13.5 L30.5 11.2 L22 18.2 Z" fill="#ffcf61" />
-              </svg>
-            </span>
-            <span class="brand-stack">
-              <strong>DUCK DESK</strong>
-              <em v-if="streamTitle">{{ streamTitle }}</em>
-            </span>
-          </div>
-          <span class="live-cluster">
-            <i class="live-light" :class="{ connected }" />
-            <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
-          </span>
-        </div>
-        <div v-if="hasAddOn('promo_banners') && activePromo" class="promo-banner">
-          {{ activePromo }}
-        </div>
-        <div class="ticker">
-          <span class="ticker-label"><i /> Live activity</span>
-          <div class="ticker-track" :class="{ 'is-empty': recentEvents.length === 0 }">
-            <div v-if="recentEvents.length > 0" class="ticker-marquee">
-              <span
-                v-for="(event, index) in tickerTape"
-                :key="`${event.type}-${event.timestamp}-${index}`"
-                class="ticker-item"
-                :class="`ticker-${event.type}`"
-              >
-                <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
-                <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
-                <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
-                <template v-else-if="event.type === 'share'">
-                  SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
-                </template>
-                <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
+      <div v-if="showHudDock" class="hud-dock">
+        <section
+          v-if="!hideTopBanner || showHudUtils"
+          class="show-hud"
+          :class="{ 'is-utils-only': hideTopBanner }"
+        >
+          <template v-if="!hideTopBanner">
+            <div class="hud-chrome" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+            <div class="hud-brand">
+              <div class="brand-lockup">
+                <span class="brand-index" aria-hidden="true">
+                  <svg viewBox="0 0 32 32">
+                    <circle cx="13.5" cy="16.5" r="9" fill="currentColor" />
+                    <circle cx="16.5" cy="13.5" r="1.7" fill="#071014" />
+                    <path d="M22 13.5 L30.5 11.2 L22 18.2 Z" fill="#ffcf61" />
+                  </svg>
+                </span>
+                <span class="brand-stack">
+                  <strong>DUCK DESK</strong>
+                  <em v-if="streamTitle">{{ streamTitle }}</em>
+                </span>
+              </div>
+              <span class="live-cluster">
+                <i class="live-light" :class="{ connected }" />
+                <span class="hud-live" :class="{ connected }">{{ statusLabel }}</span>
               </span>
             </div>
+            <div v-if="hasAddOn('promo_banners') && activePromo" class="promo-banner">
+              {{ activePromo }}
+            </div>
+            <div v-if="!hasAddOn('activity_feed')" class="ticker">
+              <span class="ticker-label"><i /> Live activity</span>
+              <div class="ticker-track" :class="{ 'is-empty': recentEvents.length === 0 }">
+                <div v-if="recentEvents.length > 0" class="ticker-marquee">
+                  <span
+                    v-for="(event, index) in tickerTape"
+                    :key="`${event.type}-${event.timestamp}-${index}`"
+                    class="ticker-item"
+                    :class="`ticker-${event.type}`"
+                  >
+                    <template v-if="event.type === 'sale'">SOLD @{{ event.buyer }} ${{ event.amount }}</template>
+                    <template v-else-if="event.type === 'bid'">BID @{{ event.bidder }} ${{ event.amount }}</template>
+                    <template v-else-if="event.type === 'tip'">TIP @{{ event.tipper }} ${{ event.amount }}</template>
+                    <template v-else-if="event.type === 'share'">
+                      SHARED<template v-if="event.actor"> @{{ event.actor }}</template><template v-else-if="event.delta"> +{{ event.delta }}</template>
+                    </template>
+                    <template v-else>{{ event.action.toUpperCase() }} @{{ event.actor }}</template>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div v-if="showHudUtils" class="hud-utils">
+            <section v-if="hasAddOn('goal_widgets') && hudGoals.length > 0" class="goal-stack">
+              <article v-for="goal in hudGoals" :key="`${goal.kind}-${goal.label}`" class="goal-widget">
+                <div>
+                  <span>{{ goal.label }}</span>
+                  <strong>{{ formatGoalValue(goal, goal.current) }}</strong>
+                </div>
+                <i><b :style="{ width: `${goal.progress}%` }" /></i>
+              </article>
+            </section>
+            <div v-if="hasAddOn('bid_ladder') && !hasAddOn('jumbotron')" class="bid-ladder">
+              <span>Bid</span>
+              <strong v-if="latestBid && latestBid.type === 'bid'">@{{ latestBid.bidder }} ${{ latestBid.amount }}</strong>
+              <strong v-else>—</strong>
+              <small v-if="latestBid && latestBid.type === 'bid'">Next ${{ latestBid.amount + 1 }}</small>
+              <small v-else>Waiting for a bid</small>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+        <aside v-if="showHudRail" class="hud-rail">
+          <section v-if="hasAddOn('activity_feed')" class="activity-feed">
+            <header>
+              <span>Feed</span>
+              <strong>{{ activityEvents.length }}</strong>
+            </header>
+            <ol v-if="activityEvents.length > 0">
+              <li
+                v-for="event in activityEvents.slice(0, 3)"
+                :key="`activity-${event.type}-${event.timestamp}`"
+                :class="`activity-${event.type}`"
+              >
+                <i>{{ formatActivityAction(event) }}</i>
+                <strong>{{ formatActivityActor(event) }}</strong>
+                <em>{{ formatActivityMeta(event) }}</em>
+              </li>
+            </ol>
+            <p v-else>Waiting for events</p>
+          </section>
+          <div v-if="hasAddOn('leaderboard_deck') && !hasAddOn('jumbotron')" class="leaderboard-deck">
+            <span>Top buyers</span>
+            <ol v-if="topBuyers.length > 0">
+              <li v-for="[buyer, amount] in topBuyers" :key="buyer">
+                <strong>@{{ buyer }}</strong>
+                <em>${{ amount }}</em>
+              </li>
+            </ol>
+            <p v-else>No buyers yet</p>
+          </div>
+        </aside>
+      </div>
       <Transition :name="alertTransitionName">
         <EventAlert v-if="activeEvent" :event="activeEvent" :visual="activeAlertVisual" />
       </Transition>
@@ -1013,40 +1076,12 @@ onMounted(() => {
       />
     </section>
 
-    <section v-if="hasAddOn('goal_widgets') && activeGoals.length > 0" class="goal-stack">
-      <article v-for="goal in activeGoals" :key="`${goal.kind}-${goal.label}`" class="goal-widget">
-        <div>
-          <span>{{ goal.label }}</span>
-          <strong>{{ formatGoalValue(goal, goal.current) }}</strong>
-        </div>
-        <i><b :style="{ width: `${goal.progress}%` }" /></i>
-      </article>
-    </section>
-
     <section v-if="auctionTimer" class="auction-timer">
       <div>
         <span>Lot timer</span>
         <strong>{{ auctionRemaining }}</strong>
       </div>
       <i><b :style="{ width: `${auctionProgress}%` }" /></i>
-    </section>
-
-    <section v-if="hasAddOn('activity_feed') && activityEvents.length > 0" class="activity-feed">
-      <header>
-        <span>Live Activity</span>
-        <strong>{{ activityEvents.length }}</strong>
-      </header>
-      <ol>
-        <li
-          v-for="event in activityEvents.slice(0, 6)"
-          :key="`activity-${event.type}-${event.timestamp}`"
-          :class="`activity-${event.type}`"
-        >
-          <i>{{ formatActivityAction(event) }}</i>
-          <strong>{{ formatActivityActor(event) }}</strong>
-          <em>{{ formatActivityMeta(event) }}</em>
-        </li>
-      </ol>
     </section>
 
     <section v-if="hasAddOn('show_recap') && recapCard" class="show-recap">
@@ -1056,30 +1091,6 @@ onMounted(() => {
           <em>{{ stat.label }}</em>
           <strong>{{ stat.value }}</strong>
         </article>
-      </div>
-    </section>
-
-    <section
-      v-if="(hasAddOn('bid_ladder') || hasAddOn('leaderboard_deck')) && !hasAddOn('jumbotron')"
-      class="add-on-stack"
-    >
-      <div v-if="hasAddOn('bid_ladder')" class="bid-ladder">
-        <span>Bid Ladder</span>
-        <strong v-if="latestBid && latestBid.type === 'bid'">@{{ latestBid.bidder }} ${{ latestBid.amount }}</strong>
-        <strong v-else>-</strong>
-        <small v-if="latestBid && latestBid.type === 'bid'">Next target ${{ latestBid.amount + 1 }}</small>
-        <small v-else>No live bids detected</small>
-      </div>
-
-      <div v-if="hasAddOn('leaderboard_deck')" class="leaderboard-deck">
-        <span>Top Buyers</span>
-        <ol v-if="topBuyers.length > 0">
-          <li v-for="[buyer, amount] in topBuyers" :key="buyer">
-            <strong>@{{ buyer }}</strong>
-            <em>${{ amount }}</em>
-          </li>
-        </ol>
-        <p v-else>No buyer data yet</p>
       </div>
     </section>
 
