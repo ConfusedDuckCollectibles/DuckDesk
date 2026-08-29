@@ -19,6 +19,8 @@ test("defaults match the pre-sprint overlay durations and theme look", () => {
   assert.equal(DEFAULT_ALERT_VISUALS.sale.placement, "below_banner");
   assert.equal(DEFAULT_ALERT_VISUALS.sale.entrance, "broadcast");
   assert.equal(DEFAULT_ALERT_VISUALS.sale.typography, "theme");
+  assert.equal(DEFAULT_ALERT_VISUALS.sale.enabled, true);
+  assert.equal(DEFAULT_ALERT_VISUALS.sale.stickerEnabled, true);
   assert.equal(usesThemeAlertArt(DEFAULT_ALERT_VISUALS.sale), true);
 });
 
@@ -27,8 +29,26 @@ test("missing version-1 settings migrate to complete per-event defaults", () => 
   assert.deepEqual(migrated, DEFAULT_ALERT_VISUALS);
   const partial = normalizeAlertVisualMap({ sale: { enabled: false, durationMs: 5_000 } });
   assert.equal(partial.sale.enabled, false);
+  assert.equal(partial.sale.stickerEnabled, true);
   assert.equal(partial.sale.durationMs, 5_000);
   assert.deepEqual(partial.bid, DEFAULT_ALERT_VISUALS.bid);
+});
+
+test("banner panel and side pop-out can be toggled independently", () => {
+  const next = patchAlertVisual("bid", DEFAULT_ALERT_VISUALS, {
+    enabled: true,
+    stickerEnabled: false
+  });
+  assert.equal(next.bid.enabled, true);
+  assert.equal(next.bid.stickerEnabled, false);
+  assert.equal(next.sale.stickerEnabled, true);
+  const bothOff = patchAlertVisual("sale", next, {
+    enabled: false,
+    stickerEnabled: false
+  });
+  assert.equal(bothOff.sale.enabled, false);
+  assert.equal(bothOff.sale.stickerEnabled, false);
+  assert.equal(bothOff.bid.enabled, true);
 });
 
 test("duration clamping is per-event", () => {

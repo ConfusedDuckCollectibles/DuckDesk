@@ -202,7 +202,7 @@ let lastEventFingerprint = "";
 let overlayLastSeenAt = 0;
 let recoveryNotice = "";
 let updateStatus: UpdateStatus = {
-  currentVersion: "0.1.0-alpha.7",
+  currentVersion: "0.1.0-alpha.8",
   status: "unknown",
   detail: "Not checked yet."
 };

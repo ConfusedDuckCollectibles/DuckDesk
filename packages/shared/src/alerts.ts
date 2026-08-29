@@ -7,6 +7,7 @@ export type AlertTypography = "theme" | "modern" | "condensed" | "editorial";
 
 export interface AlertVisualConfig {
   enabled: boolean;
+  stickerEnabled: boolean;
   placement: AlertPlacement;
   size: AlertSize;
   durationMs: number;
@@ -39,6 +40,7 @@ export const DEFAULT_ALERT_VISUALS: AlertVisualMap = {
 export function defaultAlertVisual(kind: AlertKind): AlertVisualConfig {
   return {
     enabled: true,
+    stickerEnabled: true,
     placement: "below_banner",
     size: "standard",
     durationMs: ALERT_DURATION_LIMITS[kind].defaultMs,
@@ -85,6 +87,7 @@ export function normalizeAlertVisual(kind: AlertKind, value: unknown): AlertVisu
   const mediaUrl = sanitizeAlertMediaUrl(value.mediaUrl);
   return {
     enabled: typeof value.enabled === "boolean" ? value.enabled : fallback.enabled,
+    stickerEnabled: typeof value.stickerEnabled === "boolean" ? value.stickerEnabled : fallback.stickerEnabled,
     placement: isAlertPlacement(value.placement) ? value.placement : fallback.placement,
     size: isAlertSize(value.size) ? value.size : fallback.size,
     durationMs,

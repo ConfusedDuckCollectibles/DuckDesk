@@ -775,7 +775,7 @@
               <span>Visual</span>
               <h3 id="alert-studio-title">Alert Studio</h3>
             </div>
-            <p class="module-note">Each event has its own look. Sound still lives in Audio Studio. Defaults match the current overlay until you edit them.</p>
+            <p class="module-note">Each event has its own look, and you can mix styles: banner panel under the header, side pop-out, both, or neither. Sound still lives in Audio Studio.</p>
             <div class="alert-kind-tabs" role="tablist" aria-label="Alert event">
               <button type="button" class="is-active" data-alert-kind="sale" role="tab" aria-selected="true">Sale</button>
               <button type="button" data-alert-kind="bid" role="tab" aria-selected="false">Bid</button>
@@ -783,11 +783,23 @@
               <button type="button" data-alert-kind="tip" role="tab" aria-selected="false">Tip</button>
               <button type="button" data-alert-kind="share" role="tab" aria-selected="false">Share</button>
             </div>
-            <div class="alert-studio-grid">
+            <div class="alert-style-toggles">
               <label class="alert-toggle">
                 <input id="alert-enabled" type="checkbox" checked />
-                <span>Enabled</span>
+                <span>
+                  <strong>Banner panel</strong>
+                  <small>Under-header alert card. For bids, this also includes the Bid ladder.</small>
+                </span>
               </label>
+              <label class="alert-toggle">
+                <input id="alert-sticker" type="checkbox" checked />
+                <span>
+                  <strong>Side pop-out</strong>
+                  <small id="alert-sticker-hint">Right-edge BID / SOLD stickers</small>
+                </span>
+              </label>
+            </div>
+            <div class="alert-studio-grid">
               <label>
                 Position
                 <select id="alert-placement">

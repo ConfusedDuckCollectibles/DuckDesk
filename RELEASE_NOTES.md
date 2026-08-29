@@ -1,14 +1,13 @@
-# Duck Desk v0.1.0-alpha.7
+# Duck Desk v0.1.0-alpha.8
 
-Duck Desk alpha 7 adds more overlay looks around the same live canvas: ten new premium animated themes, five audience-powered Game Themes, and two Premium Animated With Characters scenes. Overlay alerts stay on the phone canvas, and the product camera stays clear.
+Duck Desk alpha 8 gives you independent control over each live notification style. Turn the under-header banner panel and the right-edge pop-out on or off per event type, without losing the rest of Alert Studio.
 
-## New In Alpha 7
+## New In Alpha 8
 
-- Added ten **Premium Animated** overlay themes: Neon Museum, Chrome Showroom, Prism Arcade, Velvet Casino, Alpine Lodge, Circuit Garden, Gemstone Gallery, Sunset Boardwalk, Midnight Observatory, and Tea House.
-- Added five **Game Themes** that move with bids, sales, tips, and audience actions: Tower Tresses, Starship Rally, Moon Garden, Crystal Quest, and Neon Grand Prix.
-- Added **Premium Animated With Characters**: Peaceful Village and Starlight Station, with pixel scenes and walking sprites along the bottom of the overlay.
-- Tightened theme frames so decorative borders sit on the view edge and every look rests on the GitHub credit bar.
-- Kept premium border and theme-art animations running while bid, sale, tip, share, and audience alerts play over the scene.
+- Alert Studio now has per-event **Banner panel** and **Side pop-out** toggles for Sale, Bid, Audience, Tip, and Share.
+- Keep the Bid ladder and under-header card while hiding the right-edge BID stickers, or turn both styles off for a quieter overlay.
+- Sale, tip, share, and audience alerts keep the same look controls as before: position, size, duration, entrance, typography, accent, and media.
+- Side pop-outs still use the Hype Bursts add-on. The live activity ticker continues to list events even when both alert styles are off.
 
 ## Highlights
 
@@ -27,8 +26,8 @@ Duck Desk alpha 7 adds more overlay looks around the same live canvas: ten new p
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.7-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.7-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.8-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.8-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. Both installers are unsigned.
 

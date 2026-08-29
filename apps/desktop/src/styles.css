@@ -3297,6 +3297,36 @@ li {
   background: rgba(52, 231, 255, 0.16);
 }
 
+.alert-style-toggles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.alert-style-toggles .alert-toggle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(159, 224, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(5, 15, 19, 0.4);
+}
+
+.alert-style-toggles strong {
+  display: block;
+  font-size: 13px;
+}
+
+.alert-style-toggles small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(214, 236, 247, 0.62);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .alert-studio-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

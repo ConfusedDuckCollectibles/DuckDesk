@@ -120,6 +120,13 @@ const latestEventLabel = computed(() => {
 });
 const jumbotronLabel = computed(() => recentEvents.value[0]?.type.toUpperCase() ?? "ROOM READY");
 const tickerTape = computed(() => [...recentEvents.value, ...recentEvents.value]);
+const showSidePopout = computed(() => {
+  const latest = recentEvents.value[0];
+  if (!latest || !hasAddOn("hype_bursts")) {
+    return false;
+  }
+  return visualForEvent(latest).stickerEnabled;
+});
 const activeAlertVisual = computed(() => (
   activeEvent.value ? visualForEvent(activeEvent.value) : DEFAULT_ALERT_VISUALS.sale
 ));
@@ -236,7 +243,11 @@ const topBuyers = computed(() => (
 ));
 const showHudUtils = computed(() => (
   (activeAddOns.value.includes("goal_widgets") && activeGoals.value.length > 0)
-  || (activeAddOns.value.includes("bid_ladder") && !activeAddOns.value.includes("jumbotron"))
+  || (
+    activeAddOns.value.includes("bid_ladder")
+    && !activeAddOns.value.includes("jumbotron")
+    && alertVisuals.value.bid.enabled
+  )
 ));
 const showHudRail = computed(() => (
   activeAddOns.value.includes("activity_feed")
@@ -401,7 +412,7 @@ function connect(): void {
       if (audioOutputEnabled && soundsEnabled.value && soundVolume.value > 0) {
         playEventTone(parsed);
       }
-      if (hasAddOn("hype_bursts")) {
+      if (hasAddOn("hype_bursts") && visualForEvent(parsed).stickerEnabled) {
         burstKey.value += 1;
       }
       if (parsed.type === "bid") {
@@ -902,7 +913,7 @@ onMounted(() => {
       aria-hidden="true"
     />
     <div
-      v-if="hasAddOn('hype_bursts') && recentEvents.length > 0"
+      v-if="showSidePopout"
       :key="`gif-${recentEvents[0]?.timestamp}`"
       class="gif-lane"
       :class="`gif-${latestEventType}`"
@@ -1000,7 +1011,7 @@ onMounted(() => {
                 <i><b :style="{ width: `${goal.progress}%` }" /></i>
               </article>
             </section>
-            <div v-if="hasAddOn('bid_ladder') && !hasAddOn('jumbotron')" class="bid-ladder">
+            <div v-if="hasAddOn('bid_ladder') && !hasAddOn('jumbotron') && alertVisuals.bid.enabled" class="bid-ladder">
               <span>Bid</span>
               <strong v-if="latestBid && latestBid.type === 'bid'">@{{ latestBid.bidder }} ${{ latestBid.amount }}</strong>
               <strong v-else>—</strong>

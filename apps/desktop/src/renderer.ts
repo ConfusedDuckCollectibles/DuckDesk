@@ -176,6 +176,7 @@ type UpdateStatusView = {
 type AlertKind = "sale" | "bid" | "action" | "tip" | "share";
 type AlertVisualConfig = {
   enabled: boolean;
+  stickerEnabled: boolean;
   placement: "below_banner" | "upper" | "center" | "lower";
   size: "compact" | "standard" | "large";
   durationMs: number;
@@ -561,6 +562,8 @@ const rehearsalTitlebarBadge = readElement<HTMLElement>("rehearsal-titlebar-badg
 const rehearsalRecordingName = readElement<HTMLInputElement>("rehearsal-recording-name");
 const alertKindTabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-alert-kind]"));
 const alertEnabled = readElement<HTMLInputElement>("alert-enabled");
+const alertSticker = readElement<HTMLInputElement>("alert-sticker");
+const alertStickerHint = readElement<HTMLElement>("alert-sticker-hint");
 const alertPlacement = readElement<HTMLSelectElement>("alert-placement");
 const alertSize = readElement<HTMLSelectElement>("alert-size");
 const alertDuration = readElement<HTMLInputElement>("alert-duration");
@@ -860,6 +863,9 @@ for (const tab of alertKindTabs) {
 
 alertEnabled.addEventListener("change", () => {
   void persistAlertPatch({ enabled: alertEnabled.checked });
+});
+alertSticker.addEventListener("change", () => {
+  void persistAlertPatch({ stickerEnabled: alertSticker.checked });
 });
 alertPlacement.addEventListener("change", () => {
   void persistAlertPatch({ placement: alertPlacement.value as AlertVisualConfig["placement"] });
@@ -1734,6 +1740,10 @@ function renderAlertStudio(status: DesktopStatus): void {
     tab.setAttribute("aria-selected", String(active));
   }
   alertEnabled.checked = visual.enabled;
+  alertSticker.checked = visual.stickerEnabled !== false;
+  alertStickerHint.textContent = status.addOns.includes("hype_bursts")
+    ? "Right-edge BID / SOLD stickers"
+    : "Load Hype Bursts in Add-Ons to show these";
   alertPlacement.value = visual.placement;
   alertSize.value = visual.size;
   alertDuration.value = String(visual.durationMs);
