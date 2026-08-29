@@ -1,13 +1,14 @@
-# Duck Desk v0.1.0-alpha.8
+# Duck Desk v0.1.0-alpha.9
 
-Duck Desk alpha 8 gives you independent control over each live notification style. Turn the under-header banner panel and the right-edge pop-out on or off per event type, without losing the rest of Alert Studio.
+Duck Desk alpha 9 cleans up the streamer control room after live stream testing. Show-facing copy is easier to find, typing into those fields is stable during live status updates, and the Preview tab now keeps the section tabs where creators expect them.
 
-## New In Alpha 8
+## New In Alpha 9
 
-- Alert Studio now has per-event **Banner panel** and **Side pop-out** toggles for Sale, Bid, Audience, Tip, and Share.
-- Keep the Bid ladder and under-header card while hiding the right-edge BID stickers, or turn both styles off for a quieter overlay.
-- Sale, tip, share, and audience alerts keep the same look controls as before: position, size, duration, entrance, typography, accent, and media.
-- Side pop-outs still use the Hype Bursts add-on. The live activity ticker continues to list events even when both alert styles are off.
+- Fixed Stream Title and Promo Banners so live status refreshes no longer clear or replace text while you are typing.
+- Moved Stream Title and Promo Banners together into Live Controls under **Title & Promo Banners**.
+- Kept the OBS setup page focused on connection details by removing show-copy editing from that section.
+- Removed the duplicate Promo Banners editor from the lower add-on module area.
+- Fixed the Live section tab row so opening Stream Preview no longer shifts the tabs to the top-right.
 
 ## Highlights
 
@@ -15,6 +16,7 @@ Duck Desk alpha 8 gives you independent control over each live notification styl
 - One-click authenticated OBS source setup, repair, canvas fitting, and refresh.
 - 63 included themes: 20 standard, 36 Premium Animated, 2 Premium Animated With Characters, and 5 Game Themes.
 - Independent controls for the top banner and theme frame effects.
+- Stable show text controls for stream titles and rotating promo banners.
 - GIF reactions with saved names, manual triggers, placement, and sizing.
 - 10 audio themes plus custom bid, sale, tip, share, and audience sounds with a master mute control.
 - Alert Studio, rehearsal playback, community packs, and a phone Remote Show Deck.
@@ -26,8 +28,8 @@ Duck Desk alpha 8 gives you independent control over each live notification styl
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.8-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.8-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.9-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.9-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. Both installers are unsigned.
 

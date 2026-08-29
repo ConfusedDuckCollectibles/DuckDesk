@@ -131,11 +131,6 @@
               <button id="auto-obs" type="button">Connect + Add</button>
             </div>
             <p id="obs-connection-status" class="obs-status-line" aria-live="polite">Not connected</p>
-            <label for="stream-title">Stream Title</label>
-            <div class="title-row">
-              <input id="stream-title" maxlength="88" placeholder="Surprise Sets with Confused Duck Collectibles" />
-              <button id="save-title" type="button">Apply</button>
-            </div>
           </section>
 
           <section class="actions is-tab-hidden" aria-labelledby="live-controls-title" data-view="live" data-tab="live-controls">
@@ -143,6 +138,22 @@
               <i data-lucide="gauge" aria-hidden="true"></i>
               <div><span>Streamer</span><h2 id="live-controls-title">Live Controls</h2></div>
             </div>
+            <article class="show-messaging-panel" aria-label="Show messaging">
+              <div class="module-header">
+                <span>Show Text</span>
+                <strong>Title & Promo Banners</strong>
+              </div>
+              <label for="stream-title">Stream Title</label>
+              <div class="title-row">
+                <input id="stream-title" maxlength="88" placeholder="Surprise Sets with Confused Duck Collectibles" />
+                <button id="save-title" type="button">Apply</button>
+              </div>
+              <label for="promo-banners">Promo Banners</label>
+              <textarea id="promo-banners" rows="4">Follow the show for new drops
+Bookmark your favorite lots
+Ask questions in chat</textarea>
+              <button id="save-promo-banners" type="button" class="module-command">Save Banners</button>
+            </article>
             <button id="open-overlay" type="button">Overlay Preview</button>
             <button id="reveal-extension" type="button">Chrome Extension</button>
             <button id="top-banner-toggle" class="top-banner-toggle is-on" type="button" aria-pressed="true">
@@ -1083,17 +1094,6 @@
               </div>
               <p class="module-note">The camera frame uses browser camera permission in the OBS source.</p>
               <button id="toggle-jumbotron-camera" type="button" class="module-command">Camera Off</button>
-            </article>
-
-            <article class="addon-module module-promos" data-addon-panel="promo_banners" hidden>
-              <div class="module-header">
-                <span>Promo</span>
-                <strong>Promo Banners</strong>
-              </div>
-              <textarea id="promo-banners" rows="4">Follow the show for new drops
-Bookmark your favorite lots
-Ask questions in chat</textarea>
-              <button id="save-promo-banners" type="button" class="module-command">Save Banners</button>
             </article>
 
             <article class="addon-module module-scenes" data-addon-panel="scene_switcher" hidden>

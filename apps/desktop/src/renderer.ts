@@ -610,6 +610,8 @@ let selectedAlertKind: AlertKind = "sale";
 let syncingAlertStudio = false;
 let lastShowEpoch: number | undefined;
 let selectedShowProfileId = "";
+let streamTitleDirty = false;
+let promoBannersDirty = false;
 const lastDeskTabs: Record<DeskView, DeskTab> = {
   live: "live-show",
   setup: "setup-connection",
@@ -902,12 +904,21 @@ resetAlert.addEventListener("click", async () => {
 });
 
 saveTitle.addEventListener("click", async () => {
-  renderStatus(await window.duckDesk.setStreamTitle(streamTitle.value));
+  const status = await window.duckDesk.setStreamTitle(streamTitle.value);
+  streamTitleDirty = false;
+  renderStatus(status);
+});
+
+streamTitle.addEventListener("input", () => {
+  streamTitleDirty = true;
 });
 
 streamTitle.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    void window.duckDesk.setStreamTitle(streamTitle.value).then(renderStatus);
+    void window.duckDesk.setStreamTitle(streamTitle.value).then((status) => {
+      streamTitleDirty = false;
+      renderStatus(status);
+    });
   }
 });
 
@@ -1215,7 +1226,13 @@ toggleJumbotronCamera.addEventListener("click", async () => {
 });
 
 savePromoBanners.addEventListener("click", async () => {
-  renderStatus(await window.duckDesk.setPromoBanners(promoBanners.value));
+  const status = await window.duckDesk.setPromoBanners(promoBanners.value);
+  promoBannersDirty = false;
+  renderStatus(status);
+});
+
+promoBanners.addEventListener("input", () => {
+  promoBannersDirty = true;
 });
 
 for (const action of sceneActions) {
@@ -1314,12 +1331,16 @@ function renderStatus(status: DesktopStatus): void {
   updateStatusLine.textContent = status.update
     ? `${status.update.currentVersion} · ${status.update.detail}`
     : "Version check has not run yet.";
-  streamTitle.value = status.streamTitle;
+  if (document.activeElement !== streamTitle && !streamTitleDirty) {
+    streamTitle.value = status.streamTitle;
+  }
   milestoneThresholds.value = status.milestoneThresholds.join(", ");
   hypeSeconds.value = String(status.hypeMeterSeconds);
   toggleJumbotronCamera.textContent = status.jumbotronCameraEnabled ? "Camera On" : "Camera Off";
   toggleJumbotronCamera.classList.toggle("is-on", status.jumbotronCameraEnabled);
-  promoBanners.value = status.promoBanners.join("\n");
+  if (document.activeElement !== promoBanners && !promoBannersDirty) {
+    promoBanners.value = status.promoBanners.join("\n");
+  }
   goalConfig.value = formatGoals(status.goals);
   auctionTimerSeconds.value = String(status.auctionTimerSeconds);
   clientCount.textContent = String(status.clients);
