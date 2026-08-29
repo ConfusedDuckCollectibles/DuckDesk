@@ -31,7 +31,7 @@
 
 <p align="center"><em>This is what buyers see. The open center is your product camera.</em></p>
 
-> **Public alpha `v0.1.0-alpha.8`.** Download the Mac or Windows installer. You do not need Terminal, PowerShell, or any coding.
+> **Public alpha `v0.1.0-alpha.9`.** Download the Mac or Windows installer. You do not need Terminal, PowerShell, or any coding.
 
 ## How it works
 
