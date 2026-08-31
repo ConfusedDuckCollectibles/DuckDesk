@@ -12,9 +12,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.8"><strong>Download for Mac</strong></a>
+  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.10"><strong>Download for Mac</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.8"><strong>Download for Windows</strong></a>
+  <a href="https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.10"><strong>Download for Windows</strong></a>
   &nbsp;·&nbsp;
   <a href="#get-on-stream">Setup</a>
   &nbsp;·&nbsp;
@@ -31,7 +31,7 @@
 
 <p align="center"><em>This is what buyers see. The open center is your product camera.</em></p>
 
-> **Public alpha `v0.1.0-alpha.9`.** Download the Mac or Windows installer. You do not need Terminal, PowerShell, or any coding.
+> **Public alpha `v0.1.0-alpha.10`.** Download the Mac or Windows installer. You do not need Terminal, PowerShell, or any coding.
 
 ## How it works
 
@@ -93,11 +93,11 @@ You do not add a new OBS source for every alert, GIF, or sound.
 
 Most people should download a finished installer. You do not need the source code.
 
-1. Open **[Duck Desk v0.1.0-alpha.8](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.8)**.
+1. Open **[Duck Desk v0.1.0-alpha.10](https://github.com/ConfusedDuckCollectibles/DuckDesk/releases/tag/v0.1.0-alpha.10)**.
 2. Scroll to **Assets**.
 3. Download one file:
-   - **Mac (Apple silicon):** `DuckDesk-0.1.0-alpha.8-arm64.dmg`
-   - **Windows (64-bit):** `DuckDesk-0.1.0-alpha.8-windows-x64.exe`
+   - **Mac (Apple silicon):** `DuckDesk-0.1.0-alpha.10-arm64.dmg`
+   - **Windows (64-bit):** `DuckDesk-0.1.0-alpha.10-windows-x64.exe`
 4. Skip the `Source code` files unless you are a developer.
 
 **Mac:** Apple menu → **About This Mac**. If **Chip** says M1, M2, M3, M4, or newer, you are set. Intel Macs are not in this alpha. The app is ad-hoc signed but not Apple-notarized yet, so the first open may need a right-click.

@@ -1,14 +1,12 @@
-# Duck Desk v0.1.0-alpha.9
+# Duck Desk v0.1.0-alpha.10
 
-Duck Desk alpha 9 cleans up the streamer control room after live stream testing. Show-facing copy is easier to find, typing into those fields is stable during live status updates, and the Preview tab now keeps the section tabs where creators expect them.
+Duck Desk alpha 10 is a Mac installer repair release. It rebuilds the Apple silicon DMG with a valid ad-hoc app signature so newer macOS Tahoe systems do not mistake the app bundle for a damaged download.
 
-## New In Alpha 9
+## New In Alpha 10
 
-- Fixed Stream Title and Promo Banners so live status refreshes no longer clear or replace text while you are typing.
-- Moved Stream Title and Promo Banners together into Live Controls under **Title & Promo Banners**.
-- Kept the OBS setup page focused on connection details by removing show-copy editing from that section.
-- Removed the duplicate Promo Banners editor from the lower add-on module area.
-- Fixed the Live section tab row so opening Stream Preview no longer shifts the tabs to the top-right.
+- Rebuilt the Mac DMG with an ad-hoc signature that seals the full app bundle.
+- Added the Electron arm64 entitlement needed for hardened-runtime ad-hoc builds.
+- Kept the Mac build clearly labeled as ad-hoc signed and not Apple-notarized.
 
 ## Highlights
 
@@ -28,8 +26,8 @@ Duck Desk alpha 9 cleans up the streamer control room after live stream testing.
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.9-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.9-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.10-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.10-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. The Mac build is ad-hoc signed but not Apple-notarized. The Windows installer is unsigned.
 
