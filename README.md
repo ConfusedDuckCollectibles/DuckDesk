@@ -100,7 +100,7 @@ Most people should download a finished installer. You do not need the source cod
    - **Windows (64-bit):** `DuckDesk-0.1.0-alpha.8-windows-x64.exe`
 4. Skip the `Source code` files unless you are a developer.
 
-**Mac:** Apple menu → **About This Mac**. If **Chip** says M1, M2, M3, M4, or newer, you are set. Intel Macs are not in this alpha. The app is not Apple-notarized yet, so the first open may need a right-click.
+**Mac:** Apple menu → **About This Mac**. If **Chip** says M1, M2, M3, M4, or newer, you are set. Intel Macs are not in this alpha. The app is ad-hoc signed but not Apple-notarized yet, so the first open may need a right-click.
 
 **Windows:** 64-bit Windows 10 or 11. The installer is unsigned, so SmartScreen may say Windows protected your PC. Choose **More info**, then **Run anyway**. You do not need administrator permission.
 

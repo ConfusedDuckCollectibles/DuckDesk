@@ -31,7 +31,7 @@ Download these files from the Assets section below:
 - Mac (Apple silicon): `DuckDesk-0.1.0-alpha.9-arm64.dmg`
 - Windows (64-bit): `DuckDesk-0.1.0-alpha.9-windows-x64.exe`
 
-Intel Mac builds are not included in this alpha. Both installers are unsigned.
+Intel Mac builds are not included in this alpha. The Mac build is ad-hoc signed but not Apple-notarized. The Windows installer is unsigned.
 
 ## Install
 
