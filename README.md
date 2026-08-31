@@ -172,7 +172,15 @@ The canvas should look like a phone, not a TV.
 1. Open the `.dmg`.
 2. Drag **Duck Desk** into **Applications**.
 3. Open **Applications**, then open Duck Desk.
-4. If macOS blocks it, right-click Duck Desk → **Open** → **Open**. You only do that once.
+4. If macOS says Apple could not verify Duck Desk, click **Done**.
+5. Right-click or Control-click **Duck Desk** in Applications, then choose **Open** → **Open**. You only do that once.
+6. If macOS still blocks it, open **System Settings** → **Privacy & Security**, scroll down, and click **Open Anyway** next to the Duck Desk message.
+
+When you go to **System Settings** → **Privacy & Security**, the blocked-app message looks like this:
+
+<p align="center">
+  <img src="docs/images/duck-desk-macos-open-anyway.png" width="760" alt="macOS Privacy and Security screen showing Duck Desk was blocked and the Open Anyway button">
+</p>
 
 **Windows**
 
