@@ -1,12 +1,13 @@
-# Duck Desk v0.1.0-alpha.10
+# Duck Desk v0.1.0-alpha.11
 
-Duck Desk alpha 10 is a Mac installer repair release. It rebuilds the Apple silicon DMG with a valid ad-hoc app signature so newer macOS Tahoe systems do not mistake the app bundle for a damaged download.
+Duck Desk alpha 11 improves live Whatnot event recognition so purchase and bid notifications are less likely to be missed during a show.
 
-## New In Alpha 10
+## New In Alpha 11
 
-- Rebuilt the Mac DMG with an ad-hoc signature that seals the full app bundle.
-- Added the Electron arm64 entitlement needed for hardened-runtime ad-hoc builds.
-- Kept the Mac build clearly labeled as ad-hoc signed and not Apple-notarized.
+- Recognizes more live-commerce purchase wording, including bought, purchased, claimed, sold to, and bought by.
+- Recognizes more bid wording, including placed a bid, high bid from, current bid, leading bid, and winning bid.
+- Adds extension parser tests so purchase and bid notification coverage runs with the full test suite.
+- Keeps the alpha 10 Mac signing repair.
 
 ## Highlights
 
@@ -26,8 +27,8 @@ Duck Desk alpha 10 is a Mac installer repair release. It rebuilds the Apple sili
 
 Download these files from the Assets section below:
 
-- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.10-arm64.dmg`
-- Windows (64-bit): `DuckDesk-0.1.0-alpha.10-windows-x64.exe`
+- Mac (Apple silicon): `DuckDesk-0.1.0-alpha.11-arm64.dmg`
+- Windows (64-bit): `DuckDesk-0.1.0-alpha.11-windows-x64.exe`
 
 Intel Mac builds are not included in this alpha. The Mac build is ad-hoc signed but not Apple-notarized. The Windows installer is unsigned.
 

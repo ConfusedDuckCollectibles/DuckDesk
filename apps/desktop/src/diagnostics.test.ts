@@ -37,8 +37,9 @@ test("settings summaries never include media URLs or sound payloads", () => {
 test("version compare understands alpha release order", () => {
   assert.equal(compareVersions("0.1.0-alpha.5", "0.1.0-alpha.5"), "current");
   assert.equal(compareVersions("0.1.0-alpha.9", "0.1.0-alpha.10"), "available");
-  assert.equal(compareVersions("0.1.0-alpha.10", "0.1.0-alpha.9"), "current");
-  assert.equal(compareVersions("0.1.0-alpha.10", "v0.1.0"), "available");
+  assert.equal(compareVersions("0.1.0-alpha.10", "0.1.0-alpha.11"), "available");
+  assert.equal(compareVersions("0.1.0-alpha.11", "0.1.0-alpha.10"), "current");
+  assert.equal(compareVersions("0.1.0-alpha.11", "v0.1.0"), "available");
   assert.equal(compareVersions("0.1.0-alpha.5", "v0.1.1"), "available");
   assert.equal(compareVersions("0.2.0", "0.1.9"), "current");
 });

@@ -1,11 +1,12 @@
 {
   "name": "@duck-desk/extension",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
+    "test": "node --import tsx --test src/content/adapters/whatnot.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -14,6 +15,7 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.3",
     "@types/chrome": "^0.0.326",
+    "tsx": "^4.23.12",
     "vite": "^7.1.3"
   }
 }

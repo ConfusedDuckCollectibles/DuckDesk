@@ -10,8 +10,8 @@ import type {
 type WhatnotDetectedEvent = ShowEvent;
 type EmitShowEvent = (event: WhatnotDetectedEvent) => void;
 
-const SALE_TEXT = /\b(sold|auction ended|winner|won)\b/i;
-const BID_TEXT = /\b(bid|bidder|current bid|high bid|placed a bid)\b/i;
+const SALE_TEXT = /\b(sold|sold to|auction ended|winner|won|bought|purchased|claimed|order placed)\b/i;
+const BID_TEXT = /\b(bid|bidder|current bid|high bid|placed a bid|leading bid|winning bid)\b/i;
 const ACTION_TEXT = /\b(followed|bookmark|liked|reacted|joined|commented|chat)\b/i;
 const TIP_TEXT = /\b(tipped|sent\s+(?:a\s+)?(?:\$[\d,.]+\s+)?tip|tip\s+from)\b/i;
 const SHARE_TEXT = /\b(shared\s+(?:the|this|your)\s+(?:show|stream)|shared\s+(?:a\s+)?show)\b/i;
@@ -394,8 +394,14 @@ function extractBuyer(text: string): string | null {
     return explicitUser[1];
   }
 
-  const winner = text.match(/(?:winner|won by|buyer)\s*:?\s*([a-z0-9_.-]{2,32})/i);
-  return winner ? winner[1] : null;
+  const labeledBuyer = text.match(/(?:winner|won by|buyer|sold to|purchased by|bought by)\s*:?\s*([a-z0-9_.-]{2,32})/i);
+  if (labeledBuyer) {
+    return labeledBuyer[1];
+  }
+
+  const actorBuyer = text.match(/\b([a-z0-9_.-]{2,32})\s+(?:bought|purchased|claimed|won)\b/i)
+    ?? text.match(/\b([a-z0-9_.-]{2,32})\s+is\s+the\s+winner\b/i);
+  return actorBuyer ? actorBuyer[1] : null;
 }
 
 function extractBidder(text: string): string | null {
@@ -404,8 +410,15 @@ function extractBidder(text: string): string | null {
     return explicitUser[1];
   }
 
-  const bidder = text.match(/(?:bidder|bid by|high bid|from)\s*:?\s*([a-z0-9_.-]{2,32})/i);
-  return bidder ? bidder[1] : null;
+  const labeledBidder = text.match(/(?:high bid|current bid|leading bid|winning bid)\s+(?:from|by)\s*:?\s*([a-z0-9_.-]{2,32})/i)
+    ?? text.match(/(?:bidder|bid by|from)\s*:?\s*([a-z0-9_.-]{2,32})/i);
+  if (labeledBidder) {
+    return labeledBidder[1];
+  }
+
+  const actorBidder = text.match(/\b([a-z0-9_.-]{2,32})\s+(?:bid|bids|placed\s+a\s+bid)\b/i)
+    ?? text.match(/\b([a-z0-9_.-]{2,32})\s+is\s+(?:winning|leading)\b/i);
+  return actorBidder ? actorBidder[1] : null;
 }
 
 function extractItem(text: string): string | undefined {
