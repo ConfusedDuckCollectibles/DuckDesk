@@ -202,7 +202,7 @@ let lastEventFingerprint = "";
 let overlayLastSeenAt = 0;
 let recoveryNotice = "";
 let updateStatus: UpdateStatus = {
-  currentVersion: "0.1.0-alpha.8",
+  currentVersion: electronApp.getVersion(),
   status: "unknown",
   detail: "Not checked yet."
 };
@@ -3564,7 +3564,9 @@ async function checkForUpdates(manual: boolean): Promise<void> {
       status: comparison,
       detail: comparison === "available"
         ? `Update available: ${latestVersion}. Duck Desk will not download it during a show.`
-        : `This build matches the latest GitHub release tag ${latestVersion}.`
+        : latestVersion === currentVersion
+          ? `This build matches the latest GitHub release tag ${latestVersion}.`
+          : `This build is newer than the latest GitHub release tag ${latestVersion}.`
     };
   } catch (error) {
     updateStatus = {

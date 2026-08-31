@@ -89,7 +89,8 @@ export function redactSettingsSummary(input: unknown): Record<string, unknown> {
 export function compareVersions(current: string, latest: string): "current" | "available" {
   const left = parseVersion(current);
   const right = parseVersion(latest);
-  for (let index = 0; index < 3; index += 1) {
+  const partCount = Math.max(left.length, right.length);
+  for (let index = 0; index < partCount; index += 1) {
     if ((right[index] ?? 0) > (left[index] ?? 0)) {
       return "available";
     }
@@ -139,8 +140,11 @@ export function privacySummary(): string {
 }
 
 function parseVersion(value: string): number[] {
-  const core = value.replace(/^v/i, "").split("-")[0] ?? "0";
-  return core.split(".").map((part) => Number.parseInt(part, 10) || 0);
+  const normalized = value.replace(/^v/i, "");
+  const [core = "0", prerelease = ""] = normalized.split("-");
+  const version = core.split(".").map((part) => Number.parseInt(part, 10) || 0);
+  const alpha = prerelease.match(/^alpha\.(\d+)$/i);
+  return [...version, alpha ? Number.parseInt(alpha[1] ?? "0", 10) || 0 : Number.POSITIVE_INFINITY];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
